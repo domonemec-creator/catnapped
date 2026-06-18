@@ -1,7 +1,6 @@
 class_name CardInstance
 extends RefCounted
 
-const CardDefinition = preload("res://scripts/card_game/data/card_definition.gd")
 const CardGameConstants = preload("res://scripts/card_game/data/card_game_constants.gd")
 
 var instance_id: int = -1

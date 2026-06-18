@@ -1,7 +1,6 @@
 class_name CardView
 extends PanelContainer
 
-const CardDefinition = preload("res://scripts/card_game/data/card_definition.gd")
 const CardGameConstants = preload("res://scripts/card_game/data/card_game_constants.gd")
 const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
 const CardTextFormatter = preload("res://scripts/card_game/ui/card_text_formatter.gd")
@@ -91,6 +90,7 @@ func _ready() -> void:
     selection_glow.visible = false
     playable_glow.visible = false
     frame_texture.visible = false
+    _make_children_click_through(self)
 
 
 func set_card_instance(value: CardInstance) -> void:
@@ -116,6 +116,34 @@ func _gui_input(event: InputEvent) -> void:
     if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
         card_pressed.emit(card_instance.instance_id)
         get_viewport().set_input_as_handled()
+
+
+func _get_drag_data(_at_position: Vector2) -> Variant:
+    if not _interactive or card_instance == null or card_instance.definition == null:
+        return null
+
+    var preview := PanelContainer.new()
+    preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    preview.custom_minimum_size = Vector2(180, 40)
+    preview.add_theme_stylebox_override("panel", _build_style_box(Color(0.14, 0.1, 0.07, 0.96), Color(0.77, 0.62, 0.35, 0.96), 10, 3))
+
+    var margin := MarginContainer.new()
+    margin.add_theme_constant_override("margin_left", 10)
+    margin.add_theme_constant_override("margin_top", 6)
+    margin.add_theme_constant_override("margin_right", 10)
+    margin.add_theme_constant_override("margin_bottom", 6)
+    preview.add_child(margin)
+
+    var label := Label.new()
+    label.text = "%s (%s)" % [card_instance.definition.display_name, card_instance.definition.cost]
+    label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    label.add_theme_font_size_override("font_size", 16)
+    label.add_theme_color_override("font_color", Color(0.98, 0.92, 0.82, 1))
+    margin.add_child(label)
+
+    set_drag_preview(preview)
+    return {"instance_id": card_instance.instance_id}
 
 
 func _refresh() -> void:
@@ -236,3 +264,10 @@ func _build_style_box(background_color: Color, border_color: Color, corner_radiu
     style.shadow_color = Color(0, 0, 0, 0.35)
     style.shadow_size = shadow_size
     return style
+
+
+func _make_children_click_through(node: Node) -> void:
+    for child in node.get_children():
+        if child is Control:
+            (child as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+        _make_children_click_through(child)

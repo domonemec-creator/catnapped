@@ -2,8 +2,6 @@ class_name ProgressionScreenMenu
 extends Control
 
 const EncounterSelectScene: PackedScene = preload("res://scenes/card_game/encounter_select.tscn")
-const ProgressionSystem = preload("res://scripts/card_game/systems/progression_system.gd")
-const CardDefinition = preload("res://scripts/card_game/data/card_definition.gd")
 const HEADER_TEXTURE_PATH := "res://assets/card_game/ui/header_panel_drapes.png"
 
 var _panel_style: StyleBoxFlat
@@ -349,10 +347,10 @@ func _make_stat_label(parent: VBoxContainer, title_text: String) -> Label:
     return label
 
 
-func _style_label(label: Label, font_size: int, font_color: Color, wrap: bool = false) -> void:
+func _style_label(label: Label, font_size: int, font_color: Color, should_wrap: bool = false) -> void:
     label.add_theme_font_size_override("font_size", font_size)
     label.add_theme_color_override("font_color", font_color)
-    if wrap:
+    if should_wrap:
         label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 

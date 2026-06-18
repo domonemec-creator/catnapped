@@ -127,6 +127,22 @@ autowrap_mode = 3
 theme_override_font_sizes/font_size = 18
 text = "Loading..."
 
+[node name="BattleFeedTitle" type="Label" parent="Margin/Layout/TopRow/BoardColumn"]
+theme_override_font_sizes/font_size = 16
+text = "Battle log"
+
+[node name="BattleFeed" type="RichTextLabel" parent="Margin/Layout/TopRow/BoardColumn"]
+custom_minimum_size = Vector2(0, 96)
+bbcode_enabled = false
+scroll_active = false
+shortcut_keys_enabled = false
+selection_enabled = false
+context_menu_enabled = false
+autowrap_mode = 3
+theme_override_colors/default_color = Color(0.93, 0.9, 0.84, 0.96)
+theme_override_font_sizes/normal_font_size = 15
+text = "No actions yet."
+
 [node name="BoardPanel" type="PanelContainer" parent="Margin/Layout/TopRow/BoardColumn"]
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("2_board_empty")

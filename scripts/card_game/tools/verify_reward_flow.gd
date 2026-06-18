@@ -1,6 +1,5 @@
 extends SceneTree
 
-const ProgressionSystem = preload("res://scripts/card_game/systems/progression_system.gd")
 
 var _progression_system := ProgressionSystem.new()
 

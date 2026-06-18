@@ -1,7 +1,6 @@
 extends SceneTree
 
 const DeckDefinition = preload("res://scripts/card_game/data/deck_definition.gd")
-const ProgressionSystem = preload("res://scripts/card_game/systems/progression_system.gd")
 
 var _progression_system := ProgressionSystem.new()
 
@@ -80,6 +79,49 @@ func _run() -> void:
         return
     if _progression_system.get_threat_transition_messages(&"npc_ragclaw_brawler", 0, 1).is_empty():
         _fail("Ragclaw should emit threat transition messaging.")
+        return
+
+    var harbor_warden_deck := load("res://data/decks/npc_harbor_warden.tres") as DeckDefinition
+    if harbor_warden_deck == null:
+        _fail("Could not load npc_harbor_warden.tres.")
+        return
+
+    var harbor_threat_zero_cards := _progression_system.build_enemy_deck_card_ids(harbor_warden_deck, 0)
+    var harbor_threat_ten_cards := _progression_system.build_enemy_deck_card_ids(harbor_warden_deck, 10)
+    if harbor_threat_zero_cards.size() != 20 or harbor_threat_ten_cards.size() != 20:
+        _fail("Harbor Warden threat deck size changed away from 20.")
+        return
+    if _count_card_ids(harbor_threat_ten_cards, &"hidden_claws") != 3:
+        _fail("Harbor Warden threat 10 deck should contain 3 Hidden Claws.")
+        return
+    if _count_card_ids(harbor_threat_ten_cards, &"table_flip") != 2:
+        _fail("Harbor Warden threat 10 deck should contain 2 Table Flips.")
+        return
+    if _progression_system.get_threat_transition_messages(&"npc_harbor_warden", 0, 1).is_empty():
+        _fail("Harbor Warden should emit threat transition messaging.")
+        return
+
+    var lantern_striker_deck := load("res://data/decks/npc_lantern_striker.tres") as DeckDefinition
+    if lantern_striker_deck == null:
+        _fail("Could not load npc_lantern_striker.tres.")
+        return
+
+    var lantern_threat_zero_cards := _progression_system.build_enemy_deck_card_ids(lantern_striker_deck, 0)
+    var lantern_threat_ten_cards := _progression_system.build_enemy_deck_card_ids(lantern_striker_deck, 10)
+    if lantern_threat_zero_cards.size() != 20 or lantern_threat_ten_cards.size() != 20:
+        _fail("Lantern Striker threat deck size changed away from 20.")
+        return
+    if _count_card_ids(lantern_threat_ten_cards, &"table_flip") != 1:
+        _fail("Lantern Striker threat 10 deck should contain 1 Table Flip.")
+        return
+    if _count_card_ids(lantern_threat_ten_cards, &"boilerback_guardian") != 1:
+        _fail("Lantern Striker threat 10 deck should contain 1 Boilerback Guardian.")
+        return
+    if _count_card_ids(lantern_threat_ten_cards, &"captain_ironmaw") != 2:
+        _fail("Lantern Striker threat 10 deck should contain 2 Captain Ironmaws.")
+        return
+    if _progression_system.get_threat_transition_messages(&"npc_lantern_striker", 0, 1).is_empty():
+        _fail("Lantern Striker should emit threat transition messaging.")
         return
 
     var packed_scene := load("res://scenes/card_game/battle_scene.tscn") as PackedScene

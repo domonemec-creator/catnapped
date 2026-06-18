@@ -31,7 +31,7 @@ count = 2
 [sub_resource type="Resource" id="6_entry"]
 script = ExtResource("2_deck_entry")
 card_id = &"wharf_cutthroat"
-count = 3
+count = 2
 
 [sub_resource type="Resource" id="7_entry"]
 script = ExtResource("2_deck_entry")
@@ -46,7 +46,7 @@ count = 1
 [sub_resource type="Resource" id="9_entry"]
 script = ExtResource("2_deck_entry")
 card_id = &"boilerback_guardian"
-count = 2
+count = 1
 
 [sub_resource type="Resource" id="10_entry"]
 script = ExtResource("2_deck_entry")

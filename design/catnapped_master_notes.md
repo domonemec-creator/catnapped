@@ -1105,3 +1105,17 @@ QA (2026-06-18) zjistilo, že `*-removebg-preview.png` soubory měly názvy NEod
 - Victory in a run now shows a 3-choice reward draft: `Add`, `Remove`, `Upgrade`. The chosen reward mutates the persistent run deck before the next fight loads.
 - `battle_scene.tscn` got a dedicated reward button block under the post-match overlay.
 - Verification added: `scripts/card_game/tools/verify_reward_flow.gd`.
+
+### 2026-06-18 - Progression screen + new NPC roster
+
+- Added a dedicated `Deck & Progress` screen from encounter select. It shows threat, wins, losses, run state, and the saved player deck.
+- Player deck progress is now persisted in `user://catnapped_progress.cfg` through `progression_system.gd`.
+- `encounter_select.gd` now seeds runs from the saved deck and the run roster is expanded to `smug_tabby -> ragclaw_brawler -> harbor_warden -> lantern_striker`.
+- Added two new encounters and enemy decks: `harbor_warden` and `lantern_striker`.
+- Verification updated: `verify_progression_screen.gd`, `verify_encounter_select.gd`, `verify_run_flow.gd`, `verify_reward_flow.gd`, `verify_threat_progression.gd`.
+
+### 2026-06-18 - Lantern Striker balance pass
+
+- `npc_lantern_striker.tres` was tightened back to 20 cards and shifted toward a stronger late-game top-end.
+- The deck now leans harder on `Dockside Bruiser` and `Captain Ironmaw` instead of extra low-end filler.
+- `verify_threat_progression.gd` now checks Lantern Striker's threat 10 profile more tightly, including the extra `Captain Ironmaw`.

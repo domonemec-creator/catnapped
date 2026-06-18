@@ -1,6 +1,5 @@
 extends Node
 
-const CardDefinition = preload("res://scripts/card_game/data/card_definition.gd")
 const DeckDefinition = preload("res://scripts/card_game/data/deck_definition.gd")
 
 const DEFAULT_RUN_ROSTER: Array[StringName] = [&"smug_tabby", &"ragclaw_brawler", &"harbor_warden", &"lantern_striker"]

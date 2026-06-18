@@ -3,7 +3,6 @@ extends Control
 
 const BattleScene: PackedScene = preload("res://scenes/card_game/battle_scene.tscn")
 const ProgressionScreen: PackedScene = preload("res://scenes/card_game/progression_screen.tscn")
-const ProgressionSystem = preload("res://scripts/card_game/systems/progression_system.gd")
 const ENCOUNTER_IDS: Array[StringName] = [&"smug_tabby", &"ragclaw_brawler", &"harbor_warden", &"lantern_striker"]
 const HEADER_TEXTURE_PATH := "res://assets/card_game/ui/header_panel_drapes.png"
 
@@ -423,10 +422,10 @@ func _load_texture(resource_path: String) -> Texture2D:
     return texture
 
 
-func _style_label(label: Label, font_size: int, font_color: Color, wrap: bool = false) -> void:
+func _style_label(label: Label, font_size: int, font_color: Color, should_wrap: bool = false) -> void:
     label.add_theme_font_size_override("font_size", font_size)
     label.add_theme_color_override("font_color", font_color)
-    if wrap:
+    if should_wrap:
         label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 

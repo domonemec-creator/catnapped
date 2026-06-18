@@ -6,7 +6,7 @@
 [sub_resource type="Resource" id="1_entry"]
 script = ExtResource("2_deck_entry")
 card_id = &"candlepaw_scout"
-count = 3
+count = 2
 
 [sub_resource type="Resource" id="2_entry"]
 script = ExtResource("2_deck_entry")
@@ -15,47 +15,47 @@ count = 2
 
 [sub_resource type="Resource" id="3_entry"]
 script = ExtResource("2_deck_entry")
-card_id = &"fishbone_skulker"
-count = 1
-
-[sub_resource type="Resource" id="4_entry"]
-script = ExtResource("2_deck_entry")
 card_id = &"tavern_mouser"
 count = 2
 
-[sub_resource type="Resource" id="5_entry"]
+[sub_resource type="Resource" id="4_entry"]
 script = ExtResource("2_deck_entry")
 card_id = &"rafter_pouncer"
 count = 3
 
-[sub_resource type="Resource" id="6_entry"]
+[sub_resource type="Resource" id="5_entry"]
 script = ExtResource("2_deck_entry")
 card_id = &"wharf_cutthroat"
 count = 2
 
-[sub_resource type="Resource" id="7_entry"]
+[sub_resource type="Resource" id="6_entry"]
 script = ExtResource("2_deck_entry")
 card_id = &"dockside_bruiser"
-count = 1
+count = 2
 
-[sub_resource type="Resource" id="8_entry"]
+[sub_resource type="Resource" id="7_entry"]
 script = ExtResource("2_deck_entry")
 card_id = &"netclaw_raider"
 count = 2
 
-[sub_resource type="Resource" id="9_entry"]
+[sub_resource type="Resource" id="8_entry"]
 script = ExtResource("2_deck_entry")
 card_id = &"catnip_burst"
 count = 2
 
-[sub_resource type="Resource" id="10_entry"]
+[sub_resource type="Resource" id="9_entry"]
 script = ExtResource("2_deck_entry")
 card_id = &"hidden_claws"
 count = 1
 
-[sub_resource type="Resource" id="11_entry"]
+[sub_resource type="Resource" id="10_entry"]
 script = ExtResource("2_deck_entry")
 card_id = &"fish_toss"
+count = 1
+
+[sub_resource type="Resource" id="11_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"captain_ironmaw"
 count = 1
 
 [resource]

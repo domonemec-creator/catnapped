@@ -26,7 +26,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 theme_override_font_sizes/font_size = 18
-text = "No card selected."
+text = "Klikni nebo pretahni kartu z ruky na lane. Pak vyber svitici cil."
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 anchor_right = 1.0

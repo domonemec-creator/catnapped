@@ -1,7 +1,6 @@
 class_name DeckSystem
 extends RefCounted
 
-const CardDefinition = preload("res://scripts/card_game/data/card_definition.gd")
 const CardGameConstants = preload("res://scripts/card_game/data/card_game_constants.gd")
 const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
 const DeckDefinition = preload("res://scripts/card_game/data/deck_definition.gd")
