@@ -720,7 +720,7 @@ func _assign_deck_to_player(player_state: PlayerBattleState, deck_id: StringName
     else:
         var run_session = _get_run_session()
         if run_session != null and run_session.is_active():
-            var run_deck_card_ids := run_session.get_player_deck_card_ids()
+            var run_deck_card_ids: Array[StringName] = run_session.get_player_deck_card_ids()
             if not run_deck_card_ids.is_empty():
                 result = _deck_system.build_runtime_deck_from_card_ids(run_deck_card_ids, _card_library, player_state.player_id, next_instance_id)
             else:
@@ -1059,7 +1059,7 @@ func _on_choose_encounter_button_pressed() -> void:
 
 func _update_post_match_actions() -> void:
     var run_session = _get_run_session()
-    var show_reward_draft := _postmatch_result_title == "Victory" and run_session != null and run_session.is_active() and not _current_reward_offers.is_empty()
+    var show_reward_draft: bool = _postmatch_result_title == "Victory" and run_session != null and run_session.is_active() and not _current_reward_offers.is_empty()
     post_match_reward_buttons.visible = show_reward_draft
     post_match_rematch_button.visible = not show_reward_draft
     post_match_choose_encounter_button.visible = not show_reward_draft
@@ -1068,6 +1068,8 @@ func _update_post_match_actions() -> void:
         post_match_deck_shift_title.text = "Reward Draft"
         post_match_deck_shift_detail.text = "Pick 1 reward. Your deck persists through the run."
         _refresh_reward_buttons()
+        post_match_rematch_button.text = "Retry Encounter"
+        post_match_choose_encounter_button.text = "Next Encounter" if run_session.has_next_encounter() else "End Run"
         return
 
     post_match_deck_shift_title.text = "Next Tavern Shift"

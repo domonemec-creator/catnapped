@@ -1098,3 +1098,10 @@ QA (2026-06-18) zjistilo, že `*-removebg-preview.png` soubory měly názvy NEod
 - Card frames (`cat/trick/item_frame.png`) už jsou načítané jako normální importované textury; starý `Image.load_from_file` flow byl odstraněn kvůli export warningu.
 - Screenshoty jdou do `artifacts/` (má `.gdignore`, aby je Godot nereimportoval). Pro inspekci detailu crop přes PowerShell `System.Drawing`.
 - Capture s reálným oknem může nechat viset proces — po dávce capture zkontrolovat a killnout `Godot*` procesy.
+
+### 2026-06-18 - Reward draft
+
+- `run_session.gd` now also holds the persistent run deck and reward offers. The run deck starts from `starter_player` and survives scene reloads inside the run.
+- Victory in a run now shows a 3-choice reward draft: `Add`, `Remove`, `Upgrade`. The chosen reward mutates the persistent run deck before the next fight loads.
+- `battle_scene.tscn` got a dedicated reward button block under the post-match overlay.
+- Verification added: `scripts/card_game/tools/verify_reward_flow.gd`.
