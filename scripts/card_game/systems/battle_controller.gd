@@ -341,7 +341,7 @@ func _clear_end_of_turn_modifiers(player_state: PlayerBattleState) -> void:
             occupant.current_attack = maxi(0, occupant.current_attack - occupant.temporary_attack_bonus)
             occupant.temporary_attack_bonus = 0
         if occupant.temporary_life_bonus != 0:
-            occupant.current_life -= occupant.temporary_life_bonus
+            _adjust_card_life(occupant, -occupant.temporary_life_bonus)
             occupant.temporary_life_bonus = 0
     _resolve_deaths(player_state)
     _check_battle_end()
@@ -469,7 +469,7 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
             &"modify_life":
                 if target_card == null:
                     continue
-                target_card.current_life += typed_effect.value
+                _adjust_card_life(target_card, typed_effect.value)
                 if typed_effect.value_2 > 0:
                     target_card.temporary_life_bonus += typed_effect.value
                     summaries.append("%s gains +%s Life this turn." % [target_card.definition.display_name, typed_effect.value])
@@ -478,7 +478,7 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
             &"deal_damage":
                 if target_card == null:
                     continue
-                target_card.current_life -= typed_effect.value
+                _adjust_card_life(target_card, -typed_effect.value)
                 summaries.append("%s takes %s damage." % [target_card.definition.display_name, typed_effect.value])
             &"ready_attack":
                 if target_card == null:
@@ -501,7 +501,7 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
                     summaries.append("%s draws %s card%s." % [owner_state.display_name, typed_effect.value, "" if typed_effect.value == 1 else "s"])
             &"heal_life":
                 if typed_effect.target_mode == CardGameConstants.TARGET_SELF_OWNER:
-                    owner_state.life += typed_effect.value
+                    _adjust_player_life(owner_state, typed_effect.value)
                     summaries.append("%s heals %s Life." % [owner_state.display_name, typed_effect.value])
 
     return summaries
@@ -788,15 +788,15 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
     var summary := ""
 
     if target_slot.occupant != null:
-        target_slot.occupant.current_life -= attacker.current_attack
+        _adjust_card_life(target_slot.occupant, -attacker.current_attack)
         summary = "%s hits %s for %s damage." % [attacker.definition.display_name, target_slot.occupant.definition.display_name, attacker.current_attack]
     else:
         var guard_target: CardInstance = _battle_rules.find_guard_for_direct_damage(defender_state, target_lane)
         if guard_target != null:
-            guard_target.current_life -= attacker.current_attack
+            _adjust_card_life(guard_target, -attacker.current_attack)
             summary = "%s lunges through lane %s, but %s intercepts the hit." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name]
         else:
-            defender_state.life -= attacker.current_attack
+            _adjust_player_life(defender_state, -attacker.current_attack)
             summary = "%s deals %s direct damage." % [attacker.definition.display_name, attacker.current_attack]
             _resolve_triggered_effects(attacker, attacker_owner_state, CardGameConstants.TRIGGER_ON_DIRECT_DAMAGE)
 
@@ -817,6 +817,18 @@ func _resolve_deaths(owner_state: PlayerBattleState) -> void:
             _send_to_discard(owner_state, slot)
             removed_card = true
             break
+
+
+func _adjust_card_life(card_instance: CardInstance, delta: int) -> void:
+    if card_instance == null or delta == 0:
+        return
+    card_instance.current_life = maxi(0, card_instance.current_life + delta)
+
+
+func _adjust_player_life(player_state: PlayerBattleState, delta: int) -> void:
+    if player_state == null or delta == 0:
+        return
+    player_state.life = maxi(0, player_state.life + delta)
 
 
 func _send_to_discard(owner_state: PlayerBattleState, slot: LaneSlotState) -> void:

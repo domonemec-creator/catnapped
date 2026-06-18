@@ -930,6 +930,12 @@ Když budeme pokračovat:
 
 ## 20. Update log
 
+### 2026-06-18 — Life floor clamp
+
+- `battle_controller.gd` už nenechává `Life` spadnout pod `0`. Přidané helpery `_adjust_player_life()` a `_adjust_card_life()` clampují všechny damage cesty včetně direct damage, `deal_damage` support efektů a end-turn removal temporary life bonusu.
+- Přidaná regression kontrola `scripts/card_game/tools/verify_life_floor.gd` pokrývá player Life floor i cleanup karty po odečtu temporary life bonusu.
+- Verifikace po změně: `verify_life_floor.gd`, `verify_trick_item.gd`, `verify_enemy_ai_support.gd`, `verify_table_power_ai.gd`, `verify_threat_progression.gd` prošly.
+
 ### 2026-06-18 — Enemy portrait + turn indikátor (portrait_frame_* zapojeny)
 
 - **NPC portrét v enemy headeru.** Do `EnemyHeader` (`battle_scene.tscn`) přidán `EnemyPortrait` (Control 96×96): `PortraitArt` (NPC art, `stretch_mode` KEEP_ASPECT_COVERED, inset 15px) vzadu + `PortraitFrame` (rám s průhledným středem) vepředu. Labely headeru dostaly `vertical_alignment = 1` (vycentrované vedle portrétu).
