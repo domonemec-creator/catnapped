@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="TablePowerDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/table_power_definition.gd" id="1_power_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[sub_resource type="Resource" id="1_reveal"]
+script = ExtResource("2_card_effect")
+action = &"reveal_random_hand_card"
+target_mode = &"enemy_player"
+
+[sub_resource type="Resource" id="2_heal"]
+script = ExtResource("2_card_effect")
+action = &"heal_life"
+target_mode = &"self_owner"
+value = 1
+
+[resource]
+script = ExtResource("1_power_definition")
+id = &"smug_glare"
+display_name = "Smug Glare"
+cost = 2
+rules_text = "Reveal one random card in your hand. Heal 1 Life."
+effects = [SubResource("1_reveal"), SubResource("2_heal")]

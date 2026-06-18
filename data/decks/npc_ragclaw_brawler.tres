@@ -1,0 +1,70 @@
+[gd_resource type="Resource" script_class="DeckDefinition" load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/deck_definition.gd" id="1_deck_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/deck_entry.gd" id="2_deck_entry"]
+
+[sub_resource type="Resource" id="1_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"candlepaw_scout"
+count = 2
+
+[sub_resource type="Resource" id="2_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"alley_scrapper"
+count = 3
+
+[sub_resource type="Resource" id="3_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"fishbone_skulker"
+count = 1
+
+[sub_resource type="Resource" id="4_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"wharf_cutthroat"
+count = 2
+
+[sub_resource type="Resource" id="5_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"netclaw_raider"
+count = 3
+
+[sub_resource type="Resource" id="6_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"rafter_pouncer"
+count = 2
+
+[sub_resource type="Resource" id="7_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"dockside_bruiser"
+count = 1
+
+[sub_resource type="Resource" id="8_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"captain_ironmaw"
+count = 1
+
+[sub_resource type="Resource" id="9_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"catnip_burst"
+count = 2
+
+[sub_resource type="Resource" id="10_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"hidden_claws"
+count = 1
+
+[sub_resource type="Resource" id="11_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"fish_toss"
+count = 1
+
+[sub_resource type="Resource" id="12_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"spiked_collar"
+count = 1
+
+[resource]
+script = ExtResource("1_deck_definition")
+id = &"npc_ragclaw_brawler"
+display_name = "NPC Ragclaw Brawler Deck"
+cards = [SubResource("1_entry"), SubResource("2_entry"), SubResource("3_entry"), SubResource("4_entry"), SubResource("5_entry"), SubResource("6_entry"), SubResource("7_entry"), SubResource("8_entry"), SubResource("9_entry"), SubResource("10_entry"), SubResource("11_entry"), SubResource("12_entry")]

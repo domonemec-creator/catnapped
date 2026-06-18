@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[sub_resource type="Resource" id="1_effect"]
+script = ExtResource("2_card_effect")
+action = &"modify_attack"
+target_mode = &"ally_cat"
+value = 2
+value_2 = 1
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"catnip_burst"
+display_name = "Catnip Burst"
+card_type = 1
+cost = 1
+attack = 0
+life = 0
+rules_text = "Give a friendly Cat +2 Attack this turn."
+keywords = []
+effects = [SubResource("1_effect")]
+art_path = ""
+frame_variant = &"trick"

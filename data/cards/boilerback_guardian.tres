@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[sub_resource type="Resource" id="1_last_breath"]
+script = ExtResource("2_card_effect")
+trigger = &"last_breath"
+action = &"heal_life"
+target_mode = &"self_owner"
+value = 1
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"boilerback_guardian"
+display_name = "Boilerback Guardian"
+card_type = 0
+cost = 4
+attack = 2
+life = 6
+rules_text = "Guard.\nLast Breath: Heal 1 Life."
+keywords = [&"guard", &"last_breath"]
+effects = [SubResource("1_last_breath")]
+art_path = "res://assets/card_game/card_art/boilerback_guardian.png"
+frame_variant = &"default"

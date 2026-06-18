@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[sub_resource type="Resource" id="1_battlecry"]
+script = ExtResource("2_card_effect")
+trigger = &"battlecry"
+action = &"heal_life"
+target_mode = &"self_owner"
+value = 1
+
+[sub_resource type="Resource" id="2_last_breath"]
+script = ExtResource("2_card_effect")
+trigger = &"last_breath"
+action = &"draw_cards"
+target_mode = &"self_owner"
+value = 1
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"dockside_bruiser"
+display_name = "Dockside Bruiser"
+card_type = 0
+cost = 4
+attack = 3
+life = 6
+rules_text = "Battlecry: Heal 1 Life.\nLast Breath: Draw 1 card."
+keywords = []
+effects = [SubResource("1_battlecry"), SubResource("2_last_breath")]
+art_path = "res://assets/card_game/card_art/dockside_bruiser.png"
+frame_variant = &"default"

@@ -1,0 +1,161 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/ui/selected_card_preview.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="1_empty_style"]
+bg_color = Color(0.08, 0.06, 0.05, 0.32)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.42, 0.31, 0.16, 0.72)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[node name="SelectedCardPreview" type="Control"]
+custom_minimum_size = Vector2(0, 404)
+script = ExtResource("1_script")
+
+[node name="EmptyHint" type="Label" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 18
+text = "No card selected."
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="CardCanvas" type="Control" parent="CenterContainer"]
+custom_minimum_size = Vector2(258, 387)
+mouse_filter = 2
+
+[node name="FrameTexture" type="TextureRect" parent="CenterContainer/CardCanvas"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+z_index = 1
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ArtRect" type="PanelContainer" parent="CenterContainer/CardCanvas"]
+offset_left = 32.0
+offset_top = 18.0
+offset_right = 196.0
+offset_bottom = 160.0
+clip_contents = true
+theme_override_styles/panel = SubResource("1_empty_style")
+
+[node name="ArtTexture" type="TextureRect" parent="CenterContainer/CardCanvas/ArtRect"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = -6.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ArtLabel" type="Label" parent="CenterContainer/CardCanvas/ArtRect"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 24
+text = "CARD"
+
+[node name="CostLabel" type="Label" parent="CenterContainer/CardCanvas"]
+offset_left = 8.0
+offset_top = 18.0
+offset_right = 38.0
+offset_bottom = 48.0
+z_index = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 24
+text = "0"
+
+[node name="NameLabel" type="Label" parent="CenterContainer/CardCanvas"]
+offset_left = 40.0
+offset_top = 166.0
+offset_right = 188.0
+offset_bottom = 192.0
+z_index = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Card Name"
+
+[node name="RulesLabel" type="RichTextLabel" parent="CenterContainer/CardCanvas"]
+offset_left = 24.0
+offset_top = 206.0
+offset_right = 204.0
+offset_bottom = 278.0
+z_index = 2
+mouse_filter = 2
+bbcode_enabled = true
+scroll_active = false
+shortcut_keys_enabled = false
+selection_enabled = false
+context_menu_enabled = false
+autowrap_mode = 3
+theme_override_colors/default_color = Color(0.25, 0.18, 0.12, 1)
+theme_override_font_sizes/normal_font_size = 16
+theme_override_font_sizes/bold_font_size = 16
+text = "No extra text."
+
+[node name="AttackLabel" type="Label" parent="CenterContainer/CardCanvas"]
+offset_left = 12.0
+offset_top = 304.0
+offset_right = 40.0
+offset_bottom = 330.0
+z_index = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 24
+text = "0"
+
+[node name="LifeLabel" type="Label" parent="CenterContainer/CardCanvas"]
+offset_left = 188.0
+offset_top = 304.0
+offset_right = 216.0
+offset_bottom = 330.0
+z_index = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 24
+text = "0"
+
+[node name="TypeBadge" type="PanelContainer" parent="CenterContainer/CardCanvas"]
+visible = false
+offset_left = 72.0
+offset_top = 304.0
+offset_right = 156.0
+offset_bottom = 332.0
+z_index = 2
+theme_override_styles/panel = SubResource("1_empty_style")
+
+[node name="TypeLabel" type="Label" parent="CenterContainer/CardCanvas/TypeBadge"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 1.0
+offset_right = -8.0
+offset_bottom = -1.0
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 18
+text = "TYPE"

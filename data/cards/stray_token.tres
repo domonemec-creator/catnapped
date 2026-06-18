@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"stray_token"
+display_name = "Stray"
+card_type = 0
+cost = 0
+attack = 1
+life = 1
+rules_text = ""
+keywords = []
+effects = []
+art_path = ""
+frame_variant = &"default"

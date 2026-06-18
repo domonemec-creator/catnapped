@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EncounterDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/encounter_definition.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"ragclaw_brawler"
+display_name = "Ragclaw the Brawler"
+npc_name = "Ragclaw the Brawler"
+portrait_path = "res://assets/card_game/card_art/dockside_bruiser.png"
+deck_id = &"npc_ragclaw_brawler"
+table_power_id = &"treat_toss"
+starting_life = 10

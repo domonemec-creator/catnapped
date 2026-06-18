@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[sub_resource type="Resource" id="1_battlecry"]
+script = ExtResource("2_card_effect")
+trigger = &"battlecry"
+action = &"draw_cards"
+target_mode = &"self_owner"
+value = 1
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"captain_ironmaw"
+display_name = "Captain Ironmaw"
+card_type = 0
+cost = 5
+attack = 4
+life = 5
+rules_text = "Battlecry: Draw 1 card."
+keywords = [&"battlecry"]
+effects = [SubResource("1_battlecry")]
+art_path = "res://assets/card_game/card_art/captain_ironmaw.png"
+frame_variant = &"default"

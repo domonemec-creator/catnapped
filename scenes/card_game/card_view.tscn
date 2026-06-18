@@ -1,0 +1,197 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/ui/card_view.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="1_card_style"]
+bg_color = Color(0.17, 0.12, 0.08, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.77, 0.62, 0.35, 0.96)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.35)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="2_badge_style"]
+bg_color = Color(0.12, 0.22, 0.31, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.83, 0.68, 0.36, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="CardView" type="PanelContainer"]
+custom_minimum_size = Vector2(180, 250)
+theme_override_styles/panel = SubResource("1_card_style")
+script = ExtResource("1_script")
+
+[node name="SelectionGlow" type="ColorRect" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(1, 0.86, 0.39, 0.18)
+
+[node name="PlayableGlow" type="ColorRect" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.38, 0.9, 0.52, 0.14)
+
+[node name="FrameTexture" type="TextureRect" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Margin" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+theme_override_constants/separation = 8
+
+[node name="Header" type="HBoxContainer" parent="Margin/VBox"]
+theme_override_constants/separation = 8
+
+[node name="CostBadge" type="PanelContainer" parent="Margin/VBox/Header"]
+custom_minimum_size = Vector2(34, 34)
+theme_override_styles/panel = SubResource("2_badge_style")
+
+[node name="CostLabel" type="Label" parent="Margin/VBox/Header/CostBadge"]
+offset_left = 7.0
+offset_top = 2.0
+offset_right = 31.0
+offset_bottom = 28.0
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 20
+text = "0"
+
+[node name="NameLabel" type="Label" parent="Margin/VBox/Header"]
+size_flags_horizontal = 3
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 20
+text = "Card Name"
+
+[node name="Art" type="PanelContainer" parent="Margin/VBox"]
+custom_minimum_size = Vector2(0, 98)
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("2_badge_style")
+
+[node name="ArtTexture" type="TextureRect" parent="Margin/VBox/Art"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ArtLabel" type="Label" parent="Margin/VBox/Art"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+text = "Card Name"
+
+[node name="TextBody" type="PanelContainer" parent="Margin/VBox"]
+custom_minimum_size = Vector2(0, 54)
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("2_badge_style")
+
+[node name="RulesLabel" type="RichTextLabel" parent="Margin/VBox/TextBody"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 8.0
+offset_right = -10.0
+offset_bottom = -8.0
+mouse_filter = 2
+bbcode_enabled = true
+scroll_active = false
+shortcut_keys_enabled = false
+selection_enabled = false
+context_menu_enabled = false
+autowrap_mode = 3
+theme_override_colors/default_color = Color(0.95, 0.92, 0.86, 1)
+theme_override_font_sizes/normal_font_size = 15
+theme_override_font_sizes/bold_font_size = 15
+text = "No extra text."
+
+[node name="Footer" type="HBoxContainer" parent="Margin/VBox"]
+theme_override_constants/separation = 8
+
+[node name="AttackBadge" type="PanelContainer" parent="Margin/VBox/Footer"]
+custom_minimum_size = Vector2(34, 34)
+theme_override_styles/panel = SubResource("2_badge_style")
+
+[node name="AttackLabel" type="Label" parent="Margin/VBox/Footer/AttackBadge"]
+offset_left = 7.0
+offset_top = 2.0
+offset_right = 31.0
+offset_bottom = 28.0
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 20
+text = "0"
+
+[node name="SpacerLeft" type="Control" parent="Margin/VBox/Footer"]
+size_flags_horizontal = 3
+
+[node name="TypeBadge" type="PanelContainer" parent="Margin/VBox/Footer"]
+visible = false
+custom_minimum_size = Vector2(80, 34)
+theme_override_styles/panel = SubResource("2_badge_style")
+
+[node name="TypeLabel" type="Label" parent="Margin/VBox/Footer/TypeBadge"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 2.0
+offset_right = -8.0
+offset_bottom = -2.0
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 16
+text = "TYPE"
+
+[node name="SpacerRight" type="Control" parent="Margin/VBox/Footer"]
+size_flags_horizontal = 3
+
+[node name="LifeBadge" type="PanelContainer" parent="Margin/VBox/Footer"]
+custom_minimum_size = Vector2(34, 34)
+theme_override_styles/panel = SubResource("2_badge_style")
+
+[node name="LifeLabel" type="Label" parent="Margin/VBox/Footer/LifeBadge"]
+offset_left = 7.0
+offset_top = 2.0
+offset_right = 31.0
+offset_bottom = 28.0
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 20
+text = "0"

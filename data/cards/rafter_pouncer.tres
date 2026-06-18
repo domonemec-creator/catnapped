@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"rafter_pouncer"
+display_name = "Rafter Pouncer"
+card_type = 0
+cost = 3
+attack = 4
+life = 1
+rules_text = "Pounce"
+keywords = [&"pounce"]
+effects = []
+art_path = "res://assets/card_game/card_art/rafter_pouncer.png"
+frame_variant = &"default"

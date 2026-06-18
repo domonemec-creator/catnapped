@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[sub_resource type="Resource" id="1_last_breath"]
+script = ExtResource("2_card_effect")
+trigger = &"last_breath"
+action = &"draw_cards"
+target_mode = &"self_owner"
+value = 1
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"fishbone_skulker"
+display_name = "Fishbone Skulker"
+card_type = 0
+cost = 2
+attack = 2
+life = 2
+rules_text = "Last Breath: Draw 1 card."
+keywords = [&"last_breath"]
+effects = [SubResource("1_last_breath")]
+art_path = "res://assets/card_game/card_art/fishbone_skulker.png"
+frame_variant = &"default"

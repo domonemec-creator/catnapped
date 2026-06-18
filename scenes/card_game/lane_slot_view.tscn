@@ -1,0 +1,53 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/ui/lane_slot_view.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="1_lane_style"]
+bg_color = Color(0.13, 0.09, 0.06, 0.55)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.55, 0.41, 0.22, 0.65)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[node name="LaneSlotView" type="PanelContainer"]
+custom_minimum_size = Vector2(180, 128)
+theme_override_styles/panel = SubResource("1_lane_style")
+script = ExtResource("1_script")
+
+[node name="Highlight" type="ColorRect" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.46, 0.94, 0.55, 0.18)
+
+[node name="Margin" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+theme_override_constants/separation = 8
+
+[node name="LaneLabel" type="Label" parent="Margin/VBox"]
+theme_override_font_sizes/font_size = 18
+text = "Lane"
+
+[node name="OccupantLabel" type="Label" parent="Margin/VBox"]
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 20
+text = "Empty"
+
+[node name="StatsLabel" type="Label" parent="Margin/VBox"]
+modulate = Color(0.86, 0.82, 0.74, 0.9)
+autowrap_mode = 3
+text = "Open lane."

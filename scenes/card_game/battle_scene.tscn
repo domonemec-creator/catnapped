@@ -1,0 +1,471 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/systems/battle_controller.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/card_game/lane_slot_view.tscn" id="2_lane_slot"]
+[ext_resource type="PackedScene" path="res://scenes/card_game/card_view.tscn" id="3_card_view"]
+[ext_resource type="PackedScene" path="res://scenes/card_game/selected_card_preview.tscn" id="4_selected_preview"]
+[ext_resource type="Texture2D" path="res://assets/card_game/ui/board_frame_transparent.png" id="5_board_frame"]
+[ext_resource type="Texture2D" path="res://assets/card_game/ui/selected_card_panel_frame.png" id="6_selected_frame"]
+
+[sub_resource type="StyleBoxFlat" id="1_panel_style"]
+bg_color = Color(0.13, 0.1, 0.08, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.6, 0.46, 0.24, 0.92)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 8
+
+[sub_resource type="StyleBoxEmpty" id="2_board_empty"]
+
+[sub_resource type="StyleBoxFlat" id="3_btn_primary"]
+bg_color = Color(0.82, 0.56, 0.2, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="4_btn_primary_hover"]
+bg_color = Color(0.93, 0.66, 0.28, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="5_btn_secondary"]
+bg_color = Color(0.26, 0.2, 0.13, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.62, 0.46, 0.26, 0.9)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="BattleScene" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.08, 0.06, 0.04, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+
+[node name="Layout" type="VBoxContainer" parent="Margin"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/separation = 18
+
+[node name="TopRow" type="HBoxContainer" parent="Margin/Layout"]
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="BoardColumn" type="VBoxContainer" parent="Margin/Layout/TopRow"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="EnemyHeader" type="HBoxContainer" parent="Margin/Layout/TopRow/BoardColumn"]
+theme_override_constants/separation = 12
+
+[node name="EnemyName" type="Label" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader"]
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 30
+text = "NPC Opponent"
+
+[node name="EnemyLife" type="Label" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader"]
+theme_override_font_sizes/font_size = 22
+text = "Life 10"
+
+[node name="EnemyTuna" type="Label" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader"]
+theme_override_font_sizes/font_size = 22
+text = "Tuna 0/0"
+
+[node name="StatusLabel" type="Label" parent="Margin/Layout/TopRow/BoardColumn"]
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 18
+text = "Loading..."
+
+[node name="BoardPanel" type="PanelContainer" parent="Margin/Layout/TopRow/BoardColumn"]
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("2_board_empty")
+
+[node name="FrameArt" type="TextureRect" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel"]
+texture = ExtResource("5_board_frame")
+expand_mode = 1
+stretch_mode = 0
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 96.0
+offset_top = 84.0
+offset_right = -96.0
+offset_bottom = -62.0
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer"]
+theme_override_constants/separation = 14
+
+[node name="Lanes" type="HBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox"]
+size_flags_vertical = 3
+theme_override_constants/separation = 26
+
+[node name="Lane0" type="VBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="EnemyLane" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes/Lane0" instance=ExtResource("2_lane_slot")]
+size_flags_vertical = 3
+
+[node name="PlayerLane" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes/Lane0" instance=ExtResource("2_lane_slot")]
+size_flags_vertical = 3
+
+[node name="Lane1" type="VBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="EnemyLane" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes/Lane1" instance=ExtResource("2_lane_slot")]
+size_flags_vertical = 3
+
+[node name="PlayerLane" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes/Lane1" instance=ExtResource("2_lane_slot")]
+size_flags_vertical = 3
+
+[node name="Lane2" type="VBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="EnemyLane" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes/Lane2" instance=ExtResource("2_lane_slot")]
+size_flags_vertical = 3
+
+[node name="PlayerLane" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes/Lane2" instance=ExtResource("2_lane_slot")]
+size_flags_vertical = 3
+
+[node name="SelectedPanel" type="PanelContainer" parent="Margin/Layout/TopRow"]
+custom_minimum_size = Vector2(408, 612)
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("2_board_empty")
+
+[node name="FrameArt" type="TextureRect" parent="Margin/Layout/TopRow/SelectedPanel"]
+texture = ExtResource("6_selected_frame")
+expand_mode = 1
+stretch_mode = 0
+mouse_filter = 2
+
+[node name="Content" type="Control" parent="Margin/Layout/TopRow/SelectedPanel"]
+mouse_filter = 2
+
+[node name="TopZone" type="MarginContainer" parent="Margin/Layout/TopRow/SelectedPanel/Content"]
+layout_mode = 1
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.4
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+mouse_filter = 2
+
+[node name="SelectedCardView" parent="Margin/Layout/TopRow/SelectedPanel/Content/TopZone" instance=ExtResource("4_selected_preview")]
+
+[node name="TitleBanner" type="MarginContainer" parent="Margin/Layout/TopRow/SelectedPanel/Content"]
+layout_mode = 1
+anchor_left = 0.14
+anchor_top = 0.44
+anchor_right = 0.86
+anchor_bottom = 0.55
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+mouse_filter = 2
+
+[node name="SelectedTitle" type="Label" parent="Margin/Layout/TopRow/SelectedPanel/Content/TitleBanner"]
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "Selected Card"
+
+[node name="BottomZone" type="VBoxContainer" parent="Margin/Layout/TopRow/SelectedPanel/Content"]
+layout_mode = 1
+anchor_left = 0.12
+anchor_top = 0.62
+anchor_right = 0.88
+anchor_bottom = 0.92
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+theme_override_constants/separation = 8
+mouse_filter = 2
+
+[node name="SelectedDetail" type="Label" parent="Margin/Layout/TopRow/SelectedPanel/Content/BottomZone"]
+size_flags_vertical = 3
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 15
+text = "Pick a card from your hand to inspect it, use your Table Power, or click a ready cat on your side to prepare an attack."
+
+[node name="TablePowerButton" type="Button" parent="Margin/Layout/TopRow/SelectedPanel/Content/BottomZone"]
+custom_minimum_size = Vector2(0, 48)
+theme_override_colors/font_color = Color(0.95, 0.86, 0.7, 1)
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("5_btn_secondary")
+theme_override_styles/hover = SubResource("5_btn_secondary")
+theme_override_styles/pressed = SubResource("5_btn_secondary")
+text = "Table Power"
+
+[node name="EndTurnButton" type="Button" parent="Margin/Layout/TopRow/SelectedPanel/Content/BottomZone"]
+custom_minimum_size = Vector2(0, 54)
+theme_override_colors/font_color = Color(0.13, 0.09, 0.04, 1)
+theme_override_colors/font_hover_color = Color(0.1, 0.07, 0.03, 1)
+theme_override_colors/font_pressed_color = Color(0.13, 0.09, 0.04, 1)
+theme_override_font_sizes/font_size = 21
+theme_override_styles/normal = SubResource("3_btn_primary")
+theme_override_styles/hover = SubResource("4_btn_primary_hover")
+theme_override_styles/pressed = SubResource("3_btn_primary")
+text = "End Turn"
+
+[node name="BottomBar" type="HBoxContainer" parent="Margin/Layout"]
+theme_override_constants/separation = 18
+
+[node name="PlayerStats" type="PanelContainer" parent="Margin/Layout/BottomBar"]
+custom_minimum_size = Vector2(220, 0)
+theme_override_styles/panel = SubResource("1_panel_style")
+
+[node name="MarginContainer" type="MarginContainer" parent="Margin/Layout/BottomBar/PlayerStats"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+
+[node name="VBox" type="VBoxContainer" parent="Margin/Layout/BottomBar/PlayerStats/MarginContainer"]
+theme_override_constants/separation = 10
+
+[node name="PlayerLife" type="Label" parent="Margin/Layout/BottomBar/PlayerStats/MarginContainer/VBox"]
+theme_override_font_sizes/font_size = 22
+text = "Life 10"
+
+[node name="PlayerTuna" type="Label" parent="Margin/Layout/BottomBar/PlayerStats/MarginContainer/VBox"]
+theme_override_font_sizes/font_size = 22
+text = "Tuna 0/0"
+
+[node name="DeckPanel" type="PanelContainer" parent="Margin/Layout/BottomBar"]
+custom_minimum_size = Vector2(140, 0)
+theme_override_styles/panel = SubResource("1_panel_style")
+
+[node name="MarginContainer" type="MarginContainer" parent="Margin/Layout/BottomBar/DeckPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+
+[node name="VBox" type="VBoxContainer" parent="Margin/Layout/BottomBar/DeckPanel/MarginContainer"]
+theme_override_constants/separation = 8
+
+[node name="DeckTitle" type="Label" parent="Margin/Layout/BottomBar/DeckPanel/MarginContainer/VBox"]
+theme_override_font_sizes/font_size = 20
+text = "Deck"
+
+[node name="DeckCount" type="Label" parent="Margin/Layout/BottomBar/DeckPanel/MarginContainer/VBox"]
+theme_override_font_sizes/font_size = 28
+text = "0"
+
+[node name="DiscardPanel" type="PanelContainer" parent="Margin/Layout/BottomBar"]
+custom_minimum_size = Vector2(140, 0)
+theme_override_styles/panel = SubResource("1_panel_style")
+
+[node name="MarginContainer" type="MarginContainer" parent="Margin/Layout/BottomBar/DiscardPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+
+[node name="VBox" type="VBoxContainer" parent="Margin/Layout/BottomBar/DiscardPanel/MarginContainer"]
+theme_override_constants/separation = 8
+
+[node name="DiscardTitle" type="Label" parent="Margin/Layout/BottomBar/DiscardPanel/MarginContainer/VBox"]
+theme_override_font_sizes/font_size = 20
+text = "Discard"
+
+[node name="DiscardCount" type="Label" parent="Margin/Layout/BottomBar/DiscardPanel/MarginContainer/VBox"]
+theme_override_font_sizes/font_size = 28
+text = "0"
+
+[node name="HandPanel" type="PanelContainer" parent="Margin/Layout/BottomBar"]
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("1_panel_style")
+
+[node name="MarginContainer" type="MarginContainer" parent="Margin/Layout/BottomBar/HandPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+
+[node name="VBox" type="VBoxContainer" parent="Margin/Layout/BottomBar/HandPanel/MarginContainer"]
+theme_override_constants/separation = 12
+
+[node name="HandHeader" type="HBoxContainer" parent="Margin/Layout/BottomBar/HandPanel/MarginContainer/VBox"]
+theme_override_constants/separation = 8
+
+[node name="HandLabel" type="Label" parent="Margin/Layout/BottomBar/HandPanel/MarginContainer/VBox/HandHeader"]
+theme_override_font_sizes/font_size = 22
+text = "Hand"
+
+[node name="HandCount" type="Label" parent="Margin/Layout/BottomBar/HandPanel/MarginContainer/VBox/HandHeader"]
+theme_override_font_sizes/font_size = 22
+text = "0"
+
+[node name="HandCards" type="HBoxContainer" parent="Margin/Layout/BottomBar/HandPanel/MarginContainer/VBox"]
+theme_override_constants/separation = 12
+
+[node name="PostMatchOverlay" type="Control" parent="."]
+visible = false
+z_index = 20
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="BackdropArt" type="TextureRect" parent="PostMatchOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Dim" type="ColorRect" parent="PostMatchOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.02, 0.015, 0.01, 0.72)
+
+[node name="Center" type="CenterContainer" parent="PostMatchOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Panel" type="Control" parent="PostMatchOverlay/Center"]
+custom_minimum_size = Vector2(900, 675)
+mouse_filter = 2
+
+[node name="FrameArt" type="TextureRect" parent="PostMatchOverlay/Center/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="MarginContainer" type="MarginContainer" parent="PostMatchOverlay/Center/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 78.0
+offset_top = 74.0
+offset_right = -78.0
+offset_bottom = -78.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="PostMatchOverlay/Center/Panel/MarginContainer"]
+theme_override_constants/separation = 10
+
+[node name="ResultEmblem" type="TextureRect" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 92)
+size_flags_horizontal = 3
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ResultTitle" type="Label" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
+theme_override_font_sizes/font_size = 32
+horizontal_alignment = 1
+text = "Victory"
+
+[node name="ResultSummary" type="Label" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 18
+text = "Result summary."
+
+[node name="ThreatRow" type="HBoxContainer" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
+theme_override_constants/separation = 12
+
+[node name="ThreatBadge" type="TextureRect" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox/ThreatRow"]
+custom_minimum_size = Vector2(72, 72)
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ThreatSummary" type="Label" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox/ThreatRow"]
+size_flags_horizontal = 3
+size_flags_vertical = 4
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 20
+text = "Threat 0 -> 1"
+
+[node name="DeckShiftTitle" type="Label" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
+theme_override_font_sizes/font_size = 22
+text = "Next Tavern Shift"
+
+[node name="DeckShiftDetail" type="Label" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 17
+text = "No deck changes."
+
+[node name="RecordLabel" type="Label" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
+theme_override_font_sizes/font_size = 16
+text = "Wins 0  Losses 0"
+
+[node name="Buttons" type="HBoxContainer" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
+alignment = 1
+theme_override_constants/separation = 12
+
+[node name="RematchButton" type="Button" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox/Buttons"]
+custom_minimum_size = Vector2(170, 48)
+text = "Rematch"

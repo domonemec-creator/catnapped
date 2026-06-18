@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"tavern_mouser"
+display_name = "Tavern Mouser"
+card_type = 0
+cost = 2
+attack = 1
+life = 4
+rules_text = "Guard"
+keywords = [&"guard"]
+effects = []
+art_path = "res://assets/card_game/card_art/tavern_mouser.png"
+frame_variant = &"default"
