@@ -84,18 +84,43 @@ theme_override_constants/separation = 12
 [node name="EnemyHeader" type="HBoxContainer" parent="Margin/Layout/TopRow/BoardColumn"]
 theme_override_constants/separation = 12
 
+[node name="EnemyPortrait" type="Control" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader"]
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+
+[node name="PortraitArt" type="TextureRect" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyPortrait"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 15.0
+offset_top = 15.0
+offset_right = -15.0
+offset_bottom = -15.0
+expand_mode = 1
+stretch_mode = 6
+mouse_filter = 2
+
+[node name="PortraitFrame" type="TextureRect" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyPortrait"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+expand_mode = 1
+stretch_mode = 0
+mouse_filter = 2
+
 [node name="EnemyName" type="Label" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader"]
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 30
 text = "NPC Opponent"
+vertical_alignment = 1
 
 [node name="EnemyLife" type="Label" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader"]
 theme_override_font_sizes/font_size = 22
 text = "Life 10"
+vertical_alignment = 1
 
 [node name="EnemyTuna" type="Label" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader"]
 theme_override_font_sizes/font_size = 22
 text = "Tuna 0/0"
+vertical_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="Margin/Layout/TopRow/BoardColumn"]
 autowrap_mode = 3

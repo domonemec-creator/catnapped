@@ -39,7 +39,14 @@ const POSTMATCH_DEFEAT_EMBLEM_PATH := "res://assets/card_game/ui/postmatch_defea
 const POSTMATCH_THREAT_BADGE_PATH := "res://assets/card_game/ui/postmatch_threat_badge.png"
 const DEFAULT_POSTMATCH_BACKDROP_PATH := "res://assets/card_game/ui/postmatch_smug_tabby.png"
 const POSTMATCH_PANEL_FRAME_PATH := "res://assets/card_game/ui/postmatch_panel_frame.png"
+# Enemy portrait frame doubles as a turn indicator: green = player's turn,
+# red = enemy's turn, gold = battle over. Transparent-center frames overlay the art.
+const PORTRAIT_FRAME_GOLD_PATH := "res://assets/card_game/ui/portrait_frame_gold.png"
+const PORTRAIT_FRAME_GREEN_PATH := "res://assets/card_game/ui/portrait_frame_green.png"
+const PORTRAIT_FRAME_RED_PATH := "res://assets/card_game/ui/portrait_frame_red.png"
 
+@onready var enemy_portrait_art: TextureRect = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyPortrait/PortraitArt
+@onready var enemy_portrait_frame: TextureRect = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyPortrait/PortraitFrame
 @onready var enemy_name_label: Label = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyName
 @onready var enemy_life_label: Label = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyLife
 @onready var enemy_tuna_label: Label = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyTuna
@@ -94,6 +101,9 @@ var _postmatch_threat_badge_texture: Texture2D
 var _postmatch_smug_tabby_art_texture: Texture2D
 var _encounter_backdrop_texture: Texture2D
 var _postmatch_panel_frame_texture: Texture2D
+var _portrait_frame_gold_texture: Texture2D
+var _portrait_frame_green_texture: Texture2D
+var _portrait_frame_red_texture: Texture2D
 
 
 func _ready() -> void:
@@ -106,6 +116,9 @@ func _ready() -> void:
     _postmatch_smug_tabby_art_texture = _load_texture(DEFAULT_POSTMATCH_BACKDROP_PATH)
     _postmatch_panel_frame_texture = _load_texture(POSTMATCH_PANEL_FRAME_PATH)
     post_match_panel_frame.texture = _postmatch_panel_frame_texture
+    _portrait_frame_gold_texture = _load_texture(PORTRAIT_FRAME_GOLD_PATH)
+    _portrait_frame_green_texture = _load_texture(PORTRAIT_FRAME_GREEN_PATH)
+    _portrait_frame_red_texture = _load_texture(PORTRAIT_FRAME_RED_PATH)
 
     _enemy_lanes = [
         $Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes/Lane0/EnemyLane,
@@ -608,6 +621,7 @@ func _setup_battle() -> void:
     _deck_system.draw_cards(enemy_state, STARTING_HAND)
 
     enemy_name_label.text = _build_enemy_header_name(enemy_state.display_name)
+    enemy_portrait_art.texture = _get_post_match_backdrop_texture()
     status_label.text = _build_opening_status()
 
 
@@ -1020,6 +1034,7 @@ func _refresh_ui() -> void:
     _refresh_hand(player_state)
     _refresh_selected_panel()
     _refresh_lane_highlights(player_state, enemy_state)
+    _update_turn_indicator()
 
     if _battle_state.battle_over:
         table_power_button.disabled = true
@@ -1135,6 +1150,17 @@ func _refresh_lane_highlights(player_state: PlayerBattleState, enemy_state: Play
         var valid_attack_lanes: Array[int] = _battle_rules.get_valid_attack_lanes(_selected_attacker, enemy_state)
         for lane_index in valid_attack_lanes:
             _enemy_lanes[lane_index].set_highlight_mode(LaneSlotView.HIGHLIGHT_ATTACK)
+
+
+func _update_turn_indicator() -> void:
+    if enemy_portrait_frame == null:
+        return
+    if _battle_state == null or _battle_state.battle_over:
+        enemy_portrait_frame.texture = _portrait_frame_gold_texture
+    elif _battle_state.active_player_id == PLAYER_ID:
+        enemy_portrait_frame.texture = _portrait_frame_green_texture
+    else:
+        enemy_portrait_frame.texture = _portrait_frame_red_texture
 
 
 func _on_hand_card_pressed(instance_id: int) -> void:

@@ -930,6 +930,13 @@ Když budeme pokračovat:
 
 ## 20. Update log
 
+### 2026-06-18 — Enemy portrait + turn indikátor (portrait_frame_* zapojeny)
+
+- **NPC portrét v enemy headeru.** Do `EnemyHeader` (`battle_scene.tscn`) přidán `EnemyPortrait` (Control 96×96): `PortraitArt` (NPC art, `stretch_mode` KEEP_ASPECT_COVERED, inset 15px) vzadu + `PortraitFrame` (rám s průhledným středem) vepředu. Labely headeru dostaly `vertical_alignment = 1` (vycentrované vedle portrétu).
+- **Frame barva = turn indikátor.** `portrait_frame_gold/green/red.png` zapojeny přes `battle_controller.gd`: 🟢 green = hráčův tah, 🔴 red = tah NPC, 🟡 gold = konec bitvy. Nové konstanty `PORTRAIT_FRAME_*_PATH`, textury loadované v `_ready`, `@onready` `enemy_portrait_art/frame`, art set v `_setup_battle` (`_get_post_match_backdrop_texture()`), barva přepínaná `_update_turn_indicator()` volaným z `_refresh_ui()`.
+- **ZNÁMÉ OMEZENÍ:** červený rám se reálně NEVYKRESLÍ — tah NPC běží synchronně v `_on_end_turn_pressed()` a `_refresh_ui()` se volá až po návratu k hráči. Prakticky tedy green/gold; red je zapojená a čeká na enemy-turn pacing (refresh s `active = ENEMY` + krátký `await` před spuštěním AI). **Rozhodnuto (vlastník): zatím nechat bez beatu**, game feel zůstává okamžitý.
+- **Ověřeno** `tools/capture_battle_scene.gd` (real-window, exit 0, bez parse/script chyb): portrét se vykreslil, green rám = hráčův tah na startu = korektní, art Smug Tabbyho sedí do průhledného středu, jméno vycentrované. Screenshot `artifacts/enemy_portrait_turn_indicator.png`.
+
 ### 2026-06-18 — Stabilizace exportu + encounter systému
 
 - **Export-safe frame loading hotovo.** `card_view.gd`, `selected_card_preview.gd` a `battle_controller.gd` už nenačítají UI textury přes `Image.load_from_file`, ale jako normální importované `Texture2D` resourcy. Tím zmizel export warning u card frame assetů a loading je konzistentní s Godot pipeline.
@@ -942,8 +949,9 @@ Když budeme pokračovat:
 
 UI asset pass je rozdělaný. Čisté produkční assety připravené k zapojení (viz sekce 21):
 - `name_banner_small` → enemy name header („Ragclaw the Brawler [T1]" je teď holý text)
-- `portrait_frame_gold/green/red` → NPC portrét / turn indikátor
 - `header_panel_drapes`, `label_frame_brass` → header / counter / tooltip
+- ✅ HOTOVO: `portrait_frame_gold/green/red` → NPC portrét + turn indikátor (update log 2026-06-18)
+- (volitelně) enemy-turn beat, aby se červený rám reálně ukázal — vlastník zatím odložil
 
 **Čeká na majitele:** čisté individuální slot-highlight + counter rámy s PRŮHLEDNÝM středem (ty z `ui_states_composite.png` nejdou použít jako overlay). Bez nich zůstává slot highlight jako plochý ColorRect (funguje).
 
@@ -1033,7 +1041,7 @@ QA (2026-06-18) zjistilo, že `*-removebg-preview.png` soubory měly názvy NEod
 
 - ✅ **board_frame_transparent** → pozadí boardu (sekce 13 / update log 2026-06-17)
 - ✅ **selected_card_panel_frame** → Selected Card panel (anchored zóny)
-- 🟡 **portrait_frame_*** → vhodné na NPC portrét / turn indikátor (ne na lane sloty — špatný poměr stran)
+- ✅ **portrait_frame_gold/green/red** → NPC portrét v enemy headeru + turn indikátor (gold=konec, green=hráč, red=NPC; red zatím nevykreslena, viz update log 2026-06-18). NEpoužity na lane sloty — špatný poměr stran.
 - 🟡 **name_banner_small** → enemy name header banner (čistý kandidát)
 - 🟡 **header_panel_drapes / label_frame_brass** → header / counter / tooltip
 - ❌ **slot highlighty z composite listu** → NEPOUŽITELNÉ jako overlay (neprůhledný střed). Potřeba čisté individuální assety s průhledným středem (jen glow border) → požádat o re-export.
