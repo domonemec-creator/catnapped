@@ -106,8 +106,11 @@ func _run() -> void:
     if enemy_item_target.attached_item_instance_id != enemy_spiked_collar.instance_id:
         _fail("Enemy Spiked Collar did not attach to the target.")
         return
-    if not enemy_state.discard.has(enemy_spiked_collar):
-        _fail("Enemy Spiked Collar was not discarded.")
+    if enemy_item_target.attached_item != enemy_spiked_collar:
+        _fail("Enemy Spiked Collar is not the persistent attached item.")
+        return
+    if enemy_state.discard.has(enemy_spiked_collar):
+        _fail("Equipped Spiked Collar should stay on the cat, not go to discard.")
         return
 
     print("Enemy AI support verification passed.")

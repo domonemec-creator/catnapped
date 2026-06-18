@@ -318,13 +318,16 @@ Jednorázový efekt:
 Attachment na friendly cat:
 
 - buffuje cílovou kočku
-- aktuálně se po použití taky odhazuje do discardu
-- na cíli zůstane efekt přes navázaný buff a `attached_item_instance_id`
+- **PERSISTENTNÍ (2026-06-18):** item po zahrání **zůstane navázaný na kočce** (`CardInstance.attached_item` + `attached_item_instance_id`), NEjde rovnou do discardu. Tím je na boardu reálný objekt, který lze ukrást/zničit.
+- 1 item na kočku (vynuceno v `battle_rules.is_valid_card_target`)
+- buff se aplikuje jako dřív, ale je **reverzibilní** (přehrání efektů itemu s opačným znaménkem přes `_modify_host_by_item`)
+- když kočka **umře** nebo je **vrácena do ruky**, její item jde do discardu
 
-Poznámka:
+Filozofie (rozhodnuto 2026-06-18):
 
-- tohle je implementačně jednoduché a funkční
-- pokud bychom později chtěli “viditelný equip slot” jako trvalý board objekt, je to další vrstva navíc
+- **kočky** se řeší jen bojem — ubíráním Life (útoky + damage tricky). Žádná krádež, žádný instant-destroy kočky.
+- **itemy na stole** se kradou a ničí (viz Sticky Paws / Pry Bar v sekci 7).
+- plný „viditelný equip art" je zatím jen minimální značka; bohatší vizuál je další vrstva navíc.
 
 ---
 
@@ -354,6 +357,8 @@ Poznámka:
 | Hidden Claws | 1 | Deal 2 damage to any Cat |
 | Table Flip | 2 | Return enemy Cat with cost 2 or less to hand |
 | Fish Toss | 2 | Friendly Cat may attack again this turn |
+| Sticky Paws | 2 | Steal an item from an enemy Cat onto one of your Cats |
+| Pry Bar | 1 | Destroy an item attached to an enemy Cat |
 
 ### Item karty
 
@@ -364,9 +369,10 @@ Poznámka:
 
 Shrnutí:
 
-- card pool aktuálně obsahuje `17` karet / tokenů
+- card pool aktuálně obsahuje `19` karet / tokenů
 - unit část už má slušný základ
 - support část už není fake placeholder, je funkční i pro AI
+- ⚠️ **Sticky Paws / Pry Bar jsou zatím jen definované, NEjsou v žádném decku** (decky drží lock 20 karet — zařazení = samostatné content/balance rozhodnutí). Jsou **situační** (mrtvé proti decku bez itemů — pozor: Smug Tabby base itemy nemá, Ragclaw má Spiked Collar).
 
 ---
 
@@ -584,6 +590,8 @@ Aktuálně používané akce:
 - `heal_life`
 - `summon_token`
 - `reveal_random_hand_card`
+- `steal_item` (přesun nasazeného itemu z nepřátelské kočky na vlastní)
+- `destroy_item` (sundání + zničení nasazeného itemu nepřátelské kočky)
 
 To je zatím správně malý rozsah.
 

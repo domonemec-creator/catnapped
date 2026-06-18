@@ -328,6 +328,7 @@ func _reset_card_instance_runtime_state(card_instance: CardInstance) -> void:
     card_instance.can_attack = false
     card_instance.has_attacked = false
     card_instance.attached_item_instance_id = -1
+    card_instance.attached_item = null
     card_instance.temporary_attack_bonus = 0
     card_instance.temporary_life_bonus = 0
     card_instance.temporary_keywords.clear()
@@ -506,8 +507,55 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
                 if typed_effect.target_mode == CardGameConstants.TARGET_SELF_OWNER:
                     _adjust_player_life(owner_state, typed_effect.value)
                     summaries.append("%s heals %s Life." % [owner_state.display_name, typed_effect.value])
+            &"steal_item":
+                if target_card == null or target_card.attached_item == null:
+                    continue
+                var steal_host := _find_item_steal_host(owner_state)
+                if steal_host == null:
+                    continue
+                var stolen_item := target_card.attached_item
+                _modify_host_by_item(stolen_item, target_card, -1)
+                target_card.attached_item = null
+                target_card.attached_item_instance_id = -1
+                _modify_host_by_item(stolen_item, steal_host, 1)
+                steal_host.attached_item = stolen_item
+                steal_host.attached_item_instance_id = stolen_item.instance_id
+                stolen_item.owner_id = owner_state.player_id
+                summaries.append("%s snatches %s onto %s." % [owner_state.display_name, stolen_item.definition.display_name, steal_host.definition.display_name])
+            &"destroy_item":
+                if target_card == null or target_card.attached_item == null:
+                    continue
+                var wrecked_item := target_card.attached_item
+                _modify_host_by_item(wrecked_item, target_card, -1)
+                target_card.attached_item = null
+                target_card.attached_item_instance_id = -1
+                opposing_state.discard.append(wrecked_item)
+                summaries.append("%s tears %s off %s." % [owner_state.display_name, wrecked_item.definition.display_name, target_card.definition.display_name])
 
     return summaries
+
+
+func _modify_host_by_item(item: CardInstance, host: CardInstance, sign: int) -> void:
+    if item == null or item.definition == null or host == null:
+        return
+    for effect in item.definition.effects:
+        var typed_effect: CardEffect = effect
+        if typed_effect == null:
+            continue
+        match typed_effect.action:
+            &"modify_attack":
+                host.current_attack = maxi(0, host.current_attack + sign * typed_effect.value)
+            &"modify_life":
+                _adjust_card_life(host, sign * typed_effect.value)
+
+
+func _find_item_steal_host(owner_state: PlayerBattleState) -> CardInstance:
+    if owner_state == null:
+        return null
+    for slot in owner_state.board:
+        if slot != null and slot.occupant != null and slot.occupant.attached_item == null:
+            return slot.occupant
+    return null
 
 
 func _return_card_to_hand(owner_state: PlayerBattleState, target_card: CardInstance) -> void:
@@ -516,6 +564,8 @@ func _return_card_to_hand(owner_state: PlayerBattleState, target_card: CardInsta
     var lane_index := target_card.lane_index
     if lane_index >= 0 and lane_index < owner_state.board.size():
         owner_state.board[lane_index].occupant = null
+    if target_card.attached_item != null:
+        owner_state.discard.append(target_card.attached_item)
     _reset_card_instance_runtime_state(target_card)
     owner_state.hand.append(target_card)
 
@@ -528,10 +578,14 @@ func _play_targeted_card(owner_state: PlayerBattleState, opposing_state: PlayerB
     owner_state.hand.erase(card_instance)
 
     var lines: Array[String] = ["%s uses %s." % [owner_state.display_name, card_instance.definition.display_name]]
-    if card_instance.definition.card_type == CardGameConstants.CardType.ITEM and target_card != null:
+    var is_item := card_instance.definition.card_type == CardGameConstants.CardType.ITEM
+    if is_item and target_card != null:
+        # Equip persistently: the item lives on the cat so it can later be stolen or destroyed.
+        target_card.attached_item = card_instance
         target_card.attached_item_instance_id = card_instance.instance_id
     lines.append_array(_resolve_instant_card_effects(card_instance, owner_state, opposing_state, target_card))
-    owner_state.discard.append(card_instance)
+    if not (is_item and target_card != null):
+        owner_state.discard.append(card_instance)
 
     _resolve_deaths(owner_state)
     _resolve_deaths(opposing_state)
@@ -841,6 +895,10 @@ func _send_to_discard(owner_state: PlayerBattleState, slot: LaneSlotState) -> vo
         return
 
     dead_card.lane_index = -1
+    if dead_card.attached_item != null:
+        owner_state.discard.append(dead_card.attached_item)
+        dead_card.attached_item = null
+        dead_card.attached_item_instance_id = -1
     _resolve_triggered_effects(dead_card, owner_state, CardGameConstants.TRIGGER_LAST_BREATH)
     owner_state.discard.append(dead_card)
 

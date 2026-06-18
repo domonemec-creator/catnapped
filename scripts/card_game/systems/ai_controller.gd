@@ -296,8 +296,34 @@ func _score_support_target(card: CardInstance, target: CardInstance, target_owne
                     score -= 1000.0
                     continue
                 score += _score_bounce_support_target(target, effect.value)
+            &"steal_item":
+                if target_owner_id != defender_state.player_id or target.attached_item == null:
+                    score -= 1000.0
+                    continue
+                # Steal both denies the enemy and arms our own cat.
+                score += _score_item_value(target.attached_item) * 2.0 + 5.0
+            &"destroy_item":
+                if target_owner_id != defender_state.player_id or target.attached_item == null:
+                    score -= 1000.0
+                    continue
+                score += _score_item_value(target.attached_item) + 3.0
 
     return score
+
+
+func _score_item_value(item: CardInstance) -> float:
+    if item == null or item.definition == null:
+        return 0.0
+    var value := 0.0
+    for effect in item.definition.effects:
+        if effect == null:
+            continue
+        match effect.action:
+            &"modify_attack":
+                value += float(effect.value) * 2.5
+            &"modify_life":
+                value += float(effect.value) * 1.5
+    return value
 
 
 func _score_instant_support(card: CardInstance, player_state: PlayerBattleState, defender_state: PlayerBattleState) -> float:

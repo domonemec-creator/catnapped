@@ -75,7 +75,26 @@ func is_valid_card_target(card_instance: CardInstance, target_card: CardInstance
                 if typed_effect.value > 0 and target_card.definition.cost > typed_effect.value:
                     continue
                 return true
+            &"destroy_item":
+                if target_card.attached_item == null:
+                    continue
+                return true
+            &"steal_item":
+                if target_card.attached_item == null:
+                    continue
+                if not _has_free_item_host(friendly_state):
+                    continue
+                return true
 
+    return false
+
+
+func _has_free_item_host(player_state: PlayerBattleState) -> bool:
+    if player_state == null:
+        return false
+    for slot in player_state.board:
+        if slot != null and slot.occupant != null and slot.occupant.attached_item == null:
+            return true
     return false
 
 
