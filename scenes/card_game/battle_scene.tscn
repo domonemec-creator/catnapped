@@ -487,6 +487,46 @@ text = "No deck changes."
 theme_override_font_sizes/font_size = 16
 text = "Wins 0  Losses 0"
 
+[node name="RewardButtons" type="VBoxContainer" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
+visible = false
+theme_override_constants/separation = 8
+
+[node name="RewardAddButton" type="Button" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox/RewardButtons"]
+custom_minimum_size = Vector2(0, 44)
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.86, 0.7, 1)
+theme_override_colors/font_hover_color = Color(0.98, 0.9, 0.75, 1)
+theme_override_colors/font_pressed_color = Color(0.95, 0.86, 0.7, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("5_btn_secondary")
+theme_override_styles/hover = SubResource("5_btn_secondary")
+theme_override_styles/pressed = SubResource("5_btn_secondary")
+text = "Add Card"
+
+[node name="RewardRemoveButton" type="Button" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox/RewardButtons"]
+custom_minimum_size = Vector2(0, 44)
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.86, 0.7, 1)
+theme_override_colors/font_hover_color = Color(0.98, 0.9, 0.75, 1)
+theme_override_colors/font_pressed_color = Color(0.95, 0.86, 0.7, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("5_btn_secondary")
+theme_override_styles/hover = SubResource("5_btn_secondary")
+theme_override_styles/pressed = SubResource("5_btn_secondary")
+text = "Remove Card"
+
+[node name="RewardUpgradeButton" type="Button" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox/RewardButtons"]
+custom_minimum_size = Vector2(0, 44)
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.86, 0.7, 1)
+theme_override_colors/font_hover_color = Color(0.98, 0.9, 0.75, 1)
+theme_override_colors/font_pressed_color = Color(0.95, 0.86, 0.7, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("5_btn_secondary")
+theme_override_styles/hover = SubResource("5_btn_secondary")
+theme_override_styles/pressed = SubResource("5_btn_secondary")
+text = "Upgrade Card"
+
 [node name="Buttons" type="HBoxContainer" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
 alignment = 1
 theme_override_constants/separation = 12
