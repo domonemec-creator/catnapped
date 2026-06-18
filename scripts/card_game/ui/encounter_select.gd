@@ -2,7 +2,9 @@ class_name EncounterSelectMenu
 extends Control
 
 const BattleScene: PackedScene = preload("res://scenes/card_game/battle_scene.tscn")
-const ENCOUNTER_IDS: Array[StringName] = [&"smug_tabby", &"ragclaw_brawler"]
+const ProgressionScreen: PackedScene = preload("res://scenes/card_game/progression_screen.tscn")
+const ProgressionSystem = preload("res://scripts/card_game/systems/progression_system.gd")
+const ENCOUNTER_IDS: Array[StringName] = [&"smug_tabby", &"ragclaw_brawler", &"harbor_warden", &"lantern_striker"]
 const HEADER_TEXTURE_PATH := "res://assets/card_game/ui/header_panel_drapes.png"
 
 var _panel_style: StyleBoxFlat
@@ -12,10 +14,14 @@ var _button_pressed_style: StyleBoxFlat
 var _start_button_normal_style: StyleBoxFlat
 var _start_button_hover_style: StyleBoxFlat
 var _start_button_pressed_style: StyleBoxFlat
+var _progress_button_normal_style: StyleBoxFlat
+var _progress_button_hover_style: StyleBoxFlat
+var _progress_button_pressed_style: StyleBoxFlat
 
 var _encounters: Array[EncounterDefinition] = []
 var _encounter_buttons: Dictionary = {}
 var _selected_encounter: EncounterDefinition
+var _progression_system := ProgressionSystem.new()
 
 var _encounter_list: VBoxContainer
 var _selected_portrait: TextureRect
@@ -26,6 +32,7 @@ var _selected_stats: Label
 var _status_label: Label
 var _run_button: Button
 var _run_note_label: Label
+var _progress_button: Button
 var _start_button: Button
 
 
@@ -52,6 +59,9 @@ func _build_styles() -> void:
     _start_button_normal_style = _make_style(Color(0.82, 0.56, 0.2, 1), Color(0.93, 0.75, 0.41, 1), 2, 12, 4)
     _start_button_hover_style = _make_style(Color(0.92, 0.66, 0.28, 1), Color(0.98, 0.82, 0.5, 1), 2, 12, 4)
     _start_button_pressed_style = _make_style(Color(0.82, 0.56, 0.2, 1), Color(0.93, 0.75, 0.41, 1), 2, 12, 4)
+    _progress_button_normal_style = _make_style(Color(0.2, 0.16, 0.11, 1), Color(0.62, 0.48, 0.26, 0.95), 2, 12, 4)
+    _progress_button_hover_style = _make_style(Color(0.27, 0.2, 0.13, 1), Color(0.8, 0.62, 0.34, 1), 2, 12, 4)
+    _progress_button_pressed_style = _make_style(Color(0.34, 0.24, 0.15, 1), Color(0.9, 0.7, 0.38, 1), 2, 12, 4)
 
 
 func _build_ui() -> void:
@@ -131,6 +141,20 @@ func _build_ui() -> void:
     _style_label(_run_note_label, 15, Color(0.88, 0.79, 0.64, 0.95), true)
     _run_note_label.text = "Run mode starts from the selected encounter and alternates through the roster for 5 fights."
     header_vbox.add_child(_run_note_label)
+
+    _progress_button = Button.new()
+    _progress_button.text = "Deck & Progress"
+    _progress_button.custom_minimum_size = Vector2(0, 48)
+    _progress_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    _progress_button.add_theme_font_size_override("font_size", 18)
+    _progress_button.add_theme_color_override("font_color", Color(0.95, 0.86, 0.7, 1))
+    _progress_button.add_theme_color_override("font_hover_color", Color(0.98, 0.9, 0.75, 1))
+    _progress_button.add_theme_color_override("font_pressed_color", Color(0.95, 0.86, 0.7, 1))
+    _progress_button.add_theme_stylebox_override("normal", _progress_button_normal_style)
+    _progress_button.add_theme_stylebox_override("hover", _progress_button_hover_style)
+    _progress_button.add_theme_stylebox_override("pressed", _progress_button_pressed_style)
+    _progress_button.pressed.connect(_open_progression_screen)
+    header_vbox.add_child(_progress_button)
 
     var body := HBoxContainer.new()
     body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -365,8 +389,18 @@ func _start_run() -> void:
     if _selected_encounter == null:
         return
 
-    _get_run_session().start_new_run(_selected_encounter.id)
+    var progression_state: Dictionary = _progression_system.load_state()
+    var starting_deck_card_ids: Array[StringName] = _progression_system.get_player_deck_card_ids(progression_state)
+    _get_run_session().start_new_run(_selected_encounter.id, 5, starting_deck_card_ids)
     _open_battle_scene()
+
+
+func _open_progression_screen() -> void:
+    var progression_scene: Control = ProgressionScreen.instantiate() as Control
+    var tree := get_tree()
+    tree.root.add_child(progression_scene)
+    tree.current_scene = progression_scene
+    queue_free()
 
 
 func _open_battle_scene(encounter_id: StringName = StringName()) -> void:

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EncounterDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/encounter_definition.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"harbor_warden"
+display_name = "Harbor Warden"
+npc_name = "Harbor Warden"
+portrait_path = "res://assets/card_game/card_art/wharf_cutthroat.png"
+deck_id = &"npc_harbor_warden"
+table_power_id = &"smug_glare"
+starting_life = 11

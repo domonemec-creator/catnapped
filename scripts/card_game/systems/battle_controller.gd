@@ -726,7 +726,11 @@ func _assign_deck_to_player(player_state: PlayerBattleState, deck_id: StringName
             else:
                 result = _deck_system.build_runtime_deck(deck_definition, _card_library, player_state.player_id, next_instance_id)
         else:
-            result = _deck_system.build_runtime_deck(deck_definition, _card_library, player_state.player_id, next_instance_id)
+            var saved_deck_card_ids: Array[StringName] = _progression_system.get_player_deck_card_ids(_progression_state)
+            if not saved_deck_card_ids.is_empty():
+                result = _deck_system.build_runtime_deck_from_card_ids(saved_deck_card_ids, _card_library, player_state.player_id, next_instance_id)
+            else:
+                result = _deck_system.build_runtime_deck(deck_definition, _card_library, player_state.player_id, next_instance_id)
     player_state.deck = result["cards"]
     return int(result["next_instance_id"])
 
@@ -1107,6 +1111,8 @@ func _on_reward_button_pressed(offer_index: int) -> void:
         push_warning("Could not apply reward offer %s." % offer_index)
         return
 
+    _progression_state = _progression_system.set_player_deck_card_ids(_progression_state, run_session.get_player_deck_card_ids())
+    _progression_system.save_state(_progression_state)
     run_session.clear_reward_offers()
 
     if run_session.has_next_encounter():

@@ -3,7 +3,7 @@ extends Node
 const CardDefinition = preload("res://scripts/card_game/data/card_definition.gd")
 const DeckDefinition = preload("res://scripts/card_game/data/deck_definition.gd")
 
-const DEFAULT_RUN_ROSTER: Array[StringName] = [&"smug_tabby", &"ragclaw_brawler"]
+const DEFAULT_RUN_ROSTER: Array[StringName] = [&"smug_tabby", &"ragclaw_brawler", &"harbor_warden", &"lantern_striker"]
 const DEFAULT_RUN_LENGTH := 5
 const STARTER_DECK_PATH := "res://data/decks/starter_player.tres"
 const REWARD_ADD_POOL: Array[StringName] = [
@@ -51,7 +51,7 @@ var _player_deck_card_ids: Array[StringName] = []
 var _current_reward_offers: Array[Dictionary] = []
 
 
-func start_new_run(start_encounter_id: StringName, route_length: int = DEFAULT_RUN_LENGTH) -> void:
+func start_new_run(start_encounter_id: StringName, route_length: int = DEFAULT_RUN_LENGTH, starting_deck_card_ids: Array[StringName] = []) -> void:
     var roster := _build_run_roster()
     if roster.is_empty():
         push_warning("RunSession could not build a run route.")
@@ -69,7 +69,10 @@ func start_new_run(start_encounter_id: StringName, route_length: int = DEFAULT_R
 
     _current_index = 0
     _active = true
-    _player_deck_card_ids = _load_starter_deck_card_ids()
+    if starting_deck_card_ids.is_empty():
+        _player_deck_card_ids = _load_starter_deck_card_ids()
+    else:
+        _player_deck_card_ids = _sanitize_card_ids(starting_deck_card_ids)
     _current_reward_offers.clear()
 
 
@@ -194,6 +197,17 @@ func _load_starter_deck_card_ids() -> Array[StringName]:
         return []
 
     return _flatten_deck_entries(deck_definition)
+
+
+func _sanitize_card_ids(card_ids: Array[StringName]) -> Array[StringName]:
+    var sanitized: Array[StringName] = []
+    for card_id in card_ids:
+        if card_id == StringName():
+            continue
+        sanitized.append(card_id)
+    if sanitized.is_empty():
+        return _load_starter_deck_card_ids()
+    return sanitized
 
 
 func _flatten_deck_entries(deck_definition: DeckDefinition) -> Array[StringName]:

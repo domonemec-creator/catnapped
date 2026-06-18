@@ -21,8 +21,8 @@ func _run() -> void:
     await process_frame
     await process_frame
 
-    if menu._encounters.size() != 2:
-        _fail("Encounter select did not load both encounters.")
+    if menu._encounters.size() != 4:
+        _fail("Encounter select did not load the full encounter roster.")
         return
     if menu._selected_encounter == null or menu._selected_encounter.id != &"smug_tabby":
         _fail("Encounter select did not default to Smug Tabby.")
@@ -33,6 +33,11 @@ func _run() -> void:
         _fail("Encounter select did not switch to Ragclaw.")
         return
 
+    menu._select_encounter(&"harbor_warden")
+    if menu._selected_encounter == null or menu._selected_encounter.id != &"harbor_warden":
+        _fail("Encounter select did not switch to Harbor Warden.")
+        return
+
     menu._start_battle()
     await process_frame
     await process_frame
@@ -41,10 +46,10 @@ func _run() -> void:
     if battle == null or not (battle is BattleController):
         _fail("Battle scene did not replace the selector.")
         return
-    if battle.startup_encounter_id != &"ragclaw_brawler":
+    if battle.startup_encounter_id != &"harbor_warden":
         _fail("Battle scene did not receive the selected encounter id.")
         return
-    if battle._encounter == null or battle._encounter.id != &"ragclaw_brawler":
+    if battle._encounter == null or battle._encounter.id != &"harbor_warden":
         _fail("Battle scene did not load the selected encounter.")
         return
 

@@ -91,6 +91,11 @@ func _run() -> void:
     await process_frame
     await process_frame
 
+    var saved_state_after_reward := _progression_system.load_state()
+    if _progression_system.get_player_deck_card_ids(saved_state_after_reward).size() != starting_deck_size + 1:
+        _fail("Reward add did not persist to the progression save.")
+        return
+
     var next_battle := current_scene
     if next_battle == null or next_battle._encounter == null:
         _fail("Run did not advance to the next battle after reward selection.")
