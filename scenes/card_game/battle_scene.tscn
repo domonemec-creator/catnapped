@@ -493,4 +493,22 @@ theme_override_constants/separation = 12
 
 [node name="RematchButton" type="Button" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox/Buttons"]
 custom_minimum_size = Vector2(170, 48)
+theme_override_colors/font_color = Color(0.13, 0.09, 0.04, 1)
+theme_override_colors/font_hover_color = Color(0.1, 0.07, 0.03, 1)
+theme_override_colors/font_pressed_color = Color(0.13, 0.09, 0.04, 1)
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("3_btn_primary")
+theme_override_styles/hover = SubResource("4_btn_primary_hover")
+theme_override_styles/pressed = SubResource("3_btn_primary")
 text = "Rematch"
+
+[node name="ChooseEncounterButton" type="Button" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox/Buttons"]
+custom_minimum_size = Vector2(200, 48)
+theme_override_colors/font_color = Color(0.95, 0.86, 0.7, 1)
+theme_override_colors/font_hover_color = Color(0.98, 0.9, 0.75, 1)
+theme_override_colors/font_pressed_color = Color(0.95, 0.86, 0.7, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("5_btn_secondary")
+theme_override_styles/hover = SubResource("5_btn_secondary")
+theme_override_styles/pressed = SubResource("5_btn_secondary")
+text = "Choose Encounter"

@@ -4,7 +4,7 @@ Godot prototype of a singleplayer lane-based card battler set in a cat tavern.
 
 ## Current entry point
 
-- Main scene: `res://scenes/card_game/battle_scene.tscn`
+- Main scene: `res://scenes/card_game/encounter_select.tscn`
 
 ## Core game
 

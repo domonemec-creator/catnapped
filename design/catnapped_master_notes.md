@@ -930,6 +930,13 @@ Když budeme pokračovat:
 
 ## 20. Update log
 
+### 2026-06-18 - Encounter select start screen
+
+- New `res://scenes/card_game/encounter_select.tscn` is the main entry point.
+- It lists the current encounters and launches `battle_scene.tscn` with the selected `startup_encounter_id`.
+- `battle_controller.gd` now has a post-match "Choose Encounter" path back to the selector.
+- Verification added: `scripts/card_game/tools/verify_encounter_select.gd`.
+
 ### 2026-06-18 — Life floor clamp
 
 - `battle_controller.gd` už nenechává `Life` spadnout pod `0`. Přidané helpery `_adjust_player_life()` a `_adjust_card_life()` clampují všechny damage cesty včetně direct damage, `deal_damage` support efektů a end-turn removal temporary life bonusu.

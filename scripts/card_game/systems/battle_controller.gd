@@ -33,6 +33,7 @@ const PLAYER_DECK_ID := &"starter_player"
 const PLAYER_TABLE_POWER_ID := &"treat_toss"
 const ENCOUNTER_PATH := "res://data/encounters/smug_tabby.tres"
 const DEFAULT_ENCOUNTER_ID := &"smug_tabby"
+const ENCOUNTER_SELECT_SCENE_PATH := "res://scenes/card_game/encounter_select.tscn"
 const CARD_VIEW_SCENE := preload("res://scenes/card_game/card_view.tscn")
 const POSTMATCH_VICTORY_EMBLEM_PATH := "res://assets/card_game/ui/postmatch_victory_emblem.png"
 const POSTMATCH_DEFEAT_EMBLEM_PATH := "res://assets/card_game/ui/postmatch_defeat_emblem.png"
@@ -73,6 +74,7 @@ const PORTRAIT_FRAME_RED_PATH := "res://assets/card_game/ui/portrait_frame_red.p
 @onready var post_match_deck_shift_detail: Label = $PostMatchOverlay/Center/Panel/MarginContainer/VBox/DeckShiftDetail
 @onready var post_match_record_label: Label = $PostMatchOverlay/Center/Panel/MarginContainer/VBox/RecordLabel
 @onready var post_match_rematch_button: Button = $PostMatchOverlay/Center/Panel/MarginContainer/VBox/Buttons/RematchButton
+@onready var post_match_choose_encounter_button: Button = $PostMatchOverlay/Center/Panel/MarginContainer/VBox/Buttons/ChooseEncounterButton
 
 var _enemy_lanes: Array[LaneSlotView] = []
 var _player_lanes: Array[LaneSlotView] = []
@@ -141,6 +143,7 @@ func _ready() -> void:
     table_power_button.pressed.connect(_on_table_power_button_pressed)
     end_turn_button.pressed.connect(_on_end_turn_pressed)
     post_match_rematch_button.pressed.connect(_on_rematch_button_pressed)
+    post_match_choose_encounter_button.pressed.connect(_on_choose_encounter_button_pressed)
 
     _load_libraries()
     _setup_battle()
@@ -941,6 +944,19 @@ func _on_end_turn_pressed() -> void:
 
 func _on_rematch_button_pressed() -> void:
     get_tree().reload_current_scene()
+
+
+func _on_choose_encounter_button_pressed() -> void:
+    var packed_scene := load(ENCOUNTER_SELECT_SCENE_PATH) as PackedScene
+    if packed_scene == null:
+        push_error("Could not load encounter_select.tscn")
+        return
+
+    var select_scene := packed_scene.instantiate()
+    var tree := get_tree()
+    tree.root.add_child(select_scene)
+    tree.current_scene = select_scene
+    queue_free()
 
 
 func _start_turn(player_state: PlayerBattleState) -> void:
