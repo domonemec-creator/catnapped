@@ -12,7 +12,7 @@ Godot prototype of a singleplayer lane-based card battler set in a cat tavern.
 - `3 lanes`
 - card types: `Cat`, `Trick`, `Item`
 - player and NPC table powers
-- threat-based rematch progression
+- threat-based rematch progression and 5-fight run skeleton
 
 ## Important docs
 

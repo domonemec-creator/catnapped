@@ -2,7 +2,6 @@ class_name EncounterSelectMenu
 extends Control
 
 const BattleScene: PackedScene = preload("res://scenes/card_game/battle_scene.tscn")
-const EncounterDefinition = preload("res://scripts/card_game/data/encounter_definition.gd")
 const ENCOUNTER_IDS: Array[StringName] = [&"smug_tabby", &"ragclaw_brawler"]
 const HEADER_TEXTURE_PATH := "res://assets/card_game/ui/header_panel_drapes.png"
 
@@ -25,6 +24,8 @@ var _selected_npc: Label
 var _selected_summary: Label
 var _selected_stats: Label
 var _status_label: Label
+var _run_button: Button
+var _run_note_label: Label
 var _start_button: Button
 
 
@@ -111,6 +112,25 @@ func _build_ui() -> void:
     subtitle.text = "Pick the opponent before the battle starts. The save and threat progress stay intact."
     _style_label(subtitle, 18, Color(0.9, 0.82, 0.67, 0.95), true)
     header_vbox.add_child(subtitle)
+
+    _run_button = Button.new()
+    _run_button.text = "Start Run"
+    _run_button.custom_minimum_size = Vector2(0, 56)
+    _run_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    _run_button.add_theme_font_size_override("font_size", 21)
+    _run_button.add_theme_color_override("font_color", Color(0.13, 0.09, 0.04, 1))
+    _run_button.add_theme_color_override("font_hover_color", Color(0.1, 0.07, 0.03, 1))
+    _run_button.add_theme_color_override("font_pressed_color", Color(0.13, 0.09, 0.04, 1))
+    _run_button.add_theme_stylebox_override("normal", _start_button_normal_style)
+    _run_button.add_theme_stylebox_override("hover", _start_button_hover_style)
+    _run_button.add_theme_stylebox_override("pressed", _start_button_pressed_style)
+    _run_button.pressed.connect(_start_run)
+    header_vbox.add_child(_run_button)
+
+    _run_note_label = Label.new()
+    _style_label(_run_note_label, 15, Color(0.88, 0.79, 0.64, 0.95), true)
+    _run_note_label.text = "Run mode starts from the selected encounter and alternates through the roster for 5 fights."
+    header_vbox.add_child(_run_note_label)
 
     var body := HBoxContainer.new()
     body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -210,7 +230,7 @@ func _build_ui() -> void:
     details_vbox.add_child(_status_label)
 
     _start_button = Button.new()
-    _start_button.text = "Start Battle"
+    _start_button.text = "Practice Battle"
     _start_button.custom_minimum_size = Vector2(0, 56)
     _start_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     _start_button.add_theme_font_size_override("font_size", 21)
@@ -290,7 +310,9 @@ func _refresh_details() -> void:
         _selected_encounter.starting_life,
     ]
     _selected_portrait.texture = _load_texture(_selected_encounter.portrait_path)
-    _status_label.text = "This only picks the next battle. Progress stays in the save."
+    _status_label.text = "This only picks the next practice battle. Progress stays in the save."
+    _run_note_label.text = "Run mode starts from %s and chains 5 fights." % _selected_encounter.display_name
+    _run_button.disabled = false
     _start_button.disabled = false
 
 
@@ -302,6 +324,8 @@ func _set_empty_state() -> void:
     _selected_stats.text = ""
     _selected_portrait.texture = null
     _status_label.text = "Selector is empty, so the battle cannot start."
+    _run_note_label.text = "No run can start until encounters load."
+    _run_button.disabled = true
     _start_button.disabled = true
 
 
@@ -331,8 +355,24 @@ func _start_battle() -> void:
     if _selected_encounter == null:
         return
 
+    _get_run_session().end_run()
+    _open_battle_scene(_selected_encounter.id)
+
+
+func _start_run() -> void:
+    if _selected_encounter == null and not _encounters.is_empty():
+        _select_encounter(_encounters[0].id)
+    if _selected_encounter == null:
+        return
+
+    _get_run_session().start_new_run(_selected_encounter.id)
+    _open_battle_scene()
+
+
+func _open_battle_scene(encounter_id: StringName = StringName()) -> void:
     var battle_scene := BattleScene.instantiate()
-    battle_scene.startup_encounter_id = _selected_encounter.id
+    if encounter_id != StringName():
+        battle_scene.startup_encounter_id = encounter_id
     var tree := get_tree()
     tree.root.add_child(battle_scene)
     tree.current_scene = battle_scene
@@ -371,3 +411,7 @@ func _make_style(bg_color: Color, border_color: Color, border_width: int, radius
     style.shadow_color = Color(0, 0, 0, 0.3)
     style.shadow_size = shadow_size
     return style
+
+
+func _get_run_session():
+    return get_node("/root/RunSession")

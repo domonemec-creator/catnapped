@@ -156,6 +156,11 @@ func _load_libraries() -> void:
     _table_power_library = _load_resources_by_id("res://data/table_powers")
     _encounter_library = _load_resources_by_id("res://data/encounters")
     var encounter_id: StringName = startup_encounter_id if startup_encounter_id != &"" else DEFAULT_ENCOUNTER_ID
+    var run_session = _get_run_session()
+    if run_session != null and run_session.is_active():
+        var run_encounter_id = run_session.get_current_encounter_id()
+        if run_encounter_id != StringName():
+            encounter_id = run_encounter_id
     _encounter = _encounter_library.get(encounter_id) as EncounterDefinition
     if _encounter == null:
         _encounter = load(ENCOUNTER_PATH) as EncounterDefinition
@@ -189,6 +194,7 @@ func _hide_post_match_overlay() -> void:
 
 
 func _show_post_match_overlay(result_title: String, result_summary: String, previous_threat: int, next_threat: int, deck_messages: Array[String]) -> void:
+    var run_session = _get_run_session()
     post_match_overlay.visible = true
     post_match_backdrop_art.texture = _get_post_match_backdrop_texture()
     post_match_threat_badge.texture = _postmatch_threat_badge_texture
@@ -196,10 +202,15 @@ func _show_post_match_overlay(result_title: String, result_summary: String, prev
     post_match_result_summary.text = result_summary
     post_match_threat_summary.text = _build_post_match_threat_text(previous_threat, next_threat)
     post_match_deck_shift_detail.text = _build_post_match_deck_shift_text(deck_messages, previous_threat, next_threat)
-    post_match_record_label.text = "Wins %s   Losses %s" % [
+    var record_text := "Wins %s   Losses %s" % [
         _progression_system.get_win_count(_progression_state),
         _progression_system.get_loss_count(_progression_state),
     ]
+    if run_session != null and run_session.is_active():
+        var run_progress = run_session.get_run_progress_text()
+        if not run_progress.is_empty():
+            record_text += "   %s" % run_progress
+    post_match_record_label.text = record_text
 
     match result_title:
         "Victory":
@@ -210,6 +221,7 @@ func _show_post_match_overlay(result_title: String, result_summary: String, prev
             post_match_result_emblem.texture = null
 
     post_match_result_emblem.visible = post_match_result_emblem.texture != null
+    _update_post_match_actions()
 
 
 func _build_post_match_threat_text(previous_threat: int, next_threat: int) -> String:
@@ -1005,6 +1017,30 @@ func _on_rematch_button_pressed() -> void:
 
 
 func _on_choose_encounter_button_pressed() -> void:
+    var run_session = _get_run_session()
+    if run_session != null and run_session.is_active():
+        if run_session.has_next_encounter():
+            run_session.advance_to_next_encounter()
+            get_tree().reload_current_scene()
+            return
+
+        run_session.end_run()
+
+    _return_to_encounter_select()
+
+
+func _update_post_match_actions() -> void:
+    var run_session = _get_run_session()
+    if run_session != null and run_session.is_active():
+        post_match_rematch_button.text = "Retry Encounter"
+        post_match_choose_encounter_button.text = "Next Encounter" if run_session.has_next_encounter() else "End Run"
+        return
+
+    post_match_rematch_button.text = "Rematch"
+    post_match_choose_encounter_button.text = "Choose Encounter"
+
+
+func _return_to_encounter_select() -> void:
     var packed_scene := load(ENCOUNTER_SELECT_SCENE_PATH) as PackedScene
     if packed_scene == null:
         push_error("Could not load encounter_select.tscn")
@@ -1015,6 +1051,10 @@ func _on_choose_encounter_button_pressed() -> void:
     tree.root.add_child(select_scene)
     tree.current_scene = select_scene
     queue_free()
+
+
+func _get_run_session():
+    return get_node("/root/RunSession")
 
 
 func _start_turn(player_state: PlayerBattleState) -> void:

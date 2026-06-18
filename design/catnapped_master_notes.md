@@ -938,6 +938,13 @@ Když budeme pokračovat:
 
 ## 20. Update log
 
+### 2026-06-18 - Run skeleton
+
+- `scripts/card_game/systems/run_session.gd` added as an autoload singleton to hold the in-run encounter route.
+- Encounter select now has a `Start Run` button that seeds a 5-fight route from the selected encounter.
+- `battle_controller.gd` now advances to the next run encounter instead of always dumping back to the selector.
+- Verification added: `scripts/card_game/tools/verify_run_flow.gd`.
+
 ### 2026-06-18 — Persistentní itemy + krádež/pálení (Sticky Paws, Pry Bar)
 
 - **Itemy předělané na persistentní equip.** Po zahrání item zůstane navázaný na kočce (`CardInstance.attached_item`), ne do discardu. Buff reverzibilní přes `_modify_host_by_item`. Při smrti/bounce kočky jde item do discardu. Detail v sekci 6.3.
