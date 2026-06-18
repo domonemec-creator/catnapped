@@ -938,6 +938,16 @@ Když budeme pokračovat:
 
 ## 20. Update log
 
+### 2026-06-18 — Persistentní itemy + krádež/pálení (Sticky Paws, Pry Bar)
+
+- **Itemy předělané na persistentní equip.** Po zahrání item zůstane navázaný na kočce (`CardInstance.attached_item`), ne do discardu. Buff reverzibilní přes `_modify_host_by_item`. Při smrti/bounce kočky jde item do discardu. Detail v sekci 6.3.
+- **Nová pravidlová filozofie (rozhodnuto):** kočky se řeší jen bojem/damage (žádný steal/instant-destroy kočky); kradou a ničí se jen **itemy na stole**.
+- **2 nové Tricky:** `data/cards/sticky_paws.tres` (Tuna 2 — ukradne item nepřátelské kočky na tvou nejnižší kočku bez itemu) a `data/cards/pry_bar.tres` (Tuna 1 — zničí item nepřátelské kočky). Nové efekty `steal_item` / `destroy_item`.
+- **Cílení:** `battle_rules.is_valid_card_target` — obě cílí nepřátelskou kočku, která **má item**; krádež navíc vyžaduje volného hostitele (`_has_free_item_host`). Obě jsou **situační** (mrtvé proti decku bez itemů).
+- **AI parita:** `ai_controller._score_support_target` skóruje krádež (deny + arm) i zničení podle hodnoty itemu (`_score_item_value`).
+- **Ověřeno headless (exit 0):** nový `tools/verify_item_steal_burn.gd` (krádež přenese item+staty, zničení odstraní+discard, sundání bowlu může zabít, neplatné proti kočce bez itemu). Přeběhly i `verify_trick_item`, `verify_enemy_ai_support` (aktualizován na persistentní equip), `verify_threat_progression`.
+- ⚠️ **Zatím nezařazeno do decků** (lock 20 karet) — viz sekce 7. Bez UI značky nasazeného itemu (čitelnost zatím přes staty kočky).
+
 ### 2026-06-18 - Encounter select start screen
 
 - New `res://scenes/card_game/encounter_select.tscn` is the main entry point.
