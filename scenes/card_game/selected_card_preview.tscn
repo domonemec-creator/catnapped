@@ -25,7 +25,7 @@ anchor_bottom = 1.0
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Klikni nebo pretahni kartu z ruky na lane. Pak vyber svitici cil."
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
@@ -96,7 +96,7 @@ z_index = 2
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 20
 text = "Card Name"
 
 [node name="RulesLabel" type="RichTextLabel" parent="CenterContainer/CardCanvas"]
@@ -113,8 +113,8 @@ selection_enabled = false
 context_menu_enabled = false
 autowrap_mode = 3
 theme_override_colors/default_color = Color(0.25, 0.18, 0.12, 1)
-theme_override_font_sizes/normal_font_size = 16
-theme_override_font_sizes/bold_font_size = 16
+theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/bold_font_size = 14
 text = "No extra text."
 
 [node name="AttackLabel" type="Label" parent="CenterContainer/CardCanvas"]
@@ -125,7 +125,7 @@ offset_bottom = 330.0
 z_index = 2
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 text = "0"
 
 [node name="LifeLabel" type="Label" parent="CenterContainer/CardCanvas"]
@@ -136,7 +136,7 @@ offset_bottom = 330.0
 z_index = 2
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 22
 text = "0"
 
 [node name="TypeBadge" type="PanelContainer" parent="CenterContainer/CardCanvas"]
@@ -157,5 +157,5 @@ offset_right = -8.0
 offset_bottom = -1.0
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "TYPE"

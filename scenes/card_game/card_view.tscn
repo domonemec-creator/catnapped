@@ -29,7 +29,7 @@ corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [node name="CardView" type="PanelContainer"]
-custom_minimum_size = Vector2(180, 250)
+custom_minimum_size = Vector2(150, 92)
 theme_override_styles/panel = SubResource("1_card_style")
 script = ExtResource("1_script")
 
@@ -58,40 +58,40 @@ stretch_mode = 5
 [node name="Margin" type="MarginContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 8.0
-offset_top = 8.0
-offset_right = -8.0
-offset_bottom = -8.0
+offset_left = 3.0
+offset_top = 3.0
+offset_right = -3.0
+offset_bottom = -3.0
 mouse_filter = 2
 
 [node name="VBox" type="VBoxContainer" parent="Margin"]
-theme_override_constants/separation = 8
+theme_override_constants/separation = 1
 
 [node name="Header" type="HBoxContainer" parent="Margin/VBox"]
-theme_override_constants/separation = 8
+theme_override_constants/separation = 1
 
 [node name="CostBadge" type="PanelContainer" parent="Margin/VBox/Header"]
-custom_minimum_size = Vector2(34, 34)
+custom_minimum_size = Vector2(20, 20)
 theme_override_styles/panel = SubResource("2_badge_style")
 
 [node name="CostLabel" type="Label" parent="Margin/VBox/Header/CostBadge"]
-offset_left = 7.0
-offset_top = 2.0
-offset_right = 31.0
-offset_bottom = 28.0
+offset_left = 2.0
+offset_top = -1.0
+offset_right = 17.0
+offset_bottom = 16.0
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 12
 text = "0"
 
 [node name="NameLabel" type="Label" parent="Margin/VBox/Header"]
 size_flags_horizontal = 3
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 12
 text = "Card Name"
 
 [node name="Art" type="PanelContainer" parent="Margin/VBox"]
-custom_minimum_size = Vector2(0, 98)
+custom_minimum_size = Vector2(0, 32)
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("2_badge_style")
 
@@ -99,37 +99,38 @@ theme_override_styles/panel = SubResource("2_badge_style")
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 8.0
-offset_top = 8.0
-offset_right = -8.0
-offset_bottom = -8.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = -4.0
 expand_mode = 1
 stretch_mode = 5
 
 [node name="ArtLabel" type="Label" parent="Margin/VBox/Art"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = -10.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
+theme_override_font_sizes/font_size = 8
 text = "Card Name"
 
 [node name="TextBody" type="PanelContainer" parent="Margin/VBox"]
-custom_minimum_size = Vector2(0, 54)
+custom_minimum_size = Vector2(0, 0)
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("2_badge_style")
 
 [node name="RulesLabel" type="RichTextLabel" parent="Margin/VBox/TextBody"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 8.0
-offset_right = -10.0
-offset_bottom = -8.0
+offset_left = 8.0
+offset_top = 4.0
+offset_right = -8.0
+offset_bottom = -4.0
 mouse_filter = 2
 bbcode_enabled = true
 scroll_active = false
@@ -138,25 +139,25 @@ selection_enabled = false
 context_menu_enabled = false
 autowrap_mode = 3
 theme_override_colors/default_color = Color(0.95, 0.92, 0.86, 1)
-theme_override_font_sizes/normal_font_size = 15
-theme_override_font_sizes/bold_font_size = 15
+theme_override_font_sizes/normal_font_size = 10
+theme_override_font_sizes/bold_font_size = 10
 text = "No extra text."
 
 [node name="Footer" type="HBoxContainer" parent="Margin/VBox"]
-theme_override_constants/separation = 8
+theme_override_constants/separation = 1
 
 [node name="AttackBadge" type="PanelContainer" parent="Margin/VBox/Footer"]
-custom_minimum_size = Vector2(34, 34)
+custom_minimum_size = Vector2(20, 20)
 theme_override_styles/panel = SubResource("2_badge_style")
 
 [node name="AttackLabel" type="Label" parent="Margin/VBox/Footer/AttackBadge"]
-offset_left = 7.0
-offset_top = 2.0
-offset_right = 31.0
-offset_bottom = 28.0
+offset_left = 2.0
+offset_top = -1.0
+offset_right = 17.0
+offset_bottom = 16.0
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 12
 text = "0"
 
 [node name="SpacerLeft" type="Control" parent="Margin/VBox/Footer"]
@@ -164,34 +165,34 @@ size_flags_horizontal = 3
 
 [node name="TypeBadge" type="PanelContainer" parent="Margin/VBox/Footer"]
 visible = false
-custom_minimum_size = Vector2(80, 34)
+custom_minimum_size = Vector2(58, 22)
 theme_override_styles/panel = SubResource("2_badge_style")
 
 [node name="TypeLabel" type="Label" parent="Margin/VBox/Footer/TypeBadge"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 8.0
-offset_top = 2.0
-offset_right = -8.0
-offset_bottom = -2.0
+offset_left = 4.0
+offset_top = -1.0
+offset_right = -4.0
+offset_bottom = -1.0
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 10
 text = "TYPE"
 
 [node name="SpacerRight" type="Control" parent="Margin/VBox/Footer"]
 size_flags_horizontal = 3
 
 [node name="LifeBadge" type="PanelContainer" parent="Margin/VBox/Footer"]
-custom_minimum_size = Vector2(34, 34)
+custom_minimum_size = Vector2(20, 20)
 theme_override_styles/panel = SubResource("2_badge_style")
 
 [node name="LifeLabel" type="Label" parent="Margin/VBox/Footer/LifeBadge"]
-offset_left = 7.0
-offset_top = 2.0
-offset_right = 31.0
-offset_bottom = 28.0
+offset_left = 2.0
+offset_top = -1.0
+offset_right = 17.0
+offset_bottom = 16.0
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 12
 text = "0"

@@ -155,6 +155,7 @@ func _refresh() -> void:
     var card_definition := card_instance.definition
     var visual := _get_visual_preset(card_definition)
     _apply_visual_theme(visual)
+    text_body_panel.visible = false
     cost_label.text = str(card_definition.cost)
     name_label.text = card_definition.display_name
     _refresh_art(card_definition, visual)
@@ -218,8 +219,8 @@ func _apply_visual_theme(visual: Dictionary) -> void:
     cost_label.add_theme_color_override("font_color", visual["accent_text"])
     art_label.add_theme_color_override("font_color", visual["accent_text"])
     rules_label.add_theme_color_override("default_color", visual["body_color"])
-    rules_label.add_theme_font_size_override("normal_font_size", 15)
-    rules_label.add_theme_font_size_override("bold_font_size", 15)
+    rules_label.add_theme_font_size_override("normal_font_size", 13)
+    rules_label.add_theme_font_size_override("bold_font_size", 13)
     attack_label.add_theme_color_override("font_color", visual["accent_text"])
     life_label.add_theme_color_override("font_color", visual["accent_text"])
     type_label.add_theme_color_override("font_color", visual["accent_text"])

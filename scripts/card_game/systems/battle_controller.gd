@@ -46,9 +46,9 @@ const PORTRAIT_FRAME_RED_PATH := "res://assets/card_game/ui/portrait_frame_red.p
 
 @onready var enemy_portrait_art: TextureRect = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyPortrait/PortraitArt
 @onready var enemy_portrait_frame: TextureRect = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyPortrait/PortraitFrame
-@onready var enemy_name_label: Label = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyName
-@onready var enemy_life_label: Label = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyLife
-@onready var enemy_tuna_label: Label = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyTuna
+@onready var enemy_name_label: Label = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyNamePlate/EnemyName
+@onready var enemy_life_label: Label = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyStatsPanel/MarginContainer/VBox/EnemyLife
+@onready var enemy_tuna_label: Label = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyStatsPanel/MarginContainer/VBox/EnemyTuna
 @onready var player_life_label: Label = $Margin/Layout/BottomBar/PlayerStats/MarginContainer/VBox/PlayerLife
 @onready var player_tuna_label: Label = $Margin/Layout/BottomBar/PlayerStats/MarginContainer/VBox/PlayerTuna
 @onready var deck_count_label: Label = $Margin/Layout/BottomBar/DeckPanel/MarginContainer/VBox/DeckCount
@@ -102,6 +102,8 @@ var _ai_controller := AiController.new()
 var _progression_system := ProgressionSystem.new()
 var _progression_state: Dictionary = {}
 var _current_reward_offers: Array[Dictionary] = []
+var _player_lane_feedback: Array[Dictionary] = []
+var _enemy_lane_feedback: Array[Dictionary] = []
 var _battle_feed_lines: Array[String] = []
 var _last_logged_status_text: String = ""
 var _postmatch_result_title: String = ""
@@ -282,6 +284,50 @@ func _clear_selection_state() -> void:
 	_selected_card = null
 	_selected_attacker = null
 	_selected_table_power = null
+
+
+func _build_empty_lane_feedback() -> Array[Dictionary]:
+	var lane_feedback: Array[Dictionary] = []
+	for _lane_index in range(LANE_COUNT):
+		lane_feedback.append({"text": "", "tone": LaneSlotView.EVENT_NEUTRAL})
+	return lane_feedback
+
+
+func _reset_lane_feedback() -> void:
+	_player_lane_feedback = _build_empty_lane_feedback()
+	_enemy_lane_feedback = _build_empty_lane_feedback()
+
+
+func _clear_lane_feedback() -> void:
+	if _player_lane_feedback.size() != LANE_COUNT or _enemy_lane_feedback.size() != LANE_COUNT:
+		_reset_lane_feedback()
+		return
+
+	for lane_index in range(LANE_COUNT):
+		_player_lane_feedback[lane_index] = {"text": "", "tone": LaneSlotView.EVENT_NEUTRAL}
+		_enemy_lane_feedback[lane_index] = {"text": "", "tone": LaneSlotView.EVENT_NEUTRAL}
+
+
+func _get_lane_feedback(owner_id: int) -> Array[Dictionary]:
+	return _player_lane_feedback if owner_id == PLAYER_ID else _enemy_lane_feedback
+
+
+func _set_lane_feedback(owner_id: int, lane_index: int, text: String, tone: StringName = LaneSlotView.EVENT_NEUTRAL) -> void:
+	var lane_feedback := _get_lane_feedback(owner_id)
+	if lane_index < 0 or lane_index >= lane_feedback.size():
+		return
+	lane_feedback[lane_index] = {"text": text, "tone": tone}
+
+
+func _set_lane_feedback_for_card(card_instance: CardInstance, text: String, tone: StringName) -> void:
+	if card_instance == null or card_instance.lane_index < 0:
+		return
+	_set_lane_feedback(card_instance.owner_id, card_instance.lane_index, text, tone)
+
+
+func _format_signed_stat_delta(value: int, stat_name: String) -> String:
+	var prefix := "+" if value >= 0 else ""
+	return "%s%s %s" % [prefix, value, stat_name]
 
 
 func _reset_battle_feed() -> void:
@@ -537,6 +583,7 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				if target_card == null:
 					continue
 				target_card.current_attack += typed_effect.value
+				_set_lane_feedback_for_card(target_card, _format_signed_stat_delta(typed_effect.value, "ATK"), LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE)
 				if typed_effect.value_2 > 0:
 					target_card.temporary_attack_bonus += typed_effect.value
 					summaries.append("%s gains +%s Attack this turn." % [target_card.definition.display_name, typed_effect.value])
@@ -546,6 +593,7 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				if target_card == null:
 					continue
 				_adjust_card_life(target_card, typed_effect.value)
+				_set_lane_feedback_for_card(target_card, _format_signed_stat_delta(typed_effect.value, "LIFE"), LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE)
 				if typed_effect.value_2 > 0:
 					target_card.temporary_life_bonus += typed_effect.value
 					summaries.append("%s gains +%s Life this turn." % [target_card.definition.display_name, typed_effect.value])
@@ -555,12 +603,14 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				if target_card == null:
 					continue
 				_adjust_card_life(target_card, -typed_effect.value)
+				_set_lane_feedback_for_card(target_card, "-%s LIFE" % typed_effect.value, LaneSlotView.EVENT_DAMAGE)
 				summaries.append("%s takes %s damage." % [target_card.definition.display_name, typed_effect.value])
 			&"ready_attack":
 				if target_card == null:
 					continue
 				target_card.can_attack = true
 				target_card.has_attacked = false
+				_set_lane_feedback_for_card(target_card, "READY AGAIN", LaneSlotView.EVENT_SUPPORT)
 				summaries.append("%s is ready to attack again." % target_card.definition.display_name)
 			&"return_to_hand":
 				if target_card == null:
@@ -593,6 +643,8 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				steal_host.attached_item = stolen_item
 				steal_host.attached_item_instance_id = stolen_item.instance_id
 				stolen_item.owner_id = owner_state.player_id
+				_set_lane_feedback_for_card(target_card, "ITEM LOST", LaneSlotView.EVENT_DAMAGE)
+				_set_lane_feedback_for_card(steal_host, "ITEM STOLEN", LaneSlotView.EVENT_SUPPORT)
 				summaries.append("%s snatches %s onto %s." % [owner_state.display_name, stolen_item.definition.display_name, steal_host.definition.display_name])
 			&"destroy_item":
 				if target_card == null or target_card.attached_item == null:
@@ -602,6 +654,7 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				target_card.attached_item = null
 				target_card.attached_item_instance_id = -1
 				opposing_state.discard.append(wrecked_item)
+				_set_lane_feedback_for_card(target_card, "ITEM LOST", LaneSlotView.EVENT_DAMAGE)
 				summaries.append("%s tears %s off %s." % [owner_state.display_name, wrecked_item.definition.display_name, target_card.definition.display_name])
 
 	return summaries
@@ -636,6 +689,7 @@ func _return_card_to_hand(owner_state: PlayerBattleState, target_card: CardInsta
 	var lane_index := target_card.lane_index
 	if lane_index >= 0 and lane_index < owner_state.board.size():
 		owner_state.board[lane_index].occupant = null
+		_set_lane_feedback(owner_state.player_id, lane_index, "RETURNED", LaneSlotView.EVENT_SUPPORT)
 	if target_card.attached_item != null:
 		owner_state.discard.append(target_card.attached_item)
 	_reset_card_instance_runtime_state(target_card)
@@ -646,6 +700,7 @@ func _play_targeted_card(owner_state: PlayerBattleState, opposing_state: PlayerB
 	if owner_state == null or opposing_state == null or card_instance == null:
 		return ""
 
+	_clear_lane_feedback()
 	owner_state.tuna_current -= card_instance.definition.cost
 	owner_state.hand.erase(card_instance)
 
@@ -673,6 +728,7 @@ func _activate_table_power(user_state: PlayerBattleState, opposing_state: Player
 	if _table_power_requires_lane_selection(power_definition) and not _get_valid_table_power_lanes(power_definition, user_state).has(lane_index):
 		return "That lane is not valid for %s." % power_definition.display_name
 
+	_clear_lane_feedback()
 	user_state.tuna_current -= power_definition.cost
 	user_state.table_power_used_this_turn = true
 
@@ -703,6 +759,7 @@ func _resolve_table_power_effect(user_state: PlayerBattleState, opposing_state: 
 			token_instance.lane_index = lane_index
 			token_instance.can_attack = false
 			slot.occupant = token_instance
+			_set_lane_feedback(user_state.player_id, lane_index, "SUMMONED", LaneSlotView.EVENT_SUPPORT)
 			return "Summons %s into lane %s." % [token_instance.definition.display_name, lane_index + 1]
 		&"reveal_random_hand_card":
 			var target_state := opposing_state if effect.target_mode == CardGameConstants.TARGET_ENEMY_PLAYER else user_state
@@ -722,6 +779,7 @@ func _resolve_table_power_effect(user_state: PlayerBattleState, opposing_state: 
 func _setup_battle() -> void:
 	_hide_post_match_overlay()
 	_reset_battle_feed()
+	_reset_lane_feedback()
 	_battle_state = BattleState.new()
 	_battle_state.turn_number = 1
 	_battle_state.active_player_id = PLAYER_ID
@@ -906,12 +964,14 @@ func _play_card_to_lane(player_state: PlayerBattleState, lane_index: int, card_i
 	if slot == null or not slot.is_empty():
 		return
 
+	_clear_lane_feedback()
 	slot.occupant = card_instance
 	card_instance.lane_index = lane_index
 	card_instance.has_attacked = false
 	card_instance.can_attack = card_instance.has_keyword(CardGameConstants.KEYWORD_QUICK_PAWS)
 	player_state.tuna_current -= card_instance.definition.cost
 	player_state.hand.erase(card_instance)
+	_set_lane_feedback(player_state.player_id, lane_index, "PLAYED", LaneSlotView.EVENT_SUPPORT)
 	_resolve_triggered_effects(card_instance, player_state, CardGameConstants.TRIGGER_BATTLECRY)
 	status_label.text = "%s enters lane %s." % [card_instance.definition.display_name, lane_index + 1]
 	_check_battle_end()
@@ -925,20 +985,26 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 	if not valid_attack_lanes.has(target_lane):
 		return "That lane is not a legal target for %s." % attacker.definition.display_name
 
+	_clear_lane_feedback()
 	attacker.has_attacked = true
+	_set_lane_feedback(attacker.owner_id, attacker.lane_index, "ATTACK %s" % attacker.current_attack, LaneSlotView.EVENT_ACTION)
 	var target_slot: LaneSlotState = defender_state.board[target_lane]
 	var summary := ""
 
 	if target_slot.occupant != null:
 		_adjust_card_life(target_slot.occupant, -attacker.current_attack)
+		_set_lane_feedback(defender_state.player_id, target_lane, "-%s LIFE" % attacker.current_attack, LaneSlotView.EVENT_DAMAGE)
 		summary = "%s hits %s for %s damage." % [attacker.definition.display_name, target_slot.occupant.definition.display_name, attacker.current_attack]
 	else:
 		var guard_target: CardInstance = _battle_rules.find_guard_for_direct_damage(defender_state, target_lane)
 		if guard_target != null:
+			_set_lane_feedback(defender_state.player_id, target_lane, "BLOCKED", LaneSlotView.EVENT_BLOCK)
 			_adjust_card_life(guard_target, -attacker.current_attack)
+			_set_lane_feedback_for_card(guard_target, "GUARD -%s" % attacker.current_attack, LaneSlotView.EVENT_BLOCK)
 			summary = "%s lunges through lane %s, but %s intercepts the hit." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name]
 		else:
 			_adjust_player_life(defender_state, -attacker.current_attack)
+			_set_lane_feedback(defender_state.player_id, target_lane, "DIRECT %s" % attacker.current_attack, LaneSlotView.EVENT_DIRECT)
 			summary = "%s deals %s direct damage." % [attacker.definition.display_name, attacker.current_attack]
 			_resolve_triggered_effects(attacker, attacker_owner_state, CardGameConstants.TRIGGER_ON_DIRECT_DAMAGE)
 
@@ -979,7 +1045,9 @@ func _send_to_discard(owner_state: PlayerBattleState, slot: LaneSlotState) -> vo
 	if dead_card == null:
 		return
 
+	var former_lane_index := dead_card.lane_index
 	dead_card.lane_index = -1
+	_set_lane_feedback(owner_state.player_id, former_lane_index, "KO", LaneSlotView.EVENT_KO)
 	if dead_card.attached_item != null:
 		owner_state.discard.append(dead_card.attached_item)
 		dead_card.attached_item = null
@@ -1346,8 +1414,14 @@ func _select_hand_card_by_instance_id(instance_id: int, toggle_selection: bool =
 
 
 func _refresh_lanes(views: Array[LaneSlotView], player_state: PlayerBattleState) -> void:
+	var lane_feedback := _get_lane_feedback(player_state.player_id)
 	for lane_index in range(views.size()):
 		views[lane_index].set_card_instance(player_state.board[lane_index].occupant)
+		if lane_index < lane_feedback.size():
+			var feedback: Dictionary = lane_feedback[lane_index]
+			views[lane_index].set_recent_event(str(feedback.get("text", "")), StringName(feedback.get("tone", LaneSlotView.EVENT_NEUTRAL)))
+		else:
+			views[lane_index].clear_recent_event()
 
 
 func _refresh_hand(player_state: PlayerBattleState) -> void:
