@@ -97,12 +97,12 @@ func _build_ui() -> void:
     header_margin.add_child(header_vbox)
 
     var title := Label.new()
-    title.text = "Deck & Progress"
+    title.text = "Balik a postup"
     _style_label(title, 34, Color(0.96, 0.88, 0.73, 1))
     header_vbox.add_child(title)
 
     var subtitle := Label.new()
-    subtitle.text = "Saved threat, wins and deck live here. Reward choices update this save."
+    subtitle.text = "Tady zije ulozena hrozba, vyhry, prohry i balik. Odmeny tenhle save meni."
     _style_label(subtitle, 18, Color(0.9, 0.82, 0.67, 0.95), true)
     header_vbox.add_child(subtitle)
 
@@ -134,23 +134,23 @@ func _build_ui() -> void:
     stats_margin.add_child(stats_vbox)
 
     var stats_title := Label.new()
-    stats_title.text = "Progress"
+    stats_title.text = "Postup"
     _style_label(stats_title, 24, Color(0.96, 0.88, 0.73, 1))
     stats_vbox.add_child(stats_title)
 
     _status_label = Label.new()
     _style_label(_status_label, 15, Color(0.88, 0.79, 0.64, 0.95), true)
-    _status_label.text = "Loading..."
+    _status_label.text = "Nacitam..."
     stats_vbox.add_child(_status_label)
 
-    _threat_label = _make_stat_label(stats_vbox, "Threat")
-    _win_label = _make_stat_label(stats_vbox, "Wins")
-    _loss_label = _make_stat_label(stats_vbox, "Losses")
-    _deck_total_label = _make_stat_label(stats_vbox, "Deck size")
-    _run_label = _make_stat_label(stats_vbox, "Run")
+    _threat_label = _make_stat_label(stats_vbox, "Hrozba")
+    _win_label = _make_stat_label(stats_vbox, "Vyhry")
+    _loss_label = _make_stat_label(stats_vbox, "Prohry")
+    _deck_total_label = _make_stat_label(stats_vbox, "Velikost baliku")
+    _run_label = _make_stat_label(stats_vbox, "Vyprava")
 
     var reset_tip := Label.new()
-    reset_tip.text = "Reset restores the starter deck and clears threat/wins/losses."
+    reset_tip.text = "Reset vrati startovni balik a smaze hrozbu, vyhry i prohry."
     _style_label(reset_tip, 14, Color(0.82, 0.73, 0.58, 0.92), true)
     stats_vbox.add_child(reset_tip)
 
@@ -175,12 +175,12 @@ func _build_ui() -> void:
     deck_margin.add_child(deck_vbox)
 
     var deck_title := Label.new()
-    deck_title.text = "Deck"
+    deck_title.text = "Balik"
     _style_label(deck_title, 24, Color(0.96, 0.88, 0.73, 1))
     deck_vbox.add_child(deck_title)
 
     var deck_note := Label.new()
-    deck_note.text = "Current saved deck composition."
+    deck_note.text = "Aktualni ulozene slozeni baliku."
     _style_label(deck_note, 15, Color(0.88, 0.79, 0.64, 0.95), true)
     deck_vbox.add_child(deck_note)
 
@@ -201,7 +201,7 @@ func _build_ui() -> void:
     layout.add_child(button_row)
 
     _reset_button = Button.new()
-    _reset_button.text = "Reset Progress"
+    _reset_button.text = "Reset postupu"
     _reset_button.custom_minimum_size = Vector2(0, 52)
     _reset_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     _reset_button.add_theme_font_size_override("font_size", 18)
@@ -215,7 +215,7 @@ func _build_ui() -> void:
     button_row.add_child(_reset_button)
 
     var back_button := Button.new()
-    back_button.text = "Back to Encounters"
+    back_button.text = "Zpet na vyber"
     back_button.custom_minimum_size = Vector2(0, 52)
     back_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     back_button.add_theme_font_size_override("font_size", 18)
@@ -235,15 +235,15 @@ func _load_state() -> void:
 
 
 func _refresh_ui() -> void:
-    _threat_label.text = "Threat: %s (%s)" % [
+    _threat_label.text = "Hrozba: %s (%s)" % [
         _progression_system.get_threat_level(_progression_state),
         _progression_system.get_threat_label(_progression_system.get_threat_level(_progression_state)),
     ]
-    _win_label.text = "Wins: %s" % _progression_system.get_win_count(_progression_state)
-    _loss_label.text = "Losses: %s" % _progression_system.get_loss_count(_progression_state)
+    _win_label.text = "Vyhry: %s" % _progression_system.get_win_count(_progression_state)
+    _loss_label.text = "Prohry: %s" % _progression_system.get_loss_count(_progression_state)
 
     var deck_card_ids: Array[StringName] = _progression_system.get_player_deck_card_ids(_progression_state)
-    _deck_total_label.text = "Deck size: %s" % deck_card_ids.size()
+    _deck_total_label.text = "Velikost baliku: %s" % deck_card_ids.size()
     _refresh_run_label()
     _refresh_deck_list(deck_card_ids)
 
@@ -254,14 +254,14 @@ func _refresh_run_label() -> void:
         var route_summary: String = run_session.get_run_roster_summary()
         var progress_text: String = run_session.get_run_progress_text()
         if route_summary.is_empty():
-            _run_label.text = "Run: %s" % progress_text
+            _run_label.text = "Vyprava: %s" % progress_text
         elif progress_text.is_empty():
-            _run_label.text = "Run: %s" % route_summary
+            _run_label.text = "Vyprava: %s" % route_summary
         else:
-            _run_label.text = "Run: %s | %s" % [progress_text, route_summary]
+            _run_label.text = "Vyprava: %s | %s" % [progress_text, route_summary]
         return
 
-    _run_label.text = "Run: none active"
+    _run_label.text = "Vyprava: zadna"
 
 
 func _refresh_deck_list(deck_card_ids: Array[StringName]) -> void:
@@ -271,7 +271,7 @@ func _refresh_deck_list(deck_card_ids: Array[StringName]) -> void:
     if deck_card_ids.is_empty():
         var empty_label := Label.new()
         _style_label(empty_label, 15, Color(0.88, 0.79, 0.64, 0.95), true)
-        empty_label.text = "Deck is empty."
+        empty_label.text = "Balik je prazdny."
         _deck_list.add_child(empty_label)
         return
 

@@ -12,7 +12,7 @@ keyword_arg = &"stray_token"
 [resource]
 script = ExtResource("1_power_definition")
 id = &"treat_toss"
-display_name = "Treat Toss"
+display_name = "Hod pamlskem"
 cost = 2
-rules_text = "Summon a 1/1 Stray in an empty lane."
+rules_text = "Vyvolej toulavou 1/1 do prazdne lajny."
 effects = [SubResource("1_effect")]

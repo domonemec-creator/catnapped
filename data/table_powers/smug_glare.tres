@@ -17,7 +17,7 @@ value = 1
 [resource]
 script = ExtResource("1_power_definition")
 id = &"smug_glare"
-display_name = "Smug Glare"
+display_name = "Namysleny pohled"
 cost = 2
-rules_text = "Reveal one random card in your hand. Heal 1 Life."
+rules_text = "Odhal jednu nahodnou kartu v ruce. Vylec 1 zivot."
 effects = [SubResource("1_reveal"), SubResource("2_heal")]

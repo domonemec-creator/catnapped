@@ -118,7 +118,7 @@ func advance_to_next_encounter() -> StringName:
 func get_run_progress_text() -> String:
     if not _active or _route.is_empty():
         return ""
-    return "Run %s/%s" % [get_current_step_number(), _route.size()]
+    return "Vyprava %s/%s" % [get_current_step_number(), _route.size()]
 
 
 func get_run_roster_summary() -> String:
@@ -183,9 +183,13 @@ func _build_run_roster() -> Array[StringName]:
 func _encounter_display_name(encounter_id: StringName) -> String:
     match encounter_id:
         &"smug_tabby":
-            return "Smug Tabby"
+            return "Namysleny kocour"
         &"ragclaw_brawler":
-            return "Ragclaw"
+            return "Ragclaw rvac"
+        &"harbor_warden":
+            return "Pristavni strazny"
+        &"lantern_striker":
+            return "Lucernovy utocnik"
     return String(encounter_id)
 
 
@@ -233,14 +237,14 @@ func _build_reward_offers(card_library: Dictionary) -> Array[Dictionary]:
         offers.append({
             "kind": "add",
             "card_id": add_card_id,
-            "label": "Add %s" % _get_card_display_name(card_library, add_card_id),
+            "label": "Pridat %s" % _get_card_display_name(card_library, add_card_id),
         })
 
     if remove_card_id != StringName():
         offers.append({
             "kind": "remove",
             "card_id": remove_card_id,
-            "label": "Remove %s" % _get_card_display_name(card_library, remove_card_id),
+            "label": "Odebrat %s" % _get_card_display_name(card_library, remove_card_id),
         })
 
     if not upgrade_offer.is_empty():
@@ -248,7 +252,7 @@ func _build_reward_offers(card_library: Dictionary) -> Array[Dictionary]:
             "kind": "upgrade",
             "from_card_id": upgrade_offer.get("from_card_id", StringName()),
             "to_card_id": upgrade_offer.get("to_card_id", StringName()),
-            "label": "Upgrade %s -> %s" % [
+            "label": "Vylepsit %s -> %s" % [
                 _get_card_display_name(card_library, StringName(upgrade_offer.get("from_card_id", StringName()))),
                 _get_card_display_name(card_library, StringName(upgrade_offer.get("to_card_id", StringName()))),
             ],
@@ -259,7 +263,7 @@ func _build_reward_offers(card_library: Dictionary) -> Array[Dictionary]:
             offers.append({
                 "kind": "add",
                 "card_id": fallback_add_card_id,
-                "label": "Add %s" % _get_card_display_name(card_library, fallback_add_card_id),
+                "label": "Pridat %s" % _get_card_display_name(card_library, fallback_add_card_id),
             })
 
     while offers.size() < 3:
@@ -269,7 +273,7 @@ func _build_reward_offers(card_library: Dictionary) -> Array[Dictionary]:
         offers.append({
             "kind": "add",
             "card_id": fallback_offer_card_id,
-            "label": "Add %s" % _get_card_display_name(card_library, fallback_offer_card_id),
+            "label": "Pridat %s" % _get_card_display_name(card_library, fallback_offer_card_id),
         })
 
     return offers

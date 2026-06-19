@@ -34,7 +34,7 @@ func _run() -> void:
     if screen._deck_total_label == null or not screen._deck_total_label.text.contains("20"):
         _fail("Progression screen did not show the starter deck size.")
         return
-    if screen._threat_label == null or not screen._threat_label.text.contains("Threat: 0"):
+    if screen._threat_label == null or not screen._threat_label.text.contains("Hrozba: 0"):
         _fail("Progression screen did not show threat 0.")
         return
 
@@ -49,7 +49,7 @@ func _run() -> void:
     screen._load_state()
     screen._refresh_ui()
 
-    if not screen._threat_label.text.contains("Threat: 3"):
+    if not screen._threat_label.text.contains("Hrozba: 3"):
         _fail("Progression screen did not refresh the modified threat.")
         return
     if not screen._deck_total_label.text.contains("21"):

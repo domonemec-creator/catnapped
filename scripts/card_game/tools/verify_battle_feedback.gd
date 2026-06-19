@@ -72,11 +72,11 @@ func _run() -> void:
 	battle.status_label.text = hit_summary
 	battle._refresh_ui()
 
-	if _lane_event_text(battle._player_lanes[1]) != "ATTACK 3":
-		_fail("Attacker lane did not show ATTACK 3.")
+	if _lane_event_text(battle._player_lanes[1]) != "UTOK 3":
+		_fail("Attacker lane did not show UTOK 3.")
 		return
-	if _lane_event_text(battle._enemy_lanes[1]) != "-3 LIFE":
-		_fail("Defender lane did not show -3 LIFE.")
+	if _lane_event_text(battle._enemy_lanes[1]) != "-3 ZIV":
+		_fail("Defender lane did not show -3 ZIV.")
 		return
 
 	_reset_battle_state(battle, player_state, enemy_state)
@@ -92,8 +92,8 @@ func _run() -> void:
 	if enemy_state.life != 27:
 		_fail("Direct attack did not hit enemy life.")
 		return
-	if _lane_event_text(battle._enemy_lanes[0]) != "DIRECT 3":
-		_fail("Direct attack lane did not show DIRECT 3.")
+	if _lane_event_text(battle._enemy_lanes[0]) != "PRIMO 3":
+		_fail("Direct attack lane did not show PRIMO 3.")
 		return
 
 	_reset_battle_state(battle, player_state, enemy_state)
@@ -110,8 +110,8 @@ func _run() -> void:
 	if host.attached_item_instance_id != item.instance_id:
 		_fail("Item did not attach to the host.")
 		return
-	if _lane_event_text(battle._player_lanes[2]).find("ATK") < 0:
-		_fail("Item target lane did not show an ATK feedback banner.")
+	if _lane_event_text(battle._player_lanes[2]).find("UTK") < 0:
+		_fail("Item target lane did not show an UTK feedback banner.")
 		return
 
 	print("Battle feedback verification passed.")

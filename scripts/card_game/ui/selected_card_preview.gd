@@ -5,32 +5,30 @@ const CardGameConstants = preload("res://scripts/card_game/data/card_game_consta
 const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
 const CardTextFormatter = preload("res://scripts/card_game/ui/card_text_formatter.gd")
 
-const CAT_FRAME_PATH := "res://assets/card_game/card_frames/cat_frame.png"
-const TRICK_FRAME_PATH := "res://assets/card_game/card_frames/trick_frame.png"
-const ITEM_FRAME_PATH := "res://assets/card_game/card_frames/item_frame.png"
+const SELECTED_PREVIEW_FRAME_PATH := "res://assets/card_game/ui/selected_card_preview_frame.png"
 
 const LAYOUTS := {
     CardGameConstants.CardType.CAT: {
         "canvas_size": Vector2(258, 387),
-        "art_rect": Rect2(28, 18, 202, 168),
-        "cost_rect": Rect2(8, 18, 48, 54),
-        "name_rect": Rect2(34, 194, 196, 34),
-        "rules_rect": Rect2(44, 248, 176, 76),
-        "attack_rect": Rect2(14, 340, 44, 36),
-        "life_rect": Rect2(206, 340, 38, 36),
+        "art_rect": Rect2(55, 22, 148, 116),
+        "cost_rect": Rect2(10, 24, 44, 50),
+        "name_rect": Rect2(38, 144, 182, 28),
+        "rules_rect": Rect2(54, 240, 150, 58),
+        "attack_rect": Rect2(12, 339, 44, 36),
+        "life_rect": Rect2(202, 339, 44, 36),
         "type_rect": Rect2(79, 341, 100, 28),
         "show_stats": true,
-        "show_name": true,
+        "show_name": false,
         "show_type_badge": false,
         "name_mode": "display_name",
         "placeholder": "",
-        "frame_path": CAT_FRAME_PATH,
+        "frame_path": SELECTED_PREVIEW_FRAME_PATH,
         "title_color": Color(0.96, 0.93, 0.88, 1.0),
         "text_color": Color(0.25, 0.18, 0.12, 1.0),
         "accent_color": Color(1, 1, 1, 1.0),
         "badge_bg": Color(0.1, 0.2, 0.28, 0.92),
         "badge_border": Color(0.83, 0.68, 0.36, 1.0),
-        "art_bg": Color(0.07, 0.08, 0.1, 0.0),
+        "art_bg": Color(0.08, 0.08, 0.09, 0.92),
         "name_font_size": 20,
         "rules_font_size": 15,
         "cost_font_size": 28,
@@ -40,25 +38,25 @@ const LAYOUTS := {
     },
     CardGameConstants.CardType.TRICK: {
         "canvas_size": Vector2(258, 387),
-        "art_rect": Rect2(28, 18, 202, 160),
-        "cost_rect": Rect2(106, 4, 46, 44),
-        "name_rect": Rect2(32, 194, 200, 32),
-        "rules_rect": Rect2(48, 252, 168, 78),
+        "art_rect": Rect2(55, 22, 148, 116),
+        "cost_rect": Rect2(10, 24, 44, 50),
+        "name_rect": Rect2(38, 144, 182, 28),
+        "rules_rect": Rect2(54, 240, 150, 58),
         "attack_rect": Rect2(0, 0, 0, 0),
         "life_rect": Rect2(0, 0, 0, 0),
         "type_rect": Rect2(0, 0, 0, 0),
         "show_stats": false,
-        "show_name": true,
+        "show_name": false,
         "show_type_badge": false,
-        "name_mode": "type_label",
+        "name_mode": "display_name",
         "placeholder": "",
-        "frame_path": TRICK_FRAME_PATH,
+        "frame_path": SELECTED_PREVIEW_FRAME_PATH,
         "title_color": Color(0.98, 0.91, 0.83, 1.0),
         "text_color": Color(0.33, 0.17, 0.12, 1.0),
         "accent_color": Color(1.0, 0.95, 0.88, 1.0),
         "badge_bg": Color(0.39, 0.15, 0.12, 0.86),
         "badge_border": Color(0.87, 0.58, 0.33, 1.0),
-        "art_bg": Color(0.13, 0.06, 0.05, 0.86),
+        "art_bg": Color(0.13, 0.06, 0.05, 0.92),
         "name_font_size": 18,
         "rules_font_size": 16,
         "cost_font_size": 26,
@@ -68,25 +66,25 @@ const LAYOUTS := {
     },
     CardGameConstants.CardType.ITEM: {
         "canvas_size": Vector2(258, 387),
-        "art_rect": Rect2(30, 18, 198, 166),
-        "cost_rect": Rect2(8, 10, 44, 46),
-        "name_rect": Rect2(32, 194, 200, 32),
-        "rules_rect": Rect2(46, 252, 172, 76),
+        "art_rect": Rect2(55, 22, 148, 116),
+        "cost_rect": Rect2(10, 24, 44, 50),
+        "name_rect": Rect2(38, 144, 182, 28),
+        "rules_rect": Rect2(54, 240, 150, 58),
         "attack_rect": Rect2(0, 0, 0, 0),
         "life_rect": Rect2(0, 0, 0, 0),
         "type_rect": Rect2(0, 0, 0, 0),
         "show_stats": false,
-        "show_name": true,
+        "show_name": false,
         "show_type_badge": false,
         "name_mode": "display_name",
         "placeholder": "",
-        "frame_path": ITEM_FRAME_PATH,
+        "frame_path": SELECTED_PREVIEW_FRAME_PATH,
         "title_color": Color(0.91, 0.95, 0.92, 1.0),
         "text_color": Color(0.18, 0.2, 0.18, 1.0),
         "accent_color": Color(0.97, 0.99, 0.96, 1.0),
         "badge_bg": Color(0.18, 0.23, 0.22, 0.88),
         "badge_border": Color(0.78, 0.8, 0.63, 1.0),
-        "art_bg": Color(0.07, 0.09, 0.1, 0.82),
+        "art_bg": Color(0.07, 0.09, 0.1, 0.9),
         "name_font_size": 18,
         "rules_font_size": 15,
         "cost_font_size": 26,
@@ -274,8 +272,8 @@ func _build_panel_style(background_color: Color, border_color: Color) -> StyleBo
 func _card_type_label(card_type: int) -> String:
     match card_type:
         CardGameConstants.CardType.TRICK:
-            return "TRICK"
+            return "TRIK"
         CardGameConstants.CardType.ITEM:
-            return "ITEM"
+            return "PREDMET"
         _:
-            return "CAT"
+            return "KOCKA"

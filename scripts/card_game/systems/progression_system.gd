@@ -14,188 +14,188 @@ const MAX_THREAT := 10
 const STARTER_DECK_PATH := "res://data/decks/starter_player.tres"
 
 const THREAT_LABELS := [
-	"Calm",
-	"Watchful",
-	"Restless",
-	"Sharper",
-	"Loaded",
-	"Dangerous",
-	"Ruthless",
-	"Vicious",
-	"Predatory",
-	"Brutal",
-	"Nightmare",
+	"Klid",
+	"Pozor",
+	"Nepokoj",
+	"Ostrost",
+	"Nabito",
+	"Nebezpeci",
+	"Krutost",
+	"Zurivost",
+	"Lov",
+	"Brutalita",
+	"Nocni mura",
 ]
 
 const SMUG_TABBY_UPGRADE_LINES := {
 	1: {
-		"gain": "Smug Tabby cuts Tavern Mouser and adds Hidden Claws.",
-		"lose": "Smug Tabby loses Hidden Claws and falls back to Tavern Mouser.",
+		"gain": "Smug Tabby meni Tavern Mouser za Hidden Claws.",
+		"lose": "Smug Tabby prichazi o Hidden Claws a vraci se k Tavern Mouser.",
 	},
 	2: {
-		"gain": "Smug Tabby cuts Fishbone Skulker and adds Fish Toss.",
-		"lose": "Smug Tabby loses Fish Toss and falls back to Fishbone Skulker.",
+		"gain": "Smug Tabby meni Fishbone Skulker za Fish Toss.",
+		"lose": "Smug Tabby prichazi o Fish Toss a vraci se k Fishbone Skulker.",
 	},
 	3: {
-		"gain": "Smug Tabby cuts Fishbone Skulker and adds Spiked Collar.",
-		"lose": "Smug Tabby loses Spiked Collar and falls back to Fishbone Skulker.",
+		"gain": "Smug Tabby meni Fishbone Skulker za Spiked Collar.",
+		"lose": "Smug Tabby prichazi o Spiked Collar a vraci se k Fishbone Skulker.",
 	},
 	4: {
-		"gain": "Smug Tabby cuts Tavern Mouser and adds Iron Bowl.",
-		"lose": "Smug Tabby loses Iron Bowl and falls back to Tavern Mouser.",
+		"gain": "Smug Tabby meni Tavern Mouser za Iron Bowl.",
+		"lose": "Smug Tabby prichazi o Iron Bowl a vraci se k Tavern Mouser.",
 	},
 	5: {
-		"gain": "Smug Tabby upgrades Alley Scrapper into Wharf Cutthroat.",
-		"lose": "Smug Tabby drops Wharf Cutthroat back to Alley Scrapper.",
+		"gain": "Smug Tabby povysuje Alley Scrapper na Wharf Cutthroat.",
+		"lose": "Smug Tabby vraci Wharf Cutthroat zpet na Alley Scrapper.",
 	},
 	6: {
-		"gain": "Smug Tabby cuts Tavern Mouser and adds Table Flip.",
-		"lose": "Smug Tabby loses Table Flip and falls back to Tavern Mouser.",
+		"gain": "Smug Tabby meni Tavern Mouser za Table Flip.",
+		"lose": "Smug Tabby prichazi o Table Flip a vraci se k Tavern Mouser.",
 	},
 	7: {
-		"gain": "Smug Tabby upgrades Dockside Bruiser into Captain Ironmaw.",
-		"lose": "Smug Tabby drops Captain Ironmaw back to Dockside Bruiser.",
+		"gain": "Smug Tabby povysuje Dockside Bruiser na Captain Ironmaw.",
+		"lose": "Smug Tabby vraci Captain Ironmaw zpet na Dockside Bruiser.",
 	},
 	8: {
-		"gain": "Smug Tabby upgrades Alley Scrapper into Netclaw Raider.",
-		"lose": "Smug Tabby drops Netclaw Raider back to Alley Scrapper.",
+		"gain": "Smug Tabby povysuje Alley Scrapper na Netclaw Raider.",
+		"lose": "Smug Tabby vraci Netclaw Raider zpet na Alley Scrapper.",
 	},
 	9: {
-		"gain": "Smug Tabby cuts Dockside Bruiser and adds a second Hidden Claws.",
-		"lose": "Smug Tabby loses the extra Hidden Claws and falls back to Dockside Bruiser.",
+		"gain": "Smug Tabby meni Dockside Bruiser za druhe Hidden Claws.",
+		"lose": "Smug Tabby prichazi o druhe Hidden Claws a vraci se k Dockside Bruiser.",
 	},
 	10: {
-		"gain": "Smug Tabby upgrades Dockside Bruiser into Boilerback Guardian.",
-		"lose": "Smug Tabby drops Boilerback Guardian back to Dockside Bruiser.",
+		"gain": "Smug Tabby povysuje Dockside Bruiser na Boilerback Guardian.",
+		"lose": "Smug Tabby vraci Boilerback Guardian zpet na Dockside Bruiser.",
 	},
 }
 
 const RAGCLAW_BRAWLER_UPGRADE_LINES := {
 	1: {
-		"gain": "Ragclaw cuts Fishbone Skulker and adds Hidden Claws.",
-		"lose": "Ragclaw loses Hidden Claws and falls back to Fishbone Skulker.",
+		"gain": "Ragclaw meni Fishbone Skulker za Hidden Claws.",
+		"lose": "Ragclaw prichazi o Hidden Claws a vraci se k Fishbone Skulker.",
 	},
 	2: {
-		"gain": "Ragclaw cuts Alley Scrapper and adds Fish Toss.",
-		"lose": "Ragclaw loses Fish Toss and falls back to Alley Scrapper.",
+		"gain": "Ragclaw meni Alley Scrapper za Fish Toss.",
+		"lose": "Ragclaw prichazi o Fish Toss a vraci se k Alley Scrapper.",
 	},
 	3: {
-		"gain": "Ragclaw cuts Alley Scrapper and adds Spiked Collar.",
-		"lose": "Ragclaw loses Spiked Collar and falls back to Alley Scrapper.",
+		"gain": "Ragclaw meni Alley Scrapper za Spiked Collar.",
+		"lose": "Ragclaw prichazi o Spiked Collar a vraci se k Alley Scrapper.",
 	},
 	4: {
-		"gain": "Ragclaw cuts Candlepaw Scout and adds Catnip Burst.",
-		"lose": "Ragclaw loses Catnip Burst and falls back to Candlepaw Scout.",
+		"gain": "Ragclaw meni Candlepaw Scout za Catnip Burst.",
+		"lose": "Ragclaw prichazi o Catnip Burst a vraci se k Candlepaw Scout.",
 	},
 	5: {
-		"gain": "Ragclaw upgrades Dockside Bruiser into Wharf Cutthroat.",
-		"lose": "Ragclaw drops Wharf Cutthroat back to Dockside Bruiser.",
+		"gain": "Ragclaw povysuje Dockside Bruiser na Wharf Cutthroat.",
+		"lose": "Ragclaw vraci Wharf Cutthroat zpet na Dockside Bruiser.",
 	},
 	6: {
-		"gain": "Ragclaw cuts Alley Scrapper and adds Table Flip.",
-		"lose": "Ragclaw loses Table Flip and falls back to Alley Scrapper.",
+		"gain": "Ragclaw meni Alley Scrapper za Table Flip.",
+		"lose": "Ragclaw prichazi o Table Flip a vraci se k Alley Scrapper.",
 	},
 	7: {
-		"gain": "Ragclaw cuts Candlepaw Scout and adds a second Hidden Claws.",
-		"lose": "Ragclaw loses the extra Hidden Claws and falls back to Candlepaw Scout.",
+		"gain": "Ragclaw meni Candlepaw Scout za druhe Hidden Claws.",
+		"lose": "Ragclaw prichazi o druhe Hidden Claws a vraci se k Candlepaw Scout.",
 	},
 	8: {
-		"gain": "Ragclaw upgrades Rafter Pouncer into Netclaw Raider.",
-		"lose": "Ragclaw drops Netclaw Raider back to Rafter Pouncer.",
+		"gain": "Ragclaw povysuje Rafter Pouncer na Netclaw Raider.",
+		"lose": "Ragclaw vraci Netclaw Raider zpet na Rafter Pouncer.",
 	},
 	9: {
-		"gain": "Ragclaw upgrades Rafter Pouncer into Wharf Cutthroat.",
-		"lose": "Ragclaw drops Wharf Cutthroat back to Rafter Pouncer.",
+		"gain": "Ragclaw povysuje Rafter Pouncer na Wharf Cutthroat.",
+		"lose": "Ragclaw vraci Wharf Cutthroat zpet na Rafter Pouncer.",
 	},
 	10: {
-		"gain": "Ragclaw upgrades Captain Ironmaw into Netclaw Raider.",
-		"lose": "Ragclaw drops Netclaw Raider back to Captain Ironmaw.",
+		"gain": "Ragclaw povysuje Captain Ironmaw na Netclaw Raider.",
+		"lose": "Ragclaw vraci Netclaw Raider zpet na Captain Ironmaw.",
 	},
 }
 
 const HARBOR_WARDEN_UPGRADE_LINES := {
 	1: {
-		"gain": "Harbor Warden cuts Candlepaw Scout and adds Hidden Claws.",
-		"lose": "Harbor Warden loses Hidden Claws and falls back to Candlepaw Scout.",
+		"gain": "Harbor Warden meni Candlepaw Scout za Hidden Claws.",
+		"lose": "Harbor Warden prichazi o Hidden Claws a vraci se k Candlepaw Scout.",
 	},
 	2: {
-		"gain": "Harbor Warden cuts Tavern Mouser and adds Fish Toss.",
-		"lose": "Harbor Warden loses Fish Toss and falls back to Tavern Mouser.",
+		"gain": "Harbor Warden meni Tavern Mouser za Fish Toss.",
+		"lose": "Harbor Warden prichazi o Fish Toss a vraci se k Tavern Mouser.",
 	},
 	3: {
-		"gain": "Harbor Warden upgrades Alley Scrapper into Wharf Cutthroat.",
-		"lose": "Harbor Warden drops Wharf Cutthroat back to Alley Scrapper.",
+		"gain": "Harbor Warden povysuje Alley Scrapper na Wharf Cutthroat.",
+		"lose": "Harbor Warden vraci Wharf Cutthroat zpet na Alley Scrapper.",
 	},
 	4: {
-		"gain": "Harbor Warden upgrades Dockside Bruiser into Boilerback Guardian.",
-		"lose": "Harbor Warden drops Boilerback Guardian back to Dockside Bruiser.",
+		"gain": "Harbor Warden povysuje Dockside Bruiser na Boilerback Guardian.",
+		"lose": "Harbor Warden vraci Boilerback Guardian zpet na Dockside Bruiser.",
 	},
 	5: {
-		"gain": "Harbor Warden upgrades Wharf Cutthroat into Captain Ironmaw.",
-		"lose": "Harbor Warden drops Captain Ironmaw back to Wharf Cutthroat.",
+		"gain": "Harbor Warden povysuje Wharf Cutthroat na Captain Ironmaw.",
+		"lose": "Harbor Warden vraci Captain Ironmaw zpet na Wharf Cutthroat.",
 	},
 	6: {
-		"gain": "Harbor Warden cuts Boilerback Guardian and adds Iron Bowl.",
-		"lose": "Harbor Warden loses Iron Bowl and falls back to Boilerback Guardian.",
+		"gain": "Harbor Warden meni Boilerback Guardian za Iron Bowl.",
+		"lose": "Harbor Warden prichazi o Iron Bowl a vraci se k Boilerback Guardian.",
 	},
 	7: {
-		"gain": "Harbor Warden cuts Tavern Mouser and adds Table Flip.",
-		"lose": "Harbor Warden loses Table Flip and falls back to Tavern Mouser.",
+		"gain": "Harbor Warden meni Tavern Mouser za Table Flip.",
+		"lose": "Harbor Warden prichazi o Table Flip a vraci se k Tavern Mouser.",
 	},
 	8: {
-		"gain": "Harbor Warden upgrades Fishbone Skulker into Netclaw Raider.",
-		"lose": "Harbor Warden drops Netclaw Raider back to Fishbone Skulker.",
+		"gain": "Harbor Warden povysuje Fishbone Skulker na Netclaw Raider.",
+		"lose": "Harbor Warden vraci Netclaw Raider zpet na Fishbone Skulker.",
 	},
 	9: {
-		"gain": "Harbor Warden cuts Dockside Bruiser and adds a second Hidden Claws.",
-		"lose": "Harbor Warden loses the extra Hidden Claws and falls back to Dockside Bruiser.",
+		"gain": "Harbor Warden meni Dockside Bruiser za druhe Hidden Claws.",
+		"lose": "Harbor Warden prichazi o druhe Hidden Claws a vraci se k Dockside Bruiser.",
 	},
 	10: {
-		"gain": "Harbor Warden upgrades Candlepaw Scout into Boilerback Guardian.",
-		"lose": "Harbor Warden drops Boilerback Guardian back to Candlepaw Scout.",
+		"gain": "Harbor Warden povysuje Candlepaw Scout na Boilerback Guardian.",
+		"lose": "Harbor Warden vraci Boilerback Guardian zpet na Candlepaw Scout.",
 	},
 }
 
 const LANTERN_STRIKER_UPGRADE_LINES := {
 	1: {
-		"gain": "Lantern Striker cuts Fishbone Skulker and adds Hidden Claws.",
-		"lose": "Lantern Striker loses Hidden Claws and falls back to Fishbone Skulker.",
+		"gain": "Lantern Striker meni Fishbone Skulker za Hidden Claws.",
+		"lose": "Lantern Striker prichazi o Hidden Claws a vraci se k Fishbone Skulker.",
 	},
 	2: {
-		"gain": "Lantern Striker cuts Tavern Mouser and adds Catnip Burst.",
-		"lose": "Lantern Striker loses Catnip Burst and falls back to Tavern Mouser.",
+		"gain": "Lantern Striker meni Tavern Mouser za Catnip Burst.",
+		"lose": "Lantern Striker prichazi o Catnip Burst a vraci se k Tavern Mouser.",
 	},
 	3: {
-		"gain": "Lantern Striker upgrades Alley Scrapper into Fish Toss.",
-		"lose": "Lantern Striker drops Fish Toss back to Alley Scrapper.",
+		"gain": "Lantern Striker povysuje Alley Scrapper na Fish Toss.",
+		"lose": "Lantern Striker vraci Fish Toss zpet na Alley Scrapper.",
 	},
 	4: {
-		"gain": "Lantern Striker upgrades Candlepaw Scout into Rafter Pouncer.",
-		"lose": "Lantern Striker drops Rafter Pouncer back to Candlepaw Scout.",
+		"gain": "Lantern Striker povysuje Candlepaw Scout na Rafter Pouncer.",
+		"lose": "Lantern Striker vraci Rafter Pouncer zpet na Candlepaw Scout.",
 	},
 	5: {
-		"gain": "Lantern Striker upgrades Dockside Bruiser into Wharf Cutthroat.",
-		"lose": "Lantern Striker drops Wharf Cutthroat back to Dockside Bruiser.",
+		"gain": "Lantern Striker povysuje Dockside Bruiser na Wharf Cutthroat.",
+		"lose": "Lantern Striker vraci Wharf Cutthroat zpet na Dockside Bruiser.",
 	},
 	6: {
-		"gain": "Lantern Striker upgrades Rafter Pouncer into Netclaw Raider.",
-		"lose": "Lantern Striker drops Netclaw Raider back to Rafter Pouncer.",
+		"gain": "Lantern Striker povysuje Rafter Pouncer na Netclaw Raider.",
+		"lose": "Lantern Striker vraci Netclaw Raider zpet na Rafter Pouncer.",
 	},
 	7: {
-		"gain": "Lantern Striker cuts Catnip Burst and adds Table Flip.",
-		"lose": "Lantern Striker loses Table Flip and falls back to Catnip Burst.",
+		"gain": "Lantern Striker meni Catnip Burst za Table Flip.",
+		"lose": "Lantern Striker prichazi o Table Flip a vraci se k Catnip Burst.",
 	},
 	8: {
-		"gain": "Lantern Striker upgrades Wharf Cutthroat into Captain Ironmaw.",
-		"lose": "Lantern Striker drops Captain Ironmaw back to Wharf Cutthroat.",
+		"gain": "Lantern Striker povysuje Wharf Cutthroat na Captain Ironmaw.",
+		"lose": "Lantern Striker vraci Captain Ironmaw zpet na Wharf Cutthroat.",
 	},
 	9: {
-		"gain": "Lantern Striker cuts Fishbone Skulker and adds Spiked Collar.",
-		"lose": "Lantern Striker loses Spiked Collar and falls back to Fishbone Skulker.",
+		"gain": "Lantern Striker meni Fishbone Skulker za Spiked Collar.",
+		"lose": "Lantern Striker prichazi o Spiked Collar a vraci se k Fishbone Skulker.",
 	},
 	10: {
-		"gain": "Lantern Striker upgrades Alley Scrapper into Boilerback Guardian.",
-		"lose": "Lantern Striker drops Boilerback Guardian back to Alley Scrapper.",
+		"gain": "Lantern Striker povysuje Alley Scrapper na Boilerback Guardian.",
+		"lose": "Lantern Striker vraci Boilerback Guardian zpet na Alley Scrapper.",
 	},
 }
 

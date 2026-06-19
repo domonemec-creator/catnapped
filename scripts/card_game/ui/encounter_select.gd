@@ -113,17 +113,17 @@ func _build_ui() -> void:
     header_margin.add_child(header_vbox)
 
     var title := Label.new()
-    title.text = "Choose Encounter"
+    title.text = "Vyber souboj"
     _style_label(title, 34, Color(0.96, 0.88, 0.73, 1))
     header_vbox.add_child(title)
 
     var subtitle := Label.new()
-    subtitle.text = "Pick the opponent before the battle starts. The save and threat progress stay intact."
+    subtitle.text = "Vyber soupere pred startem. Save i hrozba zustavaji zachovane."
     _style_label(subtitle, 18, Color(0.9, 0.82, 0.67, 0.95), true)
     header_vbox.add_child(subtitle)
 
     _run_button = Button.new()
-    _run_button.text = "Start Run"
+    _run_button.text = "Spustit run"
     _run_button.custom_minimum_size = Vector2(0, 56)
     _run_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     _run_button.add_theme_font_size_override("font_size", 21)
@@ -138,11 +138,11 @@ func _build_ui() -> void:
 
     _run_note_label = Label.new()
     _style_label(_run_note_label, 15, Color(0.88, 0.79, 0.64, 0.95), true)
-    _run_note_label.text = "Run mode starts from the selected encounter and alternates through the roster for 5 fights."
+    _run_note_label.text = "Run zacne od vybraneho soupere a projde 5 souboju."
     header_vbox.add_child(_run_note_label)
 
     _progress_button = Button.new()
-    _progress_button.text = "Deck & Progress"
+    _progress_button.text = "Balik a postup"
     _progress_button.custom_minimum_size = Vector2(0, 48)
     _progress_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     _progress_button.add_theme_font_size_override("font_size", 18)
@@ -183,12 +183,12 @@ func _build_ui() -> void:
     list_margin.add_child(list_vbox)
 
     var list_title := Label.new()
-    list_title.text = "Encounter List"
+    list_title.text = "Souperi"
     _style_label(list_title, 24, Color(0.96, 0.88, 0.73, 1))
     list_vbox.add_child(list_title)
 
     var list_note := Label.new()
-    list_note.text = "Select one entry, then launch the fight."
+    list_note.text = "Vyber jednoho soupere a spust souboj."
     _style_label(list_note, 15, Color(0.88, 0.79, 0.64, 0.95), true)
     list_vbox.add_child(list_note)
 
@@ -253,7 +253,7 @@ func _build_ui() -> void:
     details_vbox.add_child(_status_label)
 
     _start_button = Button.new()
-    _start_button.text = "Practice Battle"
+    _start_button.text = "Treninkovy souboj"
     _start_button.custom_minimum_size = Vector2(0, 56)
     _start_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     _start_button.add_theme_font_size_override("font_size", 21)
@@ -326,28 +326,28 @@ func _refresh_details() -> void:
         return
 
     _selected_title.text = _selected_encounter.display_name
-    _selected_npc.text = "NPC: %s" % _selected_encounter.npc_name
-    _selected_summary.text = "Deck: %s" % _selected_encounter.deck_id
-    _selected_stats.text = "Table power: %s\nStarting life: %s" % [
-        _selected_encounter.table_power_id,
+    _selected_npc.text = "Souper: %s" % _selected_encounter.npc_name
+    _selected_summary.text = "Balik soupere se meni podle hrozby."
+    _selected_stats.text = "Sila stolu: %s\nStartovni zivoty: %s" % [
+        _get_table_power_display_name(_selected_encounter.table_power_id),
         _selected_encounter.starting_life,
     ]
     _selected_portrait.texture = _load_texture(_selected_encounter.portrait_path)
-    _status_label.text = "This only picks the next practice battle. Progress stays in the save."
-    _run_note_label.text = "Run mode starts from %s and chains 5 fights." % _selected_encounter.display_name
+    _status_label.text = "Tahle volba nastavi jen pristi treninkovy souboj. Postup zustava v save."
+    _run_note_label.text = "Run zacne u %s a navaze 5 souboju." % _selected_encounter.display_name
     _run_button.disabled = false
     _start_button.disabled = false
 
 
 func _set_empty_state() -> void:
     _selected_encounter = null
-    _selected_title.text = "No encounters loaded"
+    _selected_title.text = "Souperi se nenacetli"
     _selected_npc.text = ""
-    _selected_summary.text = "Check `res://data/encounters`."
+    _selected_summary.text = "Zkontroluj `res://data/encounters`."
     _selected_stats.text = ""
     _selected_portrait.texture = null
-    _status_label.text = "Selector is empty, so the battle cannot start."
-    _run_note_label.text = "No run can start until encounters load."
+    _status_label.text = "Vyber je prazdny, souboj nejde spustit."
+    _run_note_label.text = "Dokud se souperi nenactou, run nejde spustit."
     _run_button.disabled = true
     _start_button.disabled = true
 
@@ -360,16 +360,29 @@ func _get_encounter_by_id(encounter_id: StringName) -> EncounterDefinition:
 
 
 func _build_encounter_button_text(encounter: EncounterDefinition) -> String:
-    var summary := "Deck %s | Power %s" % [encounter.deck_id, encounter.table_power_id]
+    var summary := "Sila %s | %s zivotu" % [
+        _get_table_power_display_name(encounter.table_power_id),
+        encounter.starting_life,
+    ]
     return "%s\n%s" % [encounter.display_name, summary]
 
 
 func _build_encounter_tooltip(encounter: EncounterDefinition) -> String:
-    return "Deck: %s\nTable power: %s\nStarting life: %s" % [
-        encounter.deck_id,
-        encounter.table_power_id,
+    return "Sila stolu: %s\nStartovni zivoty: %s\nBalik soupere se meni podle hrozby." % [
+        _get_table_power_display_name(encounter.table_power_id),
         encounter.starting_life,
     ]
+
+
+func _get_table_power_display_name(table_power_id: StringName) -> String:
+    if table_power_id == StringName():
+        return "Bez Sily stolu"
+
+    var resource_path := "res://data/table_powers/%s.tres" % String(table_power_id)
+    var power_definition := load(resource_path) as TablePowerDefinition
+    if power_definition == null or power_definition.display_name.is_empty():
+        return String(table_power_id)
+    return power_definition.display_name
 
 
 func _start_battle() -> void:

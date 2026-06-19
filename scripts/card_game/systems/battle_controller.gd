@@ -57,7 +57,9 @@ const PORTRAIT_FRAME_RED_PATH := "res://assets/card_game/ui/portrait_frame_red.p
 @onready var hand_row: HBoxContainer = $Margin/Layout/BottomBar/HandPanel/MarginContainer/VBox/HandCards
 @onready var selected_card_view: SelectedCardPreview = $Margin/Layout/TopRow/SelectedPanel/Content/TopZone/SelectedCardView
 @onready var selected_card_title: Label = $Margin/Layout/TopRow/SelectedPanel/Content/TitleBanner/SelectedTitle
-@onready var selected_card_detail: Label = $Margin/Layout/TopRow/SelectedPanel/Content/BottomZone/SelectedDetail
+@onready var selected_card_meta: Label = $Margin/Layout/TopRow/SelectedPanel/Content/BottomZone/InfoPanel/MarginContainer/InfoVBox/SelectedMeta
+@onready var selected_card_detail: RichTextLabel = $Margin/Layout/TopRow/SelectedPanel/Content/BottomZone/InfoPanel/MarginContainer/InfoVBox/SelectedDetail
+@onready var selected_card_hint: Label = $Margin/Layout/TopRow/SelectedPanel/Content/BottomZone/InfoPanel/MarginContainer/InfoVBox/SelectedHint
 @onready var table_power_button: Button = $Margin/Layout/TopRow/SelectedPanel/Content/BottomZone/TablePowerButton
 @onready var status_label: Label = $Margin/Layout/TopRow/BoardColumn/StatusLabel
 @onready var battle_feed_label: RichTextLabel = $Margin/Layout/TopRow/BoardColumn/BattleFeed
@@ -144,8 +146,8 @@ func _ready() -> void:
 	]
 
 	for lane_index in range(LANE_COUNT):
-		_enemy_lanes[lane_index].configure(lane_index, ENEMY_ID, "Enemy %s" % (lane_index + 1), "Open — direct hit")
-		_player_lanes[lane_index].configure(lane_index, PLAYER_ID, "Player %s" % (lane_index + 1), "Play a cat")
+		_enemy_lanes[lane_index].configure(lane_index, ENEMY_ID, "Souper %s" % (lane_index + 1), "Primy zasah")
+		_player_lanes[lane_index].configure(lane_index, PLAYER_ID, "Hrac %s" % (lane_index + 1), "Vyloz kocku")
 		_enemy_lanes[lane_index].slot_pressed.connect(_on_lane_pressed)
 		_player_lanes[lane_index].slot_pressed.connect(_on_lane_pressed)
 		_enemy_lanes[lane_index].card_dropped.connect(_on_lane_card_dropped)
@@ -192,7 +194,7 @@ func _build_enemy_header_name(display_name: String) -> String:
 
 
 func _build_opening_status() -> String:
-	return "Threat %s (%s). Klikni nebo pretahni kartu z ruky na lane." % [
+	return "Hrozba %s (%s). Klikni nebo pretahni kartu z ruky na lajnu." % [
 		_get_current_threat(),
 		_progression_system.get_threat_label(_get_current_threat()),
 	]
@@ -220,7 +222,7 @@ func _show_post_match_overlay(result_title: String, result_summary: String, prev
 	post_match_result_summary.text = result_summary
 	post_match_threat_summary.text = _build_post_match_threat_text(previous_threat, next_threat)
 	post_match_deck_shift_detail.text = _build_post_match_deck_shift_text(deck_messages, previous_threat, next_threat)
-	var record_text := "Wins %s   Losses %s" % [
+	var record_text := "Vyhry %s   Prohry %s" % [
 		_progression_system.get_win_count(_progression_state),
 		_progression_system.get_loss_count(_progression_state),
 	]
@@ -231,9 +233,9 @@ func _show_post_match_overlay(result_title: String, result_summary: String, prev
 	post_match_record_label.text = record_text
 
 	match result_title:
-		"Victory":
+		"Vyhra":
 			post_match_result_emblem.texture = _postmatch_victory_emblem_texture
-		"Defeat":
+		"Prohra":
 			post_match_result_emblem.texture = _postmatch_defeat_emblem_texture
 		_:
 			post_match_result_emblem.texture = null
@@ -246,16 +248,16 @@ func _build_post_match_threat_text(previous_threat: int, next_threat: int) -> St
 	var previous_label := _progression_system.get_threat_label(previous_threat)
 	var next_label := _progression_system.get_threat_label(next_threat)
 	if previous_threat == next_threat:
-		return "Threat stays at %s (%s)." % [next_threat, next_label]
-	return "Threat %s (%s) -> %s (%s)." % [previous_threat, previous_label, next_threat, next_label]
+		return "Hrozba zustava na %s (%s)." % [next_threat, next_label]
+	return "Hrozba %s (%s) -> %s (%s)." % [previous_threat, previous_label, next_threat, next_label]
 
 
 func _build_post_match_deck_shift_text(deck_messages: Array[String], previous_threat: int, next_threat: int) -> String:
 	if not deck_messages.is_empty():
 		return "\n".join(deck_messages)
 	if previous_threat == next_threat:
-		return "No deck changes. The next rematch uses the same list."
-	return "Threat changed, but this bracket keeps the same deck list."
+		return "Balik beze zmen. Pristi odveta pouzije stejnou sestavu."
+	return "Hrozba se zmenila, ale tahle uroven drzi stejny balik."
 
 
 func _get_encounter_portrait_path() -> String:
@@ -334,24 +336,25 @@ func _reset_battle_feed() -> void:
 	_battle_feed_lines.clear()
 	_last_logged_status_text = ""
 	if battle_feed_label != null:
-		battle_feed_label.text = "No actions yet."
+		battle_feed_label.text = "Zatim bez akce."
 
 
 func _should_log_status(message: String) -> bool:
 	var trimmed := message.strip_edges()
+	var lowered := trimmed.to_lower()
 	if trimmed.is_empty():
 		return false
-	if trimmed.begins_with("Threat "):
+	if trimmed.begins_with("Hrozba "):
 		return false
-	if trimmed.find("selected") >= 0:
+	if lowered.find("vybrano") >= 0 or lowered.find("utocnik:") >= 0:
 		return false
-	if trimmed.find("selection cleared") >= 0:
+	if lowered.find("vyber") >= 0 and lowered.find("zrusen") >= 0:
 		return false
-	if trimmed.find("Pick a card") >= 0:
+	if lowered.find("klikni") >= 0:
 		return false
-	if trimmed.find("Choose an enemy lane") >= 0:
+	if lowered.find("pretahni kartu") >= 0:
 		return false
-	if trimmed.find("click") >= 0 or trimmed.find("Click") >= 0:
+	if lowered.find("jsi na tahu") >= 0:
 		return false
 	return true
 
@@ -546,29 +549,29 @@ func _can_play_card_from_hand(card_instance: CardInstance, player_state: PlayerB
 
 func _build_card_selection_message(card_instance: CardInstance, player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> String:
 	if card_instance == null or card_instance.definition == null:
-		return "Hand selection cleared."
+		return "Vyber z ruky zrusen."
 
 	var display_name := card_instance.definition.display_name
 	match card_instance.definition.card_type:
 		CardGameConstants.CardType.CAT:
 			if _battle_rules.get_valid_play_lanes(card_instance, player_state).is_empty():
-				return "%s selected, but no player lane is open." % display_name
-			return "%s selected. Click an open player lane to play it." % display_name
+				return "Vybrano: %s, ale na tve strane neni volna lajna." % display_name
+			return "Vybrano: %s. Klikni na volnou lajnu na sve strane." % display_name
 		CardGameConstants.CardType.TRICK, CardGameConstants.CardType.ITEM:
 			if not _card_requires_board_target(card_instance):
-				return "%s selected. This card resolves immediately." % display_name
+				return "Vybrano: %s. Tahle karta se vyresi hned." % display_name
 
 			var valid_friendly_targets := _get_valid_card_target_lanes(card_instance, player_state, enemy_state, player_state.player_id)
 			var valid_enemy_targets := _get_valid_card_target_lanes(card_instance, player_state, enemy_state, enemy_state.player_id)
 			if valid_friendly_targets.is_empty() and valid_enemy_targets.is_empty():
-				return "%s selected, but no valid target is on board." % display_name
+				return "Vybrano: %s, ale na stole neni validni cil." % display_name
 			if not valid_friendly_targets.is_empty() and not valid_enemy_targets.is_empty():
-				return "%s selected. Click any cat." % display_name
+				return "Vybrano: %s. Klikni na libovolnou kocku." % display_name
 			if not valid_friendly_targets.is_empty():
-				return "%s selected. Click a friendly cat." % display_name
-			return "%s selected. Click an enemy cat." % display_name
+				return "Vybrano: %s. Klikni na svou kocku." % display_name
+			return "Vybrano: %s. Klikni na nepratelskou kocku." % display_name
 
-	return "%s selected." % display_name
+	return "Vybrano: %s." % display_name
 
 
 func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: PlayerBattleState, opposing_state: PlayerBattleState, target_card: CardInstance) -> Array[String]:
@@ -583,35 +586,35 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				if target_card == null:
 					continue
 				target_card.current_attack += typed_effect.value
-				_set_lane_feedback_for_card(target_card, _format_signed_stat_delta(typed_effect.value, "ATK"), LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE)
+				_set_lane_feedback_for_card(target_card, _format_signed_stat_delta(typed_effect.value, "UTK"), LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE)
 				if typed_effect.value_2 > 0:
 					target_card.temporary_attack_bonus += typed_effect.value
-					summaries.append("%s gains +%s Attack this turn." % [target_card.definition.display_name, typed_effect.value])
+					summaries.append("%s ziska +%s utoku do konce kola." % [target_card.definition.display_name, typed_effect.value])
 				else:
-					summaries.append("%s gains +%s Attack." % [target_card.definition.display_name, typed_effect.value])
+					summaries.append("%s ziska +%s utoku." % [target_card.definition.display_name, typed_effect.value])
 			&"modify_life":
 				if target_card == null:
 					continue
 				_adjust_card_life(target_card, typed_effect.value)
-				_set_lane_feedback_for_card(target_card, _format_signed_stat_delta(typed_effect.value, "LIFE"), LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE)
+				_set_lane_feedback_for_card(target_card, _format_signed_stat_delta(typed_effect.value, "ZIV"), LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE)
 				if typed_effect.value_2 > 0:
 					target_card.temporary_life_bonus += typed_effect.value
-					summaries.append("%s gains +%s Life this turn." % [target_card.definition.display_name, typed_effect.value])
+					summaries.append("%s ziska +%s zivotu do konce kola." % [target_card.definition.display_name, typed_effect.value])
 				else:
-					summaries.append("%s gains +%s Life." % [target_card.definition.display_name, typed_effect.value])
+					summaries.append("%s ziska +%s zivotu." % [target_card.definition.display_name, typed_effect.value])
 			&"deal_damage":
 				if target_card == null:
 					continue
 				_adjust_card_life(target_card, -typed_effect.value)
-				_set_lane_feedback_for_card(target_card, "-%s LIFE" % typed_effect.value, LaneSlotView.EVENT_DAMAGE)
-				summaries.append("%s takes %s damage." % [target_card.definition.display_name, typed_effect.value])
+				_set_lane_feedback_for_card(target_card, "-%s ZIV" % typed_effect.value, LaneSlotView.EVENT_DAMAGE)
+				summaries.append("%s dostane %s zraneni." % [target_card.definition.display_name, typed_effect.value])
 			&"ready_attack":
 				if target_card == null:
 					continue
 				target_card.can_attack = true
 				target_card.has_attacked = false
-				_set_lane_feedback_for_card(target_card, "READY AGAIN", LaneSlotView.EVENT_SUPPORT)
-				summaries.append("%s is ready to attack again." % target_card.definition.display_name)
+				_set_lane_feedback_for_card(target_card, "ZNOVU PRIPR.", LaneSlotView.EVENT_SUPPORT)
+				summaries.append("%s muze znovu utocit." % target_card.definition.display_name)
 			&"return_to_hand":
 				if target_card == null:
 					continue
@@ -620,15 +623,15 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 					continue
 				var returned_name := target_card.definition.display_name
 				_return_card_to_hand(target_owner_state, target_card)
-				summaries.append("%s returns to hand." % returned_name)
+				summaries.append("%s se vraci do ruky." % returned_name)
 			&"draw_cards":
 				if typed_effect.target_mode == CardGameConstants.TARGET_SELF_OWNER:
 					_deck_system.draw_cards(owner_state, typed_effect.value)
-					summaries.append("%s draws %s card%s." % [owner_state.display_name, typed_effect.value, "" if typed_effect.value == 1 else "s"])
+					summaries.append("%s taha %s kart%s." % [owner_state.display_name, typed_effect.value, "u" if typed_effect.value == 1 else "y"])
 			&"heal_life":
 				if typed_effect.target_mode == CardGameConstants.TARGET_SELF_OWNER:
 					_adjust_player_life(owner_state, typed_effect.value)
-					summaries.append("%s heals %s Life." % [owner_state.display_name, typed_effect.value])
+					summaries.append("%s vyleci %s zivotu." % [owner_state.display_name, typed_effect.value])
 			&"steal_item":
 				if target_card == null or target_card.attached_item == null:
 					continue
@@ -643,9 +646,9 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				steal_host.attached_item = stolen_item
 				steal_host.attached_item_instance_id = stolen_item.instance_id
 				stolen_item.owner_id = owner_state.player_id
-				_set_lane_feedback_for_card(target_card, "ITEM LOST", LaneSlotView.EVENT_DAMAGE)
-				_set_lane_feedback_for_card(steal_host, "ITEM STOLEN", LaneSlotView.EVENT_SUPPORT)
-				summaries.append("%s snatches %s onto %s." % [owner_state.display_name, stolen_item.definition.display_name, steal_host.definition.display_name])
+				_set_lane_feedback_for_card(target_card, "PREDMET PRYC", LaneSlotView.EVENT_DAMAGE)
+				_set_lane_feedback_for_card(steal_host, "PREDMET UKRADEN", LaneSlotView.EVENT_SUPPORT)
+				summaries.append("%s ukradne %s a nasadi ho na %s." % [owner_state.display_name, stolen_item.definition.display_name, steal_host.definition.display_name])
 			&"destroy_item":
 				if target_card == null or target_card.attached_item == null:
 					continue
@@ -654,8 +657,8 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				target_card.attached_item = null
 				target_card.attached_item_instance_id = -1
 				opposing_state.discard.append(wrecked_item)
-				_set_lane_feedback_for_card(target_card, "ITEM LOST", LaneSlotView.EVENT_DAMAGE)
-				summaries.append("%s tears %s off %s." % [owner_state.display_name, wrecked_item.definition.display_name, target_card.definition.display_name])
+				_set_lane_feedback_for_card(target_card, "PREDMET PRYC", LaneSlotView.EVENT_DAMAGE)
+				summaries.append("%s strhne %s z %s." % [owner_state.display_name, wrecked_item.definition.display_name, target_card.definition.display_name])
 
 	return summaries
 
@@ -689,7 +692,7 @@ func _return_card_to_hand(owner_state: PlayerBattleState, target_card: CardInsta
 	var lane_index := target_card.lane_index
 	if lane_index >= 0 and lane_index < owner_state.board.size():
 		owner_state.board[lane_index].occupant = null
-		_set_lane_feedback(owner_state.player_id, lane_index, "RETURNED", LaneSlotView.EVENT_SUPPORT)
+		_set_lane_feedback(owner_state.player_id, lane_index, "VRACENO", LaneSlotView.EVENT_SUPPORT)
 	if target_card.attached_item != null:
 		owner_state.discard.append(target_card.attached_item)
 	_reset_card_instance_runtime_state(target_card)
@@ -704,7 +707,7 @@ func _play_targeted_card(owner_state: PlayerBattleState, opposing_state: PlayerB
 	owner_state.tuna_current -= card_instance.definition.cost
 	owner_state.hand.erase(card_instance)
 
-	var lines: Array[String] = ["%s uses %s." % [owner_state.display_name, card_instance.definition.display_name]]
+	var lines: Array[String] = ["%s pouzije %s." % [owner_state.display_name, card_instance.definition.display_name]]
 	var is_item := card_instance.definition.card_type == CardGameConstants.CardType.ITEM
 	if is_item and target_card != null:
 		# Equip persistently: the item lives on the cat so it can later be stolen or destroyed.
@@ -722,17 +725,17 @@ func _play_targeted_card(owner_state: PlayerBattleState, opposing_state: PlayerB
 
 func _activate_table_power(user_state: PlayerBattleState, opposing_state: PlayerBattleState, power_definition: TablePowerDefinition, lane_index: int = -1) -> String:
 	if user_state == null or power_definition == null:
-		return "No table power available."
+		return "Zadna sila stolu."
 	if not _can_use_table_power(user_state, power_definition):
-		return "%s cannot be used right now." % power_definition.display_name
+		return "%s ted nejde pouzit." % power_definition.display_name
 	if _table_power_requires_lane_selection(power_definition) and not _get_valid_table_power_lanes(power_definition, user_state).has(lane_index):
-		return "That lane is not valid for %s." % power_definition.display_name
+		return "Tahle lajna neni validni pro %s." % power_definition.display_name
 
 	_clear_lane_feedback()
 	user_state.tuna_current -= power_definition.cost
 	user_state.table_power_used_this_turn = true
 
-	var lines: Array[String] = ["%s uses %s." % [user_state.display_name, power_definition.display_name]]
+	var lines: Array[String] = ["%s pouzije %s." % [user_state.display_name, power_definition.display_name]]
 	for effect in power_definition.effects:
 		var typed_effect: CardEffect = effect
 		if typed_effect == null:
@@ -759,19 +762,19 @@ func _resolve_table_power_effect(user_state: PlayerBattleState, opposing_state: 
 			token_instance.lane_index = lane_index
 			token_instance.can_attack = false
 			slot.occupant = token_instance
-			_set_lane_feedback(user_state.player_id, lane_index, "SUMMONED", LaneSlotView.EVENT_SUPPORT)
-			return "Summons %s into lane %s." % [token_instance.definition.display_name, lane_index + 1]
+			_set_lane_feedback(user_state.player_id, lane_index, "VYVOLANO", LaneSlotView.EVENT_SUPPORT)
+			return "Vyvola %s do lajny %s." % [token_instance.definition.display_name, lane_index + 1]
 		&"reveal_random_hand_card":
 			var target_state := opposing_state if effect.target_mode == CardGameConstants.TARGET_ENEMY_PLAYER else user_state
 			if target_state == null or target_state.hand.is_empty():
-				return "Finds no cards to reveal."
+				return "Neni co odhalit."
 			var reveal_index := randi() % target_state.hand.size()
 			var revealed_card: CardInstance = target_state.hand[reveal_index]
-			return "Reveals %s." % revealed_card.definition.display_name
+			return "Odhali %s." % revealed_card.definition.display_name
 		&"heal_life":
 			if effect.target_mode == CardGameConstants.TARGET_SELF_OWNER:
 				user_state.life += effect.value
-				return "Heals %s Life." % effect.value
+				return "Vyleci %s zivotu." % effect.value
 
 	return ""
 
@@ -786,10 +789,10 @@ func _setup_battle() -> void:
 	_battle_state.priority_player_id = PLAYER_ID
 
 	var player_state := PlayerBattleState.new()
-	player_state.initialize(PLAYER_ID, "Player", STARTING_LIFE, STARTING_TUNA, PLAYER_TABLE_POWER_ID, LANE_COUNT)
+	player_state.initialize(PLAYER_ID, "Hrac", STARTING_LIFE, STARTING_TUNA, PLAYER_TABLE_POWER_ID, LANE_COUNT)
 
 	var enemy_state := PlayerBattleState.new()
-	var enemy_name := "NPC Opponent"
+	var enemy_name := "Souper"
 	var enemy_life := STARTING_LIFE
 	var enemy_power_id := StringName()
 	var enemy_deck_id := StringName()
@@ -887,7 +890,7 @@ func _handle_player_lane_pressed(lane_index: int) -> void:
 			status_label.text = _activate_table_power(player_state, enemy_state, _selected_table_power, lane_index)
 			_selected_table_power = null
 			return
-		status_label.text = "That lane is not valid for %s." % _selected_table_power.display_name
+		status_label.text = "Tahle lajna neni validni pro %s." % _selected_table_power.display_name
 		return
 
 	if _selected_card != null:
@@ -899,7 +902,7 @@ func _handle_player_lane_pressed(lane_index: int) -> void:
 				_selected_card = null
 				_selected_attacker = null
 				return
-			status_label.text = "That lane is not valid for %s." % _selected_card.definition.display_name
+			status_label.text = "Tahle lajna neni validni pro %s." % _selected_card.definition.display_name
 			return
 
 		var slot: LaneSlotState = player_state.board[lane_index]
@@ -908,26 +911,26 @@ func _handle_player_lane_pressed(lane_index: int) -> void:
 			_clear_selection_state()
 			return
 
-		status_label.text = "That target is not valid for %s." % _selected_card.definition.display_name
+		status_label.text = "Tahle jednotka neni validni cil pro %s." % _selected_card.definition.display_name
 		return
 
 	var slot: LaneSlotState = player_state.board[lane_index]
 	if slot == null or slot.occupant == null:
 		_selected_attacker = null
-		status_label.text = "Empty player lane. Pick a card from hand or select a ready cat."
+		status_label.text = "Prazdna lajna. Vyber kartu z ruky nebo pripravenou kocku."
 		return
 
 	if not slot.occupant.can_attack or slot.occupant.has_attacked:
 		_selected_attacker = null
-		status_label.text = "%s cannot attack right now." % slot.occupant.definition.display_name
+		status_label.text = "%s ted nemuze utocit." % slot.occupant.definition.display_name
 		return
 
 	_selected_table_power = null
 	_selected_attacker = null if _selected_attacker == slot.occupant else slot.occupant
 	if _selected_attacker == null:
-		status_label.text = "Attack selection cleared."
+		status_label.text = "Vyber utoku zrusen."
 	else:
-		status_label.text = "%s selected. Choose an enemy lane to attack." % _selected_attacker.definition.display_name
+		status_label.text = "Vybrano: %s. Klikni na nepratelskou lajnu pro utok." % _selected_attacker.definition.display_name
 
 
 func _handle_enemy_lane_pressed(lane_index: int) -> void:
@@ -938,7 +941,7 @@ func _handle_enemy_lane_pressed(lane_index: int) -> void:
 
 	if _selected_card != null:
 		if _selected_card.definition.card_type == CardGameConstants.CardType.CAT:
-			status_label.text = "Cats must be played on your side of the table."
+			status_label.text = "Kocky se musi vykladat na tvou stranu stolu."
 			return
 
 		var slot: LaneSlotState = enemy_state.board[lane_index]
@@ -947,7 +950,7 @@ func _handle_enemy_lane_pressed(lane_index: int) -> void:
 			_clear_selection_state()
 			return
 
-		status_label.text = "That target is not valid for %s." % _selected_card.definition.display_name
+		status_label.text = "Tahle jednotka neni validni cil pro %s." % _selected_card.definition.display_name
 		return
 
 	if _selected_attacker == null:
@@ -971,9 +974,9 @@ func _play_card_to_lane(player_state: PlayerBattleState, lane_index: int, card_i
 	card_instance.can_attack = card_instance.has_keyword(CardGameConstants.KEYWORD_QUICK_PAWS)
 	player_state.tuna_current -= card_instance.definition.cost
 	player_state.hand.erase(card_instance)
-	_set_lane_feedback(player_state.player_id, lane_index, "PLAYED", LaneSlotView.EVENT_SUPPORT)
+	_set_lane_feedback(player_state.player_id, lane_index, "VYLOZENO", LaneSlotView.EVENT_SUPPORT)
 	_resolve_triggered_effects(card_instance, player_state, CardGameConstants.TRIGGER_BATTLECRY)
-	status_label.text = "%s enters lane %s." % [card_instance.definition.display_name, lane_index + 1]
+	status_label.text = "%s vstupuje do lajny %s." % [card_instance.definition.display_name, lane_index + 1]
 	_check_battle_end()
 
 
@@ -983,29 +986,29 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 
 	var valid_attack_lanes: Array[int] = _battle_rules.get_valid_attack_lanes(attacker, defender_state)
 	if not valid_attack_lanes.has(target_lane):
-		return "That lane is not a legal target for %s." % attacker.definition.display_name
+		return "Tahle lajna neni legalni cil pro %s." % attacker.definition.display_name
 
 	_clear_lane_feedback()
 	attacker.has_attacked = true
-	_set_lane_feedback(attacker.owner_id, attacker.lane_index, "ATTACK %s" % attacker.current_attack, LaneSlotView.EVENT_ACTION)
+	_set_lane_feedback(attacker.owner_id, attacker.lane_index, "UTOK %s" % attacker.current_attack, LaneSlotView.EVENT_ACTION)
 	var target_slot: LaneSlotState = defender_state.board[target_lane]
 	var summary := ""
 
 	if target_slot.occupant != null:
 		_adjust_card_life(target_slot.occupant, -attacker.current_attack)
-		_set_lane_feedback(defender_state.player_id, target_lane, "-%s LIFE" % attacker.current_attack, LaneSlotView.EVENT_DAMAGE)
-		summary = "%s hits %s for %s damage." % [attacker.definition.display_name, target_slot.occupant.definition.display_name, attacker.current_attack]
+		_set_lane_feedback(defender_state.player_id, target_lane, "-%s ZIV" % attacker.current_attack, LaneSlotView.EVENT_DAMAGE)
+		summary = "%s zasahne %s za %s zraneni." % [attacker.definition.display_name, target_slot.occupant.definition.display_name, attacker.current_attack]
 	else:
 		var guard_target: CardInstance = _battle_rules.find_guard_for_direct_damage(defender_state, target_lane)
 		if guard_target != null:
-			_set_lane_feedback(defender_state.player_id, target_lane, "BLOCKED", LaneSlotView.EVENT_BLOCK)
+			_set_lane_feedback(defender_state.player_id, target_lane, "ZASTAVENO", LaneSlotView.EVENT_BLOCK)
 			_adjust_card_life(guard_target, -attacker.current_attack)
-			_set_lane_feedback_for_card(guard_target, "GUARD -%s" % attacker.current_attack, LaneSlotView.EVENT_BLOCK)
-			summary = "%s lunges through lane %s, but %s intercepts the hit." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name]
+			_set_lane_feedback_for_card(guard_target, "OCHRANA -%s" % attacker.current_attack, LaneSlotView.EVENT_BLOCK)
+			summary = "%s utoci pres lajnu %s, ale %s zachyti zasah." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name]
 		else:
 			_adjust_player_life(defender_state, -attacker.current_attack)
-			_set_lane_feedback(defender_state.player_id, target_lane, "DIRECT %s" % attacker.current_attack, LaneSlotView.EVENT_DIRECT)
-			summary = "%s deals %s direct damage." % [attacker.definition.display_name, attacker.current_attack]
+			_set_lane_feedback(defender_state.player_id, target_lane, "PRIMO %s" % attacker.current_attack, LaneSlotView.EVENT_DIRECT)
+			summary = "%s udeli %s primeho zraneni." % [attacker.definition.display_name, attacker.current_attack]
 			_resolve_triggered_effects(attacker, attacker_owner_state, CardGameConstants.TRIGGER_ON_DIRECT_DAMAGE)
 
 	_resolve_deaths(defender_state)
@@ -1085,8 +1088,8 @@ func _check_battle_end() -> void:
 		_battle_state.battle_over = true
 		_battle_state.winner_player_id = -1
 		_current_reward_offers.clear()
-		status_label.text = "Draw. Both sides are out of Life. Threat holds at %s." % _get_current_threat()
-		_show_post_match_overlay("Draw", "Both sides collapse at the same time. Nobody takes the table tonight.", previous_threat, previous_threat, [])
+		status_label.text = "Remiza. Obe strany dosly o vsechny zivoty. Hrozba zustava na %s." % _get_current_threat()
+		_show_post_match_overlay("Remiza", "Obe strany se zhroutily zaroven. Dnes vecer si stul nevezme nikdo.", previous_threat, previous_threat, [])
 		return
 
 	if enemy_state.life <= 0:
@@ -1103,8 +1106,8 @@ func _check_battle_end() -> void:
 		else:
 			_current_reward_offers.clear()
 		enemy_name_label.text = _build_enemy_header_name(enemy_state.display_name)
-		status_label.text = "Victory. %s is out of Life. Threat drops to %s." % [enemy_state.display_name, _get_current_threat()]
-		_show_post_match_overlay("Victory", "You broke %s and cooled the room down for the next rematch." % enemy_state.display_name, previous_threat, victory_threat, victory_deck_messages)
+		status_label.text = "Vyhra. %s dosel o vsechny zivoty. Hrozba klesa na %s." % [enemy_state.display_name, _get_current_threat()]
+		_show_post_match_overlay("Vyhra", "Zlomil jsi %s a stul se pro pristi odvetu uklidnil." % enemy_state.display_name, previous_threat, victory_threat, victory_deck_messages)
 		return
 
 	if player_state.life <= 0:
@@ -1117,8 +1120,8 @@ func _check_battle_end() -> void:
 		_progression_state = defeat_state
 		_progression_system.save_state(_progression_state)
 		enemy_name_label.text = _build_enemy_header_name(enemy_state.display_name)
-		status_label.text = "Defeat. Your side is out of Life. Threat rises to %s." % _get_current_threat()
-		_show_post_match_overlay("Defeat", "%s keeps the table and comes back nastier next time." % enemy_state.display_name, previous_threat, defeat_threat, defeat_deck_messages)
+		status_label.text = "Prohra. Tvoje strana dosla o vsechny zivoty. Hrozba roste na %s." % _get_current_threat()
+		_show_post_match_overlay("Prohra", "%s si stul drzi a priste se vrati jeste horsi." % enemy_state.display_name, previous_threat, defeat_threat, defeat_deck_messages)
 
 
 func _on_end_turn_pressed() -> void:
@@ -1156,7 +1159,7 @@ func _on_end_turn_pressed() -> void:
 	_battle_state.active_player_id = PLAYER_ID
 	_battle_state.turn_number += 1
 	_start_turn(player_state)
-	status_label.text = "Your turn. Play a card, use your Table Power, or attack with a ready cat."
+	status_label.text = "Jsi na tahu. Vyloz kartu, pouzij Silu stolu nebo utoc s pripravenou kockou."
 	_refresh_ui()
 
 
@@ -1179,39 +1182,39 @@ func _on_choose_encounter_button_pressed() -> void:
 
 func _update_post_match_actions() -> void:
 	var run_session = _get_run_session()
-	var show_reward_draft: bool = _postmatch_result_title == "Victory" and run_session != null and run_session.is_active() and not _current_reward_offers.is_empty()
+	var show_reward_draft: bool = _postmatch_result_title == "Vyhra" and run_session != null and run_session.is_active() and not _current_reward_offers.is_empty()
 	post_match_reward_buttons.visible = show_reward_draft
 	post_match_rematch_button.visible = not show_reward_draft
 	post_match_choose_encounter_button.visible = not show_reward_draft
 
 	if show_reward_draft:
-		post_match_deck_shift_title.text = "Reward Draft"
-		post_match_deck_shift_detail.text = "Pick 1 reward. Your deck persists through the run."
+		post_match_deck_shift_title.text = "Vyber odmenu"
+		post_match_deck_shift_detail.text = "Vyber 1 odmenu. Tvuj balik zustava i do dalsich souboju."
 		_refresh_reward_buttons()
-		post_match_rematch_button.text = "Retry Encounter"
-		post_match_choose_encounter_button.text = "Next Encounter" if run_session.has_next_encounter() else "End Run"
+		post_match_rematch_button.text = "Zopakovat souboj"
+		post_match_choose_encounter_button.text = "Dalsi souboj" if run_session.has_next_encounter() else "Ukoncit run"
 		return
 
-	post_match_deck_shift_title.text = "Next Tavern Shift"
+	post_match_deck_shift_title.text = "Dalsi smena"
 	if run_session != null and run_session.is_active():
-		post_match_rematch_button.text = "Retry Encounter"
-		post_match_choose_encounter_button.text = "Next Encounter" if run_session.has_next_encounter() else "End Run"
+		post_match_rematch_button.text = "Zopakovat souboj"
+		post_match_choose_encounter_button.text = "Dalsi souboj" if run_session.has_next_encounter() else "Ukoncit run"
 		return
 
-	post_match_rematch_button.text = "Rematch"
-	post_match_choose_encounter_button.text = "Choose Encounter"
+	post_match_rematch_button.text = "Odveta"
+	post_match_choose_encounter_button.text = "Vybrat souboj"
 
 
 func _refresh_reward_buttons() -> void:
 	if _current_reward_offers.size() < 3:
-		post_match_reward_add_button.text = "Add Card"
-		post_match_reward_remove_button.text = "Remove Card"
-		post_match_reward_upgrade_button.text = "Upgrade Card"
+		post_match_reward_add_button.text = "Pridat kartu"
+		post_match_reward_remove_button.text = "Odebrat kartu"
+		post_match_reward_upgrade_button.text = "Vylepsit kartu"
 		return
 
-	post_match_reward_add_button.text = str(_current_reward_offers[0].get("label", "Add Card"))
-	post_match_reward_remove_button.text = str(_current_reward_offers[1].get("label", "Remove Card"))
-	post_match_reward_upgrade_button.text = str(_current_reward_offers[2].get("label", "Upgrade Card"))
+	post_match_reward_add_button.text = str(_current_reward_offers[0].get("label", "Pridat kartu"))
+	post_match_reward_remove_button.text = str(_current_reward_offers[1].get("label", "Odebrat kartu"))
+	post_match_reward_upgrade_button.text = str(_current_reward_offers[2].get("label", "Vylepsit kartu"))
 
 
 func _on_reward_button_pressed(offer_index: int) -> void:
@@ -1333,7 +1336,7 @@ func _run_enemy_stub_turn() -> void:
 		attack_iterations += 1
 
 	if action_log.is_empty():
-		status_label.text = "%s passes and watches the table." % enemy_state.display_name
+		status_label.text = "%s pasuje a sleduje stul." % enemy_state.display_name
 	else:
 		status_label.text = " ".join(action_log)
 
@@ -1347,9 +1350,9 @@ func _refresh_ui() -> void:
 	if player_state == null or enemy_state == null:
 		return
 
-	enemy_life_label.text = "Life %s" % enemy_state.life
+	enemy_life_label.text = "Zivoty %s" % enemy_state.life
 	enemy_tuna_label.text = "Tuna %s/%s" % [enemy_state.tuna_current, enemy_state.tuna_max]
-	player_life_label.text = "Life %s" % player_state.life
+	player_life_label.text = "Zivoty %s" % player_state.life
 	player_tuna_label.text = "Tuna %s/%s" % [player_state.tuna_current, player_state.tuna_max]
 	deck_count_label.text = str(player_state.deck.size())
 	discard_count_label.text = str(player_state.discard.size())
@@ -1365,24 +1368,24 @@ func _refresh_ui() -> void:
 
 	if _battle_state.battle_over:
 		table_power_button.disabled = true
-		table_power_button.text = "Table Power"
-		end_turn_button.text = "Restart"
+		table_power_button.text = "Sila stolu"
+		end_turn_button.text = "Znovu"
 		end_turn_button.disabled = false
 	else:
 		var player_power := _get_table_power_definition(player_state)
 		if player_power == null:
-			table_power_button.text = "No Table Power"
+			table_power_button.text = "Bez Sily stolu"
 			table_power_button.disabled = true
 		else:
 			var power_label := "%s (%s)" % [player_power.display_name, player_power.cost]
 			if player_state.table_power_used_this_turn:
-				table_power_button.text = "%s (Used)" % player_power.display_name
+				table_power_button.text = "%s (vyuzito)" % player_power.display_name
 			elif _selected_table_power == player_power:
-				table_power_button.text = "Cancel %s" % player_power.display_name
+				table_power_button.text = "Zrusit %s" % player_power.display_name
 			else:
 				table_power_button.text = power_label
 			table_power_button.disabled = _battle_state.active_player_id != PLAYER_ID or not _can_use_table_power(player_state, player_power)
-		end_turn_button.text = "End Turn"
+		end_turn_button.text = "Konec tahu"
 		end_turn_button.disabled = _battle_state.active_player_id != PLAYER_ID
 
 
@@ -1402,7 +1405,7 @@ func _select_hand_card_by_instance_id(instance_id: int, toggle_selection: bool =
 		_selected_table_power = null
 		if toggle_selection and _selected_card == card:
 			_selected_card = null
-			status_label.text = "Hand selection cleared."
+			status_label.text = "Vyber z ruky zrusen."
 		else:
 			_selected_card = card
 			var enemy_state := _battle_state.get_enemy_state(PLAYER_ID)
@@ -1457,42 +1460,128 @@ func _refresh_hand(player_state: PlayerBattleState) -> void:
 func _refresh_selected_panel() -> void:
 	selected_card_view.set_selected(false)
 	selected_card_view.set_playable(false)
+	var player_state: PlayerBattleState = _battle_state.get_player_state(PLAYER_ID)
+	var enemy_state: PlayerBattleState = _battle_state.get_player_state(ENEMY_ID)
 
 	if _selected_table_power != null:
-		var player_state: PlayerBattleState = _battle_state.get_player_state(PLAYER_ID)
 		selected_card_view.set_card_instance(null)
-		selected_card_title.text = "Table Power: %s" % _selected_table_power.display_name
-		selected_card_detail.text = _build_table_power_detail(_selected_table_power, player_state)
+		_set_selected_panel_copy(
+			_selected_table_power.display_name,
+			_build_table_power_meta(_selected_table_power, player_state),
+			_build_table_power_detail(_selected_table_power, player_state),
+			_build_table_power_hint(_selected_table_power, player_state)
+		)
 		return
 
 	if _selected_card != null:
 		selected_card_view.set_card_instance(_selected_card)
 		selected_card_view.set_selected(true)
-		selected_card_title.text = _selected_card.definition.display_name
-		selected_card_detail.text = _build_selected_card_extra_detail(_selected_card.definition)
+		_set_selected_panel_copy(
+			_selected_card.definition.display_name,
+			_build_card_meta(_selected_card),
+			_build_card_detail(_selected_card.definition),
+			_build_card_selection_message(_selected_card, player_state, enemy_state)
+		)
 		return
 
 	if _selected_attacker != null:
-		var enemy_state: PlayerBattleState = _battle_state.get_player_state(ENEMY_ID)
 		selected_card_view.set_card_instance(_selected_attacker)
 		selected_card_view.set_selected(true)
-		selected_card_title.text = "Attacker: %s" % _selected_attacker.definition.display_name
-		selected_card_detail.text = "%s\nValid targets: %s" % [_build_selected_card_extra_detail(_selected_attacker.definition), _format_lane_names(_battle_rules.get_valid_attack_lanes(_selected_attacker, enemy_state))]
+		_set_selected_panel_copy(
+			"Utocnik: %s" % _selected_attacker.definition.display_name,
+			_build_attacker_meta(_selected_attacker),
+			_build_card_detail(_selected_attacker.definition),
+			_build_attacker_hint(_selected_attacker, enemy_state)
+		)
 		return
 
 	selected_card_view.set_card_instance(null)
-	selected_card_title.text = "Selected Card"
-	selected_card_detail.text = "Klikni nebo pretahni kartu z ruky na lane. Ready cat na sve strane klikni pro utok. Table Power je tlacitko."
+	_set_selected_panel_copy(
+		"Vybrana karta",
+		"NIC VYBRANO",
+		"Vyber kartu z ruky pro zahrani, nebo klikni pripravenou kocku na sve strane pro utok.",
+		"Sila stolu je tlacitko dole. Aktivni cil se ti zvyrazni na stole."
+	)
 
 
-func _build_selected_card_extra_detail(card_definition: CardDefinition) -> String:
-	var lines: Array[String] = ["Cost: %s Tuna" % card_definition.cost]
-	if not card_definition.keywords.is_empty():
-		for keyword in card_definition.keywords:
-			lines.append("%s: %s" % [CardGameConstants.keyword_label(keyword), CardGameConstants.keyword_summary(keyword)])
-	elif card_definition.effects.is_empty() and card_definition.rules_text.is_empty():
-		lines.append("No extra abilities.")
-	return "\n".join(lines)
+func _set_selected_panel_copy(title: String, meta: String, detail: String, hint: String) -> void:
+	selected_card_title.text = title
+	selected_card_meta.text = meta
+	selected_card_detail.text = detail
+	selected_card_hint.text = hint
+
+
+func _build_card_meta(card_instance: CardInstance) -> String:
+	if card_instance == null or card_instance.definition == null:
+		return "NEZNAMO"
+
+	var parts: Array[String] = [_card_type_label(card_instance.definition.card_type), "Cena %s Tuna" % card_instance.definition.cost]
+	if card_instance.definition.card_type == CardGameConstants.CardType.CAT:
+		parts.append("%s UTK / %s ZIV" % [card_instance.current_attack, card_instance.current_life])
+	return " | ".join(parts)
+
+
+func _build_attacker_meta(card_instance: CardInstance) -> String:
+	if card_instance == null or card_instance.definition == null:
+		return "UTOCNIK"
+
+	return "UTOCNIK | %s UTK / %s ZIV | Lajna %s" % [
+		card_instance.current_attack,
+		card_instance.current_life,
+		card_instance.lane_index + 1
+	]
+
+
+func _build_attacker_hint(card_instance: CardInstance, enemy_state: PlayerBattleState) -> String:
+	if card_instance == null or enemy_state == null:
+		return "Neni vybran utocnik."
+
+	var valid_targets := _battle_rules.get_valid_attack_lanes(card_instance, enemy_state)
+	if valid_targets.is_empty():
+		return "Neni validni nepratelska lajna."
+	return "Klikni nepratelskou lajnu: %s." % _format_lane_names(valid_targets)
+
+
+func _build_table_power_meta(power_definition: TablePowerDefinition, player_state: PlayerBattleState) -> String:
+	if power_definition == null:
+		return "SILA STOLU"
+
+	var parts: Array[String] = ["SILA STOLU", "Cena %s Tuna" % power_definition.cost]
+	if player_state != null:
+		if player_state.table_power_used_this_turn:
+			parts.append("VYUZITO")
+		elif player_state.tuna_current < power_definition.cost:
+			parts.append("MALO TUNY")
+		else:
+			parts.append("PRIPRAVENO")
+	return " | ".join(parts)
+
+
+func _build_table_power_hint(power_definition: TablePowerDefinition, player_state: PlayerBattleState) -> String:
+	if power_definition == null:
+		return "Neni vybrana Sila stolu."
+	if player_state == null:
+		return "Chybi stav hrace."
+	if player_state.table_power_used_this_turn:
+		return "Tohle jsi uz tento tah pouzil."
+	if player_state.tuna_current < power_definition.cost:
+		return "Nemas dost Tuna."
+	if _table_power_requires_lane_selection(power_definition):
+		var valid_lanes := _get_valid_table_power_lanes(power_definition, player_state)
+		if valid_lanes.is_empty():
+			return "Neni validni lajna na tve strane."
+		return "Klikni svou lajnu: %s." % _format_lane_names(valid_lanes)
+	return "Pouzij Silu stolu."
+
+
+func _card_type_label(card_type: int) -> String:
+	match card_type:
+		CardGameConstants.CardType.TRICK:
+			return "TRIK"
+		CardGameConstants.CardType.ITEM:
+			return "PREDMET"
+		_:
+			return "KOCKA"
 
 
 func _refresh_lane_highlights(player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> void:
@@ -1559,7 +1648,7 @@ func _on_table_power_button_pressed() -> void:
 		return
 
 	if not _can_use_table_power(player_state, power_definition):
-		status_label.text = "%s is not ready." % power_definition.display_name
+		status_label.text = "%s jeste nejde pouzit." % power_definition.display_name
 		_refresh_ui()
 		return
 
@@ -1569,9 +1658,9 @@ func _on_table_power_button_pressed() -> void:
 	if _table_power_requires_lane_selection(power_definition):
 		_selected_table_power = null if _selected_table_power == power_definition else power_definition
 		if _selected_table_power == null:
-			status_label.text = "Table Power selection cleared."
+			status_label.text = "Vyber Sily stolu zrusen."
 		else:
-			status_label.text = "%s selected. Click an open player lane." % power_definition.display_name
+			status_label.text = "Vybrano: %s. Klikni na volnou lajnu na sve strane." % power_definition.display_name
 	else:
 		_selected_table_power = null
 		status_label.text = _activate_table_power(player_state, enemy_state, power_definition)
@@ -1589,7 +1678,7 @@ func _build_card_detail(card_definition: CardDefinition) -> String:
 		return "\n".join(detail_lines)
 
 	if card_definition.keywords.is_empty():
-		return "No extra abilities."
+		return "Bez dalsich efektu."
 
 	var lines: Array[String] = []
 	for keyword in card_definition.keywords:
@@ -1599,25 +1688,25 @@ func _build_card_detail(card_definition: CardDefinition) -> String:
 
 func _build_table_power_detail(power_definition: TablePowerDefinition, player_state: PlayerBattleState) -> String:
 	if power_definition == null:
-		return "No table power."
+		return "Zadna sila stolu."
 
 	var lines: Array[String] = [power_definition.rules_text]
-	lines.append("Cost: %s Tuna" % power_definition.cost)
+	lines.append("Cena: %s Tuna" % power_definition.cost)
 	if player_state != null:
 		if player_state.table_power_used_this_turn:
-			lines.append("Status: already used this turn.")
+			lines.append("Stav: uz vyuzito v tomto kole.")
 		elif player_state.tuna_current < power_definition.cost:
-			lines.append("Status: not enough Tuna.")
+			lines.append("Stav: malo Tuny.")
 		elif _table_power_requires_lane_selection(power_definition):
-			lines.append("Valid lanes: %s" % _format_lane_names(_get_valid_table_power_lanes(power_definition, player_state)))
+			lines.append("Validni lajny: %s" % _format_lane_names(_get_valid_table_power_lanes(power_definition, player_state)))
 	return "\n".join(lines)
 
 
 func _format_lane_names(lane_indexes: Array[int]) -> String:
 	if lane_indexes.is_empty():
-		return "none"
+		return "zadna"
 
 	var lane_names: Array[String] = []
 	for lane_index in lane_indexes:
-		lane_names.append("Lane %s" % (lane_index + 1))
+		lane_names.append("Lajna %s" % (lane_index + 1))
 	return ", ".join(lane_names)

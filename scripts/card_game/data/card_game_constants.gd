@@ -27,19 +27,19 @@ const TARGET_ADJACENT_LANE := &"adjacent_lane"
 const TARGET_ENEMY_PLAYER := &"enemy_player"
 
 const KEYWORD_LABELS := {
-    KEYWORD_BATTLECRY: "Battlecry",
-    KEYWORD_LAST_BREATH: "Last Breath",
-    KEYWORD_QUICK_PAWS: "Quick Paws",
-    KEYWORD_GUARD: "Guard",
-    KEYWORD_POUNCE: "Pounce",
+    KEYWORD_BATTLECRY: "Bojovy nastup",
+    KEYWORD_LAST_BREATH: "Posledni dech",
+    KEYWORD_QUICK_PAWS: "Rychle tlapy",
+    KEYWORD_GUARD: "Ochrana",
+    KEYWORD_POUNCE: "Vypad",
 }
 
 const KEYWORD_SUMMARIES := {
-    KEYWORD_BATTLECRY: "Triggers immediately after the card is played.",
-    KEYWORD_LAST_BREATH: "Triggers when the cat dies.",
-    KEYWORD_QUICK_PAWS: "Can attack on the same turn it is played.",
-    KEYWORD_GUARD: "Intercepts direct damage through its lane and adjacent lanes.",
-    KEYWORD_POUNCE: "Can attack the opposite lane or one adjacent lane.",
+    KEYWORD_BATTLECRY: "Spusti se hned po vylozeni karty.",
+    KEYWORD_LAST_BREATH: "Spusti se pri smrti kocky.",
+    KEYWORD_QUICK_PAWS: "Muze utocit uz v kole, kdy byla vylozena.",
+    KEYWORD_GUARD: "Zachyti prime zraneni ve sve lajne i sousednich lajnach.",
+    KEYWORD_POUNCE: "Muze utocit na protilehlou nebo sousedni lajnu.",
 }
 
 
