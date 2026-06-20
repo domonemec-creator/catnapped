@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 id = &"alley_scrapper"
-display_name = "Alley Scrapper"
+display_name = "Ulicni rvac"
 card_type = 0
 cost = 2
 attack = 3

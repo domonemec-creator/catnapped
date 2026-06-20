@@ -11,7 +11,7 @@ target_mode = &"enemy_cat"
 [resource]
 script = ExtResource("1_card_definition")
 id = &"sticky_paws"
-display_name = "Sticky Paws"
+display_name = "Lepive tlapy"
 card_type = 1
 cost = 2
 attack = 0

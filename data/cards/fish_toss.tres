@@ -11,7 +11,7 @@ target_mode = &"ally_cat"
 [resource]
 script = ExtResource("1_card_definition")
 id = &"fish_toss"
-display_name = "Fish Toss"
+display_name = "Hod rybou"
 card_type = 1
 cost = 2
 attack = 0

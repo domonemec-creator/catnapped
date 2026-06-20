@@ -29,173 +29,173 @@ const THREAT_LABELS := [
 
 const SMUG_TABBY_UPGRADE_LINES := {
 	1: {
-		"gain": "Smug Tabby meni Tavern Mouser za Hidden Claws.",
-		"lose": "Smug Tabby prichazi o Hidden Claws a vraci se k Tavern Mouser.",
+		"gain": "Namysleny kocour meni Hospodskeho mysivce za Skryte drapy.",
+		"lose": "Namysleny kocour prichazi o Skryte drapy a vraci se k Hospodskemu mysivci.",
 	},
 	2: {
-		"gain": "Smug Tabby meni Fishbone Skulker za Fish Toss.",
-		"lose": "Smug Tabby prichazi o Fish Toss a vraci se k Fishbone Skulker.",
+		"gain": "Namysleny kocour meni Rybokostneho plizila za Hod rybou.",
+		"lose": "Namysleny kocour prichazi o Hod rybou a vraci se k Rybokostnemu plizilovi.",
 	},
 	3: {
-		"gain": "Smug Tabby meni Fishbone Skulker za Spiked Collar.",
-		"lose": "Smug Tabby prichazi o Spiked Collar a vraci se k Fishbone Skulker.",
+		"gain": "Namysleny kocour meni Rybokostneho plizila za Ostnaty obojek.",
+		"lose": "Namysleny kocour prichazi o Ostnaty obojek a vraci se k Rybokostnemu plizilovi.",
 	},
 	4: {
-		"gain": "Smug Tabby meni Tavern Mouser za Iron Bowl.",
-		"lose": "Smug Tabby prichazi o Iron Bowl a vraci se k Tavern Mouser.",
+		"gain": "Namysleny kocour meni Hospodskeho mysivce za Zeleznou misku.",
+		"lose": "Namysleny kocour prichazi o Zeleznou misku a vraci se k Hospodskemu mysivci.",
 	},
 	5: {
-		"gain": "Smug Tabby povysuje Alley Scrapper na Wharf Cutthroat.",
-		"lose": "Smug Tabby vraci Wharf Cutthroat zpet na Alley Scrapper.",
+		"gain": "Namysleny kocour povysuje Ulicniho rvace na Pristavniho hrdloreza.",
+		"lose": "Namysleny kocour vraci Pristavniho hrdloreza zpet na Ulicniho rvace.",
 	},
 	6: {
-		"gain": "Smug Tabby meni Tavern Mouser za Table Flip.",
-		"lose": "Smug Tabby prichazi o Table Flip a vraci se k Tavern Mouser.",
+		"gain": "Namysleny kocour meni Hospodskeho mysivce za Prevrat stolu.",
+		"lose": "Namysleny kocour prichazi o Prevrat stolu a vraci se k Hospodskemu mysivci.",
 	},
 	7: {
-		"gain": "Smug Tabby povysuje Dockside Bruiser na Captain Ironmaw.",
-		"lose": "Smug Tabby vraci Captain Ironmaw zpet na Dockside Bruiser.",
+		"gain": "Namysleny kocour povysuje Dokoveho rvace na Kapitana Zeleznou tlamu.",
+		"lose": "Namysleny kocour vraci Kapitana Zeleznou tlamu zpet na Dokoveho rvace.",
 	},
 	8: {
-		"gain": "Smug Tabby povysuje Alley Scrapper na Netclaw Raider.",
-		"lose": "Smug Tabby vraci Netclaw Raider zpet na Alley Scrapper.",
+		"gain": "Namysleny kocour povysuje Ulicniho rvace na Sitodrapeho najezdnika.",
+		"lose": "Namysleny kocour vraci Sitodrapeho najezdnika zpet na Ulicniho rvace.",
 	},
 	9: {
-		"gain": "Smug Tabby meni Dockside Bruiser za druhe Hidden Claws.",
-		"lose": "Smug Tabby prichazi o druhe Hidden Claws a vraci se k Dockside Bruiser.",
+		"gain": "Namysleny kocour meni Dokoveho rvace za druhe Skryte drapy.",
+		"lose": "Namysleny kocour prichazi o druhe Skryte drapy a vraci se k Dokovemu rvaci.",
 	},
 	10: {
-		"gain": "Smug Tabby povysuje Dockside Bruiser na Boilerback Guardian.",
-		"lose": "Smug Tabby vraci Boilerback Guardian zpet na Dockside Bruiser.",
+		"gain": "Namysleny kocour povysuje Dokoveho rvace na Kotelniho strazce.",
+		"lose": "Namysleny kocour vraci Kotelniho strazce zpet na Dokoveho rvace.",
 	},
 }
 
 const RAGCLAW_BRAWLER_UPGRADE_LINES := {
 	1: {
-		"gain": "Ragclaw meni Fishbone Skulker za Hidden Claws.",
-		"lose": "Ragclaw prichazi o Hidden Claws a vraci se k Fishbone Skulker.",
+		"gain": "Ragclaw rvac meni Rybokostneho plizila za Skryte drapy.",
+		"lose": "Ragclaw rvac prichazi o Skryte drapy a vraci se k Rybokostnemu plizilovi.",
 	},
 	2: {
-		"gain": "Ragclaw meni Alley Scrapper za Fish Toss.",
-		"lose": "Ragclaw prichazi o Fish Toss a vraci se k Alley Scrapper.",
+		"gain": "Ragclaw rvac meni Ulicniho rvace za Hod rybou.",
+		"lose": "Ragclaw rvac prichazi o Hod rybou a vraci se k Ulicnimu rvaci.",
 	},
 	3: {
-		"gain": "Ragclaw meni Alley Scrapper za Spiked Collar.",
-		"lose": "Ragclaw prichazi o Spiked Collar a vraci se k Alley Scrapper.",
+		"gain": "Ragclaw rvac meni Ulicniho rvace za Ostnaty obojek.",
+		"lose": "Ragclaw rvac prichazi o Ostnaty obojek a vraci se k Ulicnimu rvaci.",
 	},
 	4: {
-		"gain": "Ragclaw meni Candlepaw Scout za Catnip Burst.",
-		"lose": "Ragclaw prichazi o Catnip Burst a vraci se k Candlepaw Scout.",
+		"gain": "Ragclaw rvac meni Svicotlapeho zveda za Kocici matu.",
+		"lose": "Ragclaw rvac prichazi o Kocici matu a vraci se ke Svicotlapemu zvedovi.",
 	},
 	5: {
-		"gain": "Ragclaw povysuje Dockside Bruiser na Wharf Cutthroat.",
-		"lose": "Ragclaw vraci Wharf Cutthroat zpet na Dockside Bruiser.",
+		"gain": "Ragclaw rvac povysuje Dokoveho rvace na Pristavniho hrdloreza.",
+		"lose": "Ragclaw rvac vraci Pristavniho hrdloreza zpet na Dokoveho rvace.",
 	},
 	6: {
-		"gain": "Ragclaw meni Alley Scrapper za Table Flip.",
-		"lose": "Ragclaw prichazi o Table Flip a vraci se k Alley Scrapper.",
+		"gain": "Ragclaw rvac meni Ulicniho rvace za Prevrat stolu.",
+		"lose": "Ragclaw rvac prichazi o Prevrat stolu a vraci se k Ulicnimu rvaci.",
 	},
 	7: {
-		"gain": "Ragclaw meni Candlepaw Scout za druhe Hidden Claws.",
-		"lose": "Ragclaw prichazi o druhe Hidden Claws a vraci se k Candlepaw Scout.",
+		"gain": "Ragclaw rvac meni Svicotlapeho zveda za druhe Skryte drapy.",
+		"lose": "Ragclaw rvac prichazi o druhe Skryte drapy a vraci se ke Svicotlapemu zvedovi.",
 	},
 	8: {
-		"gain": "Ragclaw povysuje Rafter Pouncer na Netclaw Raider.",
-		"lose": "Ragclaw vraci Netclaw Raider zpet na Rafter Pouncer.",
+		"gain": "Ragclaw rvac povysuje Tramoveho skokana na Sitodrapeho najezdnika.",
+		"lose": "Ragclaw rvac vraci Sitodrapeho najezdnika zpet na Tramoveho skokana.",
 	},
 	9: {
-		"gain": "Ragclaw povysuje Rafter Pouncer na Wharf Cutthroat.",
-		"lose": "Ragclaw vraci Wharf Cutthroat zpet na Rafter Pouncer.",
+		"gain": "Ragclaw rvac povysuje Tramoveho skokana na Pristavniho hrdloreza.",
+		"lose": "Ragclaw rvac vraci Pristavniho hrdloreza zpet na Tramoveho skokana.",
 	},
 	10: {
-		"gain": "Ragclaw povysuje Captain Ironmaw na Netclaw Raider.",
-		"lose": "Ragclaw vraci Netclaw Raider zpet na Captain Ironmaw.",
+		"gain": "Ragclaw rvac povysuje Kapitana Zeleznou tlamu na Sitodrapeho najezdnika.",
+		"lose": "Ragclaw rvac vraci Sitodrapeho najezdnika zpet na Kapitana Zeleznou tlamu.",
 	},
 }
 
 const HARBOR_WARDEN_UPGRADE_LINES := {
 	1: {
-		"gain": "Harbor Warden meni Candlepaw Scout za Hidden Claws.",
-		"lose": "Harbor Warden prichazi o Hidden Claws a vraci se k Candlepaw Scout.",
+		"gain": "Pristavni strazny meni Svicotlapeho zveda za Skryte drapy.",
+		"lose": "Pristavni strazny prichazi o Skryte drapy a vraci se ke Svicotlapemu zvedovi.",
 	},
 	2: {
-		"gain": "Harbor Warden meni Tavern Mouser za Fish Toss.",
-		"lose": "Harbor Warden prichazi o Fish Toss a vraci se k Tavern Mouser.",
+		"gain": "Pristavni strazny meni Hospodskeho mysivce za Hod rybou.",
+		"lose": "Pristavni strazny prichazi o Hod rybou a vraci se k Hospodskemu mysivci.",
 	},
 	3: {
-		"gain": "Harbor Warden povysuje Alley Scrapper na Wharf Cutthroat.",
-		"lose": "Harbor Warden vraci Wharf Cutthroat zpet na Alley Scrapper.",
+		"gain": "Pristavni strazny povysuje Ulicniho rvace na Pristavniho hrdloreza.",
+		"lose": "Pristavni strazny vraci Pristavniho hrdloreza zpet na Ulicniho rvace.",
 	},
 	4: {
-		"gain": "Harbor Warden povysuje Dockside Bruiser na Boilerback Guardian.",
-		"lose": "Harbor Warden vraci Boilerback Guardian zpet na Dockside Bruiser.",
+		"gain": "Pristavni strazny povysuje Dokoveho rvace na Kotelniho strazce.",
+		"lose": "Pristavni strazny vraci Kotelniho strazce zpet na Dokoveho rvace.",
 	},
 	5: {
-		"gain": "Harbor Warden povysuje Wharf Cutthroat na Captain Ironmaw.",
-		"lose": "Harbor Warden vraci Captain Ironmaw zpet na Wharf Cutthroat.",
+		"gain": "Pristavni strazny povysuje Pristavniho hrdloreza na Kapitana Zeleznou tlamu.",
+		"lose": "Pristavni strazny vraci Kapitana Zeleznou tlamu zpet na Pristavniho hrdloreza.",
 	},
 	6: {
-		"gain": "Harbor Warden meni Boilerback Guardian za Iron Bowl.",
-		"lose": "Harbor Warden prichazi o Iron Bowl a vraci se k Boilerback Guardian.",
+		"gain": "Pristavni strazny meni Kotelniho strazce za Zeleznou misku.",
+		"lose": "Pristavni strazny prichazi o Zeleznou misku a vraci se ke Kotelnimu strazci.",
 	},
 	7: {
-		"gain": "Harbor Warden meni Tavern Mouser za Table Flip.",
-		"lose": "Harbor Warden prichazi o Table Flip a vraci se k Tavern Mouser.",
+		"gain": "Pristavni strazny meni Hospodskeho mysivce za Prevrat stolu.",
+		"lose": "Pristavni strazny prichazi o Prevrat stolu a vraci se k Hospodskemu mysivci.",
 	},
 	8: {
-		"gain": "Harbor Warden povysuje Fishbone Skulker na Netclaw Raider.",
-		"lose": "Harbor Warden vraci Netclaw Raider zpet na Fishbone Skulker.",
+		"gain": "Pristavni strazny povysuje Rybokostneho plizila na Sitodrapeho najezdnika.",
+		"lose": "Pristavni strazny vraci Sitodrapeho najezdnika zpet na Rybokostneho plizila.",
 	},
 	9: {
-		"gain": "Harbor Warden meni Dockside Bruiser za druhe Hidden Claws.",
-		"lose": "Harbor Warden prichazi o druhe Hidden Claws a vraci se k Dockside Bruiser.",
+		"gain": "Pristavni strazny meni Dokoveho rvace za druhe Skryte drapy.",
+		"lose": "Pristavni strazny prichazi o druhe Skryte drapy a vraci se k Dokovemu rvaci.",
 	},
 	10: {
-		"gain": "Harbor Warden povysuje Candlepaw Scout na Boilerback Guardian.",
-		"lose": "Harbor Warden vraci Boilerback Guardian zpet na Candlepaw Scout.",
+		"gain": "Pristavni strazny povysuje Svicotlapeho zveda na Kotelniho strazce.",
+		"lose": "Pristavni strazny vraci Kotelniho strazce zpet ke Svicotlapemu zvedovi.",
 	},
 }
 
 const LANTERN_STRIKER_UPGRADE_LINES := {
 	1: {
-		"gain": "Lantern Striker meni Fishbone Skulker za Hidden Claws.",
-		"lose": "Lantern Striker prichazi o Hidden Claws a vraci se k Fishbone Skulker.",
+		"gain": "Lucernovy utocnik meni Rybokostneho plizila za Skryte drapy.",
+		"lose": "Lucernovy utocnik prichazi o Skryte drapy a vraci se k Rybokostnemu plizilovi.",
 	},
 	2: {
-		"gain": "Lantern Striker meni Tavern Mouser za Catnip Burst.",
-		"lose": "Lantern Striker prichazi o Catnip Burst a vraci se k Tavern Mouser.",
+		"gain": "Lucernovy utocnik meni Hospodskeho mysivce za Kocici matu.",
+		"lose": "Lucernovy utocnik prichazi o Kocici matu a vraci se k Hospodskemu mysivci.",
 	},
 	3: {
-		"gain": "Lantern Striker povysuje Alley Scrapper na Fish Toss.",
-		"lose": "Lantern Striker vraci Fish Toss zpet na Alley Scrapper.",
+		"gain": "Lucernovy utocnik povysuje Ulicniho rvace na Hod rybou.",
+		"lose": "Lucernovy utocnik vraci Hod rybou zpet na Ulicniho rvace.",
 	},
 	4: {
-		"gain": "Lantern Striker povysuje Candlepaw Scout na Rafter Pouncer.",
-		"lose": "Lantern Striker vraci Rafter Pouncer zpet na Candlepaw Scout.",
+		"gain": "Lucernovy utocnik povysuje Svicotlapeho zveda na Tramoveho skokana.",
+		"lose": "Lucernovy utocnik vraci Tramoveho skokana zpet ke Svicotlapemu zvedovi.",
 	},
 	5: {
-		"gain": "Lantern Striker povysuje Dockside Bruiser na Wharf Cutthroat.",
-		"lose": "Lantern Striker vraci Wharf Cutthroat zpet na Dockside Bruiser.",
+		"gain": "Lucernovy utocnik povysuje Dokoveho rvace na Pristavniho hrdloreza.",
+		"lose": "Lucernovy utocnik vraci Pristavniho hrdloreza zpet na Dokoveho rvace.",
 	},
 	6: {
-		"gain": "Lantern Striker povysuje Rafter Pouncer na Netclaw Raider.",
-		"lose": "Lantern Striker vraci Netclaw Raider zpet na Rafter Pouncer.",
+		"gain": "Lucernovy utocnik povysuje Tramoveho skokana na Sitodrapeho najezdnika.",
+		"lose": "Lucernovy utocnik vraci Sitodrapeho najezdnika zpet na Tramoveho skokana.",
 	},
 	7: {
-		"gain": "Lantern Striker meni Catnip Burst za Table Flip.",
-		"lose": "Lantern Striker prichazi o Table Flip a vraci se k Catnip Burst.",
+		"gain": "Lucernovy utocnik meni Kocici matu za Prevrat stolu.",
+		"lose": "Lucernovy utocnik prichazi o Prevrat stolu a vraci se ke Kocici mate.",
 	},
 	8: {
-		"gain": "Lantern Striker povysuje Wharf Cutthroat na Captain Ironmaw.",
-		"lose": "Lantern Striker vraci Captain Ironmaw zpet na Wharf Cutthroat.",
+		"gain": "Lucernovy utocnik povysuje Pristavniho hrdloreza na Kapitana Zeleznou tlamu.",
+		"lose": "Lucernovy utocnik vraci Kapitana Zeleznou tlamu zpet na Pristavniho hrdloreza.",
 	},
 	9: {
-		"gain": "Lantern Striker meni Fishbone Skulker za Spiked Collar.",
-		"lose": "Lantern Striker prichazi o Spiked Collar a vraci se k Fishbone Skulker.",
+		"gain": "Lucernovy utocnik meni Rybokostneho plizila za Ostnaty obojek.",
+		"lose": "Lucernovy utocnik prichazi o Ostnaty obojek a vraci se k Rybokostnemu plizilovi.",
 	},
 	10: {
-		"gain": "Lantern Striker povysuje Alley Scrapper na Boilerback Guardian.",
-		"lose": "Lantern Striker vraci Boilerback Guardian zpet na Alley Scrapper.",
+		"gain": "Lucernovy utocnik povysuje Ulicniho rvace na Kotelniho strazce.",
+		"lose": "Lucernovy utocnik vraci Kotelniho strazce zpet na Ulicniho rvace.",
 	},
 }
 

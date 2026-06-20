@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/card_game/systems/battle_controller.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/card_game/lane_slot_view.tscn" id="2_lane_slot"]
@@ -69,6 +69,20 @@ corner_radius_top_left = 10
 corner_radius_top_right = 10
 corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="8_info_panel_style"]
+bg_color = Color(0.12, 0.09, 0.07, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.6, 0.46, 0.24, 0.9)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.28)
+shadow_size = 6
 
 [node name="BattleScene" type="Control"]
 anchor_right = 1.0
@@ -190,18 +204,43 @@ horizontal_alignment = 1
 theme_override_font_sizes/font_size = 16
 text = "Tuna 0/0"
 
-[node name="StatusLabel" type="Label" parent="Margin/Layout/TopRow/BoardColumn"]
+[node name="CombatInfoPanel" type="PanelContainer" parent="Margin/Layout/TopRow/BoardColumn"]
+custom_minimum_size = Vector2(0, 152)
+theme_override_styles/panel = SubResource("8_info_panel_style")
+
+[node name="MarginContainer" type="MarginContainer" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = 12.0
+offset_right = -14.0
+offset_bottom = -12.0
+mouse_filter = 2
+
+[node name="InfoVBox" type="VBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer"]
+theme_override_constants/separation = 6
+mouse_filter = 2
+
+[node name="StatusTitle" type="Label" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox"]
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.93, 0.82, 0.64, 0.96)
+text = "Stav tahu"
+
+[node name="StatusLabel" type="Label" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox"]
+custom_minimum_size = Vector2(0, 42)
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.97, 0.93, 0.86, 1)
 text = "Nacitam..."
 
-[node name="BattleFeedTitle" type="Label" parent="Margin/Layout/TopRow/BoardColumn"]
-theme_override_font_sizes/font_size = 16
+[node name="BattleFeedTitle" type="Label" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox"]
+theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.95, 0.84, 0.62, 1)
-text = "Log boje"
+text = "Posledni akce"
 
-[node name="BattleFeed" type="RichTextLabel" parent="Margin/Layout/TopRow/BoardColumn"]
-custom_minimum_size = Vector2(0, 96)
+[node name="BattleFeed" type="RichTextLabel" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox"]
+custom_minimum_size = Vector2(0, 62)
+size_flags_vertical = 3
 bbcode_enabled = false
 scroll_active = false
 shortcut_keys_enabled = false

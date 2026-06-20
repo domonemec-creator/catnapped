@@ -13,7 +13,7 @@ value = 1
 [resource]
 script = ExtResource("1_card_definition")
 id = &"boilerback_guardian"
-display_name = "Boilerback Guardian"
+display_name = "Kotelni strazce"
 card_type = 0
 cost = 4
 attack = 2

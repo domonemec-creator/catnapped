@@ -49,6 +49,7 @@ const PORTRAIT_FRAME_RED_PATH := "res://assets/card_game/ui/portrait_frame_red.p
 @onready var enemy_name_label: Label = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyNamePlate/EnemyName
 @onready var enemy_life_label: Label = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyStatsPanel/MarginContainer/VBox/EnemyLife
 @onready var enemy_tuna_label: Label = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyStatsPanel/MarginContainer/VBox/EnemyTuna
+@onready var combat_info_panel: PanelContainer = $Margin/Layout/TopRow/BoardColumn/CombatInfoPanel
 @onready var player_life_label: Label = $Margin/Layout/BottomBar/PlayerStats/MarginContainer/VBox/PlayerLife
 @onready var player_tuna_label: Label = $Margin/Layout/BottomBar/PlayerStats/MarginContainer/VBox/PlayerTuna
 @onready var deck_count_label: Label = $Margin/Layout/BottomBar/DeckPanel/MarginContainer/VBox/DeckCount
@@ -61,8 +62,9 @@ const PORTRAIT_FRAME_RED_PATH := "res://assets/card_game/ui/portrait_frame_red.p
 @onready var selected_card_detail: RichTextLabel = $Margin/Layout/TopRow/SelectedPanel/Content/BottomZone/InfoPanel/MarginContainer/InfoVBox/SelectedDetail
 @onready var selected_card_hint: Label = $Margin/Layout/TopRow/SelectedPanel/Content/BottomZone/InfoPanel/MarginContainer/InfoVBox/SelectedHint
 @onready var table_power_button: Button = $Margin/Layout/TopRow/SelectedPanel/Content/BottomZone/TablePowerButton
-@onready var status_label: Label = $Margin/Layout/TopRow/BoardColumn/StatusLabel
-@onready var battle_feed_label: RichTextLabel = $Margin/Layout/TopRow/BoardColumn/BattleFeed
+@onready var status_label: Label = $Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox/StatusLabel
+@onready var battle_feed_title: Label = $Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox/BattleFeedTitle
+@onready var battle_feed_label: RichTextLabel = $Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox/BattleFeed
 @onready var end_turn_button: Button = $Margin/Layout/TopRow/SelectedPanel/Content/BottomZone/EndTurnButton
 @onready var post_match_overlay: Control = $PostMatchOverlay
 @onready var post_match_backdrop_art: TextureRect = $PostMatchOverlay/BackdropArt
@@ -109,6 +111,7 @@ var _enemy_lane_feedback: Array[Dictionary] = []
 var _battle_feed_lines: Array[String] = []
 var _last_logged_status_text: String = ""
 var _postmatch_result_title: String = ""
+var _postmatch_run_completion_pending: bool = false
 var _postmatch_victory_emblem_texture: Texture2D
 var _postmatch_defeat_emblem_texture: Texture2D
 var _postmatch_threat_badge_texture: Texture2D
@@ -118,6 +121,7 @@ var _postmatch_panel_frame_texture: Texture2D
 var _portrait_frame_gold_texture: Texture2D
 var _portrait_frame_green_texture: Texture2D
 var _portrait_frame_red_texture: Texture2D
+var _combat_info_panel_base_style: StyleBoxFlat
 
 
 func _ready() -> void:
@@ -133,6 +137,9 @@ func _ready() -> void:
 	_portrait_frame_gold_texture = _load_texture(PORTRAIT_FRAME_GOLD_PATH)
 	_portrait_frame_green_texture = _load_texture(PORTRAIT_FRAME_GREEN_PATH)
 	_portrait_frame_red_texture = _load_texture(PORTRAIT_FRAME_RED_PATH)
+	var info_panel_style := combat_info_panel.get_theme_stylebox("panel")
+	if info_panel_style is StyleBoxFlat:
+		_combat_info_panel_base_style = (info_panel_style as StyleBoxFlat).duplicate() as StyleBoxFlat
 
 	_enemy_lanes = [
 		$Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes/Lane0/EnemyLane,
@@ -147,7 +154,7 @@ func _ready() -> void:
 
 	for lane_index in range(LANE_COUNT):
 		_enemy_lanes[lane_index].configure(lane_index, ENEMY_ID, "Souper %s" % (lane_index + 1), "Primy zasah")
-		_player_lanes[lane_index].configure(lane_index, PLAYER_ID, "Hrac %s" % (lane_index + 1), "Vyloz kocku")
+		_player_lanes[lane_index].configure(lane_index, PLAYER_ID, "Ty %s" % (lane_index + 1), "Vyloz kocku")
 		_enemy_lanes[lane_index].slot_pressed.connect(_on_lane_pressed)
 		_player_lanes[lane_index].slot_pressed.connect(_on_lane_pressed)
 		_enemy_lanes[lane_index].card_dropped.connect(_on_lane_card_dropped)
@@ -210,10 +217,12 @@ func _hide_post_match_overlay() -> void:
 	post_match_overlay.visible = false
 	_current_reward_offers.clear()
 	_postmatch_result_title = ""
+	_postmatch_run_completion_pending = false
 
 
 func _show_post_match_overlay(result_title: String, result_summary: String, previous_threat: int, next_threat: int, deck_messages: Array[String]) -> void:
 	_postmatch_result_title = result_title
+	_postmatch_run_completion_pending = result_title == "Vyprava dokoncena"
 	var run_session = _get_run_session()
 	post_match_overlay.visible = true
 	post_match_backdrop_art.texture = _get_post_match_backdrop_texture()
@@ -237,6 +246,8 @@ func _show_post_match_overlay(result_title: String, result_summary: String, prev
 			post_match_result_emblem.texture = _postmatch_victory_emblem_texture
 		"Prohra":
 			post_match_result_emblem.texture = _postmatch_defeat_emblem_texture
+		"Vyprava dokoncena":
+			post_match_result_emblem.texture = _postmatch_victory_emblem_texture
 		_:
 			post_match_result_emblem.texture = null
 
@@ -258,6 +269,49 @@ func _build_post_match_deck_shift_text(deck_messages: Array[String], previous_th
 	if previous_threat == next_threat:
 		return "Balik beze zmen. Pristi odveta pouzije stejnou sestavu."
 	return "Hrozba se zmenila, ale tahle uroven drzi stejny balik."
+
+
+func _card_display_name_from_id(card_id: StringName) -> String:
+	var card_definition: CardDefinition = _card_library.get(card_id) as CardDefinition
+	if card_definition == null or card_definition.display_name.is_empty():
+		return String(card_id)
+	return card_definition.display_name
+
+
+func _build_reward_resolution_text(reward_offer: Dictionary) -> String:
+	match str(reward_offer.get("kind", "")):
+		"add":
+			return "Do finalniho baliku pridano %s." % _card_display_name_from_id(StringName(reward_offer.get("card_id", StringName())))
+		"remove":
+			return "Z finalniho baliku odebrano %s." % _card_display_name_from_id(StringName(reward_offer.get("card_id", StringName())))
+		"upgrade":
+			return "Finalni vylepseni: %s -> %s." % [
+				_card_display_name_from_id(StringName(reward_offer.get("from_card_id", StringName()))),
+				_card_display_name_from_id(StringName(reward_offer.get("to_card_id", StringName()))),
+			]
+	return ""
+
+
+func _show_run_completion_overlay(reward_offer: Dictionary) -> void:
+	var run_session = _get_run_session()
+	var completion_messages: Array[String] = []
+	var reward_text := _build_reward_resolution_text(reward_offer)
+	if not reward_text.is_empty():
+		completion_messages.append(reward_text)
+	if run_session != null:
+		completion_messages.append("Balik je ulozeny. Finalni velikost: %s karet." % run_session.get_player_deck_card_ids().size())
+
+	var current_threat := _get_current_threat()
+	_show_post_match_overlay(
+		"Vyprava dokoncena",
+		"Posledni souper padl. Tuhle vypravu jsi dotahl do konce.",
+		current_threat,
+		current_threat,
+		completion_messages
+	)
+	if not post_match_record_label.text.is_empty():
+		post_match_record_label.text += "   HOTOVO"
+	status_label.text = "Vyprava dokoncena. Posledni odmena je ulozena."
 
 
 func _get_encounter_portrait_path() -> String:
@@ -997,18 +1051,24 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 	if target_slot.occupant != null:
 		_adjust_card_life(target_slot.occupant, -attacker.current_attack)
 		_set_lane_feedback(defender_state.player_id, target_lane, "-%s ZIV" % attacker.current_attack, LaneSlotView.EVENT_DAMAGE)
-		summary = "%s zasahne %s za %s zraneni." % [attacker.definition.display_name, target_slot.occupant.definition.display_name, attacker.current_attack]
+		if target_slot.occupant.current_life <= 0:
+			summary = "%s zasahne %s za %s zraneni a vyradi ji." % [attacker.definition.display_name, target_slot.occupant.definition.display_name, attacker.current_attack]
+		else:
+			summary = "%s zasahne %s za %s zraneni. Zbyva %s ZIV." % [attacker.definition.display_name, target_slot.occupant.definition.display_name, attacker.current_attack, target_slot.occupant.current_life]
 	else:
 		var guard_target: CardInstance = _battle_rules.find_guard_for_direct_damage(defender_state, target_lane)
 		if guard_target != null:
 			_set_lane_feedback(defender_state.player_id, target_lane, "ZASTAVENO", LaneSlotView.EVENT_BLOCK)
 			_adjust_card_life(guard_target, -attacker.current_attack)
 			_set_lane_feedback_for_card(guard_target, "OCHRANA -%s" % attacker.current_attack, LaneSlotView.EVENT_BLOCK)
-			summary = "%s utoci pres lajnu %s, ale %s zachyti zasah." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name]
+			if guard_target.current_life <= 0:
+				summary = "%s utoci do lajny %s, ale %s zachyti zasah a pada." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name]
+			else:
+				summary = "%s utoci do lajny %s, ale %s zachyti zasah. Zbyva %s ZIV." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name, guard_target.current_life]
 		else:
 			_adjust_player_life(defender_state, -attacker.current_attack)
 			_set_lane_feedback(defender_state.player_id, target_lane, "PRIMO %s" % attacker.current_attack, LaneSlotView.EVENT_DIRECT)
-			summary = "%s udeli %s primeho zraneni." % [attacker.definition.display_name, attacker.current_attack]
+			summary = "%s udeli %s primeho zraneni. Souperi zbyva %s zivotu." % [attacker.definition.display_name, attacker.current_attack, defender_state.life]
 			_resolve_triggered_effects(attacker, attacker_owner_state, CardGameConstants.TRIGGER_ON_DIRECT_DAMAGE)
 
 	_resolve_deaths(defender_state)
@@ -1170,6 +1230,10 @@ func _on_rematch_button_pressed() -> void:
 func _on_choose_encounter_button_pressed() -> void:
 	var run_session = _get_run_session()
 	if run_session != null and run_session.is_active():
+		if _should_end_run_from_postmatch():
+			run_session.end_run()
+			_return_to_encounter_select()
+			return
 		if run_session.has_next_encounter():
 			run_session.advance_to_next_encounter()
 			get_tree().reload_current_scene()
@@ -1197,6 +1261,19 @@ func _update_post_match_actions() -> void:
 
 	post_match_deck_shift_title.text = "Dalsi smena"
 	if run_session != null and run_session.is_active():
+		if _postmatch_run_completion_pending:
+			post_match_deck_shift_title.text = "Vyprava hotova"
+			post_match_rematch_button.visible = false
+			post_match_choose_encounter_button.visible = true
+			post_match_choose_encounter_button.text = "Zpet na vyber"
+			return
+		if _should_end_run_from_postmatch():
+			post_match_deck_shift_title.text = "Vyprava skoncila"
+			post_match_deck_shift_detail.text = "Tenhle souboj jsi nevyhral. Vyprava konci a vratis se na vyber."
+			post_match_rematch_button.visible = false
+			post_match_choose_encounter_button.visible = true
+			post_match_choose_encounter_button.text = "Konec vypravy"
+			return
 		post_match_rematch_button.text = "Zopakovat souboj"
 		post_match_choose_encounter_button.text = "Dalsi souboj" if run_session.has_next_encounter() else "Ukoncit run"
 		return
@@ -1239,8 +1316,7 @@ func _on_reward_button_pressed(offer_index: int) -> void:
 		get_tree().reload_current_scene()
 		return
 
-	run_session.end_run()
-	_return_to_encounter_select()
+	_show_run_completion_overlay(reward_offer)
 
 
 func _return_to_encounter_select() -> void:
@@ -1258,6 +1334,10 @@ func _return_to_encounter_select() -> void:
 
 func _get_run_session():
 	return get_node("/root/RunSession")
+
+
+func _should_end_run_from_postmatch() -> bool:
+	return _postmatch_result_title == "Prohra" or _postmatch_result_title == "Remiza" or _postmatch_run_completion_pending
 
 
 func _start_turn(player_state: PlayerBattleState) -> void:
@@ -1312,7 +1392,7 @@ func _run_enemy_stub_turn() -> void:
 				if played_lane < 0:
 					break
 				_play_card_to_lane(enemy_state, played_lane, played_card)
-				action_log.append("%s plays %s into lane %s." % [enemy_state.display_name, played_card.definition.display_name, played_lane + 1])
+				action_log.append("%s vyklada %s do lajny %s." % [enemy_state.display_name, played_card.definition.display_name, played_lane + 1])
 		play_iterations += 1
 
 	var enemy_power := _get_table_power_definition(enemy_state)
@@ -1364,6 +1444,7 @@ func _refresh_ui() -> void:
 	_refresh_selected_panel()
 	_refresh_lane_highlights(player_state, enemy_state)
 	_update_turn_indicator()
+	_refresh_combat_info_panel()
 	_sync_battle_feed()
 
 	if _battle_state.battle_over:
@@ -1499,7 +1580,7 @@ func _refresh_selected_panel() -> void:
 	_set_selected_panel_copy(
 		"Vybrana karta",
 		"NIC VYBRANO",
-		"Vyber kartu z ruky pro zahrani, nebo klikni pripravenou kocku na sve strane pro utok.",
+		"Vyber kartu z ruky pro vylozeni, nebo klikni pripravenou kocku na sve strane pro utok.",
 		"Sila stolu je tlacitko dole. Aktivni cil se ti zvyrazni na stole."
 	)
 
@@ -1509,6 +1590,40 @@ func _set_selected_panel_copy(title: String, meta: String, detail: String, hint:
 	selected_card_meta.text = meta
 	selected_card_detail.text = detail
 	selected_card_hint.text = hint
+
+
+func _refresh_combat_info_panel() -> void:
+	if combat_info_panel == null or _combat_info_panel_base_style == null or _battle_state == null:
+		return
+
+	var panel_style := _combat_info_panel_base_style.duplicate() as StyleBoxFlat
+	var status_color := Color(0.97, 0.93, 0.86, 1.0)
+	var feed_title_color := Color(0.95, 0.84, 0.62, 1.0)
+
+	if _battle_state.battle_over:
+		panel_style.bg_color = Color(0.17, 0.12, 0.08, 0.96)
+		panel_style.border_color = Color(0.92, 0.72, 0.32, 0.98)
+		status_color = Color(1.0, 0.95, 0.84, 1.0)
+		feed_title_color = Color(0.98, 0.83, 0.45, 1.0)
+	elif _selected_attacker != null or _selected_card != null or _selected_table_power != null:
+		panel_style.bg_color = Color(0.18, 0.12, 0.07, 0.96)
+		panel_style.border_color = Color(0.95, 0.73, 0.35, 0.97)
+		status_color = Color(1.0, 0.92, 0.82, 1.0)
+		feed_title_color = Color(0.98, 0.8, 0.46, 1.0)
+	elif _battle_state.active_player_id == PLAYER_ID:
+		panel_style.bg_color = Color(0.10, 0.13, 0.09, 0.96)
+		panel_style.border_color = Color(0.58, 0.82, 0.48, 0.95)
+		status_color = Color(0.92, 0.98, 0.92, 1.0)
+		feed_title_color = Color(0.76, 0.95, 0.76, 1.0)
+	else:
+		panel_style.bg_color = Color(0.17, 0.09, 0.08, 0.96)
+		panel_style.border_color = Color(0.84, 0.42, 0.32, 0.95)
+		status_color = Color(0.99, 0.91, 0.88, 1.0)
+		feed_title_color = Color(0.97, 0.74, 0.66, 1.0)
+
+	combat_info_panel.add_theme_stylebox_override("panel", panel_style)
+	status_label.add_theme_color_override("font_color", status_color)
+	battle_feed_title.add_theme_color_override("font_color", feed_title_color)
 
 
 func _build_card_meta(card_instance: CardInstance) -> String:

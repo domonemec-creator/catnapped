@@ -13,7 +13,7 @@ value = 1
 [resource]
 script = ExtResource("1_card_definition")
 id = &"fishbone_skulker"
-display_name = "Fishbone Skulker"
+display_name = "Rybokostny plizil"
 card_type = 0
 cost = 2
 attack = 2

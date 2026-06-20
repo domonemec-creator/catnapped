@@ -94,7 +94,8 @@ func _score_play(card: CardInstance, lane_index: int, player_state: PlayerBattle
     score += float(card.definition.cost) * 0.3
     score += _score_tuna_use(card, player_state)
     score += _score_lane_block_value(lane_index, defender_state)
-    score += _score_open_lane_pressure(lane_index, defender_state)
+    score += _score_open_lane_pressure(card, lane_index, defender_state, rules)
+    score += _score_attack_setup_value(card, lane_index, defender_state, rules)
     score += _score_guard_cover_value(card, lane_index, player_state, defender_state)
     score += _score_keyword_value(card, lane_index, defender_state, rules)
     score += _score_effect_value(card, player_state)
@@ -121,11 +122,36 @@ func _score_lane_block_value(lane_index: int, defender_state: PlayerBattleState)
     return score
 
 
-func _score_open_lane_pressure(lane_index: int, defender_state: PlayerBattleState) -> float:
+func _score_open_lane_pressure(card: CardInstance, lane_index: int, defender_state: PlayerBattleState, rules: BattleRules) -> float:
     var slot = defender_state.board[lane_index]
     if slot != null and slot.occupant == null:
-        return 4.5
+        var score := 4.5 + float(card.current_attack) * 1.4
+        if _lane_is_open_for_direct_damage(lane_index, defender_state, rules):
+            score += 2.0
+            if card.current_attack >= defender_state.life:
+                score += 40.0
+            elif card.current_attack >= defender_state.life - 2:
+                score += 8.0
+        return score
     return 0.0
+
+
+func _score_attack_setup_value(card: CardInstance, lane_index: int, defender_state: PlayerBattleState, rules: BattleRules) -> float:
+    if card == null or card.definition == null:
+        return 0.0
+
+    if card.has_keyword(CardGameConstants.KEYWORD_QUICK_PAWS):
+        return _score_attack_option_for_lane_with_attack(card, lane_index, card.current_attack, defender_state, rules) * 0.45
+
+    if not _lane_is_open_for_direct_damage(lane_index, defender_state, rules):
+        return 0.0
+
+    var score := float(card.current_attack) * 2.0
+    if card.current_attack >= defender_state.life:
+        score += 18.0
+    elif card.current_attack >= defender_state.life - 2:
+        score += 6.0
+    return score
 
 
 func _score_guard_cover_value(card: CardInstance, lane_index: int, player_state: PlayerBattleState, defender_state: PlayerBattleState) -> float:
@@ -266,6 +292,7 @@ func _score_support_target(card: CardInstance, target: CardInstance, target_owne
                     attack_bonus += float(effect.value) * 3.0
                 if target.has_keyword(CardGameConstants.KEYWORD_POUNCE):
                     attack_bonus += 2.0
+                attack_bonus += _score_attack_buff_follow_up(target, effect.value, defender_state, rules)
                 score += attack_bonus
             &"modify_life":
                 if target_owner_id != player_state.player_id:
@@ -275,6 +302,7 @@ func _score_support_target(card: CardInstance, target: CardInstance, target_owne
                 score += float(effect.value) * 2.0 + float(missing_life) * 3.0
                 if target.has_keyword(CardGameConstants.KEYWORD_GUARD):
                     score += 2.0
+                score += _score_lane_anchor_value(target, defender_state, rules) * 0.8
             &"ready_attack":
                 if target_owner_id != player_state.player_id:
                     score -= 1000.0
@@ -283,19 +311,19 @@ func _score_support_target(card: CardInstance, target: CardInstance, target_owne
                     score += float(target.current_attack) * 6.0
                     if target.has_keyword(CardGameConstants.KEYWORD_POUNCE):
                         score += 2.0
-                    score += _score_immediate_attack_value(target, target.lane_index, defender_state, rules) * 0.8
+                    score += _score_immediate_attack_value(target, target.lane_index, defender_state, rules)
                 else:
                     score += 1.0
             &"deal_damage":
                 if target_owner_id != defender_state.player_id:
                     score -= 1000.0
                     continue
-                score += _score_damage_support_target(effect.value, target)
+                score += _score_damage_support_target(effect.value, target, player_state, defender_state, rules)
             &"return_to_hand":
                 if target_owner_id != defender_state.player_id:
                     score -= 1000.0
                     continue
-                score += _score_bounce_support_target(target, effect.value)
+                score += _score_bounce_support_target(target, effect.value, player_state, defender_state, rules)
             &"steal_item":
                 if target_owner_id != defender_state.player_id or target.attached_item == null:
                     score -= 1000.0
@@ -344,15 +372,16 @@ func _score_instant_support(card: CardInstance, player_state: PlayerBattleState,
                     score += float(effect.value) * (5.0 if player_state.life <= 5 else 2.0)
             &"deal_damage":
                 if effect.target_mode == CardGameConstants.TARGET_ENEMY_PLAYER:
-                    score += float(effect.value) * 6.0
+                    score += _score_direct_attack_value(effect.value, defender_state.life)
 
     return score
 
 
-func _score_damage_support_target(damage: int, target: CardInstance) -> float:
+func _score_damage_support_target(damage: int, target: CardInstance, player_state: PlayerBattleState, defender_state: PlayerBattleState, rules: BattleRules) -> float:
     var score := float(target.current_attack) * 4.0 + float(target.current_life) * 1.5
     if damage >= target.current_life:
         score += 12.0
+        score += _score_blocker_break_bonus(target, player_state, defender_state, rules)
     else:
         score += float(damage) * 1.2
 
@@ -368,7 +397,7 @@ func _score_damage_support_target(damage: int, target: CardInstance) -> float:
     return score
 
 
-func _score_bounce_support_target(target: CardInstance, max_cost: int) -> float:
+func _score_bounce_support_target(target: CardInstance, max_cost: int, player_state: PlayerBattleState, defender_state: PlayerBattleState, rules: BattleRules) -> float:
     if max_cost > 0 and target.definition.cost > max_cost:
         return NEGATIVE_SCORE
 
@@ -378,7 +407,67 @@ func _score_bounce_support_target(target: CardInstance, max_cost: int) -> float:
         score += 4.0
     if target.has_keyword(CardGameConstants.KEYWORD_POUNCE):
         score += 2.0
+    score += _score_blocker_break_bonus(target, player_state, defender_state, rules) * 0.8
     return score
+
+
+func _score_attack_buff_follow_up(target: CardInstance, attack_bonus: int, defender_state: PlayerBattleState, rules: BattleRules) -> float:
+    if target == null or attack_bonus <= 0 or target.lane_index < 0:
+        return 0.0
+
+    var current_value := _score_attack_option_for_lane_with_attack(target, target.lane_index, target.current_attack, defender_state, rules)
+    var buffed_value := _score_attack_option_for_lane_with_attack(target, target.lane_index, target.current_attack + attack_bonus, defender_state, rules)
+    var delta := maxf(0.0, buffed_value - current_value)
+    if delta <= 0.0:
+        return 0.0
+
+    if target.can_attack and not target.has_attacked:
+        return delta * 0.9
+    if target.has_keyword(CardGameConstants.KEYWORD_QUICK_PAWS):
+        return delta * 0.65
+    if _lane_is_open_for_direct_damage(target.lane_index, defender_state, rules):
+        return delta * 0.3
+    return delta * 0.15
+
+
+func _score_lane_anchor_value(target: CardInstance, defender_state: PlayerBattleState, rules: BattleRules) -> float:
+    if target == null or target.lane_index < 0:
+        return 0.0
+    if target.has_keyword(CardGameConstants.KEYWORD_GUARD):
+        return 3.0 + float(target.current_attack)
+    if _lane_is_open_for_direct_damage(target.lane_index, defender_state, rules):
+        return 2.0 + float(target.current_attack) * 1.5
+    return 0.0
+
+
+func _score_blocker_break_bonus(target: CardInstance, player_state: PlayerBattleState, defender_state: PlayerBattleState, rules: BattleRules) -> float:
+    if target == null or player_state == null or defender_state == null:
+        return 0.0
+
+    var best_bonus := 0.0
+    for slot in player_state.board:
+        if slot == null or slot.occupant == null:
+            continue
+
+        var attacker: CardInstance = slot.occupant
+        if not attacker.can_attack or attacker.has_attacked:
+            continue
+
+        if attacker.lane_index == target.lane_index:
+            var current_score := _score_target_card_with_attack(attacker.current_attack, target)
+            var direct_score := _score_direct_attack_value(attacker.current_attack, defender_state.life)
+            best_bonus = maxf(best_bonus, maxf(0.0, direct_score - current_score) * 0.65)
+            continue
+
+        if not target.has_keyword(CardGameConstants.KEYWORD_GUARD):
+            continue
+
+        var lane_gap := absi(attacker.lane_index - target.lane_index)
+        var defender_slot = defender_state.board[attacker.lane_index]
+        if lane_gap <= 1 and defender_slot != null and defender_slot.occupant == null:
+            best_bonus = maxf(best_bonus, _score_direct_attack_value(attacker.current_attack, defender_state.life) * 0.35)
+
+    return best_bonus
 
 
 func _score_immediate_attack_value(card: CardInstance, lane_index: int, defender_state: PlayerBattleState, rules: BattleRules) -> float:
@@ -412,30 +501,33 @@ func _score_attack_option(attacker: CardInstance, lane_index: int, defender_stat
 
 
 func _score_attack_option_for_lane(attacker: CardInstance, lane_index: int, defender_state: PlayerBattleState, rules: BattleRules) -> float:
+    return _score_attack_option_for_lane_with_attack(attacker, lane_index, attacker.current_attack, defender_state, rules)
+
+
+func _score_attack_option_for_lane_with_attack(attacker: CardInstance, lane_index: int, attack_value: int, defender_state: PlayerBattleState, rules: BattleRules) -> float:
     var slot = defender_state.board[lane_index]
     if slot != null and slot.occupant != null:
-        return _score_target_card(attacker, slot.occupant)
+        return _score_target_card_with_attack(attack_value, slot.occupant)
 
     var guard_target: CardInstance = rules.find_guard_for_direct_damage(defender_state, lane_index)
     if guard_target != null:
-        return _score_target_card(attacker, guard_target) + 4.0
+        return _score_target_card_with_attack(attack_value, guard_target) + 4.0
 
-    var score := float(attacker.current_attack) * 8.0 + 6.0
-    if attacker.current_attack >= defender_state.life:
-        score += 1000.0
-    elif attacker.current_attack >= defender_state.life - 2:
-        score += 10.0
-    return score
+    return _score_direct_attack_value(attack_value, defender_state.life)
 
 
 func _score_target_card(attacker: CardInstance, target: CardInstance) -> float:
+    return _score_target_card_with_attack(attacker.current_attack, target)
+
+
+func _score_target_card_with_attack(attack_value: int, target: CardInstance) -> float:
     var score := float(target.current_attack) * 4.0
     score += float(target.current_life) * 1.5
 
-    if attacker.current_attack >= target.current_life:
+    if attack_value >= target.current_life:
         score += 12.0
     else:
-        score += float(attacker.current_attack) * 1.2
+        score += float(attack_value) * 1.2
 
     if target.has_keyword(CardGameConstants.KEYWORD_GUARD):
         score += 6.0
@@ -446,6 +538,15 @@ func _score_target_card(attacker: CardInstance, target: CardInstance) -> float:
     if target.has_keyword(CardGameConstants.KEYWORD_LAST_BREATH):
         score -= 2.0
 
+    return score
+
+
+func _score_direct_attack_value(attack_value: int, defender_life: int) -> float:
+    var score := float(attack_value) * 8.0 + 6.0
+    if attack_value >= defender_life:
+        score += 1000.0
+    elif attack_value >= defender_life - 2:
+        score += 10.0
     return score
 
 
@@ -562,6 +663,10 @@ func _score_summon_token_lane(lane_index: int, player_state: PlayerBattleState, 
             score += 1.5
     else:
         score += 1.0
+        if _lane_is_open_for_direct_damage(lane_index, defender_state, rules):
+            score += 2.0
+            if defender_state.life <= 2:
+                score += 5.0
 
     if rules.find_guard_for_direct_damage(player_state, lane_index) == null:
         score += 1.0
@@ -577,3 +682,12 @@ func _score_heal_life_effect(current_life: int, heal_amount: int) -> float:
     if current_life <= 7:
         return float(heal_amount) * 5.5
     return float(heal_amount) * 1.5
+
+
+func _lane_is_open_for_direct_damage(lane_index: int, defender_state: PlayerBattleState, rules: BattleRules) -> bool:
+    if lane_index < 0 or lane_index >= defender_state.board.size():
+        return false
+    var slot = defender_state.board[lane_index]
+    if slot != null and slot.occupant != null:
+        return false
+    return rules.find_guard_for_direct_damage(defender_state, lane_index) == null

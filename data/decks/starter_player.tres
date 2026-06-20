@@ -76,5 +76,5 @@ count = 1
 [resource]
 script = ExtResource("1_deck_definition")
 id = &"starter_player"
-display_name = "Starter Player Deck"
+display_name = "Startovni balik hrace"
 cards = [SubResource("1_entry"), SubResource("2_entry"), SubResource("3_entry"), SubResource("4_entry"), SubResource("5_entry"), SubResource("6_entry"), SubResource("7_entry"), SubResource("8_entry"), SubResource("9_entry"), SubResource("10_entry"), SubResource("11_entry"), SubResource("12_entry"), SubResource("13_entry"), SubResource("14_entry")]

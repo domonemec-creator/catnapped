@@ -51,6 +51,7 @@ const TARGET_FRAME_VALID_PATH := "res://assets/card_game/ui/combat/combat_target
 const TARGET_FRAME_ATTACK_PATH := "res://assets/card_game/ui/combat/combat_target_frame_invalid.png"
 const TARGET_RING_ATTACK_PATH := "res://assets/card_game/ui/combat/combat_target_ring_attack.png"
 const TARGET_RING_FRIENDLY_PATH := "res://assets/card_game/ui/combat/combat_target_ring_friendly.png"
+const ACTION_GLOW_PATH := "res://assets/card_game/ui/combat/combat_card_select_glow.png"
 const DAMAGE_POPUP_PATH := "res://assets/card_game/ui/combat/combat_damage_popup_red.png"
 const HEAL_POPUP_PATH := "res://assets/card_game/ui/combat/combat_heal_popup_green.png"
 const GUARD_BLOCK_PATH := "res://assets/card_game/ui/combat/combat_guard_block.png"
@@ -130,6 +131,49 @@ const EVENT_BANNER_TEXTURES := {
 	EVENT_KO: DAMAGE_POPUP_PATH,
 }
 
+const EVENT_FLASH_TEXTURES := {
+	EVENT_ACTION: ACTION_GLOW_PATH,
+	EVENT_DAMAGE: LANE_FLASH_HIT_PATH,
+	EVENT_BLOCK: LANE_FLASH_HIT_PATH,
+	EVENT_DIRECT: LANE_FLASH_HIT_PATH,
+	EVENT_KO: LANE_FLASH_KO_PATH,
+}
+
+const EVENT_TOKEN_TEXTURES := {
+	EVENT_DAMAGE: DAMAGE_POPUP_PATH,
+	EVENT_SUPPORT: HEAL_POPUP_PATH,
+	EVENT_BLOCK: GUARD_BLOCK_PATH,
+	EVENT_DIRECT: DIRECT_HIT_BURST_PATH,
+	EVENT_KO: KO_STAMP_PATH,
+}
+
+const EVENT_SURFACE_ACCENTS := {
+	EVENT_ACTION: {
+		"border": Color(0.95, 0.76, 0.34, 0.96),
+		"bg": Color(0.27, 0.15, 0.08, 0.62),
+	},
+	EVENT_DAMAGE: {
+		"border": Color(0.94, 0.42, 0.35, 0.96),
+		"bg": Color(0.24, 0.08, 0.08, 0.64),
+	},
+	EVENT_SUPPORT: {
+		"border": Color(0.56, 0.88, 0.62, 0.96),
+		"bg": Color(0.10, 0.18, 0.12, 0.64),
+	},
+	EVENT_BLOCK: {
+		"border": Color(0.58, 0.72, 0.9, 0.96),
+		"bg": Color(0.11, 0.14, 0.2, 0.64),
+	},
+	EVENT_DIRECT: {
+		"border": Color(0.98, 0.66, 0.22, 0.98),
+		"bg": Color(0.27, 0.13, 0.07, 0.66),
+	},
+	EVENT_KO: {
+		"border": Color(0.92, 0.3, 0.3, 0.98),
+		"bg": Color(0.24, 0.06, 0.06, 0.66),
+	},
+}
+
 const STATUS_BADGE_TEXTURES := {
 	STATUS_READY: READY_BADGE_PATH,
 	STATUS_SPENT: SPENT_BADGE_PATH,
@@ -137,6 +181,7 @@ const STATUS_BADGE_TEXTURES := {
 
 var _recent_event_text: String = ""
 var _recent_event_tone: StringName = EVENT_NEUTRAL
+var _base_panel_style: StyleBoxFlat
 
 
 func _ready() -> void:
@@ -152,6 +197,9 @@ func _ready() -> void:
 	event_panel.visible = false
 	event_background.visible = false
 	event_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	var panel_style := get_theme_stylebox("panel")
+	if panel_style is StyleBoxFlat:
+		_base_panel_style = (panel_style as StyleBoxFlat).duplicate() as StyleBoxFlat
 
 
 func configure(new_lane_index: int, new_owner_id: int, title: String, empty_hint: String) -> void:
@@ -165,10 +213,9 @@ func configure(new_lane_index: int, new_owner_id: int, title: String, empty_hint
 # Tint the slot per side so the board reads at a glance:
 # enemy (top) cool/red = danger, player (bottom) warm green-gold = friendly.
 func _apply_side_accent() -> void:
-	var base := get_theme_stylebox("panel")
-	if not (base is StyleBoxFlat):
+	if _base_panel_style == null:
 		return
-	var sb := (base as StyleBoxFlat).duplicate() as StyleBoxFlat
+	var sb := _base_panel_style.duplicate() as StyleBoxFlat
 	if owner_id == OWNER_ENEMY:
 		sb.bg_color = Color(0.16, 0.08, 0.07, 0.55)
 		sb.border_color = Color(0.74, 0.36, 0.30, 0.7)
@@ -177,6 +224,14 @@ func _apply_side_accent() -> void:
 		sb.bg_color = Color(0.10, 0.11, 0.07, 0.55)
 		sb.border_color = Color(0.6, 0.66, 0.34, 0.72)
 		lane_label.add_theme_color_override("font_color", Color(0.95, 0.96, 0.86, 1.0))
+	var accent: Dictionary = EVENT_SURFACE_ACCENTS.get(_recent_event_tone, {})
+	if not accent.is_empty():
+		sb.border_width_left = 2
+		sb.border_width_top = 2
+		sb.border_width_right = 2
+		sb.border_width_bottom = 2
+		sb.border_color = accent["border"]
+		sb.bg_color = sb.bg_color.lerp(accent["bg"], 0.48)
 	add_theme_stylebox_override("panel", sb)
 
 
@@ -297,14 +352,18 @@ func _refresh_status_badge() -> void:
 
 
 func _refresh_recent_event() -> void:
+	_apply_side_accent()
 	if _recent_event_text.is_empty():
 		event_panel.visible = false
 		flash_texture.visible = false
 		event_token_center.visible = false
+		event_token.texture = null
 		return
 
 	var style_data: Dictionary = EVENT_STYLES.get(_recent_event_tone, EVENT_STYLES[EVENT_NEUTRAL])
 	var banner_texture: Texture2D = _load_ui_texture(str(EVENT_BANNER_TEXTURES.get(_recent_event_tone, "")))
+	var flash_texture_resource: Texture2D = _load_ui_texture(str(EVENT_FLASH_TEXTURES.get(_recent_event_tone, "")))
+	var event_token_texture: Texture2D = _load_ui_texture(str(EVENT_TOKEN_TEXTURES.get(_recent_event_tone, "")))
 	var show_banner := banner_texture != null
 
 	event_panel.visible = show_banner
@@ -316,8 +375,10 @@ func _refresh_recent_event() -> void:
 	event_label.add_theme_color_override("font_color", style_data["text"])
 	event_label.text = _recent_event_text
 
-	flash_texture.visible = false
-	event_token_center.visible = false
+	flash_texture.texture = flash_texture_resource
+	flash_texture.visible = flash_texture_resource != null
+	event_token.texture = event_token_texture
+	event_token_center.visible = event_token_texture != null
 
 
 func _build_empty_art_label() -> String:

@@ -20,7 +20,7 @@ value = 1
 [resource]
 script = ExtResource("1_card_definition")
 id = &"dockside_bruiser"
-display_name = "Dockside Bruiser"
+display_name = "Dokovy rvac"
 card_type = 0
 cost = 4
 attack = 3

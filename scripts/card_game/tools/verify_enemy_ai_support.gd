@@ -113,5 +113,30 @@ func _run() -> void:
         _fail("Equipped Spiked Collar should stay on the cat, not go to discard.")
         return
 
+    _reset_battle_state(battle, player_state, enemy_state)
+
+    player_state.life = 3
+    var player_blocker = battle._create_card_instance(&"dockside_bruiser", battle.PLAYER_ID)
+    player_blocker.current_life = 8
+    _place_card(player_state, player_blocker, 0)
+
+    var enemy_decoy = battle._create_card_instance(&"alley_scrapper", battle.ENEMY_ID)
+    enemy_decoy.current_attack = 2
+    var enemy_finisher = battle._create_card_instance(&"alley_scrapper", battle.ENEMY_ID)
+    enemy_finisher.current_attack = 2
+    var enemy_lethal_collar = battle._create_card_instance(&"spiked_collar", battle.ENEMY_ID)
+    _place_card(enemy_state, enemy_decoy, 0, true, false)
+    _place_card(enemy_state, enemy_finisher, 2, true, false)
+    enemy_state.hand.append(enemy_lethal_collar)
+
+    battle._run_enemy_stub_turn()
+
+    if player_state.life > 0:
+        _fail("Enemy did not use Spiked Collar to convert an open lane into lethal.")
+        return
+    if enemy_finisher.attached_item_instance_id != enemy_lethal_collar.instance_id:
+        _fail("Enemy attached Spiked Collar to the wrong attacker instead of the lethal lane.")
+        return
+
     print("Enemy AI support verification passed.")
     quit()

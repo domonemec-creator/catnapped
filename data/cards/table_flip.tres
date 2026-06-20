@@ -12,7 +12,7 @@ value = 2
 [resource]
 script = ExtResource("1_card_definition")
 id = &"table_flip"
-display_name = "Table Flip"
+display_name = "Prevrat stolu"
 card_type = 1
 cost = 2
 attack = 0
