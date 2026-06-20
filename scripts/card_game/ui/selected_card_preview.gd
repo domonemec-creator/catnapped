@@ -6,6 +6,21 @@ const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
 const CardTextFormatter = preload("res://scripts/card_game/ui/card_text_formatter.gd")
 
 const SELECTED_PREVIEW_FRAME_PATH := "res://assets/card_game/ui/selected_card_preview_frame.png"
+const DISPLAY_FULL := &"full"
+const DISPLAY_BOARD := &"board"
+
+const DISPLAY_CONFIGS := {
+    DISPLAY_FULL: {
+        "scale": 1.0,
+        "show_rules": true,
+        "minimum_height": 404.0,
+    },
+    DISPLAY_BOARD: {
+        "scale": 0.31,
+        "show_rules": false,
+        "minimum_height": 120.0,
+    },
+}
 
 const LAYOUTS := {
     CardGameConstants.CardType.CAT: {
@@ -113,6 +128,7 @@ static var _frame_texture_cache: Dictionary = {}
 
 var _card_instance: CardInstance
 var _interactive := false
+var _display_mode: StringName = DISPLAY_FULL
 
 
 func _ready() -> void:
@@ -128,6 +144,15 @@ func set_interactive(enabled: bool) -> void:
     _interactive = enabled
 
 
+func set_display_mode(mode: StringName) -> void:
+    _display_mode = mode if DISPLAY_CONFIGS.has(mode) else DISPLAY_FULL
+    _refresh()
+
+
+func get_display_mode() -> StringName:
+    return _display_mode
+
+
 func set_selected(_is_selected: bool) -> void:
     pass
 
@@ -137,6 +162,7 @@ func set_playable(_is_playable: bool) -> void:
 
 
 func _refresh() -> void:
+    _apply_display_root()
     if _card_instance == null or _card_instance.definition == null:
         center_container.visible = false
         empty_hint.visible = true
@@ -155,19 +181,23 @@ func _get_layout(card_instance: CardInstance) -> Dictionary:
 
 
 func _apply_layout(layout: Dictionary) -> void:
-    var canvas_size: Vector2 = layout["canvas_size"]
+    var display_config := _get_display_config()
+    var display_scale := float(display_config["scale"])
+    var canvas_size: Vector2 = layout["canvas_size"] * display_scale
     card_canvas.custom_minimum_size = canvas_size
     card_canvas.size = canvas_size
-    _apply_rect(art_rect, layout["art_rect"])
-    _apply_rect(cost_label, layout["cost_rect"])
-    _apply_rect(name_label, layout["name_rect"])
-    _apply_rect(rules_label, layout["rules_rect"])
-    _apply_rect(attack_label, layout["attack_rect"])
-    _apply_rect(life_label, layout["life_rect"])
-    _apply_rect(type_badge, layout["type_rect"])
+    _apply_rect(art_rect, layout["art_rect"], display_scale)
+    _apply_rect(cost_label, layout["cost_rect"], display_scale)
+    _apply_rect(name_label, layout["name_rect"], display_scale)
+    _apply_rect(rules_label, layout["rules_rect"], display_scale)
+    _apply_rect(attack_label, layout["attack_rect"], display_scale)
+    _apply_rect(life_label, layout["life_rect"], display_scale)
+    _apply_rect(type_badge, layout["type_rect"], display_scale)
 
 
 func _apply_content(layout: Dictionary) -> void:
+    var display_config := _get_display_config()
+    var display_scale := float(display_config["scale"])
     var definition = _card_instance.definition
     frame_texture.texture = _load_frame_texture(layout["frame_path"])
     cost_label.text = str(definition.cost)
@@ -185,20 +215,22 @@ func _apply_content(layout: Dictionary) -> void:
     var show_stats: bool = layout["show_stats"]
     var show_name: bool = layout["show_name"]
     var show_type_badge: bool = layout["show_type_badge"]
+    var show_rules := bool(display_config["show_rules"])
     attack_label.visible = show_stats
     life_label.visible = show_stats
     name_label.visible = show_name
     type_badge.visible = show_type_badge
+    rules_label.visible = show_rules
     type_label.text = _card_type_label(definition.card_type)
 
-    name_label.add_theme_font_size_override("font_size", int(layout["name_font_size"]))
-    rules_label.add_theme_font_size_override("normal_font_size", int(layout["rules_font_size"]))
-    rules_label.add_theme_font_size_override("bold_font_size", int(layout["rules_font_size"]))
-    cost_label.add_theme_font_size_override("font_size", int(layout["cost_font_size"]))
-    attack_label.add_theme_font_size_override("font_size", int(layout["stat_font_size"]))
-    life_label.add_theme_font_size_override("font_size", int(layout["stat_font_size"]))
-    type_label.add_theme_font_size_override("font_size", int(layout["type_font_size"]))
-    art_label.add_theme_font_size_override("font_size", int(layout["art_font_size"]))
+    name_label.add_theme_font_size_override("font_size", _scaled_font_size(int(layout["name_font_size"]), display_scale, 12))
+    rules_label.add_theme_font_size_override("normal_font_size", _scaled_font_size(int(layout["rules_font_size"]), display_scale, 10))
+    rules_label.add_theme_font_size_override("bold_font_size", _scaled_font_size(int(layout["rules_font_size"]), display_scale, 10))
+    cost_label.add_theme_font_size_override("font_size", _scaled_font_size(int(layout["cost_font_size"]), display_scale, 14))
+    attack_label.add_theme_font_size_override("font_size", _scaled_font_size(int(layout["stat_font_size"]), display_scale, 14))
+    life_label.add_theme_font_size_override("font_size", _scaled_font_size(int(layout["stat_font_size"]), display_scale, 14))
+    type_label.add_theme_font_size_override("font_size", _scaled_font_size(int(layout["type_font_size"]), display_scale, 12))
+    art_label.add_theme_font_size_override("font_size", _scaled_font_size(int(layout["art_font_size"]), display_scale, 12))
 
     name_label.add_theme_color_override("font_color", layout["title_color"])
     cost_label.add_theme_color_override("font_color", layout["accent_color"])
@@ -234,9 +266,25 @@ func _refresh_art(layout: Dictionary) -> void:
     art_label.visible = false
 
 
-func _apply_rect(control: Control, rect: Rect2) -> void:
-    control.position = rect.position
-    control.size = rect.size
+func _apply_rect(control: Control, rect: Rect2, scale: float) -> void:
+    control.position = rect.position * scale
+    control.size = rect.size * scale
+
+
+func _apply_display_root() -> void:
+    var display_config := _get_display_config()
+    var layout := LAYOUTS[CardGameConstants.CardType.CAT]
+    var canvas_size: Vector2 = layout["canvas_size"] * float(display_config["scale"])
+    custom_minimum_size = Vector2(canvas_size.x, float(display_config["minimum_height"]))
+    empty_hint.add_theme_font_size_override("font_size", _scaled_font_size(16, float(display_config["scale"]), 12))
+
+
+func _get_display_config() -> Dictionary:
+    return DISPLAY_CONFIGS.get(_display_mode, DISPLAY_CONFIGS[DISPLAY_FULL])
+
+
+func _scaled_font_size(base_size: int, scale: float, minimum: int) -> int:
+    return maxi(minimum, int(round(base_size * scale)))
 
 
 func _load_frame_texture(frame_path: String) -> Texture2D:

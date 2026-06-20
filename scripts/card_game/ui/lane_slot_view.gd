@@ -2,34 +2,44 @@ class_name LaneSlotView
 extends PanelContainer
 
 const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
+const SelectedCardPreviewScript = preload("res://scripts/card_game/ui/selected_card_preview.gd")
 
 signal slot_pressed(lane_index: int, owner_id: int)
 signal card_dropped(instance_id: int, lane_index: int, owner_id: int)
 
-@onready var lane_label: Label = $Margin/VBox/LaneLabel
-@onready var art_panel: PanelContainer = $Margin/VBox/CardRow/ArtPanel
-@onready var art_texture: TextureRect = $Margin/VBox/CardRow/ArtPanel/ArtTexture
-@onready var art_label: Label = $Margin/VBox/CardRow/ArtPanel/ArtLabel
-@onready var highlight_frame: TextureRect = $Margin/VBox/CardRow/ArtPanel/HighlightFrame
-@onready var target_ring_center: CenterContainer = $Margin/VBox/CardRow/ArtPanel/TargetRingCenter
-@onready var target_ring: TextureRect = $Margin/VBox/CardRow/ArtPanel/TargetRingCenter/TargetRing
-@onready var flash_texture: TextureRect = $Margin/VBox/CardRow/ArtPanel/FlashTexture
-@onready var event_token_center: CenterContainer = $Margin/VBox/CardRow/ArtPanel/EventTokenCenter
-@onready var event_token: TextureRect = $Margin/VBox/CardRow/ArtPanel/EventTokenCenter/EventToken
-@onready var status_badge: TextureRect = $Margin/VBox/CardRow/ArtPanel/StatusBadge
-@onready var status_badge_label: Label = $Margin/VBox/CardRow/ArtPanel/StatusBadge/StatusLabel
-@onready var event_panel: PanelContainer = $Margin/VBox/CardRow/ArtPanel/EventPanel
-@onready var event_background: TextureRect = $Margin/VBox/CardRow/ArtPanel/EventPanel/EventBackground
-@onready var event_label: Label = $Margin/VBox/CardRow/ArtPanel/EventPanel/EventLabel
-@onready var occupant_label: Label = $Margin/VBox/CardRow/TextColumn/OccupantLabel
-@onready var stats_label: Label = $Margin/VBox/CardRow/TextColumn/StatsLabel
+@onready var side_badge: PanelContainer = $Margin/VBox/Header/SideBadge
+@onready var side_label: Label = $Margin/VBox/Header/SideBadge/SideLabel
+@onready var lane_label: Label = $Margin/VBox/Header/LaneLabel
+@onready var slot_shell: PanelContainer = $Margin/VBox/SlotShell
+@onready var slot_glow: ColorRect = $Margin/VBox/SlotShell/SlotGlow
+@onready var card_shadow: PanelContainer = $Margin/VBox/SlotShell/CardShadow
+@onready var card_preview: SelectedCardPreview = $Margin/VBox/SlotShell/CardAnchor/CardPreview
+@onready var wound_glow: ColorRect = $Margin/VBox/SlotShell/WoundGlow
+@onready var empty_frame: PanelContainer = $Margin/VBox/SlotShell/EmptyFrame
+@onready var empty_label: Label = $Margin/VBox/SlotShell/EmptyFrame/EmptyLabel
+@onready var empty_hint_label: Label = $Margin/VBox/SlotShell/EmptyHintLabel
+@onready var name_ribbon: PanelContainer = $Margin/VBox/SlotShell/NameRibbon
+@onready var occupant_label: Label = $Margin/VBox/SlotShell/NameRibbon/OccupantLabel
+@onready var highlight_frame: TextureRect = $Margin/VBox/SlotShell/HighlightFrame
+@onready var target_ring_center: CenterContainer = $Margin/VBox/SlotShell/TargetRingCenter
+@onready var target_ring: TextureRect = $Margin/VBox/SlotShell/TargetRingCenter/TargetRing
+@onready var flash_texture: TextureRect = $Margin/VBox/SlotShell/FlashTexture
+@onready var event_token_center: CenterContainer = $Margin/VBox/SlotShell/EventTokenCenter
+@onready var event_token: TextureRect = $Margin/VBox/SlotShell/EventTokenCenter/EventToken
+@onready var status_badge: TextureRect = $Margin/VBox/SlotShell/StatusBadge
+@onready var status_badge_label: Label = $Margin/VBox/SlotShell/StatusBadge/StatusLabel
+@onready var event_panel: PanelContainer = $Margin/VBox/SlotShell/EventPanel
+@onready var event_background: TextureRect = $Margin/VBox/SlotShell/EventPanel/EventBackground
+@onready var event_label: Label = $Margin/VBox/SlotShell/EventPanel/EventLabel
 @onready var highlight: ColorRect = $Highlight
 
 var lane_index: int = -1
 var owner_id: int = -1
 var _card_instance: CardInstance
 var _empty_hint: String = "Volna lajna."
-static var _art_texture_cache: Dictionary = {}
+var _current_highlight_mode: StringName = &"none"
+var _recent_event_text: String = ""
+var _recent_event_tone: StringName = &"neutral"
 static var _ui_texture_cache: Dictionary = {}
 
 const OWNER_PLAYER := 0
@@ -44,6 +54,12 @@ const HIGHLIGHT_COLORS := {
 	HIGHLIGHT_PLAY: Color(0.42, 0.94, 0.56, 0.34),
 	HIGHLIGHT_SELECTED: Color(0.99, 0.86, 0.4, 0.34),
 	HIGHLIGHT_ATTACK: Color(0.98, 0.48, 0.22, 0.38),
+}
+
+const HIGHLIGHT_BORDER_COLORS := {
+	HIGHLIGHT_PLAY: Color(0.56, 0.92, 0.58, 0.96),
+	HIGHLIGHT_SELECTED: Color(0.99, 0.84, 0.43, 0.98),
+	HIGHLIGHT_ATTACK: Color(0.96, 0.43, 0.27, 0.98),
 }
 
 const TARGET_FRAME_SELECTED_PATH := "res://assets/card_game/ui/combat/combat_target_frame_selected.png"
@@ -83,6 +99,47 @@ const EVENT_KO := &"ko"
 
 const STATUS_READY := &"ready"
 const STATUS_SPENT := &"spent"
+
+const SIDE_THEMES := {
+	OWNER_PLAYER: {
+		"side_text": "TVA",
+		"panel_bg": Color(0.09, 0.1, 0.07, 0.68),
+		"panel_border": Color(0.56, 0.64, 0.33, 0.78),
+		"slot_bg": Color(0.08, 0.09, 0.06, 0.94),
+		"slot_border": Color(0.72, 0.78, 0.38, 0.74),
+		"badge_bg": Color(0.16, 0.18, 0.09, 0.92),
+		"badge_border": Color(0.76, 0.78, 0.38, 0.96),
+		"badge_text": Color(0.95, 0.98, 0.9, 1.0),
+		"lane_text": Color(0.95, 0.98, 0.88, 1.0),
+		"empty_bg": Color(0.11, 0.13, 0.08, 0.46),
+		"empty_border": Color(0.62, 0.67, 0.34, 0.56),
+		"empty_text": Color(0.93, 0.96, 0.86, 0.82),
+		"hint_text": Color(0.84, 0.9, 0.75, 0.95),
+		"ribbon_bg": Color(0.14, 0.14, 0.08, 0.94),
+		"ribbon_border": Color(0.78, 0.76, 0.4, 0.96),
+		"ribbon_text": Color(0.98, 0.98, 0.92, 1.0),
+		"glow": Color(0.54, 0.82, 0.36, 0.07),
+	},
+	OWNER_ENEMY: {
+		"side_text": "SOUPER",
+		"panel_bg": Color(0.12, 0.08, 0.07, 0.68),
+		"panel_border": Color(0.68, 0.31, 0.28, 0.78),
+		"slot_bg": Color(0.1, 0.05, 0.05, 0.94),
+		"slot_border": Color(0.78, 0.36, 0.32, 0.74),
+		"badge_bg": Color(0.22, 0.09, 0.08, 0.92),
+		"badge_border": Color(0.82, 0.41, 0.34, 0.96),
+		"badge_text": Color(1.0, 0.93, 0.9, 1.0),
+		"lane_text": Color(0.99, 0.9, 0.86, 1.0),
+		"empty_bg": Color(0.15, 0.08, 0.07, 0.46),
+		"empty_border": Color(0.6, 0.3, 0.26, 0.56),
+		"empty_text": Color(0.98, 0.9, 0.87, 0.82),
+		"hint_text": Color(0.96, 0.8, 0.74, 0.95),
+		"ribbon_bg": Color(0.22, 0.09, 0.08, 0.94),
+		"ribbon_border": Color(0.82, 0.41, 0.34, 0.96),
+		"ribbon_text": Color(1.0, 0.95, 0.93, 1.0),
+		"glow": Color(0.78, 0.18, 0.16, 0.08),
+	},
+}
 
 const EVENT_STYLES := {
 	EVENT_NEUTRAL: {
@@ -179,15 +236,15 @@ const STATUS_BADGE_TEXTURES := {
 	STATUS_SPENT: SPENT_BADGE_PATH,
 }
 
-var _recent_event_text: String = ""
-var _recent_event_tone: StringName = EVENT_NEUTRAL
-var _base_panel_style: StyleBoxFlat
-
 
 func _ready() -> void:
 	highlight.visible = false
-	_make_children_click_through(self)
-	art_texture.visible = false
+	slot_glow.visible = false
+	card_shadow.visible = false
+	card_preview.set_display_mode(SelectedCardPreviewScript.DISPLAY_BOARD)
+	card_preview.set_card_instance(null)
+	card_preview.visible = false
+	wound_glow.visible = false
 	highlight_frame.visible = false
 	target_ring_center.visible = false
 	flash_texture.visible = false
@@ -197,9 +254,9 @@ func _ready() -> void:
 	event_panel.visible = false
 	event_background.visible = false
 	event_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-	var panel_style := get_theme_stylebox("panel")
-	if panel_style is StyleBoxFlat:
-		_base_panel_style = (panel_style as StyleBoxFlat).duplicate() as StyleBoxFlat
+	_make_children_click_through(self)
+	_apply_side_accent()
+	_refresh_slot_contents()
 
 
 func configure(new_lane_index: int, new_owner_id: int, title: String, empty_hint: String) -> void:
@@ -208,65 +265,36 @@ func configure(new_lane_index: int, new_owner_id: int, title: String, empty_hint
 	lane_label.text = title
 	_empty_hint = empty_hint
 	_apply_side_accent()
-
-
-# Tint the slot per side so the board reads at a glance:
-# enemy (top) cool/red = danger, player (bottom) warm green-gold = friendly.
-func _apply_side_accent() -> void:
-	if _base_panel_style == null:
-		return
-	var sb := _base_panel_style.duplicate() as StyleBoxFlat
-	if owner_id == OWNER_ENEMY:
-		sb.bg_color = Color(0.16, 0.08, 0.07, 0.55)
-		sb.border_color = Color(0.74, 0.36, 0.30, 0.7)
-		lane_label.add_theme_color_override("font_color", Color(0.98, 0.9, 0.86, 1.0))
-	else:
-		sb.bg_color = Color(0.10, 0.11, 0.07, 0.55)
-		sb.border_color = Color(0.6, 0.66, 0.34, 0.72)
-		lane_label.add_theme_color_override("font_color", Color(0.95, 0.96, 0.86, 1.0))
-	var accent: Dictionary = EVENT_SURFACE_ACCENTS.get(_recent_event_tone, {})
-	if not accent.is_empty():
-		sb.border_width_left = 2
-		sb.border_width_top = 2
-		sb.border_width_right = 2
-		sb.border_width_bottom = 2
-		sb.border_color = accent["border"]
-		sb.bg_color = sb.bg_color.lerp(accent["bg"], 0.48)
-	add_theme_stylebox_override("panel", sb)
+	_refresh_slot_contents()
 
 
 func set_card_instance(card_instance: CardInstance) -> void:
 	_card_instance = card_instance
-	if card_instance == null:
-		occupant_label.text = "Prazdno"
-		stats_label.text = _empty_hint
-		art_texture.texture = null
-		art_texture.visible = false
-		art_label.visible = true
-		art_label.text = _build_empty_art_label()
-	else:
-		occupant_label.text = card_instance.definition.display_name
-		var ready_text := "PRIPR." if card_instance.can_attack and not card_instance.has_attacked else "VYCERP."
-		stats_label.text = "%s UTK / %s ZIV | %s" % [card_instance.current_attack, card_instance.current_life, ready_text]
-		_refresh_art(card_instance)
-	_refresh_state_text()
+	_refresh_slot_contents()
 	_refresh_status_badge()
 	_refresh_recent_event()
 
 
 func set_highlight_mode(mode: StringName) -> void:
+	_current_highlight_mode = mode
 	if mode == HIGHLIGHT_NONE:
 		highlight.visible = false
 		highlight_frame.visible = false
 		target_ring_center.visible = false
+		slot_glow.visible = false
+		_apply_side_accent()
 		return
 
 	highlight.visible = true
-	highlight.color = HIGHLIGHT_COLORS.get(mode, HIGHLIGHT_COLORS[HIGHLIGHT_PLAY])
+	var glow_color: Color = HIGHLIGHT_COLORS.get(mode, HIGHLIGHT_COLORS[HIGHLIGHT_PLAY])
+	highlight.color = glow_color
+	slot_glow.visible = true
+	slot_glow.color = Color(glow_color.r, glow_color.g, glow_color.b, glow_color.a * 0.34)
 	highlight_frame.texture = _load_ui_texture(str(HIGHLIGHT_FRAME_TEXTURES.get(mode, "")))
 	highlight_frame.visible = highlight_frame.texture != null
 	target_ring.texture = _load_ui_texture(str(TARGET_RING_TEXTURES.get(mode, "")))
 	target_ring_center.visible = target_ring.texture != null
+	_apply_side_accent()
 
 
 func set_recent_event(text: String, tone: StringName = EVENT_NEUTRAL) -> void:
@@ -295,48 +323,64 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	card_dropped.emit(int(data["instance_id"]), lane_index, owner_id)
 
 
-func _refresh_art(card_instance: CardInstance) -> void:
-	if card_instance == null or card_instance.definition == null:
-		art_texture.texture = null
-		art_texture.visible = false
-		art_label.visible = true
-		art_label.text = _build_empty_art_label()
-		return
+func _refresh_slot_contents() -> void:
+	var has_card := _card_instance != null and _card_instance.definition != null
+	card_preview.set_card_instance(_card_instance)
+	card_preview.visible = has_card
+	card_shadow.visible = has_card
+	wound_glow.visible = has_card and _is_card_wounded(_card_instance)
+	empty_frame.visible = not has_card
+	empty_label.visible = not has_card
+	empty_hint_label.visible = false
+	name_ribbon.visible = has_card
 
-	var art_path := card_instance.definition.art_path
-	if art_path.is_empty():
-		art_texture.texture = null
-		art_texture.visible = false
-		art_label.visible = true
-		art_label.text = card_instance.definition.display_name
-		return
+	if has_card:
+		occupant_label.text = _card_instance.definition.display_name
+	else:
+		occupant_label.text = "Prazdno"
+		empty_label.text = _build_empty_art_label()
 
-	var texture := _load_art_texture(art_path)
-	if texture == null:
-		art_texture.texture = null
-		art_texture.visible = false
-		art_label.visible = true
-		art_label.text = card_instance.definition.display_name
-		return
-
-	art_texture.texture = texture
-	art_texture.visible = true
-	art_label.visible = false
+	_apply_side_accent()
 
 
-func _refresh_state_text() -> void:
-	if _card_instance == null:
-		occupant_label.modulate = Color(0.96, 0.94, 0.9, 1.0)
-		stats_label.modulate = Color(0.9, 0.86, 0.76, 0.95)
-		art_label.add_theme_color_override("font_color", Color(0.96, 0.9, 0.78, 0.88))
-		return
+func _apply_side_accent() -> void:
+	var side_theme: Dictionary = SIDE_THEMES.get(owner_id, SIDE_THEMES[OWNER_PLAYER])
+	var panel_bg: Color = side_theme["panel_bg"]
+	var panel_border: Color = side_theme["panel_border"]
+	var slot_bg: Color = side_theme["slot_bg"]
+	var slot_border: Color = side_theme["slot_border"]
+	var ribbon_bg: Color = side_theme["ribbon_bg"]
+	var ribbon_border: Color = side_theme["ribbon_border"]
 
-	occupant_label.modulate = Color(1, 1, 1, 1)
-	if _card_instance.can_attack and not _card_instance.has_attacked:
-		stats_label.modulate = Color(0.76, 0.94, 0.72, 1.0)
-		return
+	if _is_card_wounded(_card_instance):
+		slot_bg = slot_bg.lerp(Color(0.2, 0.05, 0.05, 0.96), 0.35)
+		slot_border = slot_border.lerp(Color(0.94, 0.32, 0.28, 0.98), 0.6)
+		ribbon_border = ribbon_border.lerp(Color(0.95, 0.34, 0.3, 0.98), 0.7)
 
-	stats_label.modulate = Color(0.9, 0.86, 0.76, 0.95)
+	var accent: Dictionary = EVENT_SURFACE_ACCENTS.get(_recent_event_tone, {})
+	if not accent.is_empty():
+		slot_border = accent["border"]
+		slot_bg = slot_bg.lerp(accent["bg"], 0.46)
+
+	if _current_highlight_mode != HIGHLIGHT_NONE:
+		slot_border = HIGHLIGHT_BORDER_COLORS.get(_current_highlight_mode, slot_border)
+		slot_glow.color = Color(HIGHLIGHT_COLORS[_current_highlight_mode].r, HIGHLIGHT_COLORS[_current_highlight_mode].g, HIGHLIGHT_COLORS[_current_highlight_mode].b, 0.1)
+
+	add_theme_stylebox_override("panel", _build_style_box(panel_bg, panel_border, 18, 1, 6, Color(0, 0, 0, 0.16)))
+	slot_shell.add_theme_stylebox_override("panel", _build_style_box(slot_bg, slot_border, 18, 2))
+	side_badge.add_theme_stylebox_override("panel", _build_style_box(side_theme["badge_bg"], side_theme["badge_border"], 10, 1))
+	empty_frame.add_theme_stylebox_override("panel", _build_style_box(side_theme["empty_bg"], side_theme["empty_border"], 16, 2))
+	name_ribbon.add_theme_stylebox_override("panel", _build_style_box(ribbon_bg, ribbon_border, 12, 1))
+
+	side_label.text = str(side_theme["side_text"])
+	side_label.add_theme_color_override("font_color", side_theme["badge_text"])
+	lane_label.add_theme_color_override("font_color", side_theme["lane_text"])
+	empty_label.add_theme_color_override("font_color", side_theme["empty_text"])
+	empty_hint_label.add_theme_color_override("font_color", side_theme["hint_text"])
+	occupant_label.add_theme_color_override("font_color", side_theme["ribbon_text"])
+	slot_glow.visible = _current_highlight_mode != HIGHLIGHT_NONE
+	if _current_highlight_mode == HIGHLIGHT_NONE:
+		slot_glow.color = side_theme["glow"]
 
 
 func _refresh_status_badge() -> void:
@@ -370,7 +414,7 @@ func _refresh_recent_event() -> void:
 	if show_banner:
 		event_panel.add_theme_stylebox_override("panel", _build_texture_box(banner_texture))
 	else:
-		event_panel.add_theme_stylebox_override("panel", _build_style_box(style_data["bg"], style_data["border"]))
+		event_panel.add_theme_stylebox_override("panel", _build_style_box(style_data["bg"], style_data["border"], 10, 1))
 	event_label.visible = true
 	event_label.add_theme_color_override("font_color", style_data["text"])
 	event_label.text = _recent_event_text
@@ -381,24 +425,37 @@ func _refresh_recent_event() -> void:
 	event_token_center.visible = event_token_texture != null
 
 
+func _is_card_wounded(card_instance: CardInstance) -> bool:
+	return card_instance != null and card_instance.definition != null and card_instance.current_life < card_instance.definition.life
+
+
 func _build_empty_art_label() -> String:
 	if owner_id == OWNER_ENEMY:
 		return "PRIMY ZASAH"
 	return "VYLOZ KOCKU"
 
 
-func _build_style_box(background_color: Color, border_color: Color) -> StyleBoxFlat:
+func _build_style_box(
+	background_color: Color,
+	border_color: Color,
+	corner_radius: int,
+	border_width: int,
+	shadow_size: int = 0,
+	shadow_color: Color = Color(0, 0, 0, 0.0)
+) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = background_color
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
+	style.border_width_left = border_width
+	style.border_width_top = border_width
+	style.border_width_right = border_width
+	style.border_width_bottom = border_width
 	style.border_color = border_color
-	style.corner_radius_top_left = 10
-	style.corner_radius_top_right = 10
-	style.corner_radius_bottom_right = 10
-	style.corner_radius_bottom_left = 10
+	style.corner_radius_top_left = corner_radius
+	style.corner_radius_top_right = corner_radius
+	style.corner_radius_bottom_right = corner_radius
+	style.corner_radius_bottom_left = corner_radius
+	style.shadow_color = shadow_color
+	style.shadow_size = shadow_size
 	return style
 
 
@@ -410,21 +467,6 @@ func _build_texture_box(texture: Texture2D) -> StyleBoxTexture:
 	style.texture_margin_right = 88.0
 	style.texture_margin_bottom = 36.0
 	return style
-
-
-func _load_art_texture(art_path: String) -> Texture2D:
-	if art_path.is_empty():
-		return null
-	if _art_texture_cache.has(art_path):
-		return _art_texture_cache[art_path]
-
-	var texture := load(art_path) as Texture2D
-	if texture == null:
-		push_warning("Could not load card art %s." % art_path)
-		return null
-
-	_art_texture_cache[art_path] = texture
-	return texture
 
 
 func _load_ui_texture(resource_path: String) -> Texture2D:

@@ -1,32 +1,80 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/card_game/ui/lane_slot_view.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/card_game/selected_card_preview.tscn" id="2_selected_preview"]
 
 [sub_resource type="StyleBoxFlat" id="1_lane_style"]
-bg_color = Color(0.13, 0.09, 0.06, 0.6)
+bg_color = Color(0.11, 0.08, 0.06, 0.66)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.55, 0.41, 0.22, 0.7)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
+border_color = Color(0.55, 0.41, 0.22, 0.76)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.16)
+shadow_size = 6
 
-[sub_resource type="StyleBoxFlat" id="2_art_style"]
-bg_color = Color(0.08, 0.06, 0.05, 0.92)
+[sub_resource type="StyleBoxFlat" id="2_side_badge_style"]
+bg_color = Color(0.21, 0.15, 0.09, 0.9)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.58, 0.44, 0.22, 0.72)
+border_color = Color(0.72, 0.56, 0.3, 0.92)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="3_slot_shell_style"]
+bg_color = Color(0.08, 0.06, 0.05, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.58, 0.44, 0.22, 0.78)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="4_empty_frame_style"]
+bg_color = Color(0.12, 0.09, 0.07, 0.6)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.46, 0.34, 0.18, 0.72)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="5_name_ribbon_style"]
+bg_color = Color(0.18, 0.12, 0.08, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.78, 0.62, 0.34, 0.92)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
-[sub_resource type="StyleBoxFlat" id="3_event_style"]
+[sub_resource type="StyleBoxFlat" id="6_shadow_style"]
+bg_color = Color(0, 0, 0, 0)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.34)
+shadow_size = 14
+
+[sub_resource type="StyleBoxFlat" id="7_event_style"]
 bg_color = Color(0.37, 0.22, 0.09, 0.94)
 border_width_left = 1
 border_width_top = 1
@@ -39,7 +87,7 @@ corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [node name="LaneSlotView" type="PanelContainer"]
-custom_minimum_size = Vector2(200, 212)
+custom_minimum_size = Vector2(212, 208)
 theme_override_styles/panel = SubResource("1_lane_style")
 script = ExtResource("1_script")
 
@@ -62,44 +110,132 @@ mouse_filter = 2
 [node name="VBox" type="VBoxContainer" parent="Margin"]
 theme_override_constants/separation = 6
 
-[node name="LaneLabel" type="Label" parent="Margin/VBox"]
+[node name="Header" type="HBoxContainer" parent="Margin/VBox"]
+theme_override_constants/separation = 6
+
+[node name="SideBadge" type="PanelContainer" parent="Margin/VBox/Header"]
+custom_minimum_size = Vector2(78, 24)
+theme_override_styles/panel = SubResource("2_side_badge_style")
+
+[node name="SideLabel" type="Label" parent="Margin/VBox/Header/SideBadge"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 11
+text = "STRANA"
+
+[node name="LaneLabel" type="Label" parent="Margin/VBox/Header"]
+size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 18
 text = "Lajna"
 
-[node name="CardRow" type="VBoxContainer" parent="Margin/VBox"]
-theme_override_constants/separation = 8
-
-[node name="ArtPanel" type="PanelContainer" parent="Margin/VBox/CardRow"]
-custom_minimum_size = Vector2(0, 124)
-size_flags_horizontal = 3
+[node name="SlotShell" type="PanelContainer" parent="Margin/VBox"]
+custom_minimum_size = Vector2(0, 160)
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("2_art_style")
+theme_override_styles/panel = SubResource("3_slot_shell_style")
 
-[node name="ArtTexture" type="TextureRect" parent="Margin/VBox/CardRow/ArtPanel"]
+[node name="SlotGlow" type="ColorRect" parent="Margin/VBox/SlotShell"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 6.0
-offset_top = 6.0
-offset_right = -6.0
-offset_bottom = -6.0
-expand_mode = 1
-stretch_mode = 6
+mouse_filter = 2
+color = Color(1, 1, 1, 0.05)
 
-[node name="ArtLabel" type="Label" parent="Margin/VBox/CardRow/ArtPanel"]
+[node name="CardShadow" type="PanelContainer" parent="Margin/VBox/SlotShell"]
+visible = false
+anchor_left = 0.16
+anchor_top = 0.12
+anchor_right = 0.84
+anchor_bottom = 0.88
+offset_left = 4.0
+offset_top = 16.0
+offset_right = -4.0
+offset_bottom = 0.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("6_shadow_style")
+
+[node name="CardAnchor" type="MarginContainer" parent="Margin/VBox/SlotShell"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 6.0
-offset_top = 6.0
-offset_right = -6.0
-offset_bottom = -6.0
+offset_left = 12.0
+offset_top = 8.0
+offset_right = -12.0
+offset_bottom = -22.0
+mouse_filter = 2
+
+[node name="CardPreview" parent="Margin/VBox/SlotShell/CardAnchor" instance=ExtResource("2_selected_preview")]
+mouse_filter = 2
+
+[node name="WoundGlow" type="ColorRect" parent="Margin/VBox/SlotShell"]
+visible = false
+anchor_left = 0.12
+anchor_top = 0.08
+anchor_right = 0.88
+anchor_bottom = 0.84
+offset_left = -2.0
+offset_top = 4.0
+offset_right = 2.0
+offset_bottom = 0.0
+mouse_filter = 2
+color = Color(0.76, 0.12, 0.1, 0.12)
+
+[node name="EmptyFrame" type="PanelContainer" parent="Margin/VBox/SlotShell"]
+anchor_left = 0.18
+anchor_top = 0.18
+anchor_right = 0.82
+anchor_bottom = 0.7
+mouse_filter = 2
+theme_override_styles/panel = SubResource("4_empty_frame_style")
+
+[node name="EmptyLabel" type="Label" parent="Margin/VBox/SlotShell/EmptyFrame"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 8.0
+offset_right = -12.0
+offset_bottom = -8.0
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
+text = "VYLOZ KOCKU"
+
+[node name="EmptyHintLabel" type="Label" parent="Margin/VBox/SlotShell"]
+anchor_left = 0.08
+anchor_top = 0.68
+anchor_right = 0.92
+anchor_bottom = 0.86
+mouse_filter = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 11
+text = "Volna lajna."
+
+[node name="NameRibbon" type="PanelContainer" parent="Margin/VBox/SlotShell"]
+visible = false
+anchor_left = 0.08
+anchor_top = 0.8
+anchor_right = 0.92
+anchor_bottom = 0.98
+mouse_filter = 2
+theme_override_styles/panel = SubResource("5_name_ribbon_style")
+
+[node name="OccupantLabel" type="Label" parent="Margin/VBox/SlotShell/NameRibbon"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 2.0
+offset_right = -10.0
+offset_bottom = -2.0
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+theme_override_font_sizes/font_size = 13
 text = "Prazdno"
 
-[node name="HighlightFrame" type="TextureRect" parent="Margin/VBox/CardRow/ArtPanel"]
+[node name="HighlightFrame" type="TextureRect" parent="Margin/VBox/SlotShell"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -107,18 +243,18 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="TargetRingCenter" type="CenterContainer" parent="Margin/VBox/CardRow/ArtPanel"]
+[node name="TargetRingCenter" type="CenterContainer" parent="Margin/VBox/SlotShell"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
-[node name="TargetRing" type="TextureRect" parent="Margin/VBox/CardRow/ArtPanel/TargetRingCenter"]
-custom_minimum_size = Vector2(76, 76)
+[node name="TargetRing" type="TextureRect" parent="Margin/VBox/SlotShell/TargetRingCenter"]
+custom_minimum_size = Vector2(70, 70)
 expand_mode = 1
 stretch_mode = 5
 
-[node name="FlashTexture" type="TextureRect" parent="Margin/VBox/CardRow/ArtPanel"]
+[node name="FlashTexture" type="TextureRect" parent="Margin/VBox/SlotShell"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -126,18 +262,18 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="EventTokenCenter" type="CenterContainer" parent="Margin/VBox/CardRow/ArtPanel"]
+[node name="EventTokenCenter" type="CenterContainer" parent="Margin/VBox/SlotShell"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
-[node name="EventToken" type="TextureRect" parent="Margin/VBox/CardRow/ArtPanel/EventTokenCenter"]
-custom_minimum_size = Vector2(86, 86)
+[node name="EventToken" type="TextureRect" parent="Margin/VBox/SlotShell/EventTokenCenter"]
+custom_minimum_size = Vector2(72, 72)
 expand_mode = 1
 stretch_mode = 5
 
-[node name="StatusBadge" type="TextureRect" parent="Margin/VBox/CardRow/ArtPanel"]
+[node name="StatusBadge" type="TextureRect" parent="Margin/VBox/SlotShell"]
 visible = false
 anchor_left = 1.0
 anchor_right = 1.0
@@ -149,7 +285,7 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="StatusLabel" type="Label" parent="Margin/VBox/CardRow/ArtPanel/StatusBadge"]
+[node name="StatusLabel" type="Label" parent="Margin/VBox/SlotShell/StatusBadge"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -162,22 +298,22 @@ vertical_alignment = 1
 theme_override_font_sizes/font_size = 10
 text = "PRIPR."
 
-[node name="EventPanel" type="PanelContainer" parent="Margin/VBox/CardRow/ArtPanel"]
+[node name="EventPanel" type="PanelContainer" parent="Margin/VBox/SlotShell"]
 visible = false
-anchor_left = 0.08
-anchor_top = 0.68
-anchor_right = 0.92
-anchor_bottom = 0.95
+anchor_left = 0.14
+anchor_top = 0.58
+anchor_right = 0.86
+anchor_bottom = 0.74
 mouse_filter = 2
-theme_override_styles/panel = SubResource("3_event_style")
+theme_override_styles/panel = SubResource("7_event_style")
 
-[node name="EventBackground" type="TextureRect" parent="Margin/VBox/CardRow/ArtPanel/EventPanel"]
+[node name="EventBackground" type="TextureRect" parent="Margin/VBox/SlotShell/EventPanel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 stretch_mode = 5
 
-[node name="EventLabel" type="Label" parent="Margin/VBox/CardRow/ArtPanel/EventPanel"]
+[node name="EventLabel" type="Label" parent="Margin/VBox/SlotShell/EventPanel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 6.0
@@ -186,20 +322,5 @@ offset_right = -6.0
 offset_bottom = -2.0
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "AKCE"
-
-[node name="TextColumn" type="VBoxContainer" parent="Margin/VBox/CardRow"]
-size_flags_horizontal = 3
-theme_override_constants/separation = 4
-
-[node name="OccupantLabel" type="Label" parent="Margin/VBox/CardRow/TextColumn"]
-autowrap_mode = 3
-theme_override_font_sizes/font_size = 20
-text = "Prazdno"
-
-[node name="StatsLabel" type="Label" parent="Margin/VBox/CardRow/TextColumn"]
-modulate = Color(0.9, 0.86, 0.76, 0.95)
-autowrap_mode = 3
-theme_override_font_sizes/font_size = 15
-text = "Volna lajna."

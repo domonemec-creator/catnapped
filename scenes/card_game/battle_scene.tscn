@@ -120,16 +120,16 @@ theme_override_constants/separation = 12
 theme_override_constants/separation = 12
 
 [node name="EnemyPortrait" type="Control" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader"]
-custom_minimum_size = Vector2(96, 96)
+custom_minimum_size = Vector2(84, 84)
 layout_mode = 2
 
 [node name="PortraitArt" type="TextureRect" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyPortrait"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 15.0
-offset_top = 15.0
-offset_right = -15.0
-offset_bottom = -15.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
 expand_mode = 1
 stretch_mode = 6
 mouse_filter = 2
@@ -142,7 +142,7 @@ stretch_mode = 0
 mouse_filter = 2
 
 [node name="EnemyNamePlate" type="Control" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader"]
-custom_minimum_size = Vector2(360, 96)
+custom_minimum_size = Vector2(320, 84)
 size_flags_horizontal = 3
 mouse_filter = 2
 
@@ -157,17 +157,17 @@ stretch_mode = 5
 [node name="EnemyName" type="Label" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyNamePlate"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 34.0
-offset_top = 22.0
-offset_right = -34.0
-offset_bottom = -22.0
+offset_left = 30.0
+offset_top = 18.0
+offset_right = -30.0
+offset_bottom = -18.0
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 24
 text = "Souper"
 
 [node name="EnemyStatsPanel" type="PanelContainer" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader"]
-custom_minimum_size = Vector2(178, 78)
+custom_minimum_size = Vector2(164, 68)
 theme_override_styles/panel = SubResource("1_panel_style")
 mouse_filter = 2
 
@@ -195,17 +195,17 @@ theme_override_constants/separation = 0
 [node name="EnemyLife" type="Label" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyStatsPanel/MarginContainer/VBox"]
 size_flags_horizontal = 3
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 17
 text = "Zivoty 10"
 
 [node name="EnemyTuna" type="Label" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyStatsPanel/MarginContainer/VBox"]
 size_flags_horizontal = 3
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 text = "Tuna 0/0"
 
 [node name="CombatInfoPanel" type="PanelContainer" parent="Margin/Layout/TopRow/BoardColumn"]
-custom_minimum_size = Vector2(0, 152)
+custom_minimum_size = Vector2(0, 128)
 theme_override_styles/panel = SubResource("8_info_panel_style")
 
 [node name="MarginContainer" type="MarginContainer" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel"]
@@ -227,9 +227,9 @@ theme_override_colors/font_color = Color(0.93, 0.82, 0.64, 0.96)
 text = "Stav tahu"
 
 [node name="StatusLabel" type="Label" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox"]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 34)
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 18
 theme_override_colors/font_color = Color(0.97, 0.93, 0.86, 1)
 text = "Nacitam..."
 
@@ -239,7 +239,7 @@ theme_override_colors/font_color = Color(0.95, 0.84, 0.62, 1)
 text = "Posledni akce"
 
 [node name="BattleFeed" type="RichTextLabel" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox"]
-custom_minimum_size = Vector2(0, 62)
+custom_minimum_size = Vector2(0, 48)
 size_flags_vertical = 3
 bbcode_enabled = false
 scroll_active = false
@@ -248,7 +248,7 @@ selection_enabled = false
 context_menu_enabled = false
 autowrap_mode = 3
 theme_override_colors/default_color = Color(0.93, 0.9, 0.84, 0.96)
-theme_override_font_sizes/normal_font_size = 15
+theme_override_font_sizes/normal_font_size = 14
 text = "Zatim bez akce."
 
 [node name="BoardPanel" type="PanelContainer" parent="Margin/Layout/TopRow/BoardColumn"]
@@ -264,10 +264,10 @@ mouse_filter = 2
 [node name="MarginContainer" type="MarginContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 96.0
-offset_top = 84.0
-offset_right = -96.0
-offset_bottom = -62.0
+offset_left = 84.0
+offset_top = 28.0
+offset_right = -84.0
+offset_bottom = -18.0
 mouse_filter = 2
 
 [node name="VBox" type="VBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer"]
@@ -275,12 +275,12 @@ theme_override_constants/separation = 14
 
 [node name="Lanes" type="HBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox"]
 size_flags_vertical = 3
-theme_override_constants/separation = 26
+theme_override_constants/separation = 18
 
 [node name="Lane0" type="VBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes"]
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="EnemyLane" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes/Lane0" instance=ExtResource("2_lane_slot")]
 size_flags_vertical = 3
@@ -291,7 +291,7 @@ size_flags_vertical = 3
 [node name="Lane1" type="VBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes"]
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="EnemyLane" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes/Lane1" instance=ExtResource("2_lane_slot")]
 size_flags_vertical = 3
@@ -302,7 +302,7 @@ size_flags_vertical = 3
 [node name="Lane2" type="VBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes"]
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="EnemyLane" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes/Lane2" instance=ExtResource("2_lane_slot")]
 size_flags_vertical = 3
@@ -311,7 +311,7 @@ size_flags_vertical = 3
 size_flags_vertical = 3
 
 [node name="SelectedPanel" type="PanelContainer" parent="Margin/Layout/TopRow"]
-custom_minimum_size = Vector2(408, 612)
+custom_minimum_size = Vector2(392, 544)
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("2_board_empty")
 

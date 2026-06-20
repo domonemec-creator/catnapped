@@ -9,6 +9,7 @@ const KEY_THREAT := "tavern_threat"
 const KEY_WINS := "player_wins"
 const KEY_LOSSES := "player_losses"
 const KEY_PLAYER_DECK := "player_deck_card_ids"
+const KEY_TUTORIAL_SEEN := "battle_tutorial_seen"
 const MIN_THREAT := 0
 const MAX_THREAT := 10
 const STARTER_DECK_PATH := "res://data/decks/starter_player.tres"
@@ -211,6 +212,7 @@ func load_state() -> Dictionary:
 	state[KEY_LOSSES] = maxi(0, int(config.get_value(SECTION_PROGRESS, KEY_LOSSES, 0)))
 	var loaded_deck: Array = config.get_value(SECTION_PROGRESS, KEY_PLAYER_DECK, _load_starter_deck_card_ids())
 	state[KEY_PLAYER_DECK] = _sanitize_deck_card_ids(loaded_deck)
+	state[KEY_TUTORIAL_SEEN] = bool(config.get_value(SECTION_PROGRESS, KEY_TUTORIAL_SEEN, false))
 	return state
 
 
@@ -221,6 +223,7 @@ func save_state(state: Dictionary) -> void:
 	config.set_value(SECTION_PROGRESS, KEY_WINS, sanitized[KEY_WINS])
 	config.set_value(SECTION_PROGRESS, KEY_LOSSES, sanitized[KEY_LOSSES])
 	config.set_value(SECTION_PROGRESS, KEY_PLAYER_DECK, _to_string_array(sanitized[KEY_PLAYER_DECK]))
+	config.set_value(SECTION_PROGRESS, KEY_TUTORIAL_SEEN, bool(sanitized[KEY_TUTORIAL_SEEN]))
 	var save_error := config.save(SAVE_PATH)
 	if save_error != OK:
 		push_warning("Could not save progression to %s." % SAVE_PATH)
@@ -256,6 +259,16 @@ func get_player_deck_card_ids(state: Dictionary) -> Array[StringName]:
 func set_player_deck_card_ids(state: Dictionary, card_ids: Array[StringName]) -> Dictionary:
 	var next_state := _sanitize_state(state)
 	next_state[KEY_PLAYER_DECK] = _sanitize_deck_card_ids(card_ids)
+	return next_state
+
+
+func has_seen_battle_tutorial(state: Dictionary) -> bool:
+	return bool(_sanitize_state(state).get(KEY_TUTORIAL_SEEN, false))
+
+
+func mark_battle_tutorial_seen(state: Dictionary) -> Dictionary:
+	var next_state := _sanitize_state(state)
+	next_state[KEY_TUTORIAL_SEEN] = true
 	return next_state
 
 
@@ -322,6 +335,7 @@ func _make_default_state() -> Dictionary:
 		KEY_WINS: 0,
 		KEY_LOSSES: 0,
 		KEY_PLAYER_DECK: _load_starter_deck_card_ids(),
+		KEY_TUTORIAL_SEEN: false,
 	}
 
 
@@ -331,6 +345,7 @@ func _sanitize_state(state: Dictionary) -> Dictionary:
 	next_state[KEY_WINS] = maxi(0, int(state.get(KEY_WINS, 0)))
 	next_state[KEY_LOSSES] = maxi(0, int(state.get(KEY_LOSSES, 0)))
 	next_state[KEY_PLAYER_DECK] = _sanitize_deck_card_ids(state.get(KEY_PLAYER_DECK, next_state[KEY_PLAYER_DECK]))
+	next_state[KEY_TUTORIAL_SEEN] = bool(state.get(KEY_TUTORIAL_SEEN, false))
 	return next_state
 
 

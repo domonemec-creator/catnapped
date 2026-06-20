@@ -43,6 +43,9 @@ const POSTMATCH_PANEL_FRAME_PATH := "res://assets/card_game/ui/postmatch_panel_f
 const PORTRAIT_FRAME_GOLD_PATH := "res://assets/card_game/ui/portrait_frame_gold.png"
 const PORTRAIT_FRAME_GREEN_PATH := "res://assets/card_game/ui/portrait_frame_green.png"
 const PORTRAIT_FRAME_RED_PATH := "res://assets/card_game/ui/portrait_frame_red.png"
+const INFO_ZONE_NONE := &""
+const INFO_ZONE_DECK := &"deck"
+const INFO_ZONE_DISCARD := &"discard"
 
 @onready var enemy_portrait_art: TextureRect = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyPortrait/PortraitArt
 @onready var enemy_portrait_frame: TextureRect = $Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyPortrait/PortraitFrame
@@ -52,7 +55,9 @@ const PORTRAIT_FRAME_RED_PATH := "res://assets/card_game/ui/portrait_frame_red.p
 @onready var combat_info_panel: PanelContainer = $Margin/Layout/TopRow/BoardColumn/CombatInfoPanel
 @onready var player_life_label: Label = $Margin/Layout/BottomBar/PlayerStats/MarginContainer/VBox/PlayerLife
 @onready var player_tuna_label: Label = $Margin/Layout/BottomBar/PlayerStats/MarginContainer/VBox/PlayerTuna
+@onready var deck_panel: PanelContainer = $Margin/Layout/BottomBar/DeckPanel
 @onready var deck_count_label: Label = $Margin/Layout/BottomBar/DeckPanel/MarginContainer/VBox/DeckCount
+@onready var discard_panel: PanelContainer = $Margin/Layout/BottomBar/DiscardPanel
 @onready var discard_count_label: Label = $Margin/Layout/BottomBar/DiscardPanel/MarginContainer/VBox/DiscardCount
 @onready var hand_count_label: Label = $Margin/Layout/BottomBar/HandPanel/MarginContainer/VBox/HandHeader/HandCount
 @onready var hand_row: HBoxContainer = $Margin/Layout/BottomBar/HandPanel/MarginContainer/VBox/HandCards
@@ -98,6 +103,7 @@ var _battle_state: BattleState
 var _selected_card: CardInstance
 var _selected_attacker: CardInstance
 var _selected_table_power: TablePowerDefinition
+var _selected_info_zone: StringName = INFO_ZONE_NONE
 var _next_instance_id: int = 1
 
 var _deck_system := DeckSystem.new()
@@ -122,6 +128,7 @@ var _portrait_frame_gold_texture: Texture2D
 var _portrait_frame_green_texture: Texture2D
 var _portrait_frame_red_texture: Texture2D
 var _combat_info_panel_base_style: StyleBoxFlat
+var _tutorial_overlay: Control
 
 
 func _ready() -> void:
@@ -168,10 +175,16 @@ func _ready() -> void:
 	post_match_reward_upgrade_button.pressed.connect(_on_reward_button_pressed.bind(2))
 	post_match_rematch_button.pressed.connect(_on_rematch_button_pressed)
 	post_match_choose_encounter_button.pressed.connect(_on_choose_encounter_button_pressed)
+	_make_children_click_through(deck_panel)
+	_make_children_click_through(discard_panel)
+	deck_panel.gui_input.connect(_on_info_panel_gui_input.bind(INFO_ZONE_DECK))
+	discard_panel.gui_input.connect(_on_info_panel_gui_input.bind(INFO_ZONE_DISCARD))
+	_create_tutorial_overlay()
 
 	_load_libraries()
 	_setup_battle()
 	_refresh_ui()
+	_maybe_show_tutorial_overlay()
 
 
 func _load_libraries() -> void:
@@ -190,6 +203,126 @@ func _load_libraries() -> void:
 		_encounter = load(ENCOUNTER_PATH) as EncounterDefinition
 	_encounter_backdrop_texture = _load_texture(_get_encounter_portrait_path())
 	_progression_state = _progression_system.load_state()
+
+
+func _create_tutorial_overlay() -> void:
+	if _tutorial_overlay != null:
+		return
+
+	var overlay := Control.new()
+	overlay.name = "TutorialOverlay"
+	overlay.visible = false
+	overlay.z_index = 18
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+
+	var dim := ColorRect.new()
+	dim.color = Color(0.02, 0.015, 0.01, 0.68)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(dim)
+
+	var center := CenterContainer.new()
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(center)
+
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(560, 0)
+	panel.add_theme_stylebox_override("panel", _build_runtime_style_box(
+		Color(0.11, 0.08, 0.06, 0.98),
+		Color(0.93, 0.72, 0.34, 0.98),
+		18,
+		2
+	))
+	center.add_child(panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 22)
+	margin.add_theme_constant_override("margin_top", 18)
+	margin.add_theme_constant_override("margin_right", 22)
+	margin.add_theme_constant_override("margin_bottom", 18)
+	panel.add_child(margin)
+
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 12)
+	margin.add_child(content)
+
+	var title := Label.new()
+	title.text = "Jak to hrat"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 26)
+	title.add_theme_color_override("font_color", Color(0.98, 0.92, 0.82, 1.0))
+	content.add_child(title)
+
+	var body := Label.new()
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.text = "1. Vyloz kocku z ruky na volnou lajnu.\n2. Pripravenou kockou utoc do nepratelske lajny nebo primo.\n3. Sraz souperi zivoty na nulu driv, nez to udela on."
+	body.add_theme_font_size_override("font_size", 18)
+	body.add_theme_color_override("font_color", Color(0.95, 0.9, 0.84, 1.0))
+	content.add_child(body)
+
+	var button := Button.new()
+	button.text = "Rozumim"
+	button.custom_minimum_size = Vector2(0, 44)
+	button.add_theme_font_size_override("font_size", 18)
+	button.add_theme_color_override("font_color", Color(0.13, 0.09, 0.04, 1.0))
+	button.add_theme_stylebox_override("normal", _build_runtime_style_box(
+		Color(0.89, 0.62, 0.2, 1.0),
+		Color(0.97, 0.78, 0.4, 1.0),
+		12,
+		2
+	))
+	button.add_theme_stylebox_override("hover", _build_runtime_style_box(
+		Color(0.94, 0.68, 0.24, 1.0),
+		Color(1.0, 0.82, 0.46, 1.0),
+		12,
+		2
+	))
+	button.add_theme_stylebox_override("pressed", _build_runtime_style_box(
+		Color(0.84, 0.58, 0.18, 1.0),
+		Color(0.95, 0.76, 0.38, 1.0),
+		12,
+		2
+	))
+	button.pressed.connect(_on_tutorial_dismiss_button_pressed)
+	content.add_child(button)
+
+	add_child(overlay)
+	_tutorial_overlay = overlay
+
+
+func _maybe_show_tutorial_overlay() -> void:
+	if _tutorial_overlay == null:
+		return
+	_tutorial_overlay.visible = not _progression_system.has_seen_battle_tutorial(_progression_state)
+
+
+func _dismiss_tutorial_overlay(save_progress: bool = true) -> void:
+	if _tutorial_overlay == null:
+		return
+	_tutorial_overlay.visible = false
+	if not save_progress or _progression_system.has_seen_battle_tutorial(_progression_state):
+		return
+	_progression_state = _progression_system.mark_battle_tutorial_seen(_progression_state)
+	_progression_system.save_state(_progression_state)
+
+
+func _on_tutorial_dismiss_button_pressed() -> void:
+	_dismiss_tutorial_overlay(true)
+
+
+func _on_info_panel_gui_input(event: InputEvent, zone_id: StringName) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	var mouse_event := event as InputEventMouseButton
+	if not mouse_event.pressed or mouse_event.button_index != MOUSE_BUTTON_LEFT:
+		return
+	_selected_card = null
+	_selected_attacker = null
+	_selected_table_power = null
+	_selected_info_zone = INFO_ZONE_NONE if _selected_info_zone == zone_id else zone_id
+	_refresh_ui()
 
 
 func _get_current_threat() -> int:
@@ -340,6 +473,7 @@ func _clear_selection_state() -> void:
 	_selected_card = null
 	_selected_attacker = null
 	_selected_table_power = null
+	_selected_info_zone = INFO_ZONE_NONE
 
 
 func _build_empty_lane_feedback() -> Array[Dictionary]:
@@ -938,6 +1072,7 @@ func _handle_player_lane_pressed(lane_index: int) -> void:
 		return
 
 	if _selected_table_power != null:
+		_selected_info_zone = INFO_ZONE_NONE
 		var enemy_state := _battle_state.get_enemy_state(PLAYER_ID)
 		var valid_power_lanes := _get_valid_table_power_lanes(_selected_table_power, player_state)
 		if valid_power_lanes.has(lane_index):
@@ -948,6 +1083,7 @@ func _handle_player_lane_pressed(lane_index: int) -> void:
 		return
 
 	if _selected_card != null:
+		_selected_info_zone = INFO_ZONE_NONE
 		var enemy_state := _battle_state.get_enemy_state(PLAYER_ID)
 		if _selected_card.definition.card_type == CardGameConstants.CardType.CAT:
 			var valid_play_lanes: Array[int] = _battle_rules.get_valid_play_lanes(_selected_card, player_state)
@@ -980,6 +1116,7 @@ func _handle_player_lane_pressed(lane_index: int) -> void:
 		return
 
 	_selected_table_power = null
+	_selected_info_zone = INFO_ZONE_NONE
 	_selected_attacker = null if _selected_attacker == slot.occupant else slot.occupant
 	if _selected_attacker == null:
 		status_label.text = "Vyber utoku zrusen."
@@ -1484,6 +1621,7 @@ func _select_hand_card_by_instance_id(instance_id: int, toggle_selection: bool =
 
 		_selected_attacker = null
 		_selected_table_power = null
+		_selected_info_zone = INFO_ZONE_NONE
 		if toggle_selection and _selected_card == card:
 			_selected_card = null
 			status_label.text = "Vyber z ruky zrusen."
@@ -1550,7 +1688,7 @@ func _refresh_selected_panel() -> void:
 			_selected_table_power.display_name,
 			_build_table_power_meta(_selected_table_power, player_state),
 			_build_table_power_detail(_selected_table_power, player_state),
-			_build_table_power_hint(_selected_table_power, player_state)
+			_build_table_power_preview_hint(_selected_table_power, player_state)
 		)
 		return
 
@@ -1561,7 +1699,7 @@ func _refresh_selected_panel() -> void:
 			_selected_card.definition.display_name,
 			_build_card_meta(_selected_card),
 			_build_card_detail(_selected_card.definition),
-			_build_card_selection_message(_selected_card, player_state, enemy_state)
+			_build_card_preview_hint(_selected_card, player_state, enemy_state)
 		)
 		return
 
@@ -1572,7 +1710,17 @@ func _refresh_selected_panel() -> void:
 			"Utocnik: %s" % _selected_attacker.definition.display_name,
 			_build_attacker_meta(_selected_attacker),
 			_build_card_detail(_selected_attacker.definition),
-			_build_attacker_hint(_selected_attacker, enemy_state)
+			_build_attack_preview_hint(_selected_attacker, enemy_state)
+		)
+		return
+
+	if _selected_info_zone != INFO_ZONE_NONE:
+		selected_card_view.set_card_instance(null)
+		_set_selected_panel_copy(
+			_build_info_zone_title(_selected_info_zone),
+			_build_info_zone_meta(_selected_info_zone, player_state),
+			_build_info_zone_detail(_selected_info_zone, player_state),
+			_build_info_zone_hint(_selected_info_zone)
 		)
 		return
 
@@ -1581,7 +1729,7 @@ func _refresh_selected_panel() -> void:
 		"Vybrana karta",
 		"NIC VYBRANO",
 		"Vyber kartu z ruky pro vylozeni, nebo klikni pripravenou kocku na sve strane pro utok.",
-		"Sila stolu je tlacitko dole. Aktivni cil se ti zvyrazni na stole."
+		_build_idle_panel_hint(player_state, enemy_state)
 	)
 
 
@@ -1605,7 +1753,7 @@ func _refresh_combat_info_panel() -> void:
 		panel_style.border_color = Color(0.92, 0.72, 0.32, 0.98)
 		status_color = Color(1.0, 0.95, 0.84, 1.0)
 		feed_title_color = Color(0.98, 0.83, 0.45, 1.0)
-	elif _selected_attacker != null or _selected_card != null or _selected_table_power != null:
+	elif _selected_attacker != null or _selected_card != null or _selected_table_power != null or _selected_info_zone != INFO_ZONE_NONE:
 		panel_style.bg_color = Color(0.18, 0.12, 0.07, 0.96)
 		panel_style.border_color = Color(0.95, 0.73, 0.35, 0.97)
 		status_color = Color(1.0, 0.92, 0.82, 1.0)
@@ -1647,14 +1795,14 @@ func _build_attacker_meta(card_instance: CardInstance) -> String:
 	]
 
 
-func _build_attacker_hint(card_instance: CardInstance, enemy_state: PlayerBattleState) -> String:
+func _build_attack_preview_hint(card_instance: CardInstance, enemy_state: PlayerBattleState) -> String:
 	if card_instance == null or enemy_state == null:
 		return "Neni vybran utocnik."
 
-	var valid_targets := _battle_rules.get_valid_attack_lanes(card_instance, enemy_state)
-	if valid_targets.is_empty():
+	var preview_lines := _build_attack_preview_lines(card_instance, enemy_state)
+	if preview_lines.is_empty():
 		return "Neni validni nepratelska lajna."
-	return "Klikni nepratelskou lajnu: %s." % _format_lane_names(valid_targets)
+	return "Klikni nepratelskou lajnu.\n%s" % "\n".join(preview_lines)
 
 
 func _build_table_power_meta(power_definition: TablePowerDefinition, player_state: PlayerBattleState) -> String:
@@ -1672,7 +1820,7 @@ func _build_table_power_meta(power_definition: TablePowerDefinition, player_stat
 	return " | ".join(parts)
 
 
-func _build_table_power_hint(power_definition: TablePowerDefinition, player_state: PlayerBattleState) -> String:
+func _build_table_power_preview_hint(power_definition: TablePowerDefinition, player_state: PlayerBattleState) -> String:
 	if power_definition == null:
 		return "Neni vybrana Sila stolu."
 	if player_state == null:
@@ -1685,8 +1833,282 @@ func _build_table_power_hint(power_definition: TablePowerDefinition, player_stat
 		var valid_lanes := _get_valid_table_power_lanes(power_definition, player_state)
 		if valid_lanes.is_empty():
 			return "Neni validni lajna na tve strane."
-		return "Klikni svou lajnu: %s." % _format_lane_names(valid_lanes)
+		var lines: Array[String] = []
+		for lane_index in valid_lanes:
+			lines.append("Ty %s: vyvola %s." % [lane_index + 1, _build_table_power_lane_preview(power_definition)])
+		return "Klikni svou lajnu.\n%s" % "\n".join(lines)
 	return "Pouzij Silu stolu."
+
+
+func _build_card_preview_hint(card_instance: CardInstance, player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> String:
+	if card_instance == null or card_instance.definition == null:
+		return "Vyber z ruky zrusen."
+
+	if card_instance.definition.card_type == CardGameConstants.CardType.CAT:
+		var valid_play_lanes := _battle_rules.get_valid_play_lanes(card_instance, player_state)
+		if valid_play_lanes.is_empty():
+			return "Na tve strane neni volna lajna."
+		var lines: Array[String] = []
+		for lane_index in valid_play_lanes:
+			lines.append("Ty %s: vylozit %s." % [lane_index + 1, card_instance.definition.display_name])
+		return "Klikni na volnou lajnu.\n%s" % "\n".join(lines)
+
+	if not _card_requires_board_target(card_instance):
+		return _build_instant_card_preview_hint(card_instance)
+
+	var target_lines := _build_target_preview_lines(card_instance, player_state, enemy_state)
+	if target_lines.is_empty():
+		return "Na stole neni validni cil."
+	return "Klikni na zvyrazneny cil.\n%s" % "\n".join(target_lines)
+
+
+func _build_instant_card_preview_hint(card_instance: CardInstance) -> String:
+	if card_instance == null or card_instance.definition == null:
+		return "Tahle karta se vyresi hned."
+
+	var effect_lines: Array[String] = []
+	for effect in card_instance.definition.effects:
+		var typed_effect: CardEffect = effect
+		if typed_effect == null:
+			continue
+		match typed_effect.action:
+			&"draw_cards":
+				effect_lines.append("Potahne %s kart%s." % [typed_effect.value, "u" if typed_effect.value == 1 else "y"])
+			&"heal_life":
+				effect_lines.append("Vyleci %s zivotu." % typed_effect.value)
+			&"deal_damage":
+				effect_lines.append("Udeli %s zraneni." % typed_effect.value)
+
+	if effect_lines.is_empty():
+		return "Tahle karta se vyresi hned."
+	return "Tahle karta se vyresi hned.\n%s" % "\n".join(effect_lines)
+
+
+func _build_target_preview_lines(card_instance: CardInstance, player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> Array[String]:
+	var lines: Array[String] = []
+	if card_instance == null or player_state == null or enemy_state == null:
+		return lines
+
+	for lane_index in _get_valid_card_target_lanes(card_instance, player_state, enemy_state, player_state.player_id):
+		var slot := player_state.board[lane_index]
+		if slot == null or slot.occupant == null:
+			continue
+		lines.append("Ty %s: %s" % [lane_index + 1, _describe_target_preview(card_instance, slot.occupant)])
+
+	for lane_index in _get_valid_card_target_lanes(card_instance, player_state, enemy_state, enemy_state.player_id):
+		var slot := enemy_state.board[lane_index]
+		if slot == null or slot.occupant == null:
+			continue
+		lines.append("Souper %s: %s" % [lane_index + 1, _describe_target_preview(card_instance, slot.occupant)])
+
+	return lines
+
+
+func _describe_target_preview(card_instance: CardInstance, target_card: CardInstance) -> String:
+	if card_instance == null or target_card == null:
+		return "bez efektu"
+
+	var parts: Array[String] = []
+	for effect in card_instance.definition.effects:
+		var typed_effect: CardEffect = effect
+		if typed_effect == null:
+			continue
+		match typed_effect.action:
+			&"modify_attack":
+				parts.append("%s UTK -> %s" % [_format_signed_number(typed_effect.value), target_card.current_attack + typed_effect.value])
+			&"modify_life":
+				var next_life := maxi(0, target_card.current_life + typed_effect.value)
+				parts.append("%s ZIV -> %s" % [_format_signed_number(typed_effect.value), next_life])
+			&"deal_damage":
+				var remaining_life := maxi(0, target_card.current_life - typed_effect.value)
+				parts.append("KO" if remaining_life <= 0 else "zbyde %s ZIV" % remaining_life)
+			&"ready_attack":
+				parts.append("pripravi utok")
+			&"return_to_hand":
+				parts.append("vrati do ruky")
+			&"steal_item":
+				parts.append("ukradne predmet")
+			&"destroy_item":
+				parts.append("znici predmet")
+
+	if parts.is_empty():
+		return "bez efektu"
+	return ", ".join(parts)
+
+
+func _build_attack_preview_lines(attacker: CardInstance, defender_state: PlayerBattleState) -> Array[String]:
+	var lines: Array[String] = []
+	if attacker == null or defender_state == null:
+		return lines
+
+	for lane_index in _battle_rules.get_valid_attack_lanes(attacker, defender_state):
+		lines.append("Souper %s: %s" % [lane_index + 1, _describe_attack_preview(attacker, defender_state, lane_index)])
+	return lines
+
+
+func _describe_attack_preview(attacker: CardInstance, defender_state: PlayerBattleState, lane_index: int) -> String:
+	if attacker == null or defender_state == null:
+		return "bez cile"
+
+	var target_slot: LaneSlotState = defender_state.board[lane_index]
+	if target_slot != null and target_slot.occupant != null:
+		var target_card: CardInstance = target_slot.occupant
+		var remaining_life := maxi(0, target_card.current_life - attacker.current_attack)
+		if remaining_life <= 0:
+			return "%s padne." % target_card.definition.display_name
+		return "%s zbyde %s ZIV." % [target_card.definition.display_name, remaining_life]
+
+	var guard_target := _battle_rules.find_guard_for_direct_damage(defender_state, lane_index)
+	if guard_target != null:
+		var guard_life := maxi(0, guard_target.current_life - attacker.current_attack)
+		if guard_life <= 0:
+			return "%s zachyti zasah a padne." % guard_target.definition.display_name
+		return "%s zachyti zasah, zbyde %s ZIV." % [guard_target.definition.display_name, guard_life]
+
+	return "primy zasah za %s." % attacker.current_attack
+
+
+func _build_idle_panel_hint(player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> String:
+	var warning := _build_enemy_lethal_warning(player_state, enemy_state)
+	if not warning.is_empty():
+		return "%s\nVyloz blok nebo zavri otevrenou lajnu." % warning
+	return "Sila stolu je tlacitko dole. Aktivni cil se ti zvyrazni na stole."
+
+
+func _build_enemy_lethal_warning(player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> String:
+	if player_state == null or enemy_state == null or player_state.life <= 0:
+		return ""
+
+	var direct_damage := 0
+	var threat_lines: Array[String] = []
+	for slot in enemy_state.board:
+		if slot == null or slot.occupant == null:
+			continue
+		var attacker: CardInstance = slot.occupant
+		var direct_lane := _find_direct_attack_lane(attacker, player_state)
+		if direct_lane < 0:
+			continue
+		direct_damage += attacker.current_attack
+		threat_lines.append("%s pres lajnu %s" % [attacker.definition.display_name, direct_lane + 1])
+
+	if direct_damage < player_state.life:
+		return ""
+	return "SMRTICI HROZBA PRISTI TAH: souper ma otevrenych %s primeho zraneni.\n%s" % [direct_damage, ", ".join(threat_lines)]
+
+
+func _find_direct_attack_lane(attacker: CardInstance, defender_state: PlayerBattleState) -> int:
+	if attacker == null or defender_state == null or attacker.lane_index < 0:
+		return -1
+
+	var lane_indexes: Array[int] = [attacker.lane_index]
+	if attacker.has_keyword(CardGameConstants.KEYWORD_POUNCE):
+		if attacker.lane_index > 0:
+			lane_indexes.append(attacker.lane_index - 1)
+		if attacker.lane_index < defender_state.board.size() - 1:
+			lane_indexes.append(attacker.lane_index + 1)
+
+	for lane_index in lane_indexes:
+		var slot: LaneSlotState = defender_state.board[lane_index]
+		if slot != null and slot.occupant != null:
+			continue
+		if _battle_rules.find_guard_for_direct_damage(defender_state, lane_index) != null:
+			continue
+		return lane_index
+
+	return -1
+
+
+func _build_info_zone_title(zone_id: StringName) -> String:
+	match zone_id:
+		INFO_ZONE_DECK:
+			return "Balik"
+		INFO_ZONE_DISCARD:
+			return "Odhazovani"
+	return "Nahled"
+
+
+func _build_info_zone_meta(zone_id: StringName, player_state: PlayerBattleState) -> String:
+	if player_state == null:
+		return "CHYBI DATA"
+
+	var cards := _get_info_zone_cards(zone_id, player_state)
+	var type_count := _count_unique_card_names(cards)
+	match zone_id:
+		INFO_ZONE_DECK:
+			return "BALIK | %s karet | %s typu" % [cards.size(), type_count]
+		INFO_ZONE_DISCARD:
+			return "ODHAZOVANI | %s karet | %s typu" % [cards.size(), type_count]
+	return "NAHLED"
+
+
+func _build_info_zone_detail(zone_id: StringName, player_state: PlayerBattleState) -> String:
+	if player_state == null:
+		return "Chybi stav hrace."
+
+	var cards := _get_info_zone_cards(zone_id, player_state)
+	if cards.is_empty():
+		return "Prazdno."
+	return _build_card_stack_summary(cards)
+
+
+func _build_info_zone_hint(zone_id: StringName) -> String:
+	match zone_id:
+		INFO_ZONE_DECK:
+			return "Klikni znovu na Balik pro zavreni."
+		INFO_ZONE_DISCARD:
+			return "Klikni znovu na Odhazovani pro zavreni."
+	return "Klikni znovu pro zavreni."
+
+
+func _get_info_zone_cards(zone_id: StringName, player_state: PlayerBattleState) -> Array[CardInstance]:
+	match zone_id:
+		INFO_ZONE_DECK:
+			return player_state.deck
+		INFO_ZONE_DISCARD:
+			return player_state.discard
+	var empty_cards: Array[CardInstance] = []
+	return empty_cards
+
+
+func _count_unique_card_names(cards: Array[CardInstance]) -> int:
+	var counts := _count_cards_by_name(cards)
+	return counts.size()
+
+
+func _build_card_stack_summary(cards: Array[CardInstance]) -> String:
+	var counts := _count_cards_by_name(cards)
+	var names := counts.keys()
+	names.sort()
+
+	var lines: Array[String] = []
+	for card_name in names:
+		lines.append("%sx %s" % [counts[card_name], card_name])
+	return "\n".join(lines)
+
+
+func _count_cards_by_name(cards: Array[CardInstance]) -> Dictionary:
+	var counts: Dictionary = {}
+	for card in cards:
+		if card == null or card.definition == null:
+			continue
+		var card_name := card.definition.display_name
+		counts[card_name] = int(counts.get(card_name, 0)) + 1
+	return counts
+
+
+func _build_table_power_lane_preview(power_definition: TablePowerDefinition) -> String:
+	if power_definition == null:
+		return "token"
+
+	for effect in power_definition.effects:
+		var typed_effect: CardEffect = effect
+		if typed_effect != null and typed_effect.action == &"summon_token":
+			return _card_display_name_from_id(typed_effect.keyword_arg)
+	return power_definition.display_name
+
+
+func _format_signed_number(value: int) -> String:
+	return "%s%s" % ["+" if value >= 0 else "", value]
 
 
 func _card_type_label(card_type: int) -> String:
@@ -1769,6 +2191,7 @@ func _on_table_power_button_pressed() -> void:
 
 	_selected_card = null
 	_selected_attacker = null
+	_selected_info_zone = INFO_ZONE_NONE
 
 	if _table_power_requires_lane_selection(power_definition):
 		_selected_table_power = null if _selected_table_power == power_definition else power_definition
@@ -1825,3 +2248,25 @@ func _format_lane_names(lane_indexes: Array[int]) -> String:
 	for lane_index in lane_indexes:
 		lane_names.append("Lajna %s" % (lane_index + 1))
 	return ", ".join(lane_names)
+
+
+func _build_runtime_style_box(background_color: Color, border_color: Color, corner_radius: int, border_width: int) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = background_color
+	style.border_color = border_color
+	style.border_width_left = border_width
+	style.border_width_top = border_width
+	style.border_width_right = border_width
+	style.border_width_bottom = border_width
+	style.corner_radius_top_left = corner_radius
+	style.corner_radius_top_right = corner_radius
+	style.corner_radius_bottom_left = corner_radius
+	style.corner_radius_bottom_right = corner_radius
+	return style
+
+
+func _make_children_click_through(node: Node) -> void:
+	for child in node.get_children():
+		if child is Control:
+			(child as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_make_children_click_through(child)
