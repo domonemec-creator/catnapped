@@ -39,6 +39,18 @@ func _run() -> void:
         return
 
     var mutated_state: Dictionary = _progression_system.load_state()
+    mutated_state["tavern_threat"] = 3
+    mutated_state["player_wins"] = 0
+    _progression_system.save_state(mutated_state)
+
+    screen._load_state()
+    screen._refresh_ui()
+
+    if not screen._threat_label.text.contains("Hrozba: 0"):
+        _fail("Progression screen should hide stored threat before the first player win.")
+        return
+
+    mutated_state = _progression_system.load_state()
     var mutated_deck := _progression_system.get_player_deck_card_ids(mutated_state)
     mutated_deck.append(&"table_flip")
     mutated_state = _progression_system.set_player_deck_card_ids(mutated_state, mutated_deck)

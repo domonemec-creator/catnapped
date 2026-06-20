@@ -13,12 +13,12 @@ value = 1
 [resource]
 script = ExtResource("1_card_definition")
 id = &"fishbone_skulker"
-display_name = "Rybokostny plizil"
+display_name = "Rybokostěný plíživec"
 card_type = 0
 cost = 2
 attack = 2
 life = 2
-rules_text = "Posledni dech: lizni 1 kartu."
+rules_text = "Poslední dech: lizni 1 kartu."
 keywords = [&"last_breath"]
 effects = [SubResource("1_last_breath")]
 art_path = "res://assets/card_game/card_art/fishbone_skulker.png"

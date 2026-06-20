@@ -12,7 +12,7 @@ value = 2
 [resource]
 script = ExtResource("1_card_definition")
 id = &"hidden_claws"
-display_name = "Skryte drapy"
+display_name = "Skryté drápy"
 card_type = 1
 cost = 1
 attack = 0

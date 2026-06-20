@@ -938,6 +938,14 @@ Když budeme pokračovat:
 
 ## 20. Update log
 
+### 2026-06-20 — Vizuální audit + plná česká diakritika
+
+- **visual-ux-audit** (nový skill z `skills nove`) projet na přepracovaném boardu. Hlavní nález: struktura/rámy OK, ale **celá lokalizace byla psaná bez diakritiky** (ASCII) — nekonzistentní pro CZ trh.
+- **Plný diakritický sweep** přes Python (UTF-8 `replace` mapy): ~330 náhrad napříč `battle_controller.gd`, `progression_system.gd`, `lane_slot_view.gd`, `encounter_select.gd`, `progression_screen.gd`, `run_session.gd`, `card_game_constants.gd`, verify tooly, `.tscn` scény a **19 názvů karet** (`data/cards/*.tres`). Kostrbaté překlady opraveny (Pajsr→Páčidlo, Fishbone→Rybokostěný plíživec, tavern_mouser→Hospodský myšolovec…).
+- **Pozor — porovnávací pasti:** `lowered.find("pretahni kartu")` a verify asserty (`"PRIMO 3"`, `"SMRTICI HROZBA PRISTI TAH"`) musely dostat diakritiku taky, jinak by přestaly matchovat runtime text. Opraveno.
+- **Ověřeno:** capture boardu (diakritika se renderuje správně — font ji umí), `verify_lane_slot_view` + `verify_battle_previews` prošly. Screenshot `artifacts/audit_board2.png`.
+- **Drobný zbytek (Minor, audit #3):** label „Stav tahu" sedí těsně u horního okraje CombatInfoPanelu (lehký dojem ořezu) — text správný, chce jen +pár px horního paddingu.
+
 ### 2026-06-18 - Run skeleton
 
 - `scripts/card_game/systems/run_session.gd` added as an autoload singleton to hold the in-run encounter route.

@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_script")
 id = &"candlepaw_scout"
-display_name = "Svicotlapy zved"
+display_name = "Svíčkotlapý zvěd"
 card_type = 0
 cost = 1
 attack = 1

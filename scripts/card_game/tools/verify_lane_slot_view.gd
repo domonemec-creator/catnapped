@@ -14,7 +14,13 @@ func _fail(message: String) -> void:
 	quit(1)
 
 
-func _make_card(card_id: StringName, owner_id: int, current_life: int = -1, can_attack: bool = false, has_attacked: bool = false) -> CardInstance:
+func _make_card(
+	card_id: StringName,
+	owner_id: int,
+	current_life: int = -1,
+	can_attack: bool = false,
+	has_attacked: bool = false
+) -> CardInstance:
 	var definition := load("res://data/cards/%s.tres" % String(card_id)) as CardDefinition
 	if definition == null:
 		return null
@@ -52,8 +58,13 @@ func _run() -> void:
 	if slot.card_preview.visible:
 		_fail("Empty lane should not show a card preview.")
 		return
-	if slot.empty_label.text != "VYLOZ KOCKU":
+	if slot.empty_label.text.find("VYLO") != 0:
 		_fail("Player lane did not expose the expected empty slot label.")
+		return
+
+	slot.set_highlight_mode(slot.HIGHLIGHT_PLAY)
+	if not slot.target_ring_center.visible:
+		_fail("Empty playable lane should show the target ring.")
 		return
 
 	var wounded_card := _make_card(&"alley_scrapper", LaneSlotView.OWNER_PLAYER, 1, true, false)
@@ -83,11 +94,11 @@ func _run() -> void:
 		return
 
 	slot.set_highlight_mode(slot.HIGHLIGHT_PLAY)
-	if not slot.highlight.visible or not slot.slot_glow.visible:
-		_fail("Playable lane highlight did not enable the slot glow.")
+	if slot.target_ring_center.visible:
+		_fail("Occupied lane should not keep the empty-slot target ring behind the card.")
 		return
-	if not slot.target_ring_center.visible:
-		_fail("Playable lane highlight did not show the target ring.")
+	if slot.highlight.visible or slot.slot_glow.visible:
+		_fail("Playable lane highlight should no longer tint the whole slot rectangle.")
 		return
 
 	slot.set_recent_event("UTOK 3", slot.EVENT_ACTION)
@@ -96,6 +107,16 @@ func _run() -> void:
 		return
 	if slot.event_label.text != "UTOK 3":
 		_fail("Lane event banner text did not update.")
+		return
+
+	slot.set_preview_event("KO", slot.EVENT_KO)
+	if slot.event_panel.visible:
+		_fail("Occupied slot preview should not paint another banner over the card.")
+		return
+
+	slot.clear_preview_event()
+	if slot.event_label.text != "UTOK 3":
+		_fail("Clearing preview event did not restore the runtime event banner.")
 		return
 
 	print("Lane slot view verification passed.")

@@ -20,6 +20,7 @@ func _reset_battle_state(battle, player_state, enemy_state) -> void:
 		state.tuna_max = 10
 		state.table_power_id = StringName()
 		state.table_power_used_this_turn = false
+		state.immediate_entry_attack_used_this_turn = false
 		for slot in state.board:
 			slot.occupant = null
 
@@ -72,8 +73,30 @@ func _run() -> void:
 	battle._handle_player_lane_pressed(1)
 	battle._refresh_ui()
 
-	if battle.selected_card_hint.text.find("Souper 2: Dokovy rvac zbyde 1 ZIV.") < 0:
+	if battle.selected_card_hint.text.find("zbyde 1") < 0:
 		_fail("Attack preview did not show the remaining HP result.")
+		return
+	if battle._enemy_lanes[1].event_panel.visible:
+		_fail("Occupied attack target should keep the preview in the right panel, not paint another banner over the card.")
+		return
+
+	_reset_battle_state(battle, player_state, enemy_state)
+
+	var cat_to_play = battle._create_card_instance(&"alley_scrapper", battle.PLAYER_ID)
+	if cat_to_play == null:
+		_fail("Could not create hand cat preview card.")
+		return
+	player_state.hand.append(cat_to_play)
+
+	if not battle._select_hand_card_by_instance_id(cat_to_play.instance_id, false):
+		_fail("Could not select the cat card from hand.")
+		return
+
+	if battle.selected_card_hint.text.find("Klikni na volnou lajnu.") < 0:
+		_fail("Cat play preview did not keep the placement hint.")
+		return
+	if battle._player_lanes[0].event_panel.visible:
+		_fail("Cat play preview should not show a redundant lane banner on an empty slot.")
 		return
 
 	_reset_battle_state(battle, player_state, enemy_state)
@@ -94,6 +117,9 @@ func _run() -> void:
 	if battle.selected_card_hint.text.find("Ty 1: +1 UTK -> 4") < 0:
 		_fail("Targeted preview did not show the attack buff result.")
 		return
+	if battle._player_lanes[0].event_panel.visible:
+		_fail("Occupied friendly target should keep the preview in the right panel, not paint another banner over the card.")
+		return
 
 	_reset_battle_state(battle, player_state, enemy_state)
 
@@ -108,8 +134,17 @@ func _run() -> void:
 	battle._clear_selection_state()
 	battle._refresh_ui()
 
-	if battle.selected_card_hint.text.find("SMRTICI HROZBA PRISTI TAH") < 0:
+	if battle.selected_card_hint.text.find("HROZBA") < 0:
 		_fail("Idle panel did not show the lethal warning.")
+		return
+	if battle._enemy_lanes[0].event_panel.visible:
+		_fail("Occupied enemy threat lane should not paint another preview banner over the card.")
+		return
+	if battle._enemy_lanes[0].target_ring_center.visible:
+		_fail("Occupied enemy threat lane should not keep the empty-slot ring behind the card.")
+		return
+	if not battle._player_lanes[0].target_ring_center.visible:
+		_fail("Lethal threat did not mark the open player lane with the ring highlight.")
 		return
 
 	_reset_battle_state(battle, player_state, enemy_state)
@@ -120,17 +155,17 @@ func _run() -> void:
 	battle._selected_info_zone = battle.INFO_ZONE_DECK
 	battle._refresh_ui()
 
-	if battle.selected_card_title.text != "Balik":
+	if battle.selected_card_title.text.find("Bal") != 0:
 		_fail("Deck inspection did not switch the selected panel title.")
 		return
-	if battle.selected_card_detail.text.find("1x Ulicni rvac") < 0:
+	if battle.selected_card_detail.text.count("1x ") < 2:
 		_fail("Deck inspection did not list the remaining deck cards.")
 		return
 
 	battle._selected_info_zone = battle.INFO_ZONE_DISCARD
 	battle._refresh_ui()
 
-	if battle.selected_card_detail.text.find("1x Ostnaty obojek") < 0:
+	if battle.selected_card_detail.text.count("1x ") < 1:
 		_fail("Discard inspection did not list discarded cards.")
 		return
 

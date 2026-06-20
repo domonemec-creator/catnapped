@@ -20,6 +20,7 @@ func _reset_battle_state(battle, player_state, enemy_state) -> void:
         state.tuna_max = 10
         state.table_power_id = StringName()
         state.table_power_used_this_turn = false
+        state.immediate_entry_attack_used_this_turn = false
         for slot in state.board:
             slot.occupant = null
 
@@ -33,6 +34,16 @@ func _place_card(state, card, lane_index: int, can_attack: bool = false, has_att
     card.lane_index = lane_index
     card.can_attack = can_attack
     card.has_attacked = has_attacked
+
+
+func _find_card_lane(state, card) -> int:
+    if state == null or card == null:
+        return -1
+    for lane_index in range(state.board.size()):
+        var slot = state.board[lane_index]
+        if slot != null and slot.occupant == card:
+            return lane_index
+    return -1
 
 
 func _run() -> void:
@@ -51,6 +62,51 @@ func _run() -> void:
     var enemy_state = battle._battle_state.get_player_state(battle.ENEMY_ID)
     if player_state == null or enemy_state == null:
         _fail("Missing battle states.")
+        return
+
+    _reset_battle_state(battle, player_state, enemy_state)
+
+    var enemy_tavern_mouser = battle._create_card_instance(&"tavern_mouser", battle.ENEMY_ID)
+    enemy_state.hand.append(enemy_tavern_mouser)
+
+    battle._run_enemy_stub_turn()
+
+    var enemy_tavern_mouser_lane := _find_card_lane(enemy_state, enemy_tavern_mouser)
+    if enemy_tavern_mouser_lane < 0:
+        _fail("Enemy Tavern Mouser was not played to the board.")
+        return
+    if player_state.life != 30:
+        _fail("Enemy non-Quick Paws cat attacked on the same turn it was played.")
+        return
+    if enemy_tavern_mouser.has_attacked:
+        _fail("Enemy Tavern Mouser should not spend an attack on the same turn it enters play.")
+        return
+    if enemy_tavern_mouser.can_attack:
+        _fail("Enemy Tavern Mouser should remain unready after being played.")
+        return
+
+    _reset_battle_state(battle, player_state, enemy_state)
+
+    var enemy_wharf_cutthroat_a = battle._create_card_instance(&"wharf_cutthroat", battle.ENEMY_ID)
+    var enemy_wharf_cutthroat_b = battle._create_card_instance(&"wharf_cutthroat", battle.ENEMY_ID)
+    enemy_state.hand.append(enemy_wharf_cutthroat_a)
+    enemy_state.hand.append(enemy_wharf_cutthroat_b)
+
+    battle._run_enemy_stub_turn()
+
+    var enemy_wharf_cutthroat_lane_a := _find_card_lane(enemy_state, enemy_wharf_cutthroat_a)
+    var enemy_wharf_cutthroat_lane_b := _find_card_lane(enemy_state, enemy_wharf_cutthroat_b)
+    if enemy_wharf_cutthroat_lane_a < 0 or enemy_wharf_cutthroat_lane_b < 0:
+        _fail("Enemy Quick Paws cats were not both played to the board.")
+        return
+    if player_state.life != 27:
+        _fail("Only one newly played Quick Paws cat should attack immediately per turn.")
+        return
+    var immediate_attack_count := 0
+    immediate_attack_count += 1 if enemy_wharf_cutthroat_a.has_attacked else 0
+    immediate_attack_count += 1 if enemy_wharf_cutthroat_b.has_attacked else 0
+    if immediate_attack_count != 1:
+        _fail("Exactly one newly played Quick Paws cat should spend the immediate attack.")
         return
 
     _reset_battle_state(battle, player_state, enemy_state)

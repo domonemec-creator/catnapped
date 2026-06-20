@@ -1,8 +1,8 @@
 class_name EncounterSelectMenu
 extends Control
 
-const BattleScene: PackedScene = preload("res://scenes/card_game/battle_scene.tscn")
-const ProgressionScreen: PackedScene = preload("res://scenes/card_game/progression_screen.tscn")
+const BATTLE_SCENE_PATH := "res://scenes/card_game/battle_scene.tscn"
+const PROGRESSION_SCREEN_PATH := "res://scenes/card_game/progression_screen.tscn"
 const ENCOUNTER_IDS: Array[StringName] = [&"smug_tabby", &"ragclaw_brawler", &"harbor_warden", &"lantern_striker"]
 const HEADER_TEXTURE_PATH := "res://assets/card_game/ui/header_panel_drapes.png"
 
@@ -118,7 +118,7 @@ func _build_ui() -> void:
     header_vbox.add_child(title)
 
     var subtitle := Label.new()
-    subtitle.text = "Vyber soupere pred startem. Save i hrozba zustavaji zachovane."
+    subtitle.text = "Vyber soupeře pred startem. Save i hrozba zustavaji zachovane."
     _style_label(subtitle, 18, Color(0.9, 0.82, 0.67, 0.95), true)
     header_vbox.add_child(subtitle)
 
@@ -138,11 +138,11 @@ func _build_ui() -> void:
 
     _run_note_label = Label.new()
     _style_label(_run_note_label, 15, Color(0.88, 0.79, 0.64, 0.95), true)
-    _run_note_label.text = "Run zacne od vybraneho soupere a projde 5 souboju."
+    _run_note_label.text = "Run zacne od vybraneho soupeře a projde 5 souboju."
     header_vbox.add_child(_run_note_label)
 
     _progress_button = Button.new()
-    _progress_button.text = "Balik a postup"
+    _progress_button.text = "Balík a postup"
     _progress_button.custom_minimum_size = Vector2(0, 48)
     _progress_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     _progress_button.add_theme_font_size_override("font_size", 18)
@@ -183,12 +183,12 @@ func _build_ui() -> void:
     list_margin.add_child(list_vbox)
 
     var list_title := Label.new()
-    list_title.text = "Souperi"
+    list_title.text = "Soupeři"
     _style_label(list_title, 24, Color(0.96, 0.88, 0.73, 1))
     list_vbox.add_child(list_title)
 
     var list_note := Label.new()
-    list_note.text = "Vyber jednoho soupere a spust souboj."
+    list_note.text = "Vyber jednoho soupeře a spust souboj."
     _style_label(list_note, 15, Color(0.88, 0.79, 0.64, 0.95), true)
     list_vbox.add_child(list_note)
 
@@ -253,7 +253,7 @@ func _build_ui() -> void:
     details_vbox.add_child(_status_label)
 
     _start_button = Button.new()
-    _start_button.text = "Treninkovy souboj"
+    _start_button.text = "Tréninkový souboj"
     _start_button.custom_minimum_size = Vector2(0, 56)
     _start_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     _start_button.add_theme_font_size_override("font_size", 21)
@@ -326,28 +326,28 @@ func _refresh_details() -> void:
         return
 
     _selected_title.text = _selected_encounter.display_name
-    _selected_npc.text = "Souper: %s" % _selected_encounter.npc_name
-    _selected_summary.text = "Balik soupere se meni podle hrozby."
-    _selected_stats.text = "Sila stolu: %s\nStartovni zivoty: %s" % [
+    _selected_npc.text = "Soupeř: %s" % _selected_encounter.npc_name
+    _selected_summary.text = "Balík soupeře se mění podle hrozby."
+    _selected_stats.text = "Síla stolu: %s\nStartovní životy: %s" % [
         _get_table_power_display_name(_selected_encounter.table_power_id),
         _selected_encounter.starting_life,
     ]
     _selected_portrait.texture = _load_texture(_selected_encounter.portrait_path)
-    _status_label.text = "Tahle volba nastavi jen pristi treninkovy souboj. Postup zustava v save."
-    _run_note_label.text = "Run zacne u %s a navaze 5 souboju." % _selected_encounter.display_name
+    _status_label.text = "Tahle volba nastaví jen příští tréninkový souboj. Postup zůstává v save."
+    _run_note_label.text = "Run začne u %s a naváže 5 soubojů." % _selected_encounter.display_name
     _run_button.disabled = false
     _start_button.disabled = false
 
 
 func _set_empty_state() -> void:
     _selected_encounter = null
-    _selected_title.text = "Souperi se nenacetli"
+    _selected_title.text = "Soupeři se nenačetli"
     _selected_npc.text = ""
     _selected_summary.text = "Zkontroluj `res://data/encounters`."
     _selected_stats.text = ""
     _selected_portrait.texture = null
-    _status_label.text = "Vyber je prazdny, souboj nejde spustit."
-    _run_note_label.text = "Dokud se souperi nenactou, run nejde spustit."
+    _status_label.text = "Výběr je prázdný, souboj nejde spustit."
+    _run_note_label.text = "Dokud se soupeři nenačtou, run nejde spustit."
     _run_button.disabled = true
     _start_button.disabled = true
 
@@ -360,7 +360,7 @@ func _get_encounter_by_id(encounter_id: StringName) -> EncounterDefinition:
 
 
 func _build_encounter_button_text(encounter: EncounterDefinition) -> String:
-    var summary := "Sila %s | %s zivotu" % [
+    var summary := "Síla %s | %s životů" % [
         _get_table_power_display_name(encounter.table_power_id),
         encounter.starting_life,
     ]
@@ -368,7 +368,7 @@ func _build_encounter_button_text(encounter: EncounterDefinition) -> String:
 
 
 func _build_encounter_tooltip(encounter: EncounterDefinition) -> String:
-    return "Sila stolu: %s\nStartovni zivoty: %s\nBalik soupere se meni podle hrozby." % [
+    return "Síla stolu: %s\nStartovní životy: %s\nBalík soupeře se mění podle hrozby." % [
         _get_table_power_display_name(encounter.table_power_id),
         encounter.starting_life,
     ]
@@ -408,7 +408,20 @@ func _start_run() -> void:
 
 
 func _open_progression_screen() -> void:
-    var progression_scene: Control = ProgressionScreen.instantiate() as Control
+    call_deferred("_deferred_open_progression_screen")
+
+
+func _deferred_open_progression_screen() -> void:
+    var progression_scene_resource := load(PROGRESSION_SCREEN_PATH) as PackedScene
+    if progression_scene_resource == null:
+        push_error("Could not load progression_screen.tscn")
+        return
+
+    var progression_scene := progression_scene_resource.instantiate() as Control
+    if progression_scene == null:
+        push_error("Could not instantiate progression_screen.tscn")
+        return
+
     var tree := get_tree()
     tree.root.add_child(progression_scene)
     tree.current_scene = progression_scene
@@ -416,7 +429,12 @@ func _open_progression_screen() -> void:
 
 
 func _open_battle_scene(encounter_id: StringName = StringName()) -> void:
-    var battle_scene := BattleScene.instantiate()
+    var battle_scene_resource := load(BATTLE_SCENE_PATH) as PackedScene
+    if battle_scene_resource == null:
+        push_error("Could not load battle_scene.tscn")
+        return
+
+    var battle_scene := battle_scene_resource.instantiate()
     if encounter_id != StringName():
         battle_scene.startup_encounter_id = encounter_id
     var tree := get_tree()

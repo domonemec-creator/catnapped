@@ -118,7 +118,7 @@ func advance_to_next_encounter() -> StringName:
 func get_run_progress_text() -> String:
     if not _active or _route.is_empty():
         return ""
-    return "Vyprava %s/%s" % [get_current_step_number(), _route.size()]
+    return "Výprava %s/%s" % [get_current_step_number(), _route.size()]
 
 
 func get_run_roster_summary() -> String:
@@ -183,13 +183,13 @@ func _build_run_roster() -> Array[StringName]:
 func _encounter_display_name(encounter_id: StringName) -> String:
     match encounter_id:
         &"smug_tabby":
-            return "Namysleny kocour"
+            return "Namyšlený kocour"
         &"ragclaw_brawler":
-            return "Ragclaw rvac"
+            return "Ragclaw rváč"
         &"harbor_warden":
-            return "Pristavni strazny"
+            return "Přístavní strážný"
         &"lantern_striker":
-            return "Lucernovy utocnik"
+            return "Lucernový útočník"
     return String(encounter_id)
 
 

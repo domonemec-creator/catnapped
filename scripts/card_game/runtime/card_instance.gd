@@ -11,6 +11,8 @@ var current_life: int = 0
 var lane_index: int = -1
 var can_attack: bool = false
 var has_attacked: bool = false
+var entered_this_turn: bool = false
+var immediate_entry_attack_granted: bool = false
 var attached_item_instance_id: int = -1
 # The actual equipped item instance (persistent), so it can be stolen or destroyed.
 # Kept in sync with attached_item_instance_id.

@@ -10,12 +10,12 @@
 [ext_resource type="Texture2D" path="res://assets/card_game/ui/label_frame_brass.png" id="8_label_frame"]
 
 [sub_resource type="StyleBoxFlat" id="1_panel_style"]
-bg_color = Color(0.13, 0.1, 0.08, 0.94)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.6, 0.46, 0.24, 0.92)
+bg_color = Color(0.13, 0.1, 0.08, 0.86)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.56, 0.42, 0.22, 0.74)
 corner_radius_top_left = 18
 corner_radius_top_right = 18
 corner_radius_bottom_right = 18
@@ -71,12 +71,12 @@ corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxFlat" id="8_info_panel_style"]
-bg_color = Color(0.12, 0.09, 0.07, 0.95)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.6, 0.46, 0.24, 0.9)
+bg_color = Color(0.11, 0.15, 0.09, 0.82)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.54, 0.76, 0.42, 0.8)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
@@ -142,7 +142,7 @@ stretch_mode = 0
 mouse_filter = 2
 
 [node name="EnemyNamePlate" type="Control" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader"]
-custom_minimum_size = Vector2(320, 84)
+custom_minimum_size = Vector2(300, 74)
 size_flags_horizontal = 3
 mouse_filter = 2
 
@@ -163,11 +163,11 @@ offset_right = -30.0
 offset_bottom = -18.0
 horizontal_alignment = 1
 vertical_alignment = 1
-theme_override_font_sizes/font_size = 24
-text = "Souper"
+theme_override_font_sizes/font_size = 22
+text = "Soupeř"
 
 [node name="EnemyStatsPanel" type="PanelContainer" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader"]
-custom_minimum_size = Vector2(164, 68)
+custom_minimum_size = Vector2(148, 58)
 theme_override_styles/panel = SubResource("1_panel_style")
 mouse_filter = 2
 
@@ -195,17 +195,17 @@ theme_override_constants/separation = 0
 [node name="EnemyLife" type="Label" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyStatsPanel/MarginContainer/VBox"]
 size_flags_horizontal = 3
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 17
-text = "Zivoty 10"
+theme_override_font_sizes/font_size = 15
+text = "Životy 10"
 
 [node name="EnemyTuna" type="Label" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyStatsPanel/MarginContainer/VBox"]
 size_flags_horizontal = 3
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 13
 text = "Tuna 0/0"
 
 [node name="CombatInfoPanel" type="PanelContainer" parent="Margin/Layout/TopRow/BoardColumn"]
-custom_minimum_size = Vector2(0, 128)
+custom_minimum_size = Vector2(0, 100)
 theme_override_styles/panel = SubResource("8_info_panel_style")
 
 [node name="MarginContainer" type="MarginContainer" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel"]
@@ -222,24 +222,24 @@ theme_override_constants/separation = 6
 mouse_filter = 2
 
 [node name="StatusTitle" type="Label" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox"]
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.82, 0.64, 0.96)
 text = "Stav tahu"
 
 [node name="StatusLabel" type="Label" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox"]
-custom_minimum_size = Vector2(0, 34)
+custom_minimum_size = Vector2(0, 28)
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 15
 theme_override_colors/font_color = Color(0.97, 0.93, 0.86, 1)
 text = "Nacitam..."
 
 [node name="BattleFeedTitle" type="Label" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox"]
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.95, 0.84, 0.62, 1)
-text = "Posledni akce"
+text = "Poslední akce"
 
 [node name="BattleFeed" type="RichTextLabel" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox"]
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(0, 36)
 size_flags_vertical = 3
 bbcode_enabled = false
 scroll_active = false
@@ -248,8 +248,8 @@ selection_enabled = false
 context_menu_enabled = false
 autowrap_mode = 3
 theme_override_colors/default_color = Color(0.93, 0.9, 0.84, 0.96)
-theme_override_font_sizes/normal_font_size = 14
-text = "Zatim bez akce."
+theme_override_font_sizes/normal_font_size = 12
+text = "Zatím bez akce."
 
 [node name="BoardPanel" type="PanelContainer" parent="Margin/Layout/TopRow/BoardColumn"]
 size_flags_vertical = 3
@@ -329,7 +329,7 @@ layout_mode = 1
 anchor_left = 0.1
 anchor_top = 0.05
 anchor_right = 0.9
-anchor_bottom = 0.72
+anchor_bottom = 0.64
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 0.0
@@ -341,9 +341,9 @@ mouse_filter = 2
 [node name="TitleBanner" type="MarginContainer" parent="Margin/Layout/TopRow/SelectedPanel/Content"]
 layout_mode = 1
 anchor_left = 0.14
-anchor_top = 0.71
+anchor_top = 0.64
 anchor_right = 0.86
-anchor_bottom = 0.77
+anchor_bottom = 0.70
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 0.0
@@ -359,7 +359,7 @@ text = "Vybrana karta"
 [node name="BottomZone" type="VBoxContainer" parent="Margin/Layout/TopRow/SelectedPanel/Content"]
 layout_mode = 1
 anchor_left = 0.12
-anchor_top = 0.78
+anchor_top = 0.71
 anchor_right = 0.88
 anchor_bottom = 0.97
 offset_left = 0.0
@@ -370,6 +370,7 @@ theme_override_constants/separation = 8
 mouse_filter = 2
 
 [node name="InfoPanel" type="PanelContainer" parent="Margin/Layout/TopRow/SelectedPanel/Content/BottomZone"]
+custom_minimum_size = Vector2(0, 66)
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("7_selected_info_style")
 
@@ -392,11 +393,11 @@ theme_override_colors/font_color = Color(0.92, 0.84, 0.68, 1)
 text = "Vyber kartu nebo pripravenou kocku."
 
 [node name="SelectedDetail" type="RichTextLabel" parent="Margin/Layout/TopRow/SelectedPanel/Content/BottomZone/InfoPanel/MarginContainer/InfoVBox"]
-custom_minimum_size = Vector2(0, 56)
+custom_minimum_size = Vector2(0, 40)
 size_flags_vertical = 3
 mouse_filter = 2
 bbcode_enabled = false
-scroll_active = false
+scroll_active = true
 shortcut_keys_enabled = false
 selection_enabled = false
 context_menu_enabled = false
@@ -408,6 +409,8 @@ text = "Vyber kartu z ruky nebo pripravenou kocku na stole."
 
 [node name="SelectedHint" type="Label" parent="Margin/Layout/TopRow/SelectedPanel/Content/BottomZone/InfoPanel/MarginContainer/InfoVBox"]
 autowrap_mode = 3
+clip_text = true
+max_lines_visible = 2
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.97, 0.78, 0.46, 1)
 text = "Klikni na validni cil nebo lane."
@@ -419,7 +422,7 @@ theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("5_btn_secondary")
 theme_override_styles/hover = SubResource("5_btn_secondary")
 theme_override_styles/pressed = SubResource("5_btn_secondary")
-text = "Sila stolu"
+text = "Síla stolu"
 
 [node name="EndTurnButton" type="Button" parent="Margin/Layout/TopRow/SelectedPanel/Content/BottomZone"]
 custom_minimum_size = Vector2(0, 50)
@@ -454,7 +457,7 @@ theme_override_constants/separation = 6
 size_flags_horizontal = 3
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 24
-text = "Zivoty 10"
+text = "Životy 10"
 
 [node name="PlayerTuna" type="Label" parent="Margin/Layout/BottomBar/PlayerStats/MarginContainer/VBox"]
 size_flags_horizontal = 3
@@ -481,7 +484,7 @@ theme_override_constants/separation = 4
 size_flags_horizontal = 3
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 18
-text = "Balik"
+text = "Balík"
 
 [node name="DeckCount" type="Label" parent="Margin/Layout/BottomBar/DeckPanel/MarginContainer/VBox"]
 size_flags_horizontal = 3
@@ -508,7 +511,7 @@ theme_override_constants/separation = 4
 size_flags_horizontal = 3
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 18
-text = "Odhazovani"
+text = "Odhazování"
 
 [node name="DiscardCount" type="Label" parent="Margin/Layout/BottomBar/DiscardPanel/MarginContainer/VBox"]
 size_flags_horizontal = 3
@@ -625,7 +628,7 @@ stretch_mode = 5
 [node name="ResultTitle" type="Label" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
 theme_override_font_sizes/font_size = 32
 horizontal_alignment = 1
-text = "Vyhra"
+text = "Výhra"
 
 [node name="ResultSummary" type="Label" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
 autowrap_mode = 3
@@ -654,7 +657,7 @@ text = "Dalsi smena"
 [node name="DeckShiftDetail" type="Label" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
 autowrap_mode = 3
 theme_override_font_sizes/font_size = 17
-text = "Balik beze zmen."
+text = "Balík beze zmen."
 
 [node name="RecordLabel" type="Label" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
 theme_override_font_sizes/font_size = 16

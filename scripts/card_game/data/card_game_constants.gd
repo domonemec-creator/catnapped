@@ -37,7 +37,7 @@ const KEYWORD_LABELS := {
 const KEYWORD_SUMMARIES := {
     KEYWORD_BATTLECRY: "Spusti se hned po vylozeni karty.",
     KEYWORD_LAST_BREATH: "Spusti se pri smrti kocky.",
-    KEYWORD_QUICK_PAWS: "Muze utocit uz v kole, kdy byla vylozena.",
+    KEYWORD_QUICK_PAWS: "V tahu muze hned utocit jen jedna nova kocka s timto keywordem.",
     KEYWORD_GUARD: "Zachyti prime zraneni ve sve lajne i sousednich lajnach.",
     KEYWORD_POUNCE: "Muze utocit na protilehlou nebo sousedni lajnu.",
 }

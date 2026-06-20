@@ -20,6 +20,7 @@ func _reset_battle_state(battle, player_state, enemy_state) -> void:
 		state.tuna_max = 10
 		state.table_power_id = StringName()
 		state.table_power_used_this_turn = false
+		state.immediate_entry_attack_used_this_turn = false
 		for slot in state.board:
 			slot.occupant = null
 
@@ -61,6 +62,24 @@ func _run() -> void:
 
 	_reset_battle_state(battle, player_state, enemy_state)
 
+	var played_cat = battle._create_card_instance(&"alley_scrapper", battle.PLAYER_ID)
+	if played_cat == null:
+		_fail("Could not create cat for lane-play feedback test.")
+		return
+	player_state.hand.append(played_cat)
+
+	battle._play_card_to_lane(player_state, 0, played_cat)
+	battle._refresh_ui()
+
+	if player_state.board[0].occupant != played_cat:
+		_fail("Lane play did not place the cat onto the board.")
+		return
+	if battle._player_lanes[0].event_panel.visible:
+		_fail("Lane play should not leave a generic VYLOZENO banner behind the placed card.")
+		return
+
+	_reset_battle_state(battle, player_state, enemy_state)
+
 	var attacker = battle._create_card_instance(&"alley_scrapper", battle.PLAYER_ID)
 	var defender = battle._create_card_instance(&"dockside_bruiser", battle.ENEMY_ID)
 	attacker.current_attack = 3
@@ -76,7 +95,7 @@ func _run() -> void:
 		_fail("Attacker lane did not show UTOK 3.")
 		return
 	if _lane_event_text(battle._enemy_lanes[1]) != "-3 ZIV":
-		_fail("Defender lane did not show -3 ZIV.")
+		_fail("Defender lane did not show -3 ŽIV.")
 		return
 
 	_reset_battle_state(battle, player_state, enemy_state)
@@ -92,8 +111,8 @@ func _run() -> void:
 	if enemy_state.life != 27:
 		_fail("Direct attack did not hit enemy life.")
 		return
-	if _lane_event_text(battle._enemy_lanes[0]) != "PRIMO 3":
-		_fail("Direct attack lane did not show PRIMO 3.")
+	if _lane_event_text(battle._enemy_lanes[0]) != "PŘÍMO 3":
+		_fail("Direct attack lane did not show PŘÍMO 3.")
 		return
 
 	_reset_battle_state(battle, player_state, enemy_state)

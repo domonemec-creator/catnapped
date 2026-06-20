@@ -66,7 +66,7 @@ func _run() -> void:
     if not battle.post_match_reward_buttons.visible:
         _fail("Reward draft did not become visible after victory.")
         return
-    if battle.post_match_deck_shift_title.text != "Vyber odmenu":
+    if battle.post_match_deck_shift_title.text != "Vyber odměnu":
         _fail("Reward draft title did not switch.")
         return
     if battle._current_reward_offers.size() != 3:

@@ -11,7 +11,7 @@ target_mode = &"enemy_cat"
 [resource]
 script = ExtResource("1_card_definition")
 id = &"pry_bar"
-display_name = "Pajsr"
+display_name = "Páčidlo"
 card_type = 1
 cost = 1
 attack = 0

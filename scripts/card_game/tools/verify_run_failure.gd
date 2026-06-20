@@ -47,8 +47,8 @@ func _run() -> void:
 	player_state.life = 0
 	battle._check_battle_end()
 
-	if battle.post_match_choose_encounter_button.text != "Konec vypravy":
-		_fail("Run loss did not switch the overlay to Konec vypravy.")
+	if battle.post_match_choose_encounter_button.text != "Konec výpravy":
+		_fail("Run loss did not switch the overlay to Konec výpravy.")
 		return
 	if battle.post_match_rematch_button.visible:
 		_fail("Run loss should not offer rematch.")

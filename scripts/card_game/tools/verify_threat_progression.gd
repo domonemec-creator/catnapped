@@ -26,6 +26,16 @@ func _count_card_ids(card_ids: Array[StringName], target_card_id: StringName) ->
 func _run() -> void:
     _progression_system.reset_state()
 
+    var newcomer_state := _progression_system.load_state()
+    newcomer_state["tavern_threat"] = 3
+    newcomer_state["player_wins"] = 0
+    newcomer_state["player_losses"] = 3
+    _progression_system.save_state(newcomer_state)
+    var newcomer_sanitized := _progression_system.load_state()
+    if _progression_system.get_threat_level(newcomer_sanitized) != 0:
+        _fail("Threat should stay at 0 for a player with no wins, even if an old save stored a higher value.")
+        return
+
     var smug_tabby_deck := load("res://data/decks/npc_smug_tabby.tres") as DeckDefinition
     if smug_tabby_deck == null:
         _fail("Could not load npc_smug_tabby.tres.")
@@ -142,8 +152,8 @@ func _run() -> void:
     battle._check_battle_end()
 
     var saved_after_loss := _progression_system.load_state()
-    if _progression_system.get_threat_level(saved_after_loss) != 1:
-        _fail("Threat did not increase after player defeat.")
+    if _progression_system.get_threat_level(saved_after_loss) != 0:
+        _fail("Threat should not increase after a defeat before the first player win.")
         return
 
     battle.queue_free()
@@ -154,8 +164,8 @@ func _run() -> void:
     await process_frame
     await process_frame
 
-    if not rematch.enemy_name_label.text.contains("[T1]"):
-        _fail("Battle scene did not reload with threat 1.")
+    if not rematch.enemy_name_label.text.contains("[T0]"):
+        _fail("Battle scene should reload with threat 0 before the first player win.")
         return
 
     rematch._battle_state.get_player_state(rematch.ENEMY_ID).life = 0
@@ -164,6 +174,11 @@ func _run() -> void:
     var saved_after_win := _progression_system.load_state()
     if _progression_system.get_threat_level(saved_after_win) != 0:
         _fail("Threat did not decrease after player victory.")
+        return
+
+    var post_win_loss := _progression_system.apply_battle_result(saved_after_win, rematch.ENEMY_ID, rematch.PLAYER_ID, rematch.ENEMY_ID)
+    if _progression_system.get_threat_level(post_win_loss) != 1:
+        _fail("Threat should start increasing again after the player already has at least one win.")
         return
 
     _progression_system.reset_state()

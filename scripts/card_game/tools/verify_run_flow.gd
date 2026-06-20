@@ -57,10 +57,10 @@ func _run() -> void:
     enemy_state.life = 0
     battle._check_battle_end()
 
-    if battle.post_match_choose_encounter_button.text != "Dalsi souboj":
-        _fail("Run overlay did not switch to Dalsi souboj.")
+    if battle.post_match_choose_encounter_button.text != "Další souboj":
+        _fail("Run overlay did not switch to Další souboj.")
         return
-    if not battle.post_match_record_label.text.contains("Vyprava 1/5"):
+    if not battle.post_match_record_label.text.contains("Výprava 1/5"):
         _fail("Run overlay did not show run progress.")
         return
 

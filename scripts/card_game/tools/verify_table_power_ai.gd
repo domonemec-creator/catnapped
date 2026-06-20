@@ -19,6 +19,7 @@ func _reset_battle_state(battle, player_state, enemy_state) -> void:
         state.tuna_current = 10
         state.tuna_max = 10
         state.table_power_used_this_turn = false
+        state.immediate_entry_attack_used_this_turn = false
         for slot in state.board:
             slot.occupant = null
 
@@ -73,8 +74,8 @@ func _run() -> void:
 
     battle._run_enemy_stub_turn()
 
-    if enemy_state.life != 7:
-        _fail("Enemy Smug Glare did not heal life.")
+    if enemy_state.life != 6:
+        _fail("Enemy Smug Glare should no longer heal life.")
         return
     if not enemy_state.table_power_used_this_turn:
         _fail("Enemy Smug Glare was not marked as used.")
@@ -86,7 +87,7 @@ func _run() -> void:
     battle._run_enemy_stub_turn()
 
     if enemy_state.table_power_used_this_turn:
-        _fail("Enemy Smug Glare should not fire with no hand info and no healing value.")
+        _fail("Enemy Smug Glare should not fire with no hand info.")
         return
 
     print("Table power AI verification passed.")

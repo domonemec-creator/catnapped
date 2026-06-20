@@ -67,8 +67,8 @@ func _run() -> void:
 	if not run_session.is_active():
 		_fail("RunSession ended before the completion overlay was acknowledged.")
 		return
-	if battle.post_match_result_title.text != "Vyprava dokoncena":
-		_fail("Final reward did not switch the overlay to Vyprava dokoncena.")
+	if battle.post_match_result_title.text != "Výprava dokončena":
+		_fail("Final reward did not switch the overlay to Výprava dokončena.")
 		return
 	if battle.post_match_choose_encounter_button.text != "Zpet na vyber":
 		_fail("Completion overlay did not expose the expected exit button.")

@@ -15,6 +15,7 @@ func _reset_battle_state(battle, player_state, enemy_state) -> void:
 		state.tuna_max = 10
 		state.table_power_id = StringName()
 		state.table_power_used_this_turn = false
+		state.immediate_entry_attack_used_this_turn = false
 		for slot in state.board:
 			slot.occupant = null
 
@@ -71,7 +72,7 @@ func _capture() -> void:
 	_place_card(enemy_state, enemy_right, 2, false, true)
 
 	battle._selected_attacker = player_attacker
-	battle.status_label.text = "Vybrano: %s. Klikni na nepratelskou lajnu pro utok." % player_attacker.definition.display_name
+	battle.status_label.text = "Vybráno: %s. Klikni na nepřátelskou lajnu pro útok." % player_attacker.definition.display_name
 	battle._refresh_ui()
 
 	await process_frame

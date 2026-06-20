@@ -13,12 +13,12 @@ value = 1
 [resource]
 script = ExtResource("1_card_definition")
 id = &"boilerback_guardian"
-display_name = "Kotelni strazce"
+display_name = "Kotelní strážce"
 card_type = 0
 cost = 4
 attack = 2
 life = 6
-rules_text = "Ochrana.\nPosledni dech: vylec 1 zivot."
+rules_text = "Ochrana.\nPoslední dech: vylec 1 zivot."
 keywords = [&"guard", &"last_breath"]
 effects = [SubResource("1_last_breath")]
 art_path = "res://assets/card_game/card_art/boilerback_guardian.png"

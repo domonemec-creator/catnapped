@@ -1,7 +1,7 @@
 class_name ProgressionScreenMenu
 extends Control
 
-const EncounterSelectScene: PackedScene = preload("res://scenes/card_game/encounter_select.tscn")
+const ENCOUNTER_SELECT_SCENE_PATH := "res://scenes/card_game/encounter_select.tscn"
 const HEADER_TEXTURE_PATH := "res://assets/card_game/ui/header_panel_drapes.png"
 
 var _panel_style: StyleBoxFlat
@@ -24,6 +24,7 @@ var _loss_label: Label
 var _run_label: Label
 var _status_label: Label
 var _reset_button: Button
+var _back_button: Button
 
 
 func _ready() -> void:
@@ -97,12 +98,12 @@ func _build_ui() -> void:
     header_margin.add_child(header_vbox)
 
     var title := Label.new()
-    title.text = "Balik a postup"
+    title.text = "Balík a postup"
     _style_label(title, 34, Color(0.96, 0.88, 0.73, 1))
     header_vbox.add_child(title)
 
     var subtitle := Label.new()
-    subtitle.text = "Tady zije ulozena hrozba, vyhry, prohry i balik. Odmeny tenhle save meni."
+    subtitle.text = "Tady žije uložená hrozba, výhry, prohry i balík. Odměny tenhle save mění."
     _style_label(subtitle, 18, Color(0.9, 0.82, 0.67, 0.95), true)
     header_vbox.add_child(subtitle)
 
@@ -146,11 +147,11 @@ func _build_ui() -> void:
     _threat_label = _make_stat_label(stats_vbox, "Hrozba")
     _win_label = _make_stat_label(stats_vbox, "Vyhry")
     _loss_label = _make_stat_label(stats_vbox, "Prohry")
-    _deck_total_label = _make_stat_label(stats_vbox, "Velikost baliku")
-    _run_label = _make_stat_label(stats_vbox, "Vyprava")
+    _deck_total_label = _make_stat_label(stats_vbox, "Velikost balíku")
+    _run_label = _make_stat_label(stats_vbox, "Výprava")
 
     var reset_tip := Label.new()
-    reset_tip.text = "Reset vrati startovni balik a smaze hrozbu, vyhry i prohry."
+    reset_tip.text = "Reset vrátí startovní balík a smaže hrozbu, výhry i prohry."
     _style_label(reset_tip, 14, Color(0.82, 0.73, 0.58, 0.92), true)
     stats_vbox.add_child(reset_tip)
 
@@ -175,12 +176,12 @@ func _build_ui() -> void:
     deck_margin.add_child(deck_vbox)
 
     var deck_title := Label.new()
-    deck_title.text = "Balik"
+    deck_title.text = "Balík"
     _style_label(deck_title, 24, Color(0.96, 0.88, 0.73, 1))
     deck_vbox.add_child(deck_title)
 
     var deck_note := Label.new()
-    deck_note.text = "Aktualni ulozene slozeni baliku."
+    deck_note.text = "Aktuální uložené složení balíku."
     _style_label(deck_note, 15, Color(0.88, 0.79, 0.64, 0.95), true)
     deck_vbox.add_child(deck_note)
 
@@ -214,19 +215,19 @@ func _build_ui() -> void:
     _reset_button.pressed.connect(_reset_progress)
     button_row.add_child(_reset_button)
 
-    var back_button := Button.new()
-    back_button.text = "Zpet na vyber"
-    back_button.custom_minimum_size = Vector2(0, 52)
-    back_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    back_button.add_theme_font_size_override("font_size", 18)
-    back_button.add_theme_color_override("font_color", Color(0.13, 0.09, 0.04, 1))
-    back_button.add_theme_color_override("font_hover_color", Color(0.1, 0.07, 0.03, 1))
-    back_button.add_theme_color_override("font_pressed_color", Color(0.13, 0.09, 0.04, 1))
-    back_button.add_theme_stylebox_override("normal", _button_normal_style)
-    back_button.add_theme_stylebox_override("hover", _button_hover_style)
-    back_button.add_theme_stylebox_override("pressed", _button_pressed_style)
-    back_button.pressed.connect(_return_to_selector)
-    button_row.add_child(back_button)
+    _back_button = Button.new()
+    _back_button.text = "Zpet na vyber"
+    _back_button.custom_minimum_size = Vector2(0, 52)
+    _back_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    _back_button.add_theme_font_size_override("font_size", 18)
+    _back_button.add_theme_color_override("font_color", Color(0.13, 0.09, 0.04, 1))
+    _back_button.add_theme_color_override("font_hover_color", Color(0.1, 0.07, 0.03, 1))
+    _back_button.add_theme_color_override("font_pressed_color", Color(0.13, 0.09, 0.04, 1))
+    _back_button.add_theme_stylebox_override("normal", _button_normal_style)
+    _back_button.add_theme_stylebox_override("hover", _button_hover_style)
+    _back_button.add_theme_stylebox_override("pressed", _button_pressed_style)
+    _back_button.pressed.connect(_return_to_selector)
+    button_row.add_child(_back_button)
 
 
 func _load_state() -> void:
@@ -243,7 +244,7 @@ func _refresh_ui() -> void:
     _loss_label.text = "Prohry: %s" % _progression_system.get_loss_count(_progression_state)
 
     var deck_card_ids: Array[StringName] = _progression_system.get_player_deck_card_ids(_progression_state)
-    _deck_total_label.text = "Velikost baliku: %s" % deck_card_ids.size()
+    _deck_total_label.text = "Velikost balíku: %s" % deck_card_ids.size()
     _refresh_run_label()
     _refresh_deck_list(deck_card_ids)
 
@@ -254,14 +255,14 @@ func _refresh_run_label() -> void:
         var route_summary: String = run_session.get_run_roster_summary()
         var progress_text: String = run_session.get_run_progress_text()
         if route_summary.is_empty():
-            _run_label.text = "Vyprava: %s" % progress_text
+            _run_label.text = "Výprava: %s" % progress_text
         elif progress_text.is_empty():
-            _run_label.text = "Vyprava: %s" % route_summary
+            _run_label.text = "Výprava: %s" % route_summary
         else:
-            _run_label.text = "Vyprava: %s | %s" % [progress_text, route_summary]
+            _run_label.text = "Výprava: %s | %s" % [progress_text, route_summary]
         return
 
-    _run_label.text = "Vyprava: zadna"
+    _run_label.text = "Výprava: žádná"
 
 
 func _refresh_deck_list(deck_card_ids: Array[StringName]) -> void:
@@ -271,7 +272,7 @@ func _refresh_deck_list(deck_card_ids: Array[StringName]) -> void:
     if deck_card_ids.is_empty():
         var empty_label := Label.new()
         _style_label(empty_label, 15, Color(0.88, 0.79, 0.64, 0.95), true)
-        empty_label.text = "Balik je prazdny."
+        empty_label.text = "Balík je prázdný."
         _deck_list.add_child(empty_label)
         return
 
@@ -301,12 +302,20 @@ func _reset_progress() -> void:
 
 
 func _return_to_selector() -> void:
-    var packed_scene := EncounterSelectScene as PackedScene
-    if packed_scene == null:
+    call_deferred("_deferred_return_to_selector")
+
+
+func _deferred_return_to_selector() -> void:
+    var encounter_select_scene := load(ENCOUNTER_SELECT_SCENE_PATH) as PackedScene
+    if encounter_select_scene == null:
         push_error("Could not load encounter_select.tscn")
         return
 
-    var select_scene: Control = packed_scene.instantiate() as Control
+    var select_scene := encounter_select_scene.instantiate() as Control
+    if select_scene == null:
+        push_error("Could not instantiate encounter_select.tscn")
+        return
+
     var tree := get_tree()
     tree.root.add_child(select_scene)
     tree.current_scene = select_scene

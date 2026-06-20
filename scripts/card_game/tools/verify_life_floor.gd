@@ -1,5 +1,7 @@
 extends SceneTree
 
+const CardGameConstants = preload("res://scripts/card_game/data/card_game_constants.gd")
+
 
 func _init() -> void:
     call_deferred("_run")
@@ -32,6 +34,16 @@ func _run() -> void:
     battle._adjust_player_life(player_state, -3)
     if player_state.life != 0:
         _fail("Player Life should clamp to 0 after lethal direct damage.")
+        return
+
+    player_state.life = player_state.max_life
+    var bruiser = battle._create_card_instance(&"dockside_bruiser", battle.PLAYER_ID)
+    if bruiser == null:
+        _fail("Could not create Dockside Bruiser for life cap verification.")
+        return
+    battle._resolve_triggered_effects(bruiser, player_state, CardGameConstants.TRIGGER_BATTLECRY)
+    if player_state.life != player_state.max_life:
+        _fail("Player Life should not exceed max life after a heal effect.")
         return
 
     battle._clear_selection_state()

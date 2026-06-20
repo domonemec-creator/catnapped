@@ -16,9 +16,9 @@ const DISPLAY_CONFIGS := {
         "minimum_height": 404.0,
     },
     DISPLAY_BOARD: {
-        "scale": 0.31,
+        "scale": 0.37,
         "show_rules": false,
-        "minimum_height": 120.0,
+        "minimum_height": 144.0,
     },
 }
 
@@ -239,7 +239,10 @@ func _apply_content(layout: Dictionary) -> void:
     attack_label.add_theme_color_override("font_color", layout["accent_color"])
     life_label.add_theme_color_override("font_color", layout["accent_color"])
     type_label.add_theme_color_override("font_color", layout["accent_color"])
-    art_rect.add_theme_stylebox_override("panel", _build_panel_style(layout["art_bg"], Color(0, 0, 0, 0)))
+    var art_background: Color = layout["art_bg"]
+    if _display_mode == DISPLAY_BOARD:
+        art_background = Color(art_background.r, art_background.g, art_background.b, minf(art_background.a, 0.18))
+    art_rect.add_theme_stylebox_override("panel", _build_panel_style(art_background, Color(0, 0, 0, 0)))
     type_badge.add_theme_stylebox_override("panel", _build_panel_style(layout["badge_bg"], layout["badge_border"]))
 
     _refresh_art(layout)
@@ -324,4 +327,4 @@ func _card_type_label(card_type: int) -> String:
         CardGameConstants.CardType.ITEM:
             return "PREDMET"
         _:
-            return "KOCKA"
+            return "KOČKA"

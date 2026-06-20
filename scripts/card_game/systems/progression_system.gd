@@ -12,6 +12,7 @@ const KEY_PLAYER_DECK := "player_deck_card_ids"
 const KEY_TUTORIAL_SEEN := "battle_tutorial_seen"
 const MIN_THREAT := 0
 const MAX_THREAT := 10
+const THREAT_UNLOCK_WIN_COUNT := 1
 const STARTER_DECK_PATH := "res://data/decks/starter_player.tres"
 
 const THREAT_LABELS := [
@@ -30,173 +31,173 @@ const THREAT_LABELS := [
 
 const SMUG_TABBY_UPGRADE_LINES := {
 	1: {
-		"gain": "Namysleny kocour meni Hospodskeho mysivce za Skryte drapy.",
-		"lose": "Namysleny kocour prichazi o Skryte drapy a vraci se k Hospodskemu mysivci.",
+		"gain": "Namyšlený kocour meni Hospodskeho mysivce za Skryté drápy.",
+		"lose": "Namyšlený kocour prichazi o Skryté drápy a vraci se k Hospodskemu mysivci.",
 	},
 	2: {
-		"gain": "Namysleny kocour meni Rybokostneho plizila za Hod rybou.",
-		"lose": "Namysleny kocour prichazi o Hod rybou a vraci se k Rybokostnemu plizilovi.",
+		"gain": "Namyšlený kocour mění Rybokostěného plíživce za Hod rybou.",
+		"lose": "Namyšlený kocour prichazi o Hod rybou a vraci se k Rybokostnemu plizilovi.",
 	},
 	3: {
-		"gain": "Namysleny kocour meni Rybokostneho plizila za Ostnaty obojek.",
-		"lose": "Namysleny kocour prichazi o Ostnaty obojek a vraci se k Rybokostnemu plizilovi.",
+		"gain": "Namyšlený kocour meni Rybokostneho plizila za Ostnatý obojek.",
+		"lose": "Namyšlený kocour prichazi o Ostnatý obojek a vraci se k Rybokostnemu plizilovi.",
 	},
 	4: {
-		"gain": "Namysleny kocour meni Hospodskeho mysivce za Zeleznou misku.",
-		"lose": "Namysleny kocour prichazi o Zeleznou misku a vraci se k Hospodskemu mysivci.",
+		"gain": "Namyšlený kocour mění Hospodského myšolovce za Železnou misku.",
+		"lose": "Namyšlený kocour prichazi o Zeleznou misku a vraci se k Hospodskemu mysivci.",
 	},
 	5: {
-		"gain": "Namysleny kocour povysuje Ulicniho rvace na Pristavniho hrdloreza.",
-		"lose": "Namysleny kocour vraci Pristavniho hrdloreza zpet na Ulicniho rvace.",
+		"gain": "Namyšlený kocour povyšuje Uličního rváče na Přístavního hrdlořeze.",
+		"lose": "Namyšlený kocour vrací Přístavního hrdlořeze zpět na Uličního rváče.",
 	},
 	6: {
-		"gain": "Namysleny kocour meni Hospodskeho mysivce za Prevrat stolu.",
-		"lose": "Namysleny kocour prichazi o Prevrat stolu a vraci se k Hospodskemu mysivci.",
+		"gain": "Namyšlený kocour meni Hospodskeho mysivce za Převrácení stolu.",
+		"lose": "Namyšlený kocour prichazi o Převrácení stolu a vraci se k Hospodskemu mysivci.",
 	},
 	7: {
-		"gain": "Namysleny kocour povysuje Dokoveho rvace na Kapitana Zeleznou tlamu.",
-		"lose": "Namysleny kocour vraci Kapitana Zeleznou tlamu zpet na Dokoveho rvace.",
+		"gain": "Namyšlený kocour povysuje Dokoveho rvace na Kapitana Zeleznou tlamu.",
+		"lose": "Namyšlený kocour vraci Kapitana Zeleznou tlamu zpet na Dokoveho rvace.",
 	},
 	8: {
-		"gain": "Namysleny kocour povysuje Ulicniho rvace na Sitodrapeho najezdnika.",
-		"lose": "Namysleny kocour vraci Sitodrapeho najezdnika zpet na Ulicniho rvace.",
+		"gain": "Namyšlený kocour povysuje Ulicniho rvace na Sitodrapeho najezdnika.",
+		"lose": "Namyšlený kocour vraci Sitodrapeho najezdnika zpet na Ulicniho rvace.",
 	},
 	9: {
-		"gain": "Namysleny kocour meni Dokoveho rvace za druhe Skryte drapy.",
-		"lose": "Namysleny kocour prichazi o druhe Skryte drapy a vraci se k Dokovemu rvaci.",
+		"gain": "Namyšlený kocour meni Dokoveho rvace za druhe Skryté drápy.",
+		"lose": "Namyšlený kocour prichazi o druhe Skryté drápy a vraci se k Dokovemu rvaci.",
 	},
 	10: {
-		"gain": "Namysleny kocour povysuje Dokoveho rvace na Kotelniho strazce.",
-		"lose": "Namysleny kocour vraci Kotelniho strazce zpet na Dokoveho rvace.",
+		"gain": "Namyšlený kocour povysuje Dokoveho rvace na Kotelniho strazce.",
+		"lose": "Namyšlený kocour vraci Kotelniho strazce zpet na Dokoveho rvace.",
 	},
 }
 
 const RAGCLAW_BRAWLER_UPGRADE_LINES := {
 	1: {
-		"gain": "Ragclaw rvac meni Rybokostneho plizila za Skryte drapy.",
-		"lose": "Ragclaw rvac prichazi o Skryte drapy a vraci se k Rybokostnemu plizilovi.",
+		"gain": "Ragclaw rváč meni Rybokostneho plizila za Skryté drápy.",
+		"lose": "Ragclaw rváč prichazi o Skryté drápy a vraci se k Rybokostnemu plizilovi.",
 	},
 	2: {
-		"gain": "Ragclaw rvac meni Ulicniho rvace za Hod rybou.",
-		"lose": "Ragclaw rvac prichazi o Hod rybou a vraci se k Ulicnimu rvaci.",
+		"gain": "Ragclaw rváč mění Uličního rváče za Hod rybou.",
+		"lose": "Ragclaw rváč prichazi o Hod rybou a vraci se k Ulicnimu rvaci.",
 	},
 	3: {
-		"gain": "Ragclaw rvac meni Ulicniho rvace za Ostnaty obojek.",
-		"lose": "Ragclaw rvac prichazi o Ostnaty obojek a vraci se k Ulicnimu rvaci.",
+		"gain": "Ragclaw rváč meni Ulicniho rvace za Ostnatý obojek.",
+		"lose": "Ragclaw rváč prichazi o Ostnatý obojek a vraci se k Ulicnimu rvaci.",
 	},
 	4: {
-		"gain": "Ragclaw rvac meni Svicotlapeho zveda za Kocici matu.",
-		"lose": "Ragclaw rvac prichazi o Kocici matu a vraci se ke Svicotlapemu zvedovi.",
+		"gain": "Ragclaw rváč mění Svíčkotlapého zvěda za Kočičí mátu.",
+		"lose": "Ragclaw rváč prichazi o Kocici matu a vraci se ke Svicotlapemu zvedovi.",
 	},
 	5: {
-		"gain": "Ragclaw rvac povysuje Dokoveho rvace na Pristavniho hrdloreza.",
-		"lose": "Ragclaw rvac vraci Pristavniho hrdloreza zpet na Dokoveho rvace.",
+		"gain": "Ragclaw rváč povyšuje Dokového rváče na Přístavního hrdlořeze.",
+		"lose": "Ragclaw rváč vrací Přístavního hrdlořeze zpět na Dokového rváče.",
 	},
 	6: {
-		"gain": "Ragclaw rvac meni Ulicniho rvace za Prevrat stolu.",
-		"lose": "Ragclaw rvac prichazi o Prevrat stolu a vraci se k Ulicnimu rvaci.",
+		"gain": "Ragclaw rváč meni Ulicniho rvace za Převrácení stolu.",
+		"lose": "Ragclaw rváč prichazi o Převrácení stolu a vraci se k Ulicnimu rvaci.",
 	},
 	7: {
-		"gain": "Ragclaw rvac meni Svicotlapeho zveda za druhe Skryte drapy.",
-		"lose": "Ragclaw rvac prichazi o druhe Skryte drapy a vraci se ke Svicotlapemu zvedovi.",
+		"gain": "Ragclaw rváč meni Svicotlapeho zveda za druhe Skryté drápy.",
+		"lose": "Ragclaw rváč prichazi o druhe Skryté drápy a vraci se ke Svicotlapemu zvedovi.",
 	},
 	8: {
-		"gain": "Ragclaw rvac povysuje Tramoveho skokana na Sitodrapeho najezdnika.",
-		"lose": "Ragclaw rvac vraci Sitodrapeho najezdnika zpet na Tramoveho skokana.",
+		"gain": "Ragclaw rváč povysuje Tramoveho skokana na Sitodrapeho najezdnika.",
+		"lose": "Ragclaw rváč vraci Sitodrapeho najezdnika zpet na Tramoveho skokana.",
 	},
 	9: {
-		"gain": "Ragclaw rvac povysuje Tramoveho skokana na Pristavniho hrdloreza.",
-		"lose": "Ragclaw rvac vraci Pristavniho hrdloreza zpet na Tramoveho skokana.",
+		"gain": "Ragclaw rváč povyšuje Trámového skokana na Přístavního hrdlořeze.",
+		"lose": "Ragclaw rváč vrací Přístavního hrdlořeze zpět na Trámového skokana.",
 	},
 	10: {
-		"gain": "Ragclaw rvac povysuje Kapitana Zeleznou tlamu na Sitodrapeho najezdnika.",
-		"lose": "Ragclaw rvac vraci Sitodrapeho najezdnika zpet na Kapitana Zeleznou tlamu.",
+		"gain": "Ragclaw rváč povysuje Kapitana Zeleznou tlamu na Sitodrapeho najezdnika.",
+		"lose": "Ragclaw rváč vraci Sitodrapeho najezdnika zpet na Kapitana Zeleznou tlamu.",
 	},
 }
 
 const HARBOR_WARDEN_UPGRADE_LINES := {
 	1: {
-		"gain": "Pristavni strazny meni Svicotlapeho zveda za Skryte drapy.",
-		"lose": "Pristavni strazny prichazi o Skryte drapy a vraci se ke Svicotlapemu zvedovi.",
+		"gain": "Přístavní strážný meni Svicotlapeho zveda za Skryté drápy.",
+		"lose": "Přístavní strážný prichazi o Skryté drápy a vraci se ke Svicotlapemu zvedovi.",
 	},
 	2: {
-		"gain": "Pristavni strazny meni Hospodskeho mysivce za Hod rybou.",
-		"lose": "Pristavni strazny prichazi o Hod rybou a vraci se k Hospodskemu mysivci.",
+		"gain": "Přístavní strážný mění Hospodského myšolovce za Hod rybou.",
+		"lose": "Přístavní strážný přichází o Hod rybou a vrací se k Hospodskému myšolovci.",
 	},
 	3: {
-		"gain": "Pristavni strazny povysuje Ulicniho rvace na Pristavniho hrdloreza.",
-		"lose": "Pristavni strazny vraci Pristavniho hrdloreza zpet na Ulicniho rvace.",
+		"gain": "Přístavní strážný povyšuje Uličního rváče na Přístavního hrdlořeze.",
+		"lose": "Přístavní strážný vrací Přístavního hrdlořeze zpět na Uličního rváče.",
 	},
 	4: {
-		"gain": "Pristavni strazny povysuje Dokoveho rvace na Kotelniho strazce.",
-		"lose": "Pristavni strazny vraci Kotelniho strazce zpet na Dokoveho rvace.",
+		"gain": "Přístavní strážný povyšuje Dokového rváče na Kotelního strážce.",
+		"lose": "Přístavní strážný vrací Kotelního strážce zpět na Dokového rváče.",
 	},
 	5: {
-		"gain": "Pristavni strazny povysuje Pristavniho hrdloreza na Kapitana Zeleznou tlamu.",
-		"lose": "Pristavni strazny vraci Kapitana Zeleznou tlamu zpet na Pristavniho hrdloreza.",
+		"gain": "Přístavní strážný povyšuje Přístavního hrdlořeze na Kapitána Železnou tlamu.",
+		"lose": "Přístavní strážný vrací Kapitána Železnou tlamu zpět na Přístavního hrdlořeze.",
 	},
 	6: {
-		"gain": "Pristavni strazny meni Kotelniho strazce za Zeleznou misku.",
-		"lose": "Pristavni strazny prichazi o Zeleznou misku a vraci se ke Kotelnimu strazci.",
+		"gain": "Přístavní strážný mění Kotelního strážce za Železnou misku.",
+		"lose": "Přístavní strážný přichází o Železnou misku a vrací se ke Kotelnímu strážci.",
 	},
 	7: {
-		"gain": "Pristavni strazny meni Hospodskeho mysivce za Prevrat stolu.",
-		"lose": "Pristavni strazny prichazi o Prevrat stolu a vraci se k Hospodskemu mysivci.",
+		"gain": "Přístavní strážný meni Hospodskeho mysivce za Převrácení stolu.",
+		"lose": "Přístavní strážný prichazi o Převrácení stolu a vraci se k Hospodskemu mysivci.",
 	},
 	8: {
-		"gain": "Pristavni strazny povysuje Rybokostneho plizila na Sitodrapeho najezdnika.",
-		"lose": "Pristavni strazny vraci Sitodrapeho najezdnika zpet na Rybokostneho plizila.",
+		"gain": "Přístavní strážný povyšuje Rybokostěného plíživce na Síťodrápého nájezdníka.",
+		"lose": "Přístavní strážný vrací Síťodrápého nájezdníka zpět na Rybokostěného plíživce.",
 	},
 	9: {
-		"gain": "Pristavni strazny meni Dokoveho rvace za druhe Skryte drapy.",
-		"lose": "Pristavni strazny prichazi o druhe Skryte drapy a vraci se k Dokovemu rvaci.",
+		"gain": "Přístavní strážný meni Dokoveho rvace za druhe Skryté drápy.",
+		"lose": "Přístavní strážný prichazi o druhe Skryté drápy a vraci se k Dokovemu rvaci.",
 	},
 	10: {
-		"gain": "Pristavni strazny povysuje Svicotlapeho zveda na Kotelniho strazce.",
-		"lose": "Pristavni strazny vraci Kotelniho strazce zpet ke Svicotlapemu zvedovi.",
+		"gain": "Přístavní strážný povyšuje Svíčkotlapého zvěda na Kotelního strážce.",
+		"lose": "Přístavní strážný vrací Kotelního strážce zpět ke Svíčkotlapému zvědovi.",
 	},
 }
 
 const LANTERN_STRIKER_UPGRADE_LINES := {
 	1: {
-		"gain": "Lucernovy utocnik meni Rybokostneho plizila za Skryte drapy.",
-		"lose": "Lucernovy utocnik prichazi o Skryte drapy a vraci se k Rybokostnemu plizilovi.",
+		"gain": "Lucernový útočník meni Rybokostneho plizila za Skryté drápy.",
+		"lose": "Lucernový útočník prichazi o Skryté drápy a vraci se k Rybokostnemu plizilovi.",
 	},
 	2: {
-		"gain": "Lucernovy utocnik meni Hospodskeho mysivce za Kocici matu.",
-		"lose": "Lucernovy utocnik prichazi o Kocici matu a vraci se k Hospodskemu mysivci.",
+		"gain": "Lucernový útočník mění Hospodského myšolovce za Kočičí mátu.",
+		"lose": "Lucernový útočník prichazi o Kocici matu a vraci se k Hospodskemu mysivci.",
 	},
 	3: {
-		"gain": "Lucernovy utocnik povysuje Ulicniho rvace na Hod rybou.",
-		"lose": "Lucernovy utocnik vraci Hod rybou zpet na Ulicniho rvace.",
+		"gain": "Lucernový útočník povysuje Ulicniho rvace na Hod rybou.",
+		"lose": "Lucernový útočník vraci Hod rybou zpet na Ulicniho rvace.",
 	},
 	4: {
-		"gain": "Lucernovy utocnik povysuje Svicotlapeho zveda na Tramoveho skokana.",
-		"lose": "Lucernovy utocnik vraci Tramoveho skokana zpet ke Svicotlapemu zvedovi.",
+		"gain": "Lucernový útočník povysuje Svicotlapeho zveda na Tramoveho skokana.",
+		"lose": "Lucernový útočník vraci Tramoveho skokana zpet ke Svicotlapemu zvedovi.",
 	},
 	5: {
-		"gain": "Lucernovy utocnik povysuje Dokoveho rvace na Pristavniho hrdloreza.",
-		"lose": "Lucernovy utocnik vraci Pristavniho hrdloreza zpet na Dokoveho rvace.",
+		"gain": "Lucernový útočník povyšuje Dokového rváče na Přístavního hrdlořeze.",
+		"lose": "Lucernový útočník vrací Přístavního hrdlořeze zpět na Dokového rváče.",
 	},
 	6: {
-		"gain": "Lucernovy utocnik povysuje Tramoveho skokana na Sitodrapeho najezdnika.",
-		"lose": "Lucernovy utocnik vraci Sitodrapeho najezdnika zpet na Tramoveho skokana.",
+		"gain": "Lucernový útočník povysuje Tramoveho skokana na Sitodrapeho najezdnika.",
+		"lose": "Lucernový útočník vraci Sitodrapeho najezdnika zpet na Tramoveho skokana.",
 	},
 	7: {
-		"gain": "Lucernovy utocnik meni Kocici matu za Prevrat stolu.",
-		"lose": "Lucernovy utocnik prichazi o Prevrat stolu a vraci se ke Kocici mate.",
+		"gain": "Lucernový útočník meni Kocici matu za Převrácení stolu.",
+		"lose": "Lucernový útočník prichazi o Převrácení stolu a vraci se ke Kocici mate.",
 	},
 	8: {
-		"gain": "Lucernovy utocnik povysuje Pristavniho hrdloreza na Kapitana Zeleznou tlamu.",
-		"lose": "Lucernovy utocnik vraci Kapitana Zeleznou tlamu zpet na Pristavniho hrdloreza.",
+		"gain": "Lucernový útočník povyšuje Přístavního hrdlořeze na Kapitána Železnou tlamu.",
+		"lose": "Lucernový útočník vrací Kapitána Železnou tlamu zpět na Přístavního hrdlořeze.",
 	},
 	9: {
-		"gain": "Lucernovy utocnik meni Rybokostneho plizila za Ostnaty obojek.",
-		"lose": "Lucernovy utocnik prichazi o Ostnaty obojek a vraci se k Rybokostnemu plizilovi.",
+		"gain": "Lucernový útočník meni Rybokostneho plizila za Ostnatý obojek.",
+		"lose": "Lucernový útočník prichazi o Ostnatý obojek a vraci se k Rybokostnemu plizilovi.",
 	},
 	10: {
-		"gain": "Lucernovy utocnik povysuje Ulicniho rvace na Kotelniho strazce.",
-		"lose": "Lucernovy utocnik vraci Kotelniho strazce zpet na Ulicniho rvace.",
+		"gain": "Lucernový útočník povysuje Ulicniho rvace na Kotelniho strazce.",
+		"lose": "Lucernový útočník vraci Kotelniho strazce zpet na Ulicniho rvace.",
 	},
 }
 
@@ -275,9 +276,11 @@ func mark_battle_tutorial_seen(state: Dictionary) -> Dictionary:
 func apply_battle_result(state: Dictionary, winner_player_id: int, player_id: int, enemy_id: int) -> Dictionary:
 	var next_state := _sanitize_state(state)
 	var threat := get_threat_level(next_state)
+	var wins := get_win_count(next_state)
 
 	if winner_player_id == enemy_id:
-		next_state[KEY_THREAT] = mini(MAX_THREAT, threat + 1)
+		if wins >= THREAT_UNLOCK_WIN_COUNT:
+			next_state[KEY_THREAT] = mini(MAX_THREAT, threat + 1)
 		next_state[KEY_LOSSES] = int(next_state[KEY_LOSSES]) + 1
 	elif winner_player_id == player_id:
 		next_state[KEY_THREAT] = maxi(MIN_THREAT, threat - 1)
@@ -341,9 +344,10 @@ func _make_default_state() -> Dictionary:
 
 func _sanitize_state(state: Dictionary) -> Dictionary:
 	var next_state := _make_default_state()
-	next_state[KEY_THREAT] = clampi(int(state.get(KEY_THREAT, 0)), MIN_THREAT, MAX_THREAT)
 	next_state[KEY_WINS] = maxi(0, int(state.get(KEY_WINS, 0)))
 	next_state[KEY_LOSSES] = maxi(0, int(state.get(KEY_LOSSES, 0)))
+	var raw_threat := clampi(int(state.get(KEY_THREAT, 0)), MIN_THREAT, MAX_THREAT)
+	next_state[KEY_THREAT] = 0 if next_state[KEY_WINS] < THREAT_UNLOCK_WIN_COUNT else raw_threat
 	next_state[KEY_PLAYER_DECK] = _sanitize_deck_card_ids(state.get(KEY_PLAYER_DECK, next_state[KEY_PLAYER_DECK]))
 	next_state[KEY_TUTORIAL_SEEN] = bool(state.get(KEY_TUTORIAL_SEEN, false))
 	return next_state

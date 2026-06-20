@@ -12,7 +12,7 @@ value = 2
 [resource]
 script = ExtResource("1_card_definition")
 id = &"iron_bowl"
-display_name = "Zelezna miska"
+display_name = "Železná miska"
 card_type = 2
 cost = 2
 attack = 0

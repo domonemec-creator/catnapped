@@ -13,7 +13,7 @@ value = 1
 [resource]
 script = ExtResource("1_card_definition")
 id = &"captain_ironmaw"
-display_name = "Kapitan Zelezna tlama"
+display_name = "Kapitán Železná tlama"
 card_type = 0
 cost = 5
 attack = 4

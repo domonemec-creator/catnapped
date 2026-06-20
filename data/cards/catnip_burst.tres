@@ -13,7 +13,7 @@ value_2 = 1
 [resource]
 script = ExtResource("1_card_definition")
 id = &"catnip_burst"
-display_name = "Kocici mata"
+display_name = "Kočičí máta"
 card_type = 1
 cost = 1
 attack = 0
