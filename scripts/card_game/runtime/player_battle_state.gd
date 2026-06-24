@@ -17,6 +17,10 @@ var board: Array[LaneSlotState] = []
 var table_power_id: StringName = StringName()
 var table_power_used_this_turn: bool = false
 var immediate_entry_attack_used_this_turn: bool = false
+# False until this player has begun their first turn. The first turn does not ramp
+# Tuna, so both sides actually open on the locked 3 Tuna (the player who moves first
+# trades that for initiative; the second mover's compensation is the extra turn-1 draw).
+var has_started_turn: bool = false
 
 
 func initialize(player_id_value: int, display_name_value: String, starting_life: int, starting_tuna: int, table_power_id_value: StringName, lane_count: int) -> void:
@@ -28,6 +32,7 @@ func initialize(player_id_value: int, display_name_value: String, starting_life:
     tuna_max = starting_tuna
     table_power_id = table_power_id_value
     immediate_entry_attack_used_this_turn = false
+    has_started_turn = false
     board.clear()
     for lane_index in range(lane_count):
         var slot: LaneSlotState = LaneSlotState.new()

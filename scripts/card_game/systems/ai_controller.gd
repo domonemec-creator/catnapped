@@ -285,8 +285,13 @@ func _score_support_target(card: CardInstance, target: CardInstance, target_owne
                 if target_owner_id != player_state.player_id:
                     score -= 1000.0
                     continue
+                var can_swing := target.can_attack and not target.has_attacked
+                # A "this turn" buff (value_2 > 0) is wasted on a cat that won't attack this turn.
+                if effect.value_2 > 0 and not can_swing:
+                    score -= 5.0
+                    continue
                 var attack_bonus := float(effect.value) * 2.5
-                if target.can_attack and not target.has_attacked:
+                if can_swing:
                     attack_bonus += float(effect.value) * 4.0
                 elif target.has_keyword(CardGameConstants.KEYWORD_QUICK_PAWS):
                     attack_bonus += float(effect.value) * 3.0
@@ -307,7 +312,13 @@ func _score_support_target(card: CardInstance, target: CardInstance, target_owne
                 if target_owner_id != player_state.player_id:
                     score -= 1000.0
                     continue
-                if not target.can_attack or target.has_attacked:
+                # No effect on a cat that just entered without an immediate-attack grant
+                # (the resolver no-ops it), so never waste the card there.
+                if target.entered_this_turn and not target.immediate_entry_attack_granted:
+                    score -= 1000.0
+                    continue
+                if target.has_attacked:
+                    # Re-readying a cat that already swung = a genuine extra attack.
                     score += float(target.current_attack) * 6.0
                     if target.has_keyword(CardGameConstants.KEYWORD_POUNCE):
                         score += 2.0
@@ -335,6 +346,11 @@ func _score_support_target(card: CardInstance, target: CardInstance, target_owne
                     score -= 1000.0
                     continue
                 score += _score_item_value(target.attached_item) + 3.0
+            &"grant_keyword":
+                if target_owner_id != player_state.player_id:
+                    score -= 1000.0
+                    continue
+                score += _score_granted_keyword_value(effect.keyword_arg, target, defender_state, rules)
 
     return score
 
@@ -351,7 +367,24 @@ func _score_item_value(item: CardInstance) -> float:
                 value += float(effect.value) * 2.5
             &"modify_life":
                 value += float(effect.value) * 1.5
+            &"grant_keyword":
+                value += 4.0
     return value
+
+
+func _score_granted_keyword_value(keyword: StringName, target: CardInstance, defender_state: PlayerBattleState, rules: BattleRules) -> float:
+    if keyword == StringName() or target == null:
+        return 0.0
+    if target.has_keyword(keyword):
+        return 0.5  # redundant grant, low value
+    match keyword:
+        CardGameConstants.KEYWORD_GUARD:
+            return 5.0
+        CardGameConstants.KEYWORD_POUNCE:
+            return 4.0 + float(target.current_attack) * 0.5
+        CardGameConstants.KEYWORD_QUICK_PAWS:
+            return 3.0 + _score_immediate_attack_value(target, target.lane_index, defender_state, rules) * 0.5
+    return 3.0
 
 
 func _score_instant_support(card: CardInstance, player_state: PlayerBattleState, defender_state: PlayerBattleState) -> float:

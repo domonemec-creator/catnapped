@@ -74,7 +74,7 @@ This is the Hearthstone-style tempo compensation for going second.
 ## Combat rules
 
 - A Cat may attack `1x per turn`
-- Newly played Cats cannot attack that turn unless they have `Quick Paws`
+- Newly played Cats cannot attack that turn unless they have `Quick Paws`, and only one newly played `Quick Paws` Cat may attack immediately each turn
 - By default, Cats attack the opposite lane only
 - If the opposite lane is empty, that Cat deals damage equal to its Attack directly to enemy Fish
 - If direct damage would go through an empty lane and the defender has an eligible `Guard`, the attack is redirected into that Guard instead
@@ -108,7 +108,7 @@ Use only these in v1.
 
 - `Battlecry`: effect happens when the card is played
 - `Last Breath`: effect happens when the Cat dies
-- `Quick Paws`: this Cat can attack on the turn it is played
+- `Quick Paws`: only one newly played Cat with this keyword may attack immediately each turn
 - `Guard`: this Cat blocks direct damage through its lane and adjacent lanes; if multiple Guards could intercept, the defender chooses which Guard takes the hit
 - `Pounce`: this Cat may attack the opposite lane or one adjacent lane
 

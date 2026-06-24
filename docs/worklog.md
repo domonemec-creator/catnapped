@@ -14,6 +14,13 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-06-20 - Quick Paws je omezeno na jednu okamzite utocici novou kocku za tah
+- Oblast: battle rules, AI fairness
+- Soubory: `scripts/card_game/runtime/player_battle_state.gd`, `scripts/card_game/runtime/card_instance.gd`, `scripts/card_game/systems/battle_controller.gd`, `scripts/card_game/tools/verify_enemy_ai_support.gd`, `scripts/card_game/tools/verify_table_power_ai.gd`, `scripts/card_game/tools/verify_battle_feedback.gd`, `scripts/card_game/tools/verify_battle_previews.gd`, `scripts/card_game/tools/capture_battle_feedback.gd`, `scripts/card_game/tools/capture_battle_highlights.gd`, `data/cards/candlepaw_scout.tres`, `data/cards/wharf_cutthroat.tres`, `design/catnapped_master_notes.md`, `design/cat_table_mvp_checklist.md`, `design/cat_table_hearthstone_hybrid.md`, `design/cat_table_godot_schema.md`, `docs/decisions.md`
+- Zmena: Battle stav si nove pamatuje, jestli uz byl v danem tahu spotrebovan okamzity vstupni utok. `Quick Paws` uz neumozni stejny tah utocit vsem nove vylozenym kockam, ale jen jedne; dalsi musi pockat. Stejne omezeni plati i pro `ready_attack`, aby neslo pravidlo obejit cilenym refreshem cerstve vylozene kocky bez prideleneho okamziteho utoku.
+- Overeni: `verify_enemy_ai_support.gd`, `verify_table_power_ai.gd`, `verify_trick_item.gd`, `verify_battle_feedback.gd`, `verify_battle_previews.gd`
+- Dalsi krok: Po potvrzeni verifieru rucne zkontrolovat, jestli je to tempo pro AI i hrace uz citelnejsi a jestli nepotrebuje dalsi upravu i text preview v pravem panelu.
+
 ### 2026-06-20 - Pravy panel uz neprekryva tlacitka pri dlouhem warningu
 - Oblast: battle UI readability
 - Soubory: `scenes/card_game/battle_scene.tscn`, `scripts/card_game/systems/battle_controller.gd`, `scripts/card_game/tools/verify_battle_layout.gd`

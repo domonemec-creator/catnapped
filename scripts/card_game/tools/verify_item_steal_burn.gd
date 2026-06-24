@@ -156,5 +156,32 @@ func _run() -> void:
         _fail("Validity: Sticky Paws resolved against an item-less cat.")
         return
 
+    # --- Test 5: stealing a keyword-granting item moves the granted keyword ---
+    _reset_battlefield(player_state, enemy_state)
+    var kw_host = _place(battle, player_state, 0, &"tavern_mouser", battle.PLAYER_ID)
+    var kw_target = _place(battle, enemy_state, 1, &"alley_scrapper", battle.ENEMY_ID)
+    var harness = _equip(battle, kw_target, &"hunters_harness", battle.ENEMY_ID)
+    if not kw_target.has_keyword(&"pounce"):
+        _fail("Setup: equipped harness did not grant Pounce.")
+        return
+    if kw_host.has_keyword(&"pounce"):
+        _fail("Setup: host should not have Pounce before the steal.")
+        return
+
+    var kw_sticky = battle._create_card_instance(&"sticky_paws", battle.PLAYER_ID)
+    player_state.hand.append(kw_sticky)
+    battle._selected_card = kw_sticky
+    battle._handle_enemy_lane_pressed(1)
+
+    if kw_target.has_keyword(&"pounce"):
+        _fail("Steal keyword: enemy cat kept the granted Pounce.")
+        return
+    if not kw_host.has_keyword(&"pounce"):
+        _fail("Steal keyword: host did not gain the granted Pounce.")
+        return
+    if kw_host.attached_item != harness:
+        _fail("Steal keyword: keyword item did not move to the host.")
+        return
+
     print("Item steal/burn verification passed.")
     quit()

@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[sub_resource type="Resource" id="1_effect"]
+script = ExtResource("2_card_effect")
+action = &"deal_damage"
+target_mode = &"any_cat"
+value = 4
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"gaff_hook"
+display_name = "Lodní hák"
+card_type = 1
+cost = 3
+attack = 0
+life = 0
+rules_text = "Udel 4 zranění libovolné kočce."
+keywords = []
+effects = [SubResource("1_effect")]
+art_path = ""
+frame_variant = &"trick"

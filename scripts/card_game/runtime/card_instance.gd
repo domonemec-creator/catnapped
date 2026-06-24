@@ -18,9 +18,11 @@ var attached_item_instance_id: int = -1
 # Kept in sync with attached_item_instance_id.
 var attached_item: CardInstance = null
 var temporary_keywords: Array[StringName] = []
+# Keywords granted by an equipped item (persistent, removed when the item leaves).
+var granted_keywords: Array[StringName] = []
 var temporary_attack_bonus: int = 0
 var temporary_life_bonus: int = 0
 
 
 func has_keyword(keyword: StringName) -> bool:
-    return definition.keywords.has(keyword) or temporary_keywords.has(keyword)
+    return definition.keywords.has(keyword) or temporary_keywords.has(keyword) or granted_keywords.has(keyword)

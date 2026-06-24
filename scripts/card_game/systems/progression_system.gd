@@ -31,87 +31,87 @@ const THREAT_LABELS := [
 
 const SMUG_TABBY_UPGRADE_LINES := {
 	1: {
-		"gain": "Namyšlený kocour meni Hospodskeho mysivce za Skryté drápy.",
-		"lose": "Namyšlený kocour prichazi o Skryté drápy a vraci se k Hospodskemu mysivci.",
+		"gain": "Namyšlený kocour vyměnil Svíčkotlapého zvěda za Skryté drápy.",
+		"lose": "Namyšlený kocour bere zpět Svíčkotlapého zvěda a odkládá Skryté drápy.",
 	},
 	2: {
-		"gain": "Namyšlený kocour mění Rybokostěného plíživce za Hod rybou.",
-		"lose": "Namyšlený kocour prichazi o Hod rybou a vraci se k Rybokostnemu plizilovi.",
+		"gain": "Namyšlený kocour vyměnil Uličního rváče za Skryté drápy.",
+		"lose": "Namyšlený kocour bere zpět Uličního rváče a odkládá Skryté drápy.",
 	},
 	3: {
-		"gain": "Namyšlený kocour meni Rybokostneho plizila za Ostnatý obojek.",
-		"lose": "Namyšlený kocour prichazi o Ostnatý obojek a vraci se k Rybokostnemu plizilovi.",
+		"gain": "Namyšlený kocour vyměnil Uličního rváče za Hod rybou.",
+		"lose": "Namyšlený kocour bere zpět Uličního rváče a odkládá Hod rybou.",
 	},
 	4: {
-		"gain": "Namyšlený kocour mění Hospodského myšolovce za Železnou misku.",
-		"lose": "Namyšlený kocour prichazi o Zeleznou misku a vraci se k Hospodskemu mysivci.",
+		"gain": "Namyšlený kocour vyměnil Rybokostěného plíživce za Železnou misku.",
+		"lose": "Namyšlený kocour bere zpět Rybokostěného plíživce a odkládá Železnou misku.",
 	},
 	5: {
-		"gain": "Namyšlený kocour povyšuje Uličního rváče na Přístavního hrdlořeze.",
-		"lose": "Namyšlený kocour vrací Přístavního hrdlořeze zpět na Uličního rváče.",
+		"gain": "Namyšlený kocour vyměnil Hospodského myšolovce za Ostnatý obojek.",
+		"lose": "Namyšlený kocour bere zpět Hospodského myšolovce a odkládá Ostnatý obojek.",
 	},
 	6: {
-		"gain": "Namyšlený kocour meni Hospodskeho mysivce za Převrácení stolu.",
-		"lose": "Namyšlený kocour prichazi o Převrácení stolu a vraci se k Hospodskemu mysivci.",
+		"gain": "Namyšlený kocour vyměnil Rybokostěného plíživce za Převrácení stolu.",
+		"lose": "Namyšlený kocour bere zpět Rybokostěného plíživce a odkládá Převrácení stolu.",
 	},
 	7: {
-		"gain": "Namyšlený kocour povysuje Dokoveho rvace na Kapitana Zeleznou tlamu.",
-		"lose": "Namyšlený kocour vraci Kapitana Zeleznou tlamu zpet na Dokoveho rvace.",
+		"gain": "Namyšlený kocour vyměnil Dokového rváče za Kapitána Železnou tlamu.",
+		"lose": "Namyšlený kocour bere zpět Dokového rváče a odkládá Kapitána Železnou tlamu.",
 	},
 	8: {
-		"gain": "Namyšlený kocour povysuje Ulicniho rvace na Sitodrapeho najezdnika.",
-		"lose": "Namyšlený kocour vraci Sitodrapeho najezdnika zpet na Ulicniho rvace.",
+		"gain": "Namyšlený kocour vyměnil Hospodského myšolovce za Lodní hák.",
+		"lose": "Namyšlený kocour bere zpět Hospodského myšolovce a odkládá Lodní hák.",
 	},
 	9: {
-		"gain": "Namyšlený kocour meni Dokoveho rvace za druhe Skryté drápy.",
-		"lose": "Namyšlený kocour prichazi o druhe Skryté drápy a vraci se k Dokovemu rvaci.",
+		"gain": "Namyšlený kocour vyměnil Dokového rváče za Vyhazovače.",
+		"lose": "Namyšlený kocour bere zpět Dokového rváče a odkládá Vyhazovače.",
 	},
 	10: {
-		"gain": "Namyšlený kocour povysuje Dokoveho rvace na Kotelniho strazce.",
-		"lose": "Namyšlený kocour vraci Kotelniho strazce zpet na Dokoveho rvace.",
+		"gain": "Namyšlený kocour vyměnil Dokového rváče za Kotelního strážce.",
+		"lose": "Namyšlený kocour bere zpět Dokového rváče a odkládá Kotelního strážce.",
 	},
 }
 
 const RAGCLAW_BRAWLER_UPGRADE_LINES := {
 	1: {
-		"gain": "Ragclaw rváč meni Rybokostneho plizila za Skryté drápy.",
-		"lose": "Ragclaw rváč prichazi o Skryté drápy a vraci se k Rybokostnemu plizilovi.",
+		"gain": "Ragclaw rváč vyměnil Rybokostěného plíživce za Skryté drápy.",
+		"lose": "Ragclaw rváč bere zpět Rybokostěného plíživce a odkládá Skryté drápy.",
 	},
 	2: {
-		"gain": "Ragclaw rváč mění Uličního rváče za Hod rybou.",
-		"lose": "Ragclaw rváč prichazi o Hod rybou a vraci se k Ulicnimu rvaci.",
+		"gain": "Ragclaw rváč vyměnil Uličního rváče za Hod rybou.",
+		"lose": "Ragclaw rváč bere zpět Uličního rváče a odkládá Hod rybou.",
 	},
 	3: {
-		"gain": "Ragclaw rváč meni Ulicniho rvace za Ostnatý obojek.",
-		"lose": "Ragclaw rváč prichazi o Ostnatý obojek a vraci se k Ulicnimu rvaci.",
+		"gain": "Ragclaw rváč vyměnil Uličního rváče za Ostnatý obojek.",
+		"lose": "Ragclaw rváč bere zpět Uličního rváče a odkládá Ostnatý obojek.",
 	},
 	4: {
-		"gain": "Ragclaw rváč mění Svíčkotlapého zvěda za Kočičí mátu.",
-		"lose": "Ragclaw rváč prichazi o Kocici matu a vraci se ke Svicotlapemu zvedovi.",
+		"gain": "Ragclaw rváč vyměnil Svíčkotlapého zvěda za Kočičí mátu.",
+		"lose": "Ragclaw rváč bere zpět Svíčkotlapého zvěda a odkládá Kočičí mátu.",
 	},
 	5: {
-		"gain": "Ragclaw rváč povyšuje Dokového rváče na Přístavního hrdlořeze.",
-		"lose": "Ragclaw rváč vrací Přístavního hrdlořeze zpět na Dokového rváče.",
+		"gain": "Ragclaw rváč vyměnil Dokového rváče za Přístavního hrdlořeze.",
+		"lose": "Ragclaw rváč bere zpět Dokového rváče a odkládá Přístavního hrdlořeze.",
 	},
 	6: {
-		"gain": "Ragclaw rváč meni Ulicniho rvace za Převrácení stolu.",
-		"lose": "Ragclaw rváč prichazi o Převrácení stolu a vraci se k Ulicnimu rvaci.",
+		"gain": "Ragclaw rváč vyměnil Uličního rváče za Převrácení stolu.",
+		"lose": "Ragclaw rváč bere zpět Uličního rváče a odkládá Převrácení stolu.",
 	},
 	7: {
-		"gain": "Ragclaw rváč meni Svicotlapeho zveda za druhe Skryté drápy.",
-		"lose": "Ragclaw rváč prichazi o druhe Skryté drápy a vraci se ke Svicotlapemu zvedovi.",
+		"gain": "Ragclaw rváč vyměnil Svíčkotlapého zvěda za Skryté drápy.",
+		"lose": "Ragclaw rváč bere zpět Svíčkotlapého zvěda a odkládá Skryté drápy.",
 	},
 	8: {
-		"gain": "Ragclaw rváč povysuje Tramoveho skokana na Sitodrapeho najezdnika.",
-		"lose": "Ragclaw rváč vraci Sitodrapeho najezdnika zpet na Tramoveho skokana.",
+		"gain": "Ragclaw rváč vyměnil Trámového skokana za Síťodrápého nájezdníka.",
+		"lose": "Ragclaw rváč bere zpět Trámového skokana a odkládá Síťodrápého nájezdníka.",
 	},
 	9: {
-		"gain": "Ragclaw rváč povyšuje Trámového skokana na Přístavního hrdlořeze.",
-		"lose": "Ragclaw rváč vrací Přístavního hrdlořeze zpět na Trámového skokana.",
+		"gain": "Ragclaw rváč vyměnil Trámového skokana za Síťodrápého nájezdníka.",
+		"lose": "Ragclaw rváč bere zpět Trámového skokana a odkládá Síťodrápého nájezdníka.",
 	},
 	10: {
-		"gain": "Ragclaw rváč povysuje Kapitana Zeleznou tlamu na Sitodrapeho najezdnika.",
-		"lose": "Ragclaw rváč vraci Sitodrapeho najezdnika zpet na Kapitana Zeleznou tlamu.",
+		"gain": "Ragclaw rváč vyměnil Kapitána Železnou tlamu za Přístavního hrdlořeze.",
+		"lose": "Ragclaw rváč bere zpět Kapitána Železnou tlamu a odkládá Přístavního hrdlořeze.",
 	},
 }
 
@@ -160,44 +160,44 @@ const HARBOR_WARDEN_UPGRADE_LINES := {
 
 const LANTERN_STRIKER_UPGRADE_LINES := {
 	1: {
-		"gain": "Lucernový útočník meni Rybokostneho plizila za Skryté drápy.",
-		"lose": "Lucernový útočník prichazi o Skryté drápy a vraci se k Rybokostnemu plizilovi.",
+		"gain": "Lucernový útočník vyměnil Hospodského myšolovce za Kočičí mátu.",
+		"lose": "Lucernový útočník bere zpět Hospodského myšolovce a odkládá Kočičí mátu.",
 	},
 	2: {
-		"gain": "Lucernový útočník mění Hospodského myšolovce za Kočičí mátu.",
-		"lose": "Lucernový útočník prichazi o Kocici matu a vraci se k Hospodskemu mysivci.",
+		"gain": "Lucernový útočník vyměnil Uličního rváče za Skryté drápy.",
+		"lose": "Lucernový útočník bere zpět Uličního rváče a odkládá Skryté drápy.",
 	},
 	3: {
-		"gain": "Lucernový útočník povysuje Ulicniho rvace na Hod rybou.",
-		"lose": "Lucernový útočník vraci Hod rybou zpet na Ulicniho rvace.",
+		"gain": "Lucernový útočník vyměnil Uličního rváče za Hod rybou.",
+		"lose": "Lucernový útočník bere zpět Uličního rváče a odkládá Hod rybou.",
 	},
 	4: {
-		"gain": "Lucernový útočník povysuje Svicotlapeho zveda na Tramoveho skokana.",
-		"lose": "Lucernový útočník vraci Tramoveho skokana zpet ke Svicotlapemu zvedovi.",
+		"gain": "Lucernový útočník vyměnil Svíčkotlapého zvěda za Trámového skokana.",
+		"lose": "Lucernový útočník bere zpět Svíčkotlapého zvěda a odkládá Trámového skokana.",
 	},
 	5: {
-		"gain": "Lucernový útočník povyšuje Dokového rváče na Přístavního hrdlořeze.",
-		"lose": "Lucernový útočník vrací Přístavního hrdlořeze zpět na Dokového rváče.",
+		"gain": "Lucernový útočník vyměnil Dokového rváče za Přístavního hrdlořeze.",
+		"lose": "Lucernový útočník bere zpět Dokového rváče a odkládá Přístavního hrdlořeze.",
 	},
 	6: {
-		"gain": "Lucernový útočník povysuje Tramoveho skokana na Sitodrapeho najezdnika.",
-		"lose": "Lucernový útočník vraci Sitodrapeho najezdnika zpet na Tramoveho skokana.",
+		"gain": "Lucernový útočník vyměnil Svíčkotlapého zvěda za Síťodrápého nájezdníka.",
+		"lose": "Lucernový útočník bere zpět Svíčkotlapého zvěda a odkládá Síťodrápého nájezdníka.",
 	},
 	7: {
-		"gain": "Lucernový útočník meni Kocici matu za Převrácení stolu.",
-		"lose": "Lucernový útočník prichazi o Převrácení stolu a vraci se ke Kocici mate.",
+		"gain": "Lucernový útočník vyměnil Kočičí mátu za Převrácení stolu.",
+		"lose": "Lucernový útočník bere zpět Kočičí mátu a odkládá Převrácení stolu.",
 	},
 	8: {
-		"gain": "Lucernový útočník povyšuje Přístavního hrdlořeze na Kapitána Železnou tlamu.",
-		"lose": "Lucernový útočník vrací Kapitána Železnou tlamu zpět na Přístavního hrdlořeze.",
+		"gain": "Lucernový útočník vyměnil Dokového rváče za Kapitána Železnou tlamu.",
+		"lose": "Lucernový útočník bere zpět Dokového rváče a odkládá Kapitána Železnou tlamu.",
 	},
 	9: {
-		"gain": "Lucernový útočník meni Rybokostneho plizila za Ostnatý obojek.",
-		"lose": "Lucernový útočník prichazi o Ostnatý obojek a vraci se k Rybokostnemu plizilovi.",
+		"gain": "Lucernový útočník vyměnil Hod rybou za Lovecký postroj.",
+		"lose": "Lucernový útočník bere zpět Hod rybou a odkládá Lovecký postroj.",
 	},
 	10: {
-		"gain": "Lucernový útočník povysuje Ulicniho rvace na Kotelniho strazce.",
-		"lose": "Lucernový útočník vraci Kotelniho strazce zpet na Ulicniho rvace.",
+		"gain": "Lucernový útočník vyměnil Trámového skokana za Kotelního strážce.",
+		"lose": "Lucernový útočník bere zpět Trámového skokana a odkládá Kotelního strážce.",
 	},
 }
 
@@ -431,29 +431,31 @@ func _get_upgrade_lines_for_deck(deck_id: StringName) -> Dictionary:
 
 
 func _apply_smug_tabby_profile(deck_cards: Array[StringName], threat_level: int) -> void:
+	# Control: trades early bodies for removal + sustain + finishers.
 	if threat_level >= 1:
-		_replace_first(deck_cards, &"tavern_mouser", &"hidden_claws")
+		_replace_first(deck_cards, &"candlepaw_scout", &"hidden_claws")
 	if threat_level >= 2:
-		_replace_first(deck_cards, &"fishbone_skulker", &"fish_toss")
+		_replace_first(deck_cards, &"alley_scrapper", &"hidden_claws")
 	if threat_level >= 3:
-		_replace_first(deck_cards, &"fishbone_skulker", &"spiked_collar")
+		_replace_first(deck_cards, &"alley_scrapper", &"fish_toss")
 	if threat_level >= 4:
-		_replace_first(deck_cards, &"tavern_mouser", &"iron_bowl")
+		_replace_first(deck_cards, &"fishbone_skulker", &"iron_bowl")
 	if threat_level >= 5:
-		_replace_first(deck_cards, &"alley_scrapper", &"wharf_cutthroat")
+		_replace_first(deck_cards, &"tavern_mouser", &"spiked_collar")
 	if threat_level >= 6:
-		_replace_first(deck_cards, &"tavern_mouser", &"table_flip")
+		_replace_first(deck_cards, &"fishbone_skulker", &"table_flip")
 	if threat_level >= 7:
 		_replace_first(deck_cards, &"dockside_bruiser", &"captain_ironmaw")
 	if threat_level >= 8:
-		_replace_first(deck_cards, &"alley_scrapper", &"netclaw_raider")
+		_replace_first(deck_cards, &"tavern_mouser", &"gaff_hook")
 	if threat_level >= 9:
-		_replace_first(deck_cards, &"dockside_bruiser", &"hidden_claws")
+		_replace_first(deck_cards, &"dockside_bruiser", &"tavern_bouncer")
 	if threat_level >= 10:
-		_replace_first(deck_cards, &"dockside_bruiser", &"boilerback_guardian")
+		_replace_first(deck_cards, &"tavern_mouser", &"boilerback_guardian")
 
 
 func _apply_ragclaw_brawler_profile(deck_cards: Array[StringName], threat_level: int) -> void:
+	# Rush: doubles down on reach, burst and Pounce pressure.
 	if threat_level >= 1:
 		_replace_first(deck_cards, &"fishbone_skulker", &"hidden_claws")
 	if threat_level >= 2:
@@ -471,9 +473,9 @@ func _apply_ragclaw_brawler_profile(deck_cards: Array[StringName], threat_level:
 	if threat_level >= 8:
 		_replace_first(deck_cards, &"rafter_pouncer", &"netclaw_raider")
 	if threat_level >= 9:
-		_replace_first(deck_cards, &"rafter_pouncer", &"wharf_cutthroat")
+		_replace_first(deck_cards, &"rafter_pouncer", &"netclaw_raider")
 	if threat_level >= 10:
-		_replace_first(deck_cards, &"captain_ironmaw", &"netclaw_raider")
+		_replace_first(deck_cards, &"captain_ironmaw", &"wharf_cutthroat")
 
 
 func _apply_harbor_warden_profile(deck_cards: Array[StringName], threat_level: int) -> void:
@@ -500,10 +502,11 @@ func _apply_harbor_warden_profile(deck_cards: Array[StringName], threat_level: i
 
 
 func _apply_lantern_striker_profile(deck_cards: Array[StringName], threat_level: int) -> void:
+	# Tempo: curves out with Pounce, buffs and reach, capping with mid/top threats.
 	if threat_level >= 1:
-		_replace_first(deck_cards, &"fishbone_skulker", &"hidden_claws")
-	if threat_level >= 2:
 		_replace_first(deck_cards, &"tavern_mouser", &"catnip_burst")
+	if threat_level >= 2:
+		_replace_first(deck_cards, &"alley_scrapper", &"hidden_claws")
 	if threat_level >= 3:
 		_replace_first(deck_cards, &"alley_scrapper", &"fish_toss")
 	if threat_level >= 4:
@@ -511,15 +514,15 @@ func _apply_lantern_striker_profile(deck_cards: Array[StringName], threat_level:
 	if threat_level >= 5:
 		_replace_first(deck_cards, &"dockside_bruiser", &"wharf_cutthroat")
 	if threat_level >= 6:
-		_replace_first(deck_cards, &"rafter_pouncer", &"netclaw_raider")
+		_replace_first(deck_cards, &"candlepaw_scout", &"netclaw_raider")
 	if threat_level >= 7:
 		_replace_first(deck_cards, &"catnip_burst", &"table_flip")
 	if threat_level >= 8:
-		_replace_first(deck_cards, &"wharf_cutthroat", &"captain_ironmaw")
+		_replace_first(deck_cards, &"dockside_bruiser", &"captain_ironmaw")
 	if threat_level >= 9:
-		_replace_first(deck_cards, &"fishbone_skulker", &"spiked_collar")
+		_replace_first(deck_cards, &"fish_toss", &"hunters_harness")
 	if threat_level >= 10:
-		_replace_first(deck_cards, &"alley_scrapper", &"boilerback_guardian")
+		_replace_first(deck_cards, &"rafter_pouncer", &"boilerback_guardian")
 
 
 func _get_upgrade_line(upgrade_lines: Dictionary, level: int, gaining: bool) -> String:

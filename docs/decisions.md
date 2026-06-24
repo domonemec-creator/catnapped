@@ -76,3 +76,10 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Kontext: Dlouhy lethal warning v selected panelu dokazal prerust pres `Hod pamlskem` a `Konec tahu`, takze hrac nemohl normalne dokoncit tah.
 - Rozhodnuti: Pravy info panel ma byt prostorove omezeny a dlouhe texty se maji zkratit, skrolovat nebo orezat driv, nez zasahnou do akcni oblasti s tlacitky.
 - Dopad: Pri dalsich zmenach copy nebo preview logiky se ma chranit klikatelnost akcnich tlacitek jako vyssi priorita nez zobrazeni celeho dlouheho textu bez omezeni.
+
+### D-010 - Quick Paws dava okamzity utok jen jedne nove kocce za tah
+- Datum: 2026-06-20
+- Stav: aktivni
+- Kontext: Kdyz AI nebo hrac vylozili vice karet s `Quick Paws` v jednom tahu, vsechny mohly hned utocit, coz pusobilo nefer a tezko citelne.
+- Rozhodnuti: V jednom tahu muze okamzity utok ziskat jen jedna nove vylozena kocka s `Quick Paws`. Ostatni nove vylozene kocky se stejnym keywordem musi cekat do dalsiho tahu.
+- Dopad: Tempo burst z vice `Quick Paws` karet je omezeny, AI je citelnejsi a texty karet i verifikace musi tohle pravidlo respektovat.

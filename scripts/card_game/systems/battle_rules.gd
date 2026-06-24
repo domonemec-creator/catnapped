@@ -63,7 +63,7 @@ func is_valid_card_target(card_instance: CardInstance, target_card: CardInstance
                 continue
 
         match typed_effect.action:
-            &"modify_attack", &"modify_life", &"ready_attack":
+            &"modify_attack", &"modify_life", &"ready_attack", &"grant_keyword":
                 if card_instance.definition.card_type == CardGameConstants.CardType.ITEM and target_owner_id != friendly_state.player_id:
                     continue
                 if card_instance.definition.card_type == CardGameConstants.CardType.ITEM and target_card.attached_item_instance_id >= 0:

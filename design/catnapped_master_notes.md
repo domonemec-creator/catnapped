@@ -269,6 +269,7 @@ Na konci tahu:
 - když je cílová lane prázdná, jde direct damage do `Life`
 - pokud direct damage může interceptnout `Guard`, zásah vezme guard
 - direct damage teď dává **plný Attack unitky**, ne jen `1`
+- **ROZHODNUTO (2026-06-20): combat zůstává JEDNOSMĚRNÝ** (útočník nedostává zpětný úder). Je to záměr — sedí k „tlak do linek" identitě. Hodnota `Life` proto neplyne z retaliace, ale z přežití pingů/removalu a útoků soupeře v jeho tahu. Glass cannony (4/1 Skokan apod.) jsou vědomě high-risk: nově je trestá silnější removal (Lodní hák = 4 dmg) i pingy. Retaliaci nezavádět bez vážného důvodu — rozbila by jádro.
 
 ### Death a discard
 
@@ -295,6 +296,8 @@ Význam:
 - `Pounce`: může útočit do opposite nebo adjacent lane
 
 ---
+
+- Aktualni implementace `Quick Paws`: v jednom tahu muze okamzity utok ziskat jen jedna nova kocka s timto keywordem.
 
 ## 6. Typy karet
 
@@ -343,10 +346,11 @@ Filozofie (rozhodnuto 2026-06-18):
 | Tavern Mouser | 2 | 1 | 4 | Guard |
 | Rafter Pouncer | 3 | 4 | 1 | Pounce |
 | Wharf Cutthroat | 3 | 3 | 2 | Quick Paws |
-| Netclaw Raider | 3 | 3 | 1 | Pounce |
+| Netclaw Raider | 3 | 3 | 2 | Pounce |
 | Dockside Bruiser | 4 | 3 | 6 | Battlecry: Heal 1 Life. Last Breath: Draw 1 card |
 | Boilerback Guardian | 4 | 2 | 6 | Guard. Last Breath: Heal 1 Life |
 | Captain Ironmaw | 5 | 4 | 5 | Battlecry: Draw 1 card |
+| Vyhazovač (Bouncer) | 6 | 6 | 6 | Guard. Battlecry: Draw 1 card (6-drop finisher) |
 | Stray | 0 | 1 | 1 | token ze Table Power |
 
 ### Trick karty
@@ -359,6 +363,7 @@ Filozofie (rozhodnuto 2026-06-18):
 | Fish Toss | 2 | Friendly Cat may attack again this turn |
 | Sticky Paws | 2 | Steal an item from an enemy Cat onto one of your Cats |
 | Pry Bar | 1 | Destroy an item attached to an enemy Cat |
+| Gaff Hook (Lodní hák) | 3 | Deal 4 damage to any Cat (silné removal na velká těla) |
 
 ### Item karty
 
@@ -366,13 +371,18 @@ Filozofie (rozhodnuto 2026-06-18):
 |---|---:|---|
 | Spiked Collar | 2 | Equipped Cat gets +1 Attack |
 | Iron Bowl | 2 | Equipped Cat gets +2 Life |
+| War Plate (Válečný plát) | 3 | Equipped Cat gets +2 Attack |
+| Hunter's Harness (Lovecký postroj) | 2 | Equipped Cat gains **Pounce** (Výpad) |
+| Watchman's Bell (Hlídačův zvonec) | 2 | Equipped Cat gains **Guard** (Ochrana) |
+
+Keyword-grantující itemy jedou přes nový efekt `grant_keyword` (viz 11.3) — drží se na kočce přes `CardInstance.granted_keywords` a korektně se přenášejí/odebírají při krádeži/pálení.
 
 Shrnutí:
 
-- card pool aktuálně obsahuje `19` karet / tokenů
-- unit část už má slušný základ
+- card pool aktuálně obsahuje `24` karet / tokenů
+- unit část už má slušný základ; nově **6-drop finisher Vyhazovač** dává smysl hornímu konci Tuna křivky (řeší „strop ekonomiky")
 - support část už není fake placeholder, je funkční i pro AI
-- ⚠️ **Sticky Paws / Pry Bar jsou zatím jen definované, NEjsou v žádném decku** (decky drží lock 20 karet — zařazení = samostatné content/balance rozhodnutí). Jsou **situační** (mrtvé proti decku bez itemů — pozor: Smug Tabby base itemy nemá, Ragclaw má Spiked Collar).
+- **Sticky Paws / Pry Bar** jsou zařazené do **reward poolu** (získatelné v runu); Přístavní strážný je nově **gear deck** (4 itemy) → krádež/pálení proti němu reálně funguje.
 
 ---
 
@@ -384,49 +394,35 @@ Soubor:
 
 - `data/decks/starter_player.tres`
 
-Aktuální složení:
+Aktuální složení (přepracováno 2026-06-20 — TEMPO archetyp, vybráno deck turnajem):
 
-- `2x Alley Scrapper`
-- `2x Candlepaw Scout`
+- `3x Candlepaw Scout`
+- `3x Alley Scrapper`
 - `2x Fishbone Skulker`
-- `2x Tavern Mouser`
-- `2x Rafter Pouncer`
-- `1x Wharf Cutthroat`
-- `1x Dockside Bruiser`
-- `1x Captain Ironmaw`
-- `2x Catnip Burst`
-- `1x Hidden Claws`
-- `1x Table Flip`
-- `1x Fish Toss`
-- `1x Spiked Collar`
-- `1x Iron Bowl`
-
-Celkem:
-
-- `20 karet`
-
-### 8.2 NPC deck
-
-Soubor:
-
-- `data/decks/npc_smug_tabby.tres`
-
-Base list:
-
-- `2x Candlepaw Scout`
-- `2x Alley Scrapper`
-- `2x Fishbone Skulker`
-- `3x Tavern Mouser`
-- `2x Rafter Pouncer`
-- `2x Wharf Cutthroat`
+- `3x Wharf Cutthroat`
 - `2x Netclaw Raider`
-- `3x Dockside Bruiser`
-- `1x Boilerback Guardian`
+- `2x Rafter Pouncer`
 - `1x Captain Ironmaw`
+- `2x Hidden Claws`
+- `1x Gaff Hook`
+- `1x Catnip Burst`
 
 Celkem:
 
 - `20 karet`
+
+Identita: levné tělo + Pounce/Quick Paws tlak + reach (Hidden Claws ×2 + Gaff Hook) + jeden top-end (Kapitán). Žádné itemy ani steal/burn — ty se získávají jako rewardy v runu. Starý „midrange goodstuff" list (Tavern Mouser, Dockside, Table Flip, Fish Toss, itemy) byl výrazně slabší — viz update log 2026-06-20 „Starter deck turnaj".
+
+### 8.2 NPC decky — archetypy (přepracováno 2026-06-20)
+
+Každý NPC deck má teď **vyhraněnou identitu** (20 karet, ladí se threatem v `progression_system`):
+
+- **Namyšlený kocour** (`npc_smug_tabby`) = **CONTROL**: Guard zdi (Hospodský myšolovec ×3, Kotelní strážce ×2), value těla (Dokový rváč ×3, Kapitán ×2), 6-drop Vyhazovač, removal (Lodní hák), sustain item (Železná miska). Pomalá křivka.
+- **Ragclaw rváč** (`npc_ragclaw_brawler`) = **RUSH**: nejnižší křivka, max Pounce/Quick Paws (Síťodrápý ×3, Trámový ×2, Přístavní ×2), burst (Kočičí máta ×2, Hod rybou), Ostnatý obojek. Minimum top-endu.
+- **Lucernový útočník** (`npc_lantern_striker`) = **TEMPO**: midrange pounce (Trámový ×3, Síťodrápý ×2), buffy (Kočičí máta ×2, Lovecký postroj), reach (Skryté drápy), curve-out do Kapitána.
+- **Přístavní strážný** (`npc_harbor_warden`) = **GEAR**: 4 itemy (Ostnatý obojek, Železná miska, Lovecký postroj, Hlídačův zvonec) na tělech → proti němu reálně fungují tvoje Lepkavé tlapky / Páčidlo.
+
+Threat profily byly přepsané pod nové decky (1-for-1 výměny, velikost vždy 20; ověřeno `verify_threat_progression`).
 
 ### 8.3 Encounter
 
@@ -592,6 +588,7 @@ Aktuálně používané akce:
 - `reveal_random_hand_card`
 - `steal_item` (přesun nasazeného itemu z nepřátelské kočky na vlastní)
 - `destroy_item` (sundání + zničení nasazeného itemu nepřátelské kočky)
+- `grant_keyword` (item udělí kočce keyword přes `keyword_arg`; drží se v `granted_keywords`, přenáší se s krádeží)
 
 To je zatím správně malý rozsah.
 
@@ -937,6 +934,52 @@ Když budeme pokračovat:
 ---
 
 ## 20. Update log
+
+### 2026-06-20 — Starter deck turnaj (přestavba na TEMPO)
+
+- **Deck turnaj** (workflow): 5 agentů navrhlo kandidátní startery z různých filozofií (aggro/midrange/tempo/guard-control/gear), každý prožen `sim_ai_matches.gd` proti všem 4 NPC; vybrán nejvyváženější.
+- **Starter přepsán** (`data/decks/starter_player.tres`) na TEMPO list (3 Svíčkotlapý, 3 Uliční rváč, 2 Rybokostěný, 3 Přístavní hrdlořez, 2 Síťodrápý, 2 Trámový skokan, 1 Kapitán, 2 Skryté drápy, 1 Lodní hák, 1 Kočičí máta). Sekce 8.1.
+- **Dopad (120 her/pořadí, threat 0, AI-vs-AI):** baseline (starý starter) 16/36/31/35 % → nový **38.8 / 69.2 / 52.9 / 66.3 %** (smug/ragclaw/harbor/lantern), průměr ~57 %, mírně pro-hráčský, žádný stomp. Ostatní 4 kandidáti byli přesílení (mlátili 3+ NPC 72–90 %).
+- **Smug (control) zůstává nejtěžší (~39 %).** Pokus o +1 removal (2× Lodní hák místo Kočičí máty) smug NEhnul a přepálil Lantern na 73 % → zamítnuto, ponechán originál. Závěr: slabost vs control je z velké části **AI-piloting artefakt** (heuristika pilotuje control zeď líp než tempo race; člověk proti controlu závodí líp), navíc na threat 0 + hráč pak sbírá rewardy.
+- **Caveaty:** AI-vs-AI (ne lidský WR), první hráč má náskok ~10–15 pp. Ber jako odhad, ne záruku.
+- **Ověřeno:** celá verify suita (17 skriptů, 0 selhání). Nový nástroj `sim_ai_matches.gd` umí testovat libovolný deck (2. arg = soubor s `card_id count`).
+
+### 2026-06-20 — AI-vs-AI playtest + fixy (AI bugy, asymetrie 1. tahu, simulace)
+
+Postaven headless AI-vs-AI playtest (`tools/sim_ai_matches.gd`) — řídí obě strany stejným AI, hraje stovky zápasů starteru proti všem 4 NPC. 3 agenti analyzovali výsledky; skeptik odhalil, že část čísel byla artefakt (greedy AI neumí pilotovat combo starter). Zařízeno (vybráno vlastníkem, starter deck zatím NEMĚNĚN):
+
+- **2 AI mis-play bugy opraveny** (`ai_controller.gd`): (a) `ready_attack` (Hod rybou) se už neskóruje na kočku, co právě přišla (resolver to no-opoval → plýtvání kartou); valuuje se jen re-ready kočky co už útočila. (b) Dočasný `modify_attack` buff (Kočičí máta, `value_2>0`) se neplýtvá na kočku, co v tomto tahu neútočí.
+- **Asymetrie 1. tahu opravena** (`player_battle_state.gd` + `battle_controller.gd`): nové pole `has_started_turn`. První tah hráče NErampuje Tunu — oba teď reálně otevírají na zamčených 3 Tunách (dřív druhý hráč dostal +1 Tunu navíc). První hráč = iniciativa, druhý hráč = kompenzace v podobě turn-1 draw. Sjednocuje to s dokumentovaným „start 3 Tuny".
+- **Simulace vylepšena**: střídá kdo jde první (oba pořadí zvlášť), seeduje RNG (reprodukovatelné), kontroluje že enemy deck je identický napříč hrami (`deck_stable`).
+- **Výsledky (120 her/pořadí, threat 0, hráč = starter):** smug 19.6% (first 24/second 15), ragclaw 40.4%, harbor 35.4%, lantern 28.3%. **První hráč má teď konzistentně náskok** (+3–12 pp) → fix 1. tahu funguje. Smug skočil z 8% (starý, zkreslený běh) na ~20% → potvrzeno, že staré číslo byl z velké části AI-piloting artefakt.
+- **Zbývá (vědomě):** hráčův starter deck je pořád pod 50% WR proti všem (20–40 %) — je reálně slabší než NPC, ale jeho přestavbu si vlastník nechal na později + playtest.
+
+### 2026-06-20 — Plná identita NPC decků (dokončení #4)
+
+- **Všechny 4 NPC decky přepsané na vyhraněné archetypy** (viz sekce 8.2): Namyšlený kocour = control, Ragclaw = rush, Lucernový útočník = tempo, Přístavní strážný = gear. Konec „midrange goodstuff všude".
+- **Threat profily v `progression_system` přepsané pod nové decky** — výhradně 1-for-1 výměny, takže velikost decku zůstává 20 na všech threat úrovních. Profily designované tak, aby trefily přesně signature čísla z `verify_threat_progression` (smug t10: 2 Skryté drápy/Hod rybou/Ostnatý obojek; ragclaw t10: 3 Skryté drápy / 5 Síťodrápých; lantern t10: Převrácení stolu / Kotelní strážce / 2 Kapitáni). Test tedy nebyl měněn — jen potvrzuje nové decky.
+- **Flavor hlášky (upgrade lines) přepsané** pro smug/ragclaw/lantern tak, aby seděly k novým výměnám (post-match popisuje správné karty). Harbor profil + hlášky beze změny.
+- **Ověřeno:** celá verify suita (17 skriptů, 0 selhání).
+- ⚠️ **Balanc čísla jsou first-draft** — archetypy jsou čisté, ale poměry karet chtějí doladit playtestem.
+
+### 2026-06-20 — Balanc pass: 5 bodů z auditu (ekonomika, removal, itemy, decky, combat)
+
+Reakce na obsahový audit — všech 5 hlubších bodů:
+
+- **#1 Ekonomika (strop):** nový 6-drop finisher **Vyhazovač** (6/6, Ochrana + Bojový nástup: lízni 1) dává smysl horní části Tuna křivky. `data/cards/tavern_bouncer.tres`.
+- **#2 Removal na velká těla:** nový trick **Lodní hák** (3 Tuna, 4 dmg libovolné kočce). `data/cards/gaff_hook.tres`.
+- **#3 Itemy (hloubka + pilíř krádeže):** nový efekt **`grant_keyword`** — itemy můžou udělit keyword. Nové itemy: **Lovecký postroj** (Výpad), **Hlídačův zvonec** (Ochrana), **Válečný plát** (+2 útok). Keyword grant se drží v `CardInstance.granted_keywords` a korektně se přenáší/odebírá při steal/burn. Kód: `card_instance.gd`, `battle_controller.gd` (resolve + `_modify_host_by_item` + preview buildery + reset), `battle_rules.gd` (cílení), `ai_controller.gd` (scoring + `_score_granted_keyword_value`).
+- **#4 Identita decků (částečně):** **Přístavní strážný = gear deck** (4 itemy vč. keyword-granterů) → krádež/pálení proti němu reálně funguje. Zachovány počty karet, na které sahá threat-progrese (verify prošlo). Plný re-identity všech 4 decků **vědomě odložen** — je svázaný s `progression_system` profily + potřebuje playtest.
+- **#5 Combat retaliation:** **rozhodnuto ponechat jednosměrný** (viz sekce 5). Life dostává hodnotu přes nový removal/pingy, ne přes retaliaci. Glass cannony jsou vědomě high-risk.
+- **Reward pool:** všech 5 nových karet zařazeno do `run_session` (získatelné v runu) + upgrade cesty.
+- **Ověřeno:** celá verify suita (17 skriptů, 0 selhání), rozšířen `verify_item_steal_burn` o krádež keyword itemu (přenos uděleného keywordu).
+
+### 2026-06-20 — Content audit + Netclaw dedup
+
+- **Obsahový audit celého poolu** (karty, decky, table powers, encountery, run/reward). Závěr v chatu; nejvážnější otevřené body k rozhodnutí: ekonomika rampuje na 7 Tuny ale top karta je 5 (mrtvý strop), málo removalu na 6-life těla, tenký item pool vs krádež/pálení jako pilíř, NPC decky málo odlišené, combat bez retaliation deformuje hodnotu statů.
+- **Opraveno — Netclaw dedup:** Síťodrápý nájezdník byl striktně horší klon Trámového skokana (oba 3 Tuna / Výpad / 1 život, jen 3 vs 4 útok). Nově **3/2** = odolnější flexibilní pressure vs Skokanových 4/1 burst. Reálná volba místo dominance.
+- **Záměrně neměněno:** „Namyšlený pohled" reveal-only (zamčeno testem `verify_table_power_ai` jako tvé rozhodnutí). Run roster (už obsahuje všechny 4) a CZ display názvy encounterů jsi vyřešil mezitím sám.
+- **Ověřeno:** celá verify suita (17 skriptů) prošla, 0 selhání.
 
 ### 2026-06-20 — Vizuální audit + plná česká diakritika
 

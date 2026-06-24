@@ -409,7 +409,7 @@ cards = [
 
 ### `Quick Paws`
 
-- on play, set `can_attack = true`
+- on play, set `can_attack = true` only if no other newly played `Quick Paws` Cat has already gained an immediate attack this turn
 
 ### `Pounce`
 

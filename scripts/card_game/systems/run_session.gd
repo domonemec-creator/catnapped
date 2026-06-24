@@ -24,6 +24,11 @@ const REWARD_ADD_POOL: Array[StringName] = [
     &"dockside_bruiser",
     &"catnip_burst",
     &"hidden_claws",
+    &"war_plate",
+    &"hunters_harness",
+    &"watchmans_bell",
+    &"gaff_hook",
+    &"tavern_bouncer",
 ]
 const REWARD_UPGRADE_MAP := {
     &"candlepaw_scout": &"rafter_pouncer",
@@ -41,6 +46,9 @@ const REWARD_UPGRADE_MAP := {
     &"iron_bowl": &"sticky_paws",
     &"pry_bar": &"table_flip",
     &"sticky_paws": &"table_flip",
+    &"war_plate": &"hunters_harness",
+    &"hunters_harness": &"watchmans_bell",
+    &"gaff_hook": &"tavern_bouncer",
 }
 
 var _active: bool = false

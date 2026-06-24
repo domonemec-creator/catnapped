@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="DeckDefinition" load_steps=15 format=3]
+[gd_resource type="Resource" script_class="DeckDefinition" load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://scripts/card_game/data/deck_definition.gd" id="1_deck_definition"]
 [ext_resource type="Script" path="res://scripts/card_game/data/deck_entry.gd" id="2_deck_entry"]
@@ -16,7 +16,7 @@ count = 2
 [sub_resource type="Resource" id="3_entry"]
 script = ExtResource("2_deck_entry")
 card_id = &"fishbone_skulker"
-count = 2
+count = 1
 
 [sub_resource type="Resource" id="4_entry"]
 script = ExtResource("2_deck_entry")
@@ -26,7 +26,7 @@ count = 2
 [sub_resource type="Resource" id="5_entry"]
 script = ExtResource("2_deck_entry")
 card_id = &"rafter_pouncer"
-count = 2
+count = 1
 
 [sub_resource type="Resource" id="6_entry"]
 script = ExtResource("2_deck_entry")
@@ -68,8 +68,18 @@ script = ExtResource("2_deck_entry")
 card_id = &"table_flip"
 count = 1
 
+[sub_resource type="Resource" id="14_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"hunters_harness"
+count = 1
+
+[sub_resource type="Resource" id="15_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"watchmans_bell"
+count = 1
+
 [resource]
 script = ExtResource("1_deck_definition")
 id = &"npc_harbor_warden"
 display_name = "Balik Pristavniho strazneho"
-cards = [SubResource("1_entry"), SubResource("2_entry"), SubResource("3_entry"), SubResource("4_entry"), SubResource("5_entry"), SubResource("6_entry"), SubResource("7_entry"), SubResource("8_entry"), SubResource("9_entry"), SubResource("10_entry"), SubResource("11_entry"), SubResource("12_entry"), SubResource("13_entry")]
+cards = [SubResource("1_entry"), SubResource("2_entry"), SubResource("3_entry"), SubResource("4_entry"), SubResource("5_entry"), SubResource("6_entry"), SubResource("7_entry"), SubResource("8_entry"), SubResource("9_entry"), SubResource("10_entry"), SubResource("11_entry"), SubResource("12_entry"), SubResource("13_entry"), SubResource("14_entry"), SubResource("15_entry")]

@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[sub_resource type="Resource" id="1_effect"]
+script = ExtResource("2_card_effect")
+trigger = &"battlecry"
+action = &"draw_cards"
+target_mode = &"self_owner"
+value = 1
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"tavern_bouncer"
+display_name = "Vyhazovač"
+card_type = 0
+cost = 6
+attack = 6
+life = 6
+rules_text = "Ochrana.\nBojový nástup: lízni 1 kartu."
+keywords = [&"guard", &"battlecry"]
+effects = [SubResource("1_effect")]
+art_path = ""
+frame_variant = &"default"

@@ -623,7 +623,7 @@ func _create_card_instance(card_id: StringName, owner_id: int) -> CardInstance:
 	instance.owner_id = owner_id
 	instance.current_attack = card_definition.attack
 	instance.current_life = card_definition.life
-	instance.can_attack = card_definition.keywords.has(CardGameConstants.KEYWORD_QUICK_PAWS)
+	instance.can_attack = false
 	instance.has_attacked = false
 	return instance
 
@@ -643,6 +643,7 @@ func _reset_card_instance_runtime_state(card_instance: CardInstance) -> void:
 	card_instance.temporary_attack_bonus = 0
 	card_instance.temporary_life_bonus = 0
 	card_instance.temporary_keywords.clear()
+	card_instance.granted_keywords.clear()
 
 
 func _clear_end_of_turn_modifiers(player_state: PlayerBattleState) -> void:
@@ -855,6 +856,13 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				opposing_state.discard.append(wrecked_item)
 				_set_lane_feedback_for_card(target_card, "PREDMET PRYC", LaneSlotView.EVENT_DAMAGE)
 				summaries.append("%s strhne %s z %s." % [owner_state.display_name, wrecked_item.definition.display_name, target_card.definition.display_name])
+			&"grant_keyword":
+				if target_card == null or typed_effect.keyword_arg == StringName():
+					continue
+				if not target_card.granted_keywords.has(typed_effect.keyword_arg):
+					target_card.granted_keywords.append(typed_effect.keyword_arg)
+				_set_lane_feedback_for_card(target_card, "+%s" % CardGameConstants.keyword_label(typed_effect.keyword_arg).to_upper(), LaneSlotView.EVENT_SUPPORT)
+				summaries.append("%s získá %s." % [target_card.definition.display_name, CardGameConstants.keyword_label(typed_effect.keyword_arg)])
 
 	return summaries
 
@@ -871,6 +879,14 @@ func _modify_host_by_item(item: CardInstance, host: CardInstance, sign: int) -> 
 				host.current_attack = maxi(0, host.current_attack + sign * typed_effect.value)
 			&"modify_life":
 				_adjust_card_life(host, sign * typed_effect.value)
+			&"grant_keyword":
+				if typed_effect.keyword_arg == StringName():
+					continue
+				if sign > 0:
+					if not host.granted_keywords.has(typed_effect.keyword_arg):
+						host.granted_keywords.append(typed_effect.keyword_arg)
+				else:
+					host.granted_keywords.erase(typed_effect.keyword_arg)
 
 
 func _find_item_steal_host(owner_state: PlayerBattleState) -> CardInstance:
@@ -989,6 +1005,10 @@ func _setup_battle() -> void:
 
 	var player_state := PlayerBattleState.new()
 	player_state.initialize(PLAYER_ID, "Hrac", STARTING_LIFE, STARTING_TUNA, PLAYER_TABLE_POWER_ID, LANE_COUNT)
+	# The player's first turn is the opening setup (no _start_turn call), so their next
+	# _start_turn (turn 2) should ramp normally. The enemy keeps has_started_turn = false
+	# so its first turn opens on STARTING_TUNA instead of an unfair +1.
+	player_state.has_started_turn = true
 
 	var enemy_state := PlayerBattleState.new()
 	var enemy_name := "Soupeř"
@@ -1499,7 +1519,12 @@ func _should_end_run_from_postmatch() -> bool:
 
 
 func _start_turn(player_state: PlayerBattleState) -> void:
-	player_state.tuna_max = mini(player_state.tuna_max + 1, MAX_TUNA)
+	# The very first turn a player takes does not ramp Tuna (both open on STARTING_TUNA).
+	# Only ramp from the second turn onward.
+	if player_state.has_started_turn:
+		player_state.tuna_max = mini(player_state.tuna_max + 1, MAX_TUNA)
+	else:
+		player_state.has_started_turn = true
 	player_state.tuna_current = player_state.tuna_max
 	player_state.table_power_used_this_turn = false
 	player_state.immediate_entry_attack_used_this_turn = false
@@ -1955,6 +1980,8 @@ func _describe_target_preview(card_instance: CardInstance, target_card: CardInst
 				parts.append("ukradne predmet")
 			&"destroy_item":
 				parts.append("znici predmet")
+			&"grant_keyword":
+				parts.append("+%s" % CardGameConstants.keyword_label(typed_effect.keyword_arg))
 
 	if parts.is_empty():
 		return "bez efektu"
@@ -1998,6 +2025,9 @@ func _build_target_preview_banner(card_instance: CardInstance, target_card: Card
 			&"destroy_item":
 				parts.append("ZNICI")
 				tone = LaneSlotView.EVENT_DAMAGE
+			&"grant_keyword":
+				parts.append("+%s" % CardGameConstants.keyword_label(typed_effect.keyword_arg).to_upper())
+				tone = LaneSlotView.EVENT_SUPPORT
 
 	if parts.is_empty():
 		return preview

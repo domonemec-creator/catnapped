@@ -26,7 +26,7 @@ These must stop moving for MVP.
 - `Fish Tokens` are post-match reward currency only
 - Board has `3 lanes`
 - Cats attack the opposite lane by default
-- `Quick Paws` = can attack on the turn it is played
+- `Quick Paws` = only one newly played Cat with this keyword may attack immediately each turn
 - `Pounce` = can attack opposite or adjacent lane
 - `Guard` = intercepts direct damage through its lane and adjacent lanes
 - One run system is out of scope until one battle works
