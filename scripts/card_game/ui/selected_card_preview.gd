@@ -241,7 +241,8 @@ func _apply_content(layout: Dictionary) -> void:
     type_label.add_theme_color_override("font_color", layout["accent_color"])
     var art_background: Color = layout["art_bg"]
     if _display_mode == DISPLAY_BOARD:
-        art_background = Color(art_background.r, art_background.g, art_background.b, minf(art_background.a, 0.18))
+        # Solid warm fill so the lane tint (red/green) can't bleed through an empty art window.
+        art_background = Color(0.15, 0.11, 0.08, 1.0)
     art_rect.add_theme_stylebox_override("panel", _build_panel_style(art_background, Color(0, 0, 0, 0)))
     type_badge.add_theme_stylebox_override("panel", _build_panel_style(layout["badge_bg"], layout["badge_border"]))
 
@@ -251,22 +252,20 @@ func _apply_content(layout: Dictionary) -> void:
 func _refresh_art(layout: Dictionary) -> void:
     var definition = _card_instance.definition
     art_texture.texture = null
-    if definition.art_path.is_empty():
-        art_texture.visible = false
-        art_label.visible = not str(layout["placeholder"]).is_empty()
-        art_label.text = str(layout["placeholder"])
+
+    var texture: Texture2D = null
+    if not definition.art_path.is_empty():
+        texture = load(definition.art_path) as Texture2D
+
+    if texture != null:
+        art_texture.texture = texture
+        art_texture.visible = true
+        art_label.visible = false
         return
 
-    var texture := load(definition.art_path) as Texture2D
-    if texture == null:
-        art_texture.visible = false
-        art_label.visible = not str(layout["placeholder"]).is_empty()
-        art_label.text = str(layout["placeholder"])
-        return
-
-    art_texture.texture = texture
-    art_texture.visible = true
-    art_label.visible = false
+    art_texture.visible = false
+    art_label.visible = not str(layout["placeholder"]).is_empty()
+    art_label.text = str(layout["placeholder"])
 
 
 func _apply_rect(control: Control, rect: Rect2, scale: float) -> void:

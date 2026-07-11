@@ -28,7 +28,7 @@ const STARTING_TUNA := 3
 const MAX_TUNA := 7
 const STARTING_HAND := 3
 const PLAYER_DECK_ID := &"starter_player"
-const PLAYER_TABLE_POWER_ID := &"treat_toss"
+const PLAYER_TABLE_POWER_ID := &""
 const ENCOUNTER_PATH := "res://data/encounters/smug_tabby.tres"
 const DEFAULT_ENCOUNTER_ID := &"smug_tabby"
 const ENCOUNTER_SELECT_SCENE_PATH := "res://scenes/card_game/encounter_select.tscn"
@@ -1295,6 +1295,26 @@ func _send_to_discard(owner_state: PlayerBattleState, slot: LaneSlotState) -> vo
 		dead_card.attached_item_instance_id = -1
 	_resolve_triggered_effects(dead_card, owner_state, CardGameConstants.TRIGGER_LAST_BREATH)
 	owner_state.discard.append(dead_card)
+	# Feast: any other cat that survives this death grows +1/+1. The dead cat is
+	# already off the board, so it never feasts on its own death.
+	_trigger_feast_for_death()
+
+
+func _trigger_feast_for_death() -> void:
+	if _battle_state == null:
+		return
+	for state in _battle_state.player_states:
+		if state == null:
+			continue
+		for slot in state.board:
+			if slot == null or slot.occupant == null:
+				continue
+			var cat := slot.occupant
+			if not cat.has_keyword(CardGameConstants.KEYWORD_FEAST):
+				continue
+			cat.current_attack += 1
+			cat.current_life += 1
+			_set_lane_feedback_for_card(cat, "HOSTINA +1/+1", LaneSlotView.EVENT_SUPPORT)
 
 
 func _resolve_triggered_effects(card_instance: CardInstance, owner_state: PlayerBattleState, trigger: StringName) -> void:
@@ -1635,12 +1655,14 @@ func _refresh_ui() -> void:
 	_sync_battle_feed()
 
 	if _battle_state.battle_over:
+		table_power_button.visible = true
 		table_power_button.disabled = true
 		table_power_button.text = "Síla stolu"
 		end_turn_button.text = "Znovu"
 		end_turn_button.disabled = false
 	else:
 		var player_power := _get_table_power_definition(player_state)
+		table_power_button.visible = true
 		if player_power == null:
 			table_power_button.text = "Bez Sily stolu"
 			table_power_button.disabled = true
@@ -1779,8 +1801,15 @@ func _refresh_selected_panel() -> void:
 		"Vybrana karta",
 		"NIC VYBRÁNO",
 		"Vyber kartu z ruky pro vyložení, nebo klikni připravenou kočku na své straně pro útok.",
-		_build_idle_panel_hint(player_state, enemy_state)
+		_build_simple_idle_hint(player_state, enemy_state)
 	)
+
+
+func _build_simple_idle_hint(player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> String:
+	var warning := _build_enemy_lethal_warning(player_state, enemy_state)
+	if not warning.is_empty():
+		return "%s\nVyloz blok nebo zavri otevrenou lajnu." % warning
+	return "Vyloz kocku do prazdne lajny, nebo klikni pripravenou kocku na sve strane a pak vyber cil utoku."
 
 
 func _set_selected_panel_copy(title: String, meta: String, detail: String, hint: String) -> void:

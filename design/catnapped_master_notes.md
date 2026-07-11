@@ -286,6 +286,7 @@ Aktuálně implementované:
 - `Quick Paws`
 - `Guard`
 - `Pounce`
+- `Feast` (Hostina)
 
 Význam:
 
@@ -294,6 +295,7 @@ Význam:
 - `Quick Paws`: může útočit hned v tahu, kdy přišla
 - `Guard`: interceptuje direct damage v lane a sousedních lanes
 - `Pounce`: může útočit do opposite nebo adjacent lane
+- `Feast` (Hostina): když umře **jakákoliv jiná kočka** (vlastní i nepřátelská), tahle získá +1/+1 **napevno**. Roste během boje; netrigguje se na vlastní smrt. Implementace: `_trigger_feast_for_death()` v `battle_controller.gd` při každé smrti.
 
 ---
 
@@ -347,7 +349,9 @@ Filozofie (rozhodnuto 2026-06-18):
 | Rafter Pouncer | 3 | 4 | 1 | Pounce |
 | Wharf Cutthroat | 3 | 3 | 2 | Quick Paws |
 | Netclaw Raider | 3 | 3 | 2 | Pounce |
+| Mrchožravý slídil (Carrion Prowler) | 3 | 2 | 3 | Feast (Hostina) |
 | Dockside Bruiser | 4 | 3 | 6 | Battlecry: Heal 1 Life. Last Breath: Draw 1 card |
+| Hřbitovní hodovník (Graveyard Glutton) | 4 | 3 | 4 | Feast (Hostina) |
 | Boilerback Guardian | 4 | 2 | 6 | Guard. Last Breath: Heal 1 Life |
 | Captain Ironmaw | 5 | 4 | 5 | Battlecry: Draw 1 card |
 | Vyhazovač (Bouncer) | 6 | 6 | 6 | Guard. Battlecry: Draw 1 card (6-drop finisher) |
@@ -379,7 +383,7 @@ Keyword-grantující itemy jedou přes nový efekt `grant_keyword` (viz 11.3) �
 
 Shrnutí:
 
-- card pool aktuálně obsahuje `24` karet / tokenů
+- card pool aktuálně obsahuje `26` karet / tokenů
 - unit část už má slušný základ; nově **6-drop finisher Vyhazovač** dává smysl hornímu konci Tuna křivky (řeší „strop ekonomiky")
 - support část už není fake placeholder, je funkční i pro AI
 - **Sticky Paws / Pry Bar** jsou zařazené do **reward poolu** (získatelné v runu); Přístavní strážný je nově **gear deck** (4 itemy) → krádež/pálení proti němu reálně funguje.
@@ -934,6 +938,22 @@ Když budeme pokračovat:
 ---
 
 ## 20. Update log
+
+### 2026-06-20 — Board: kompaktní token místo ornátního rámu
+
+- **Placené kočky se renderují jako kompaktní token**, ne zmenšený ornátní full-card rám (ten měl prázdné okno/stuhu/pergamen → vypadal jako placeholder). Token = tmavý panel s rámečkem: cost vlevo nahoře, keyword vpravo nahoře, jméno na střed, velké ATK vlevo dole / HP vpravo dole. Postaveno programově v `lane_slot_view.gd` (`_build_token_panel` — labely pozicované kotvami na prostém Controlu, ne nested kontejnery, které ve slotu nedistribuovaly spolehlivě). `card_preview` (ornátní) se na boardu skryl; používá se dál jen v detailu vpravého panelu.
+- Token reflektuje stav: ATK/HP zezelená při buffu, HP zčervená při zranění; rámeček bere barvu strany / highlightu / zranění (`_style_token`). Sleduje `_apply_side_accent`.
+- **Předtím opraven color-bleed** v `selected_card_preview.gd`: prázdné art okno mělo na boardu alpha 0.18 → prosvítalo jím zabarvení stolu (to byly „barevné placeholdery"); teď plný neutrální fill.
+- **Ověřeno:** `verify_lane_slot_view` aktualizován a potvrzuje, že token plní jméno + ATK + HP; celá suita 18 skriptů prošla.
+- ⚠️ **Vizuální dolad k potvrzení v živém editoru** — moje real-window capture byly nespolehlivé (flaky placement/timing). Pozice/velikosti tokenu a případné překryvy je nejlepší zkontrolovat naživo.
+
+### 2026-06-20 — Nový keyword Feast (Hostina) + 2 karty
+
+- **Nový keyword `Feast` (Hostina):** když umře jakákoliv jiná kočka (vlastní i nepřátelská), Feast kočka získá +1/+1 napevno. Roste během boje, odměňuje trading — sedí k jednosměrnému combatu. Netrigguje se na vlastní smrt (mrtvá je z boardu pryč dřív, než se Feast spustí).
+- **Implementace:** `KEYWORD_FEAST` v `card_game_constants.gd`; `_trigger_feast_for_death()` v `battle_controller.gd` (voláno z `_send_to_discard` při každé smrti, projde oba boardy). AI: `_score_keyword_value` valuuje Feast podle obsazenosti boardu (víc těl = víc budoucích smrtí).
+- **2 nové Feast kočky:** `carrion_prowler` (Mrchožravý slídil, 3 Tuna 2/3) a `graveyard_glutton` (Hřbitovní hodovník, 4 Tuna 3/4). Zařazeny do reward poolu + upgrade cesta.
+- **Ověřeno:** nový `tools/verify_feast.gd` (cizí smrt → +1/+1; vlastní smrt netrigguje; 2 smrti → +2/+2). Celá verify suita: **18 skriptů, 0 selhání.**
+- Card pool teď 26 karet/tokenů. Sekce 5 (keywordy) + 7 (pool) aktualizované.
 
 ### 2026-06-20 — Starter deck turnaj (přestavba na TEMPO)
 

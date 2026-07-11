@@ -186,7 +186,20 @@ func _score_keyword_value(card: CardInstance, lane_index: int, defender_state: P
     if card.has_keyword(CardGameConstants.KEYWORD_GUARD):
         score += 2.0
 
+    if card.has_keyword(CardGameConstants.KEYWORD_FEAST):
+        # Sticky long-game value: worth more when the board is contested (more deaths coming).
+        score += 2.0
+        score += float(_count_board_occupants(defender_state)) * 1.0
+
     return score
+
+
+func _count_board_occupants(state: PlayerBattleState) -> int:
+    var count := 0
+    for slot in state.board:
+        if slot != null and slot.occupant != null:
+            count += 1
+    return count
 
 
 func _score_future_pounce_value(lane_index: int, defender_state: PlayerBattleState) -> float:

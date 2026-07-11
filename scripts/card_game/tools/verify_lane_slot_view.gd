@@ -74,17 +74,20 @@ func _run() -> void:
 
 	slot.set_card_instance(wounded_card)
 
-	if not slot.card_preview.visible:
-		_fail("Occupied lane should show the compact card preview.")
+	if not slot._token_panel.visible:
+		_fail("Occupied lane should show the compact token.")
 		return
 	if slot.empty_frame.visible:
 		_fail("Occupied lane should hide the empty slot frame.")
 		return
-	if not slot.name_ribbon.visible:
-		_fail("Occupied lane should show the name ribbon.")
+	if slot._token_name.text != wounded_card.definition.display_name:
+		_fail("Token did not show the card display name.")
 		return
-	if slot.occupant_label.text != wounded_card.definition.display_name:
-		_fail("Lane name ribbon did not show the card display name.")
+	if slot._token_attack.text != str(wounded_card.current_attack):
+		_fail("Token did not show the card attack value.")
+		return
+	if slot._token_life.text != str(wounded_card.current_life):
+		_fail("Token did not show the card life value.")
 		return
 	if not slot.wound_glow.visible:
 		_fail("Wounded lane card was not visually marked.")

@@ -45,6 +45,15 @@ var _preview_event_text: String = ""
 var _preview_event_tone: StringName = &"neutral"
 static var _ui_texture_cache: Dictionary = {}
 
+# Compact board token (built in code) shown for a placed cat instead of the
+# shrunk ornate full-card frame, which looked like an empty placeholder.
+var _token_panel: PanelContainer
+var _token_cost: Label
+var _token_keyword: Label
+var _token_name: Label
+var _token_attack: Label
+var _token_life: Label
+
 const OWNER_PLAYER := 0
 const OWNER_ENEMY := 1
 
@@ -262,6 +271,7 @@ func _ready() -> void:
 	event_panel.visible = false
 	event_background.visible = false
 	event_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	_build_token_panel()
 	_make_children_click_through(self)
 	_apply_side_accent()
 	_refresh_slot_contents()
@@ -336,14 +346,20 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 
 func _refresh_slot_contents() -> void:
 	var has_card := _card_instance != null and _card_instance.definition != null
-	card_preview.set_card_instance(_card_instance)
-	card_preview.visible = has_card
+	# Board now renders a compact code-built token, not the ornate full-card preview.
+	card_preview.set_card_instance(null)
+	card_preview.visible = false
 	card_shadow.visible = has_card
 	wound_glow.visible = has_card and _is_card_wounded(_card_instance)
 	empty_frame.visible = not has_card
 	empty_label.visible = not has_card
 	empty_hint_label.visible = false
-	name_ribbon.visible = has_card
+	name_ribbon.visible = false
+
+	if _token_panel != null:
+		_token_panel.visible = has_card
+		if has_card:
+			_populate_token()
 
 	if has_card:
 		occupant_label.text = _card_instance.definition.display_name
@@ -383,6 +399,113 @@ func _apply_side_accent() -> void:
 	empty_frame_texture.modulate = _empty_frame_modulate()
 	target_ring_center.visible = target_ring.texture != null and _should_show_target_ring()
 	slot_glow.visible = false
+	if _card_instance != null and _card_instance.definition != null:
+		_style_token()
+
+
+func _build_token_panel() -> void:
+	_token_panel = PanelContainer.new()
+	_token_panel.anchor_right = 1.0
+	_token_panel.anchor_bottom = 1.0
+	_token_panel.offset_left = 6.0
+	_token_panel.offset_top = 6.0
+	_token_panel.offset_right = -6.0
+	_token_panel.offset_bottom = -6.0
+	_token_panel.visible = false
+	slot_shell.add_child(_token_panel)
+	# Sit just above the card layer but below the event/KO/flash overlays.
+	slot_shell.move_child(_token_panel, 3)
+
+	# Free-layout content so labels are placed by anchors (nested HBox/VBox
+	# wouldn't distribute reliably inside the slot's container chain).
+	var content := Control.new()
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_token_panel.add_child(content)
+
+	_token_cost = _make_token_label("0", 24, HORIZONTAL_ALIGNMENT_LEFT, VERTICAL_ALIGNMENT_TOP)
+	_place_token_label(content, _token_cost, 0.0, 0.0, 0.0, 0.0, 8.0, 6.0, 64.0, 42.0)
+
+	_token_keyword = _make_token_label("", 12, HORIZONTAL_ALIGNMENT_RIGHT, VERTICAL_ALIGNMENT_TOP)
+	_place_token_label(content, _token_keyword, 0.0, 0.0, 1.0, 0.0, 60.0, 8.0, -8.0, 36.0)
+
+	_token_name = _make_token_label("", 15, HORIZONTAL_ALIGNMENT_CENTER, VERTICAL_ALIGNMENT_CENTER)
+	_token_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_place_token_label(content, _token_name, 0.0, 0.0, 1.0, 1.0, 8.0, 34.0, -8.0, -42.0)
+
+	_token_attack = _make_token_label("0", 26, HORIZONTAL_ALIGNMENT_LEFT, VERTICAL_ALIGNMENT_BOTTOM)
+	_place_token_label(content, _token_attack, 0.0, 1.0, 0.0, 1.0, 8.0, -46.0, 70.0, -6.0)
+
+	_token_life = _make_token_label("0", 26, HORIZONTAL_ALIGNMENT_RIGHT, VERTICAL_ALIGNMENT_BOTTOM)
+	_place_token_label(content, _token_life, 1.0, 1.0, 1.0, 1.0, -70.0, -46.0, -8.0, -6.0)
+
+
+func _make_token_label(text: String, font_size: int, halign: int, valign: int) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.horizontal_alignment = halign
+	label.vertical_alignment = valign
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_size_override("font_size", font_size)
+	return label
+
+
+func _place_token_label(parent: Control, label: Label, al: float, at: float, ar: float, ab: float, ol: float, ot: float, orr: float, ob: float) -> void:
+	parent.add_child(label)
+	label.anchor_left = al
+	label.anchor_top = at
+	label.anchor_right = ar
+	label.anchor_bottom = ab
+	label.offset_left = ol
+	label.offset_top = ot
+	label.offset_right = orr
+	label.offset_bottom = ob
+
+
+func _populate_token() -> void:
+	if _token_panel == null or _card_instance == null or _card_instance.definition == null:
+		return
+	var def = _card_instance.definition
+	_token_cost.text = str(def.cost)
+	_token_name.text = def.display_name
+	_token_attack.text = str(_card_instance.current_attack)
+	_token_life.text = str(_card_instance.current_life)
+
+	var keywords: Array = def.keywords
+	if keywords.size() > 0:
+		var keyword_text := str(CardGameConstants.keyword_label(keywords[0]))
+		if keywords.size() > 1:
+			keyword_text += " +%s" % (keywords.size() - 1)
+		_token_keyword.text = keyword_text
+		_token_keyword.visible = true
+	else:
+		_token_keyword.visible = false
+
+	var wounded := _is_card_wounded(_card_instance)
+	var base_attack: int = def.attack
+	var base_life: int = def.life
+	var buffed_life: bool = _card_instance.current_life > base_life
+	_token_cost.add_theme_color_override("font_color", Color(0.74, 0.88, 1.0))
+	_token_keyword.add_theme_color_override("font_color", Color(0.9, 0.84, 0.6))
+	_token_name.add_theme_color_override("font_color", Color(0.97, 0.94, 0.86))
+	var attack_color: Color = Color(0.6, 0.95, 0.62) if _card_instance.current_attack > base_attack else Color(0.99, 0.76, 0.36)
+	_token_attack.add_theme_color_override("font_color", attack_color)
+	var life_color: Color = Color(0.96, 0.5, 0.45) if wounded else (Color(0.6, 0.95, 0.62) if buffed_life else Color(0.96, 0.86, 0.7))
+	_token_life.add_theme_color_override("font_color", life_color)
+
+	_style_token()
+
+
+func _style_token() -> void:
+	if _token_panel == null:
+		return
+	var side_theme: Dictionary = SIDE_THEMES.get(owner_id, SIDE_THEMES[OWNER_PLAYER])
+	var bg := Color(0.13, 0.1, 0.08, 1.0)
+	var border: Color = side_theme["ribbon_border"]
+	if _is_card_wounded(_card_instance):
+		border = border.lerp(Color(0.95, 0.34, 0.3, 0.98), 0.7)
+	if _current_highlight_mode != HIGHLIGHT_NONE and not _should_show_target_ring():
+		border = HIGHLIGHT_BORDER_COLORS.get(_current_highlight_mode, border)
+	_token_panel.add_theme_stylebox_override("panel", _build_style_box(bg, border, 12, 2, 8, Color(0, 0, 0, 0.35)))
 
 
 func _refresh_status_badge() -> void:

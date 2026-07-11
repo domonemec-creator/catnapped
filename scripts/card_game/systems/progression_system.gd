@@ -431,98 +431,99 @@ func _get_upgrade_lines_for_deck(deck_id: StringName) -> Dictionary:
 
 
 func _apply_smug_tabby_profile(deck_cards: Array[StringName], threat_level: int) -> void:
-	# Control: trades early bodies for removal + sustain + finishers.
+	# Simple-core control: threat adds heavier blockers and value cats,
+	# not off-board tricks or item spikes.
 	if threat_level >= 1:
-		_replace_first(deck_cards, &"candlepaw_scout", &"hidden_claws")
+		_replace_first(deck_cards, &"fishbone_skulker", &"dockside_bruiser")
 	if threat_level >= 2:
-		_replace_first(deck_cards, &"alley_scrapper", &"hidden_claws")
+		_replace_first(deck_cards, &"alley_scrapper", &"boilerback_guardian")
 	if threat_level >= 3:
-		_replace_first(deck_cards, &"alley_scrapper", &"fish_toss")
+		_replace_first(deck_cards, &"fishbone_skulker", &"captain_ironmaw")
 	if threat_level >= 4:
-		_replace_first(deck_cards, &"fishbone_skulker", &"iron_bowl")
+		_replace_first(deck_cards, &"alley_scrapper", &"tavern_mouser")
 	if threat_level >= 5:
-		_replace_first(deck_cards, &"tavern_mouser", &"spiked_collar")
+		_replace_first(deck_cards, &"fishbone_skulker", &"boilerback_guardian")
 	if threat_level >= 6:
-		_replace_first(deck_cards, &"fishbone_skulker", &"table_flip")
+		_replace_first(deck_cards, &"alley_scrapper", &"captain_ironmaw")
 	if threat_level >= 7:
-		_replace_first(deck_cards, &"dockside_bruiser", &"captain_ironmaw")
+		_replace_first(deck_cards, &"dockside_bruiser", &"boilerback_guardian")
 	if threat_level >= 8:
-		_replace_first(deck_cards, &"tavern_mouser", &"gaff_hook")
+		_replace_first(deck_cards, &"tavern_mouser", &"dockside_bruiser")
 	if threat_level >= 9:
-		_replace_first(deck_cards, &"dockside_bruiser", &"tavern_bouncer")
+		_replace_first(deck_cards, &"dockside_bruiser", &"captain_ironmaw")
 	if threat_level >= 10:
 		_replace_first(deck_cards, &"tavern_mouser", &"boilerback_guardian")
 
 
 func _apply_ragclaw_brawler_profile(deck_cards: Array[StringName], threat_level: int) -> void:
-	# Rush: doubles down on reach, burst and Pounce pressure.
+	# Simple-core rush: more Quick Paws/Pounce density, no hand-burst tricks.
 	if threat_level >= 1:
-		_replace_first(deck_cards, &"fishbone_skulker", &"hidden_claws")
+		_replace_first(deck_cards, &"alley_scrapper", &"candlepaw_scout")
 	if threat_level >= 2:
-		_replace_first(deck_cards, &"alley_scrapper", &"fish_toss")
+		_replace_first(deck_cards, &"alley_scrapper", &"wharf_cutthroat")
 	if threat_level >= 3:
-		_replace_first(deck_cards, &"alley_scrapper", &"spiked_collar")
+		_replace_first(deck_cards, &"candlepaw_scout", &"netclaw_raider")
 	if threat_level >= 4:
-		_replace_first(deck_cards, &"candlepaw_scout", &"catnip_burst")
+		_replace_first(deck_cards, &"alley_scrapper", &"rafter_pouncer")
 	if threat_level >= 5:
-		_replace_first(deck_cards, &"dockside_bruiser", &"wharf_cutthroat")
+		_replace_first(deck_cards, &"candlepaw_scout", &"wharf_cutthroat")
 	if threat_level >= 6:
-		_replace_first(deck_cards, &"alley_scrapper", &"table_flip")
+		_replace_first(deck_cards, &"alley_scrapper", &"netclaw_raider")
 	if threat_level >= 7:
-		_replace_first(deck_cards, &"candlepaw_scout", &"hidden_claws")
+		_replace_first(deck_cards, &"candlepaw_scout", &"rafter_pouncer")
 	if threat_level >= 8:
-		_replace_first(deck_cards, &"rafter_pouncer", &"netclaw_raider")
+		_replace_first(deck_cards, &"candlepaw_scout", &"wharf_cutthroat")
 	if threat_level >= 9:
-		_replace_first(deck_cards, &"rafter_pouncer", &"netclaw_raider")
+		_replace_first(deck_cards, &"candlepaw_scout", &"netclaw_raider")
 	if threat_level >= 10:
-		_replace_first(deck_cards, &"captain_ironmaw", &"wharf_cutthroat")
+		_replace_first(deck_cards, &"wharf_cutthroat", &"rafter_pouncer")
 
 
 func _apply_harbor_warden_profile(deck_cards: Array[StringName], threat_level: int) -> void:
 	if threat_level >= 1:
-		_replace_first(deck_cards, &"candlepaw_scout", &"hidden_claws")
+		_replace_first(deck_cards, &"fishbone_skulker", &"dockside_bruiser")
 	if threat_level >= 2:
-		_replace_first(deck_cards, &"tavern_mouser", &"fish_toss")
+		_replace_first(deck_cards, &"alley_scrapper", &"tavern_mouser")
 	if threat_level >= 3:
-		_replace_first(deck_cards, &"alley_scrapper", &"wharf_cutthroat")
+		_replace_first(deck_cards, &"wharf_cutthroat", &"boilerback_guardian")
 	if threat_level >= 4:
-		_replace_first(deck_cards, &"dockside_bruiser", &"boilerback_guardian")
+		_replace_first(deck_cards, &"fishbone_skulker", &"captain_ironmaw")
 	if threat_level >= 5:
-		_replace_first(deck_cards, &"wharf_cutthroat", &"captain_ironmaw")
+		_replace_first(deck_cards, &"alley_scrapper", &"boilerback_guardian")
 	if threat_level >= 6:
-		_replace_first(deck_cards, &"boilerback_guardian", &"iron_bowl")
+		_replace_first(deck_cards, &"wharf_cutthroat", &"dockside_bruiser")
 	if threat_level >= 7:
-		_replace_first(deck_cards, &"tavern_mouser", &"table_flip")
+		_replace_first(deck_cards, &"tavern_mouser", &"captain_ironmaw")
 	if threat_level >= 8:
-		_replace_first(deck_cards, &"fishbone_skulker", &"netclaw_raider")
+		_replace_first(deck_cards, &"tavern_mouser", &"boilerback_guardian")
 	if threat_level >= 9:
-		_replace_first(deck_cards, &"dockside_bruiser", &"hidden_claws")
+		_replace_first(deck_cards, &"dockside_bruiser", &"captain_ironmaw")
 	if threat_level >= 10:
-		_replace_first(deck_cards, &"candlepaw_scout", &"boilerback_guardian")
+		_replace_first(deck_cards, &"tavern_mouser", &"boilerback_guardian")
 
 
 func _apply_lantern_striker_profile(deck_cards: Array[StringName], threat_level: int) -> void:
-	# Tempo: curves out with Pounce, buffs and reach, capping with mid/top threats.
+	# Simple-core tempo: more mobility and immediate pressure, no hidden hand blows.
 	if threat_level >= 1:
-		_replace_first(deck_cards, &"tavern_mouser", &"catnip_burst")
+		_replace_first(deck_cards, &"fishbone_skulker", &"candlepaw_scout")
 	if threat_level >= 2:
-		_replace_first(deck_cards, &"alley_scrapper", &"hidden_claws")
+		_replace_first(deck_cards, &"alley_scrapper", &"wharf_cutthroat")
 	if threat_level >= 3:
-		_replace_first(deck_cards, &"alley_scrapper", &"fish_toss")
+		_replace_first(deck_cards, &"fishbone_skulker", &"netclaw_raider")
 	if threat_level >= 4:
 		_replace_first(deck_cards, &"candlepaw_scout", &"rafter_pouncer")
 	if threat_level >= 5:
-		_replace_first(deck_cards, &"dockside_bruiser", &"wharf_cutthroat")
+		_replace_first(deck_cards, &"alley_scrapper", &"netclaw_raider")
 	if threat_level >= 6:
-		_replace_first(deck_cards, &"candlepaw_scout", &"netclaw_raider")
+		_replace_first(deck_cards, &"fishbone_skulker", &"wharf_cutthroat")
 	if threat_level >= 7:
-		_replace_first(deck_cards, &"catnip_burst", &"table_flip")
+		_replace_first(deck_cards, &"candlepaw_scout", &"rafter_pouncer")
 	if threat_level >= 8:
-		_replace_first(deck_cards, &"dockside_bruiser", &"captain_ironmaw")
+		_replace_first(deck_cards, &"alley_scrapper", &"netclaw_raider")
 	if threat_level >= 9:
-		_replace_first(deck_cards, &"fish_toss", &"hunters_harness")
+		_replace_first(deck_cards, &"candlepaw_scout", &"wharf_cutthroat")
 	if threat_level >= 10:
-		_replace_first(deck_cards, &"rafter_pouncer", &"boilerback_guardian")
+		_replace_first(deck_cards, &"candlepaw_scout", &"rafter_pouncer")
 
 
 func _get_upgrade_line(upgrade_lines: Dictionary, level: int, gaining: bool) -> String:

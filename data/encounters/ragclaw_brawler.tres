@@ -9,5 +9,5 @@ display_name = "Ragclaw rvac"
 npc_name = "Ragclaw rvac"
 portrait_path = "res://assets/card_game/card_art/dockside_bruiser.png"
 deck_id = &"npc_ragclaw_brawler"
-table_power_id = &"treat_toss"
+table_power_id = &""
 starting_life = 10

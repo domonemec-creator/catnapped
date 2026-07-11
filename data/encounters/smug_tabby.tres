@@ -9,5 +9,5 @@ display_name = "Namysleny kocour"
 npc_name = "Namysleny kocour"
 portrait_path = "res://assets/card_game/ui/postmatch_smug_tabby.png"
 deck_id = &"npc_smug_tabby"
-table_power_id = &"smug_glare"
+table_power_id = &""
 starting_life = 10

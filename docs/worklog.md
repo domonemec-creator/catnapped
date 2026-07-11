@@ -14,6 +14,13 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-07-07 - Jednoduchy zaklad osekal defaultni obsah na cat-only core
+- Oblast: game clarity, default content
+- Soubory: `data/decks/starter_player.tres`, `data/decks/npc_smug_tabby.tres`, `data/decks/npc_ragclaw_brawler.tres`, `data/decks/npc_harbor_warden.tres`, `data/decks/npc_lantern_striker.tres`, `data/encounters/*.tres`, `scripts/card_game/systems/battle_controller.gd`, `scripts/card_game/systems/run_session.gd`, `scripts/card_game/systems/progression_system.gd`, `scripts/card_game/tools/verify_threat_progression.gd`, `docs/decisions.md`
+- Zmena: Defaultni hra uz v prvnich bojich nepouziva itemy, hand-damage triky ani table powers. Starter, NPC decky a reward pool zustaly na kockach a citelnych keywordech; powers zustaly v kodu, ale nejsou zapnute v beznem jednoduchem zakladu.
+- Overeni: cela sada `verify_*.gd` prosla (`verify_battle_feedback.gd`, `verify_battle_layout.gd`, `verify_battle_previews.gd`, `verify_encounter_select.gd`, `verify_enemy_ai_support.gd`, `verify_feast.gd`, `verify_item_steal_burn.gd`, `verify_lane_slot_view.gd`, `verify_life_floor.gd`, `verify_progression_navigation.gd`, `verify_progression_screen.gd`, `verify_reward_flow.gd`, `verify_run_completion.gd`, `verify_run_failure.gd`, `verify_run_flow.gd`, `verify_table_power_ai.gd`, `verify_threat_progression.gd`, `verify_trick_item.gd`)
+- Dalsi krok: Po potvrzeni verifieru doplnit dalsi citelnostni vrstvu pro hrace, hlavne pocet karet v ruce soupere a explicitni log `kdo co zahral`.
+
 ### 2026-06-20 - Quick Paws je omezeno na jednu okamzite utocici novou kocku za tah
 - Oblast: battle rules, AI fairness
 - Soubory: `scripts/card_game/runtime/player_battle_state.gd`, `scripts/card_game/runtime/card_instance.gd`, `scripts/card_game/systems/battle_controller.gd`, `scripts/card_game/tools/verify_enemy_ai_support.gd`, `scripts/card_game/tools/verify_table_power_ai.gd`, `scripts/card_game/tools/verify_battle_feedback.gd`, `scripts/card_game/tools/verify_battle_previews.gd`, `scripts/card_game/tools/capture_battle_feedback.gd`, `scripts/card_game/tools/capture_battle_highlights.gd`, `data/cards/candlepaw_scout.tres`, `data/cards/wharf_cutthroat.tres`, `design/catnapped_master_notes.md`, `design/cat_table_mvp_checklist.md`, `design/cat_table_hearthstone_hybrid.md`, `design/cat_table_godot_schema.md`, `docs/decisions.md`

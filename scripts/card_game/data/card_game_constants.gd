@@ -12,6 +12,7 @@ const KEYWORD_LAST_BREATH := &"last_breath"
 const KEYWORD_QUICK_PAWS := &"quick_paws"
 const KEYWORD_GUARD := &"guard"
 const KEYWORD_POUNCE := &"pounce"
+const KEYWORD_FEAST := &"feast"
 
 const TRIGGER_BATTLECRY := &"battlecry"
 const TRIGGER_LAST_BREATH := &"last_breath"
@@ -32,6 +33,7 @@ const KEYWORD_LABELS := {
     KEYWORD_QUICK_PAWS: "Rychle tlapy",
     KEYWORD_GUARD: "Ochrana",
     KEYWORD_POUNCE: "Vypad",
+    KEYWORD_FEAST: "Hostina",
 }
 
 const KEYWORD_SUMMARIES := {
@@ -40,6 +42,7 @@ const KEYWORD_SUMMARIES := {
     KEYWORD_QUICK_PAWS: "V tahu muze hned utocit jen jedna nova kocka s timto keywordem.",
     KEYWORD_GUARD: "Zachyti prime zraneni ve sve lajne i sousednich lajnach.",
     KEYWORD_POUNCE: "Muze utocit na protilehlou nebo sousedni lajnu.",
+    KEYWORD_FEAST: "Kdyz umre jakakoliv jina kocka, tahle ziska +1/+1 napevno.",
 }
 
 

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"carrion_prowler"
+display_name = "Mrchožravý slídil"
+card_type = 0
+cost = 3
+attack = 2
+life = 3
+rules_text = "Hostina."
+keywords = [&"feast"]
+effects = []
+art_path = ""
+frame_variant = &"default"

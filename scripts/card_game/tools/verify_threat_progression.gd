@@ -49,17 +49,17 @@ func _run() -> void:
     if smug_threat_ten_cards.size() != 20:
         _fail("Threat 10 deck size is not 20.")
         return
-    if _count_card_ids(smug_threat_zero_cards, &"hidden_claws") != 0:
-        _fail("Threat 0 deck should not start with Hidden Claws.")
+    if _count_card_ids(smug_threat_zero_cards, &"boilerback_guardian") != 3:
+        _fail("Smug threat 0 deck should start with 3 Boilerback Guardians.")
         return
-    if _count_card_ids(smug_threat_ten_cards, &"hidden_claws") != 2:
-        _fail("Threat 10 deck should contain 2 Hidden Claws.")
+    if _count_card_ids(smug_threat_ten_cards, &"boilerback_guardian") != 7:
+        _fail("Smug threat 10 deck should lean into 7 Boilerback Guardians.")
         return
-    if _count_card_ids(smug_threat_ten_cards, &"fish_toss") != 1:
-        _fail("Threat 10 deck should contain Fish Toss.")
+    if _count_card_ids(smug_threat_ten_cards, &"captain_ironmaw") != 6:
+        _fail("Smug threat 10 deck should contain 6 Captain Ironmaws.")
         return
-    if _count_card_ids(smug_threat_ten_cards, &"spiked_collar") != 1:
-        _fail("Threat 10 deck should contain Spiked Collar.")
+    if _count_card_ids(smug_threat_ten_cards, &"fish_toss") != 0:
+        _fail("Simple-core Smug deck should not contain Fish Toss.")
         return
 
     var ragclaw_deck := load("res://data/decks/npc_ragclaw_brawler.tres") as DeckDefinition
@@ -72,20 +72,17 @@ func _run() -> void:
     if ragclaw_threat_zero_cards.size() != 20 or ragclaw_threat_ten_cards.size() != 20:
         _fail("Ragclaw threat deck size changed away from 20.")
         return
-    if _count_card_ids(ragclaw_threat_zero_cards, &"hidden_claws") != 1:
-        _fail("Ragclaw threat 0 deck should start with 1 Hidden Claws.")
+    if _count_card_ids(ragclaw_threat_zero_cards, &"wharf_cutthroat") != 4:
+        _fail("Ragclaw threat 0 deck should start with 4 Wharf Cutthroats.")
         return
-    if _count_card_ids(ragclaw_threat_ten_cards, &"hidden_claws") != 3:
-        _fail("Ragclaw threat 10 deck should contain 3 Hidden Claws.")
+    if _count_card_ids(ragclaw_threat_ten_cards, &"netclaw_raider") != 7:
+        _fail("Ragclaw threat 10 deck should contain 7 Netclaw Raiders.")
         return
-    if _count_card_ids(ragclaw_threat_ten_cards, &"fish_toss") != 2:
-        _fail("Ragclaw threat 10 deck should contain 2 Fish Toss.")
+    if _count_card_ids(ragclaw_threat_ten_cards, &"rafter_pouncer") != 7:
+        _fail("Ragclaw threat 10 deck should contain 7 Rafter Pouncers.")
         return
-    if _count_card_ids(ragclaw_threat_ten_cards, &"table_flip") != 1:
-        _fail("Ragclaw threat 10 deck should contain Table Flip.")
-        return
-    if _count_card_ids(ragclaw_threat_ten_cards, &"netclaw_raider") != 5:
-        _fail("Ragclaw threat 10 deck should contain 5 Netclaw Raiders.")
+    if _count_card_ids(ragclaw_threat_ten_cards, &"hidden_claws") != 0:
+        _fail("Simple-core Ragclaw deck should not contain Hidden Claws.")
         return
     if _progression_system.get_threat_transition_messages(&"npc_ragclaw_brawler", 0, 1).is_empty():
         _fail("Ragclaw should emit threat transition messaging.")
@@ -101,11 +98,14 @@ func _run() -> void:
     if harbor_threat_zero_cards.size() != 20 or harbor_threat_ten_cards.size() != 20:
         _fail("Harbor Warden threat deck size changed away from 20.")
         return
-    if _count_card_ids(harbor_threat_ten_cards, &"hidden_claws") != 3:
-        _fail("Harbor Warden threat 10 deck should contain 3 Hidden Claws.")
+    if _count_card_ids(harbor_threat_ten_cards, &"boilerback_guardian") != 8:
+        _fail("Harbor threat 10 deck should contain 8 Boilerback Guardians.")
         return
-    if _count_card_ids(harbor_threat_ten_cards, &"table_flip") != 2:
-        _fail("Harbor Warden threat 10 deck should contain 2 Table Flips.")
+    if _count_card_ids(harbor_threat_ten_cards, &"captain_ironmaw") != 5:
+        _fail("Harbor threat 10 deck should contain 5 Captain Ironmaws.")
+        return
+    if _count_card_ids(harbor_threat_ten_cards, &"hidden_claws") != 0:
+        _fail("Simple-core Harbor deck should not contain Hidden Claws.")
         return
     if _progression_system.get_threat_transition_messages(&"npc_harbor_warden", 0, 1).is_empty():
         _fail("Harbor Warden should emit threat transition messaging.")
@@ -121,14 +121,14 @@ func _run() -> void:
     if lantern_threat_zero_cards.size() != 20 or lantern_threat_ten_cards.size() != 20:
         _fail("Lantern Striker threat deck size changed away from 20.")
         return
-    if _count_card_ids(lantern_threat_ten_cards, &"table_flip") != 1:
-        _fail("Lantern Striker threat 10 deck should contain 1 Table Flip.")
+    if _count_card_ids(lantern_threat_ten_cards, &"netclaw_raider") != 7:
+        _fail("Lantern threat 10 deck should contain 7 Netclaw Raiders.")
         return
-    if _count_card_ids(lantern_threat_ten_cards, &"boilerback_guardian") != 1:
-        _fail("Lantern Striker threat 10 deck should contain 1 Boilerback Guardian.")
+    if _count_card_ids(lantern_threat_ten_cards, &"rafter_pouncer") != 7:
+        _fail("Lantern threat 10 deck should contain 7 Rafter Pouncers.")
         return
-    if _count_card_ids(lantern_threat_ten_cards, &"captain_ironmaw") != 2:
-        _fail("Lantern Striker threat 10 deck should contain 2 Captain Ironmaws.")
+    if _count_card_ids(lantern_threat_ten_cards, &"table_flip") != 0:
+        _fail("Simple-core Lantern deck should not contain Table Flip.")
         return
     if _progression_system.get_threat_transition_messages(&"npc_lantern_striker", 0, 1).is_empty():
         _fail("Lantern Striker should emit threat transition messaging.")
