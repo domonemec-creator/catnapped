@@ -8,6 +8,8 @@ const CardEffect = preload("res://scripts/card_game/data/card_effect.gd")
 const CardGameConstants = preload("res://scripts/card_game/data/card_game_constants.gd")
 const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
 const CardView = preload("res://scripts/card_game/ui/card_view.gd")
+const BattleOverlayPresenter = preload("res://scripts/card_game/ui/battle_overlay_presenter.gd")
+const BattlePreviewPresenter = preload("res://scripts/card_game/ui/battle_preview_presenter.gd")
 const DeckDefinition = preload("res://scripts/card_game/data/deck_definition.gd")
 const DeckSystem = preload("res://scripts/card_game/systems/deck_system.gd")
 const EncounterDefinition = preload("res://scripts/card_game/data/encounter_definition.gd")
@@ -105,19 +107,19 @@ var _selected_attacker: CardInstance
 var _selected_table_power: TablePowerDefinition
 var _selected_info_zone: StringName = INFO_ZONE_NONE
 var _next_instance_id: int = 1
+var _current_reward_offers: Array[Dictionary] = []
 
 var _deck_system := DeckSystem.new()
 var _battle_rules := BattleRules.new()
 var _ai_controller := AiController.new()
+var _overlay_presenter := BattleOverlayPresenter.new()
+var _preview_presenter := BattlePreviewPresenter.new()
 var _progression_system := ProgressionSystem.new()
 var _progression_state: Dictionary = {}
-var _current_reward_offers: Array[Dictionary] = []
 var _player_lane_feedback: Array[Dictionary] = []
 var _enemy_lane_feedback: Array[Dictionary] = []
 var _battle_feed_lines: Array[String] = []
 var _last_logged_status_text: String = ""
-var _postmatch_result_title: String = ""
-var _postmatch_run_completion_pending: bool = false
 var _postmatch_victory_emblem_texture: Texture2D
 var _postmatch_defeat_emblem_texture: Texture2D
 var _postmatch_threat_badge_texture: Texture2D
@@ -128,7 +130,6 @@ var _portrait_frame_gold_texture: Texture2D
 var _portrait_frame_green_texture: Texture2D
 var _portrait_frame_red_texture: Texture2D
 var _combat_info_panel_base_style: StyleBoxFlat
-var _tutorial_overlay: Control
 
 
 func _ready() -> void:
@@ -147,6 +148,49 @@ func _ready() -> void:
 	var info_panel_style := combat_info_panel.get_theme_stylebox("panel")
 	if info_panel_style is StyleBoxFlat:
 		_combat_info_panel_base_style = (info_panel_style as StyleBoxFlat).duplicate() as StyleBoxFlat
+	_preview_presenter.set_combat_info_panel_base_style(_combat_info_panel_base_style)
+
+	_overlay_presenter.setup({
+		"style_box_builder": Callable(self, "_build_runtime_style_box"),
+		"tutorial_dismiss_pressed": Callable(self, "_on_tutorial_dismiss_button_pressed"),
+		"progression_system": _progression_system,
+		"post_match_overlay": post_match_overlay,
+		"post_match_backdrop_art": post_match_backdrop_art,
+		"post_match_result_emblem": post_match_result_emblem,
+		"post_match_result_title": post_match_result_title,
+		"post_match_result_summary": post_match_result_summary,
+		"post_match_threat_badge": post_match_threat_badge,
+		"post_match_threat_summary": post_match_threat_summary,
+		"post_match_deck_shift_title": post_match_deck_shift_title,
+		"post_match_deck_shift_detail": post_match_deck_shift_detail,
+		"post_match_record_label": post_match_record_label,
+		"post_match_reward_buttons": post_match_reward_buttons,
+		"post_match_reward_add_button": post_match_reward_add_button,
+		"post_match_reward_remove_button": post_match_reward_remove_button,
+		"post_match_reward_upgrade_button": post_match_reward_upgrade_button,
+		"post_match_rematch_button": post_match_rematch_button,
+		"post_match_choose_encounter_button": post_match_choose_encounter_button,
+	})
+	_preview_presenter.setup({
+		"selected_card_view": selected_card_view,
+		"selected_card_title": selected_card_title,
+		"selected_card_meta": selected_card_meta,
+		"selected_card_detail": selected_card_detail,
+		"selected_card_hint": selected_card_hint,
+		"combat_info_panel": combat_info_panel,
+		"status_label": status_label,
+		"battle_feed_title": battle_feed_title,
+		"battle_rules": _battle_rules,
+		"player_id": PLAYER_ID,
+		"info_zone_none": INFO_ZONE_NONE,
+		"info_zone_deck": INFO_ZONE_DECK,
+		"info_zone_discard": INFO_ZONE_DISCARD,
+		"get_valid_table_power_lanes": Callable(self, "_get_valid_table_power_lanes"),
+		"table_power_requires_lane_selection": Callable(self, "_table_power_requires_lane_selection"),
+		"card_requires_board_target": Callable(self, "_card_requires_board_target"),
+		"get_valid_card_target_lanes": Callable(self, "_get_valid_card_target_lanes"),
+		"card_display_name_from_id": Callable(self, "_card_display_name_from_id"),
+	})
 
 	_enemy_lanes = [
 		$Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes/Lane0/EnemyLane,
@@ -179,7 +223,7 @@ func _ready() -> void:
 	_make_children_click_through(discard_panel)
 	deck_panel.gui_input.connect(_on_info_panel_gui_input.bind(INFO_ZONE_DECK))
 	discard_panel.gui_input.connect(_on_info_panel_gui_input.bind(INFO_ZONE_DISCARD))
-	_create_tutorial_overlay()
+	_overlay_presenter.ensure_tutorial_overlay(self)
 
 	_load_libraries()
 	_setup_battle()
@@ -192,6 +236,7 @@ func _load_libraries() -> void:
 	_deck_library = _load_resources_by_id("res://data/decks")
 	_table_power_library = _load_resources_by_id("res://data/table_powers")
 	_encounter_library = _load_resources_by_id("res://data/encounters")
+	_preview_presenter.set_card_library(_card_library)
 	var encounter_id: StringName = startup_encounter_id if startup_encounter_id != &"" else DEFAULT_ENCOUNTER_ID
 	var run_session = _get_run_session()
 	if run_session != null and run_session.is_active():
@@ -206,106 +251,15 @@ func _load_libraries() -> void:
 
 
 func _create_tutorial_overlay() -> void:
-	if _tutorial_overlay != null:
-		return
-
-	var overlay := Control.new()
-	overlay.name = "TutorialOverlay"
-	overlay.visible = false
-	overlay.z_index = 18
-	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-
-	var dim := ColorRect.new()
-	dim.color = Color(0.02, 0.015, 0.01, 0.68)
-	dim.mouse_filter = Control.MOUSE_FILTER_STOP
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.add_child(dim)
-
-	var center := CenterContainer.new()
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.add_child(center)
-
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(560, 0)
-	panel.add_theme_stylebox_override("panel", _build_runtime_style_box(
-		Color(0.11, 0.08, 0.06, 0.98),
-		Color(0.93, 0.72, 0.34, 0.98),
-		18,
-		2
-	))
-	center.add_child(panel)
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 22)
-	margin.add_theme_constant_override("margin_top", 18)
-	margin.add_theme_constant_override("margin_right", 22)
-	margin.add_theme_constant_override("margin_bottom", 18)
-	panel.add_child(margin)
-
-	var content := VBoxContainer.new()
-	content.add_theme_constant_override("separation", 12)
-	margin.add_child(content)
-
-	var title := Label.new()
-	title.text = "Jak to hrat"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 26)
-	title.add_theme_color_override("font_color", Color(0.98, 0.92, 0.82, 1.0))
-	content.add_child(title)
-
-	var body := Label.new()
-	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	body.text = "1. Vylož kočku z ruky na volnou lajnu.\n2. Připravenou kočkou útoč do nepřátelské lajny nebo přímo.\n3. Sraz soupeři životy na nulu dřív, než to udělá on."
-	body.add_theme_font_size_override("font_size", 18)
-	body.add_theme_color_override("font_color", Color(0.95, 0.9, 0.84, 1.0))
-	content.add_child(body)
-
-	var button := Button.new()
-	button.text = "Rozumim"
-	button.custom_minimum_size = Vector2(0, 44)
-	button.add_theme_font_size_override("font_size", 18)
-	button.add_theme_color_override("font_color", Color(0.13, 0.09, 0.04, 1.0))
-	button.add_theme_stylebox_override("normal", _build_runtime_style_box(
-		Color(0.89, 0.62, 0.2, 1.0),
-		Color(0.97, 0.78, 0.4, 1.0),
-		12,
-		2
-	))
-	button.add_theme_stylebox_override("hover", _build_runtime_style_box(
-		Color(0.94, 0.68, 0.24, 1.0),
-		Color(1.0, 0.82, 0.46, 1.0),
-		12,
-		2
-	))
-	button.add_theme_stylebox_override("pressed", _build_runtime_style_box(
-		Color(0.84, 0.58, 0.18, 1.0),
-		Color(0.95, 0.76, 0.38, 1.0),
-		12,
-		2
-	))
-	button.pressed.connect(_on_tutorial_dismiss_button_pressed)
-	content.add_child(button)
-
-	add_child(overlay)
-	_tutorial_overlay = overlay
+	_overlay_presenter.ensure_tutorial_overlay(self)
 
 
 func _maybe_show_tutorial_overlay() -> void:
-	if _tutorial_overlay == null:
-		return
-	_tutorial_overlay.visible = not _progression_system.has_seen_battle_tutorial(_progression_state)
+	_overlay_presenter.sync_tutorial_visibility(_progression_state)
 
 
 func _dismiss_tutorial_overlay(save_progress: bool = true) -> void:
-	if _tutorial_overlay == null:
-		return
-	_tutorial_overlay.visible = false
-	if not save_progress or _progression_system.has_seen_battle_tutorial(_progression_state):
-		return
-	_progression_state = _progression_system.mark_battle_tutorial_seen(_progression_state)
-	_progression_system.save_state(_progression_state)
+	_progression_state = _overlay_presenter.dismiss_tutorial_overlay(_progression_state, save_progress)
 
 
 func _on_tutorial_dismiss_button_pressed() -> void:
@@ -334,7 +288,7 @@ func _build_enemy_header_name(display_name: String) -> String:
 
 
 func _build_opening_status() -> String:
-	return "Hrozba %s (%s). Klikni nebo přetáhni kartu z ruky na lajnu." % [
+	return "Hrozba %s (%s). Vylož kartu na lajnu." % [
 		_get_current_threat(),
 		_progression_system.get_threat_label(_get_current_threat()),
 	]
@@ -347,61 +301,27 @@ func _get_enemy_deck_id() -> StringName:
 
 
 func _hide_post_match_overlay() -> void:
-	post_match_overlay.visible = false
+	_overlay_presenter.hide_post_match_overlay()
 	_current_reward_offers.clear()
-	_postmatch_result_title = ""
-	_postmatch_run_completion_pending = false
 
 
-func _show_post_match_overlay(result_title: String, result_summary: String, previous_threat: int, next_threat: int, deck_messages: Array[String]) -> void:
-	_postmatch_result_title = result_title
-	_postmatch_run_completion_pending = result_title == "Výprava dokončena"
-	var run_session = _get_run_session()
-	post_match_overlay.visible = true
-	post_match_backdrop_art.texture = _get_post_match_backdrop_texture()
-	post_match_threat_badge.texture = _postmatch_threat_badge_texture
-	post_match_result_title.text = result_title
-	post_match_result_summary.text = result_summary
-	post_match_threat_summary.text = _build_post_match_threat_text(previous_threat, next_threat)
-	post_match_deck_shift_detail.text = _build_post_match_deck_shift_text(deck_messages, previous_threat, next_threat)
-	var record_text := "Vyhry %s   Prohry %s" % [
-		_progression_system.get_win_count(_progression_state),
-		_progression_system.get_loss_count(_progression_state),
-	]
-	if run_session != null and run_session.is_active():
-		var run_progress = run_session.get_run_progress_text()
-		if not run_progress.is_empty():
-			record_text += "   %s" % run_progress
-	post_match_record_label.text = record_text
-
-	match result_title:
-		"Výhra":
-			post_match_result_emblem.texture = _postmatch_victory_emblem_texture
-		"Prohra":
-			post_match_result_emblem.texture = _postmatch_defeat_emblem_texture
-		"Výprava dokončena":
-			post_match_result_emblem.texture = _postmatch_victory_emblem_texture
-		_:
-			post_match_result_emblem.texture = null
-
-	post_match_result_emblem.visible = post_match_result_emblem.texture != null
-	_update_post_match_actions()
-
-
-func _build_post_match_threat_text(previous_threat: int, next_threat: int) -> String:
-	var previous_label := _progression_system.get_threat_label(previous_threat)
-	var next_label := _progression_system.get_threat_label(next_threat)
-	if previous_threat == next_threat:
-		return "Hrozba zůstává na %s (%s)." % [next_threat, next_label]
-	return "Hrozba %s (%s) -> %s (%s)." % [previous_threat, previous_label, next_threat, next_label]
-
-
-func _build_post_match_deck_shift_text(deck_messages: Array[String], previous_threat: int, next_threat: int) -> String:
-	if not deck_messages.is_empty():
-		return "\n".join(deck_messages)
-	if previous_threat == next_threat:
-		return "Balík beze změn. Příští odveta použije stejnou sestavu."
-	return "Hrozba se změnila, ale tahle úroveň drží stejný balík."
+func _show_post_match_overlay(result_mode: String, result_title: String, result_summary: String, previous_threat: int, next_threat: int, deck_messages: Array[String]) -> void:
+	_overlay_presenter.show_post_match_overlay({
+		"result_mode": result_mode,
+		"result_title": result_title,
+		"result_summary": result_summary,
+		"previous_threat": previous_threat,
+		"next_threat": next_threat,
+		"deck_messages": deck_messages,
+		"progression_system": _progression_system,
+		"progression_state": _progression_state,
+		"run_session": _get_run_session(),
+		"backdrop_texture": _get_post_match_backdrop_texture(),
+		"threat_badge_texture": _postmatch_threat_badge_texture,
+		"victory_emblem_texture": _postmatch_victory_emblem_texture,
+		"defeat_emblem_texture": _postmatch_defeat_emblem_texture,
+	})
+	_current_reward_offers = _overlay_presenter.get_reward_offers()
 
 
 func _card_display_name_from_id(card_id: StringName) -> String:
@@ -436,6 +356,7 @@ func _show_run_completion_overlay(reward_offer: Dictionary) -> void:
 
 	var current_threat := _get_current_threat()
 	_show_post_match_overlay(
+		"run_complete",
 		"Výprava dokončena",
 		"Poslední soupeř padl. Tuhle výpravu jsi dotáhl do konce.",
 		current_threat,
@@ -534,9 +455,9 @@ func _should_log_status(message: String) -> bool:
 		return false
 	if trimmed.begins_with("Hrozba "):
 		return false
-	if lowered.find("vybrano") >= 0 or lowered.find("utocnik:") >= 0:
+	if lowered.find("vybráno") >= 0 or lowered.find("útočník:") >= 0:
 		return false
-	if lowered.find("vyber") >= 0 and lowered.find("zrusen") >= 0:
+	if lowered.find("výběr") >= 0 and lowered.find("zrušen") >= 0:
 		return false
 	if lowered.find("klikni") >= 0:
 		return false
@@ -725,7 +646,7 @@ func _is_valid_card_target(card_instance: CardInstance, target_card: CardInstanc
 func _can_play_card_from_hand(card_instance: CardInstance, player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> bool:
 	if card_instance == null or player_state == null or enemy_state == null:
 		return false
-	if player_state.tuna_current < card_instance.definition.cost:
+	if not _battle_rules.can_pay_card_cost(card_instance, player_state):
 		return false
 
 	match card_instance.definition.card_type:
@@ -743,29 +664,31 @@ func _can_play_card_from_hand(card_instance: CardInstance, player_state: PlayerB
 
 func _build_card_selection_message(card_instance: CardInstance, player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> String:
 	if card_instance == null or card_instance.definition == null:
-		return "Vyber z ruky zrusen."
+		return "Výběr z ruky zrušen."
 
 	var display_name := card_instance.definition.display_name
+	if not _battle_rules.can_pay_card_cost(card_instance, player_state):
+		return "%s vybranĂˇ, ale nemĂˇĹˇ dost Tuny." % display_name
 	match card_instance.definition.card_type:
 		CardGameConstants.CardType.CAT:
 			if _battle_rules.get_valid_play_lanes(card_instance, player_state).is_empty():
-				return "Vybráno: %s, ale na tvé straně není volná lajna." % display_name
-			return "Vybráno: %s. Klikni na volnou lajnu na své straně." % display_name
+				return "%s vybraná, ale není volná lajna." % display_name
+			return "%s vybraná. Klikni na volnou lajnu." % display_name
 		CardGameConstants.CardType.TRICK, CardGameConstants.CardType.ITEM:
 			if not _card_requires_board_target(card_instance):
-				return "Vybráno: %s. Tahle karta se vyřeší hned." % display_name
+				return "%s vybraná. Efekt se spustí hned." % display_name
 
 			var valid_friendly_targets := _get_valid_card_target_lanes(card_instance, player_state, enemy_state, player_state.player_id)
 			var valid_enemy_targets := _get_valid_card_target_lanes(card_instance, player_state, enemy_state, enemy_state.player_id)
 			if valid_friendly_targets.is_empty() and valid_enemy_targets.is_empty():
-				return "Vybrano: %s, ale na stole neni validni cil." % display_name
+				return "%s vybraná, ale na stole není cíl." % display_name
 			if not valid_friendly_targets.is_empty() and not valid_enemy_targets.is_empty():
-				return "Vybráno: %s. Klikni na libovolnou kočku." % display_name
+				return "%s vybraná. Klikni na kočku." % display_name
 			if not valid_friendly_targets.is_empty():
-				return "Vybráno: %s. Klikni na svou kočku." % display_name
-			return "Vybráno: %s. Klikni na nepřátelskou kočku." % display_name
+				return "%s vybraná. Klikni na svou kočku." % display_name
+			return "%s vybraná. Klikni na nepřátelskou kočku." % display_name
 
-	return "Vybrano: %s." % display_name
+	return "Vybráno: %s." % display_name
 
 
 func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: PlayerBattleState, opposing_state: PlayerBattleState, target_card: CardInstance) -> Array[String]:
@@ -783,9 +706,9 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				_set_lane_feedback_for_card(target_card, _format_signed_stat_delta(typed_effect.value, "UTK"), LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE)
 				if typed_effect.value_2 > 0:
 					target_card.temporary_attack_bonus += typed_effect.value
-					summaries.append("%s získá +%s útoku do konce kola." % [target_card.definition.display_name, typed_effect.value])
+					summaries.append("%s získa +%s útoku do konce kola." % [target_card.definition.display_name, typed_effect.value])
 				else:
-					summaries.append("%s získá +%s útoku." % [target_card.definition.display_name, typed_effect.value])
+					summaries.append("%s získa +%s útoku." % [target_card.definition.display_name, typed_effect.value])
 			&"modify_life":
 				if target_card == null:
 					continue
@@ -793,9 +716,9 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				_set_lane_feedback_for_card(target_card, _format_signed_stat_delta(typed_effect.value, "ZIV"), LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE)
 				if typed_effect.value_2 > 0:
 					target_card.temporary_life_bonus += typed_effect.value
-					summaries.append("%s získá +%s životu do konce kola." % [target_card.definition.display_name, typed_effect.value])
+					summaries.append("%s získa +%s životů do konce kola." % [target_card.definition.display_name, typed_effect.value])
 				else:
-					summaries.append("%s získá +%s životu." % [target_card.definition.display_name, typed_effect.value])
+					summaries.append("%s získa +%s životů." % [target_card.definition.display_name, typed_effect.value])
 			&"deal_damage":
 				if target_card == null:
 					continue
@@ -806,12 +729,12 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				if target_card == null:
 					continue
 				if target_card.entered_this_turn and not target_card.immediate_entry_attack_granted:
-					summaries.append("%s tento tah jeste nemuze utocit." % target_card.definition.display_name)
+					summaries.append("%s tenhle tah je?t? neza?to??." % target_card.definition.display_name)
 					continue
 				target_card.can_attack = true
 				target_card.has_attacked = false
 				_set_lane_feedback_for_card(target_card, "ZNOVU PRIPR.", LaneSlotView.EVENT_SUPPORT)
-				summaries.append("%s muze znovu utocit." % target_card.definition.display_name)
+				summaries.append("%s může znovu útočit." % target_card.definition.display_name)
 			&"return_to_hand":
 				if target_card == null:
 					continue
@@ -820,7 +743,7 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 					continue
 				var returned_name := target_card.definition.display_name
 				_return_card_to_hand(target_owner_state, target_card)
-				summaries.append("%s se vraci do ruky." % returned_name)
+				summaries.append("%s se vrací do ruky." % returned_name)
 			&"draw_cards":
 				if typed_effect.target_mode == CardGameConstants.TARGET_SELF_OWNER:
 					_deck_system.draw_cards(owner_state, typed_effect.value)
@@ -828,7 +751,7 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 			&"heal_life":
 				if typed_effect.target_mode == CardGameConstants.TARGET_SELF_OWNER:
 					_adjust_player_life(owner_state, typed_effect.value)
-					summaries.append("%s vyléčí %s životu." % [owner_state.display_name, typed_effect.value])
+					summaries.append("%s vyléčí %s životů." % [owner_state.display_name, typed_effect.value])
 			&"steal_item":
 				if target_card == null or target_card.attached_item == null:
 					continue
@@ -845,7 +768,7 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				stolen_item.owner_id = owner_state.player_id
 				_set_lane_feedback_for_card(target_card, "PREDMET PRYC", LaneSlotView.EVENT_DAMAGE)
 				_set_lane_feedback_for_card(steal_host, "PREDMET UKRADEN", LaneSlotView.EVENT_SUPPORT)
-				summaries.append("%s ukradne %s a nasadi ho na %s." % [owner_state.display_name, stolen_item.definition.display_name, steal_host.definition.display_name])
+				summaries.append("%s ukradne %s pro %s." % [owner_state.display_name, stolen_item.definition.display_name, steal_host.definition.display_name])
 			&"destroy_item":
 				if target_card == null or target_card.attached_item == null:
 					continue
@@ -916,10 +839,10 @@ func _play_targeted_card(owner_state: PlayerBattleState, opposing_state: PlayerB
 		return ""
 
 	_clear_lane_feedback()
-	owner_state.tuna_current -= card_instance.definition.cost
+	_spend_card_cost(card_instance, owner_state)
 	owner_state.hand.erase(card_instance)
 
-	var lines: Array[String] = ["%s pouzije %s." % [owner_state.display_name, card_instance.definition.display_name]]
+	var lines: Array[String] = ["%s hraje %s." % [owner_state.display_name, card_instance.definition.display_name]]
 	var is_item := card_instance.definition.card_type == CardGameConstants.CardType.ITEM
 	if is_item and target_card != null:
 		# Equip persistently: the item lives on the cat so it can later be stolen or destroyed.
@@ -937,17 +860,17 @@ func _play_targeted_card(owner_state: PlayerBattleState, opposing_state: PlayerB
 
 func _activate_table_power(user_state: PlayerBattleState, opposing_state: PlayerBattleState, power_definition: TablePowerDefinition, lane_index: int = -1) -> String:
 	if user_state == null or power_definition == null:
-		return "Žádná síla stolu."
+		return "??dn? S?la stolu."
 	if not _can_use_table_power(user_state, power_definition):
-		return "%s ted nejde pouzit." % power_definition.display_name
+		return "%s te? nejde pou??t." % power_definition.display_name
 	if _table_power_requires_lane_selection(power_definition) and not _get_valid_table_power_lanes(power_definition, user_state).has(lane_index):
-		return "Tahle lajna není validní pro %s." % power_definition.display_name
+		return "Sem %s nejde." % power_definition.display_name
 
 	_clear_lane_feedback()
 	user_state.tuna_current -= power_definition.cost
 	user_state.table_power_used_this_turn = true
 
-	var lines: Array[String] = ["%s pouzije %s." % [user_state.display_name, power_definition.display_name]]
+	var lines: Array[String] = ["%s pou?ije %s." % [user_state.display_name, power_definition.display_name]]
 	for effect in power_definition.effects:
 		var typed_effect: CardEffect = effect
 		if typed_effect == null:
@@ -978,18 +901,18 @@ func _resolve_table_power_effect(user_state: PlayerBattleState, opposing_state: 
 			token_instance.can_attack = false
 			slot.occupant = token_instance
 			_set_lane_feedback(user_state.player_id, lane_index, "VYVOLANO", LaneSlotView.EVENT_SUPPORT)
-			return "Vyvola %s do lajny %s." % [token_instance.definition.display_name, lane_index + 1]
+			return "%s jde do lajny %s." % [token_instance.definition.display_name, lane_index + 1]
 		&"reveal_random_hand_card":
 			var target_state := opposing_state if effect.target_mode == CardGameConstants.TARGET_ENEMY_PLAYER else user_state
 			if target_state == null or target_state.hand.is_empty():
-				return "Neni co odhalit."
+				return "Nen? co odhalit."
 			var reveal_index := randi() % target_state.hand.size()
 			var revealed_card: CardInstance = target_state.hand[reveal_index]
-			return "Odhali %s." % revealed_card.definition.display_name
+			return "Odhal? %s." % revealed_card.definition.display_name
 		&"heal_life":
 			if effect.target_mode == CardGameConstants.TARGET_SELF_OWNER:
 				_adjust_player_life(user_state, effect.value)
-				return "Vyléčí %s životu." % effect.value
+				return "Vyléčí %s životů." % effect.value
 
 	return ""
 
@@ -1110,7 +1033,7 @@ func _handle_player_lane_pressed(lane_index: int) -> void:
 			status_label.text = _activate_table_power(player_state, enemy_state, _selected_table_power, lane_index)
 			_selected_table_power = null
 			return
-		status_label.text = "Tahle lajna není validní pro %s." % _selected_table_power.display_name
+		status_label.text = "Sem %s nejde." % _selected_table_power.display_name
 		return
 
 	if _selected_card != null:
@@ -1123,7 +1046,7 @@ func _handle_player_lane_pressed(lane_index: int) -> void:
 				_selected_card = null
 				_selected_attacker = null
 				return
-			status_label.text = "Tahle lajna není validní pro %s." % _selected_card.definition.display_name
+			status_label.text = "Sem %s nejde." % _selected_card.definition.display_name
 			return
 
 		var slot: LaneSlotState = player_state.board[lane_index]
@@ -1132,27 +1055,27 @@ func _handle_player_lane_pressed(lane_index: int) -> void:
 			_clear_selection_state()
 			return
 
-		status_label.text = "Tahle jednotka není validní cíl pro %s." % _selected_card.definition.display_name
+		status_label.text = "Tohle nen? c?l pro %s." % _selected_card.definition.display_name
 		return
 
 	var slot: LaneSlotState = player_state.board[lane_index]
 	if slot == null or slot.occupant == null:
 		_selected_attacker = null
-		status_label.text = "Prázdná lajna. Vyber kartu z ruky nebo připravenou kočku."
+		status_label.text = "Prázdno. Vyber kartu nebo připravenou kočku."
 		return
 
 	if not slot.occupant.can_attack or slot.occupant.has_attacked:
 		_selected_attacker = null
-		status_label.text = "%s ted nemuze utocit." % slot.occupant.definition.display_name
+		status_label.text = "%s teď nemůže útočit." % slot.occupant.definition.display_name
 		return
 
 	_selected_table_power = null
 	_selected_info_zone = INFO_ZONE_NONE
 	_selected_attacker = null if _selected_attacker == slot.occupant else slot.occupant
 	if _selected_attacker == null:
-		status_label.text = "Vyber utoku zrusen."
+		status_label.text = "Výběr útoku zrušen."
 	else:
-		status_label.text = "Vybráno: %s. Klikni na nepřátelskou lajnu pro útok." % _selected_attacker.definition.display_name
+		status_label.text = "%s vybraná. Klikni na nepřátelskou lajnu." % _selected_attacker.definition.display_name
 
 
 func _handle_enemy_lane_pressed(lane_index: int) -> void:
@@ -1163,7 +1086,7 @@ func _handle_enemy_lane_pressed(lane_index: int) -> void:
 
 	if _selected_card != null:
 		if _selected_card.definition.card_type == CardGameConstants.CardType.CAT:
-			status_label.text = "Kočky se musí vykládat na tvou stranu stolu."
+			status_label.text = "Ko?ky hraj jen na svou stranu."
 			return
 
 		var slot: LaneSlotState = enemy_state.board[lane_index]
@@ -1172,7 +1095,7 @@ func _handle_enemy_lane_pressed(lane_index: int) -> void:
 			_clear_selection_state()
 			return
 
-		status_label.text = "Tahle jednotka není validní cíl pro %s." % _selected_card.definition.display_name
+		status_label.text = "Tohle nen? c?l pro %s." % _selected_card.definition.display_name
 		return
 
 	if _selected_attacker == null:
@@ -1200,13 +1123,13 @@ func _play_card_to_lane(player_state: PlayerBattleState, lane_index: int, card_i
 		card_instance.can_attack = true
 		card_instance.immediate_entry_attack_granted = true
 		player_state.immediate_entry_attack_used_this_turn = true
-	player_state.tuna_current -= card_instance.definition.cost
+	_spend_card_cost(card_instance, player_state)
 	player_state.hand.erase(card_instance)
 	_resolve_triggered_effects(card_instance, player_state, CardGameConstants.TRIGGER_BATTLECRY)
 	if card_instance.can_attack and not card_instance.has_attacked:
-		status_label.text = "%s vstupuje do lajny %s a muze hned utocit." % [card_instance.definition.display_name, lane_index + 1]
+		status_label.text = "%s jde do lajny %s a m??e hned ?to?it." % [card_instance.definition.display_name, lane_index + 1]
 	else:
-		status_label.text = "%s vstupuje do lajny %s." % [card_instance.definition.display_name, lane_index + 1]
+		status_label.text = "%s jde do lajny %s." % [card_instance.definition.display_name, lane_index + 1]
 	_check_battle_end()
 
 
@@ -1216,7 +1139,7 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 
 	var valid_attack_lanes: Array[int] = _battle_rules.get_valid_attack_lanes(attacker, defender_state)
 	if not valid_attack_lanes.has(target_lane):
-		return "Tahle lajna není legální cíl pro %s." % attacker.definition.display_name
+		return "Sem %s ne?to??." % attacker.definition.display_name
 
 	_clear_lane_feedback()
 	attacker.has_attacked = true
@@ -1230,7 +1153,7 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 		if target_slot.occupant.current_life <= 0:
 			summary = "%s zasáhne %s za %s zranění a vyřadí ji." % [attacker.definition.display_name, target_slot.occupant.definition.display_name, attacker.current_attack]
 		else:
-			summary = "%s zasahne %s za %s zraneni. Zbyva %s ŽIV." % [attacker.definition.display_name, target_slot.occupant.definition.display_name, attacker.current_attack, target_slot.occupant.current_life]
+			summary = "%s zasáhne %s za %s zranění. Zbývá %s životů." % [attacker.definition.display_name, target_slot.occupant.definition.display_name, attacker.current_attack, target_slot.occupant.current_life]
 	else:
 		var guard_target: CardInstance = _battle_rules.find_guard_for_direct_damage(defender_state, target_lane)
 		if guard_target != null:
@@ -1238,12 +1161,12 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 			_adjust_card_life(guard_target, -attacker.current_attack)
 			_set_lane_feedback_for_card(guard_target, "OCHRANA -%s" % attacker.current_attack, LaneSlotView.EVENT_BLOCK)
 			if guard_target.current_life <= 0:
-				summary = "%s útočí do lajny %s, ale %s zachytí zásah a padá." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name]
+				summary = "%s útočí do lajny %s, ale %s zásah zachytí a padne." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name]
 			else:
-				summary = "%s utoci do lajny %s, ale %s zachyti zasah. Zbyva %s ŽIV." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name, guard_target.current_life]
+				summary = "%s útočí do lajny %s, ale %s zásah zachytí. Zbývá %s životů." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name, guard_target.current_life]
 		else:
 			_adjust_player_life(defender_state, -attacker.current_attack)
-			_set_lane_feedback(defender_state.player_id, target_lane, "PŘÍMO %s" % attacker.current_attack, LaneSlotView.EVENT_DIRECT)
+			_set_lane_feedback(defender_state.player_id, target_lane, "PRIMO %s" % attacker.current_attack, LaneSlotView.EVENT_DIRECT)
 			summary = "%s udělí %s přímého zranění. Soupeři zbývá %s životů." % [attacker.definition.display_name, attacker.current_attack, defender_state.life]
 			_resolve_triggered_effects(attacker, attacker_owner_state, CardGameConstants.TRIGGER_ON_DIRECT_DAMAGE)
 
@@ -1345,9 +1268,9 @@ func _check_battle_end() -> void:
 	if player_state.life <= 0 and enemy_state.life <= 0:
 		_battle_state.battle_over = true
 		_battle_state.winner_player_id = -1
-		_current_reward_offers.clear()
+		_overlay_presenter.clear_reward_offers()
 		status_label.text = "Remíza. Obě strany došly o všechny životy. Hrozba zůstává na %s." % _get_current_threat()
-		_show_post_match_overlay("Remíza", "Obě strany se zhroutily zároveň. Dnes večer si stůl nevezme nikdo.", previous_threat, previous_threat, [])
+		_show_post_match_overlay("draw", "Remíza", "Obě strany se zhroutily zároveň. Dnes večer si stůl nevezme nikdo.", previous_threat, previous_threat, [])
 		return
 
 	if enemy_state.life <= 0:
@@ -1360,18 +1283,18 @@ func _check_battle_end() -> void:
 		_progression_system.save_state(_progression_state)
 		var run_session = _get_run_session()
 		if run_session != null and run_session.is_active():
-			_current_reward_offers = run_session.build_reward_offers(_card_library)
+			_overlay_presenter.set_reward_offers(run_session.build_reward_offers(_card_library))
 		else:
-			_current_reward_offers.clear()
+			_overlay_presenter.clear_reward_offers()
 		enemy_name_label.text = _build_enemy_header_name(enemy_state.display_name)
 		status_label.text = "Výhra. %s došel o všechny životy. Hrozba klesá na %s." % [enemy_state.display_name, _get_current_threat()]
-		_show_post_match_overlay("Výhra", "Zlomil jsi %s a stůl se pro příští odvetu uklidnil." % enemy_state.display_name, previous_threat, victory_threat, victory_deck_messages)
+		_show_post_match_overlay("win", "Výhra", "Zlomil jsi %s a stůl se pro příští odvetu uklidnil." % enemy_state.display_name, previous_threat, victory_threat, victory_deck_messages)
 		return
 
 	if player_state.life <= 0:
 		_battle_state.battle_over = true
 		_battle_state.winner_player_id = ENEMY_ID
-		_current_reward_offers.clear()
+		_overlay_presenter.clear_reward_offers()
 		var defeat_state := _progression_system.apply_battle_result(_progression_state, ENEMY_ID, PLAYER_ID, ENEMY_ID)
 		var defeat_threat := _progression_system.get_threat_level(defeat_state)
 		var defeat_deck_messages := _progression_system.get_threat_transition_messages(_get_enemy_deck_id(), previous_threat, defeat_threat)
@@ -1379,7 +1302,7 @@ func _check_battle_end() -> void:
 		_progression_system.save_state(_progression_state)
 		enemy_name_label.text = _build_enemy_header_name(enemy_state.display_name)
 		status_label.text = "Prohra. Tvoje strana došla o všechny životy. Hrozba roste na %s." % _get_current_threat()
-		_show_post_match_overlay("Prohra", "%s si stůl drží a příště se vrátí ještě horší." % enemy_state.display_name, previous_threat, defeat_threat, defeat_deck_messages)
+		_show_post_match_overlay("loss", "Prohra", "%s si stůl drží a příště se vrátí ještě horší." % enemy_state.display_name, previous_threat, defeat_threat, defeat_deck_messages)
 
 
 func _on_end_turn_pressed() -> void:
@@ -1397,6 +1320,7 @@ func _on_end_turn_pressed() -> void:
 	if player_state == null or enemy_state == null:
 		return
 
+	_bank_unused_tuna(player_state)
 	_clear_end_of_turn_modifiers(player_state)
 	if _battle_state.battle_over:
 		_refresh_ui()
@@ -1409,6 +1333,7 @@ func _on_end_turn_pressed() -> void:
 		_refresh_ui()
 		return
 
+	_bank_unused_tuna(enemy_state)
 	_clear_end_of_turn_modifiers(enemy_state)
 	if _battle_state.battle_over:
 		_refresh_ui()
@@ -1417,7 +1342,7 @@ func _on_end_turn_pressed() -> void:
 	_battle_state.active_player_id = PLAYER_ID
 	_battle_state.turn_number += 1
 	_start_turn(player_state)
-	status_label.text = "Jsi na tahu. Vylož kartu, použij Sílu stolu nebo útoč s připravenou kočkou."
+	status_label.text = "Jsi na tahu. Vylož, použij Sílu stolu nebo zaútoč."
 	_refresh_ui()
 
 
@@ -1443,53 +1368,11 @@ func _on_choose_encounter_button_pressed() -> void:
 
 
 func _update_post_match_actions() -> void:
-	var run_session = _get_run_session()
-	var show_reward_draft: bool = _postmatch_result_title == "Výhra" and run_session != null and run_session.is_active() and not _current_reward_offers.is_empty()
-	post_match_reward_buttons.visible = show_reward_draft
-	post_match_rematch_button.visible = not show_reward_draft
-	post_match_choose_encounter_button.visible = not show_reward_draft
-
-	if show_reward_draft:
-		post_match_deck_shift_title.text = "Vyber odměnu"
-		post_match_deck_shift_detail.text = "Vyber 1 odměnu. Tvůj balík zůstává i do dalších soubojů."
-		_refresh_reward_buttons()
-		post_match_rematch_button.text = "Zopakovat souboj"
-		post_match_choose_encounter_button.text = "Další souboj" if run_session.has_next_encounter() else "Ukoncit run"
-		return
-
-	post_match_deck_shift_title.text = "Dalsi smena"
-	if run_session != null and run_session.is_active():
-		if _postmatch_run_completion_pending:
-			post_match_deck_shift_title.text = "Výprava hotova"
-			post_match_rematch_button.visible = false
-			post_match_choose_encounter_button.visible = true
-			post_match_choose_encounter_button.text = "Zpet na vyber"
-			return
-		if _should_end_run_from_postmatch():
-			post_match_deck_shift_title.text = "Výprava skončila"
-			post_match_deck_shift_detail.text = "Tenhle souboj jsi nevyhrál. Výprava končí a vrátíš se na výběr."
-			post_match_rematch_button.visible = false
-			post_match_choose_encounter_button.visible = true
-			post_match_choose_encounter_button.text = "Konec výpravy"
-			return
-		post_match_rematch_button.text = "Zopakovat souboj"
-		post_match_choose_encounter_button.text = "Další souboj" if run_session.has_next_encounter() else "Ukoncit run"
-		return
-
-	post_match_rematch_button.text = "Odveta"
-	post_match_choose_encounter_button.text = "Vybrat souboj"
+	_overlay_presenter.update_post_match_actions(_get_run_session())
 
 
 func _refresh_reward_buttons() -> void:
-	if _current_reward_offers.size() < 3:
-		post_match_reward_add_button.text = "Pridat kartu"
-		post_match_reward_remove_button.text = "Odebrat kartu"
-		post_match_reward_upgrade_button.text = "Vylepsit kartu"
-		return
-
-	post_match_reward_add_button.text = str(_current_reward_offers[0].get("label", "Pridat kartu"))
-	post_match_reward_remove_button.text = str(_current_reward_offers[1].get("label", "Odebrat kartu"))
-	post_match_reward_upgrade_button.text = str(_current_reward_offers[2].get("label", "Vylepsit kartu"))
+	_overlay_presenter.refresh_reward_buttons()
 
 
 func _on_reward_button_pressed(offer_index: int) -> void:
@@ -1497,10 +1380,11 @@ func _on_reward_button_pressed(offer_index: int) -> void:
 	if run_session == null or not run_session.is_active():
 		_return_to_encounter_select()
 		return
-	if offer_index < 0 or offer_index >= _current_reward_offers.size():
+	var current_reward_offers := _overlay_presenter.get_reward_offers()
+	if offer_index < 0 or offer_index >= current_reward_offers.size():
 		return
 
-	var reward_offer: Dictionary = _current_reward_offers[offer_index]
+	var reward_offer: Dictionary = current_reward_offers[offer_index]
 	if not run_session.apply_reward_offer(reward_offer):
 		push_warning("Could not apply reward offer %s." % offer_index)
 		return
@@ -1508,6 +1392,8 @@ func _on_reward_button_pressed(offer_index: int) -> void:
 	_progression_state = _progression_system.set_player_deck_card_ids(_progression_state, run_session.get_player_deck_card_ids())
 	_progression_system.save_state(_progression_state)
 	run_session.clear_reward_offers()
+	_overlay_presenter.clear_reward_offers()
+	_current_reward_offers.clear()
 
 	if run_session.has_next_encounter():
 		run_session.advance_to_next_encounter()
@@ -1535,7 +1421,7 @@ func _get_run_session():
 
 
 func _should_end_run_from_postmatch() -> bool:
-	return _postmatch_result_title == "Prohra" or _postmatch_result_title == "Remíza" or _postmatch_run_completion_pending
+	return _overlay_presenter.get_result_mode() in ["loss", "draw", "run_complete"] or _overlay_presenter.is_run_completion_pending()
 
 
 func _start_turn(player_state: PlayerBattleState) -> void:
@@ -1550,6 +1436,28 @@ func _start_turn(player_state: PlayerBattleState) -> void:
 	player_state.immediate_entry_attack_used_this_turn = false
 	_deck_system.draw_cards(player_state, 1)
 	_refresh_attack_state_for_player(player_state)
+
+
+func _bank_unused_tuna(player_state: PlayerBattleState) -> void:
+	if player_state == null or player_state.tuna_current <= 0:
+		return
+	player_state.saved_tuna_current = mini(CardGameConstants.SAVED_TUNA_CAP, player_state.saved_tuna_current + player_state.tuna_current)
+	player_state.tuna_current = 0
+
+
+func _spend_card_cost(card_instance: CardInstance, player_state: PlayerBattleState) -> Dictionary:
+	var payment := _battle_rules.build_card_cost_payment(card_instance, player_state)
+	if payment.is_empty():
+		return payment
+	player_state.saved_tuna_current = maxi(0, player_state.saved_tuna_current - int(payment.get("saved_spent", 0)))
+	player_state.tuna_current = maxi(0, player_state.tuna_current - int(payment.get("normal_spent", 0)))
+	return payment
+
+
+func _format_tuna_label(player_state: PlayerBattleState) -> String:
+	if player_state == null:
+		return "Tuna 0/0 | Rez. 0"
+	return "Tuna %s/%s | Rez. %s" % [player_state.tuna_current, player_state.tuna_max, player_state.saved_tuna_current]
 
 
 func _refresh_attack_state_for_player(player_state: PlayerBattleState) -> void:
@@ -1597,7 +1505,7 @@ func _run_enemy_stub_turn() -> void:
 					break
 				_play_card_to_lane(enemy_state, played_lane, played_card)
 				if played_card.can_attack and not played_card.has_attacked:
-					action_log.append("%s vyklada %s do lajny %s a muze hned utocit." % [enemy_state.display_name, played_card.definition.display_name, played_lane + 1])
+					action_log.append("%s vykl?d? %s do lajny %s a m??e hned ?to?it." % [enemy_state.display_name, played_card.definition.display_name, played_lane + 1])
 				else:
 					action_log.append("%s vyklada %s do lajny %s." % [enemy_state.display_name, played_card.definition.display_name, played_lane + 1])
 		play_iterations += 1
@@ -1638,9 +1546,9 @@ func _refresh_ui() -> void:
 		return
 
 	enemy_life_label.text = "Životy %s" % enemy_state.life
-	enemy_tuna_label.text = "Tuna %s/%s" % [enemy_state.tuna_current, enemy_state.tuna_max]
+	enemy_tuna_label.text = _format_tuna_label(enemy_state)
 	player_life_label.text = "Životy %s" % player_state.life
-	player_tuna_label.text = "Tuna %s/%s" % [player_state.tuna_current, player_state.tuna_max]
+	player_tuna_label.text = _format_tuna_label(player_state)
 	deck_count_label.text = str(player_state.deck.size())
 	discard_count_label.text = str(player_state.discard.size())
 	hand_count_label.text = str(player_state.hand.size())
@@ -1664,14 +1572,14 @@ func _refresh_ui() -> void:
 		var player_power := _get_table_power_definition(player_state)
 		table_power_button.visible = true
 		if player_power == null:
-			table_power_button.text = "Bez Sily stolu"
+			table_power_button.text = "Bez Síly stolu"
 			table_power_button.disabled = true
 		else:
 			var power_label := "%s (%s)" % [player_power.display_name, player_power.cost]
 			if player_state.table_power_used_this_turn:
-				table_power_button.text = "%s (vyuzito)" % player_power.display_name
+				table_power_button.text = "%s (využito)" % player_power.display_name
 			elif _selected_table_power == player_power:
-				table_power_button.text = "Zrusit %s" % player_power.display_name
+				table_power_button.text = "Zrušit %s" % player_power.display_name
 			else:
 				table_power_button.text = power_label
 			table_power_button.disabled = _battle_state.active_player_id != PLAYER_ID or not _can_use_table_power(player_state, player_power)
@@ -1696,7 +1604,7 @@ func _select_hand_card_by_instance_id(instance_id: int, toggle_selection: bool =
 		_selected_info_zone = INFO_ZONE_NONE
 		if toggle_selection and _selected_card == card:
 			_selected_card = null
-			status_label.text = "Vyber z ruky zrusen."
+			status_label.text = "Výběr z ruky zrušen."
 		else:
 			_selected_card = card
 			var enemy_state := _battle_state.get_enemy_state(PLAYER_ID)
@@ -1749,457 +1657,24 @@ func _refresh_hand(player_state: PlayerBattleState) -> void:
 
 
 func _refresh_selected_panel() -> void:
-	selected_card_view.set_selected(false)
-	selected_card_view.set_playable(false)
-	var player_state: PlayerBattleState = _battle_state.get_player_state(PLAYER_ID)
-	var enemy_state: PlayerBattleState = _battle_state.get_player_state(ENEMY_ID)
-
-	if _selected_table_power != null:
-		selected_card_view.set_card_instance(null)
-		_set_selected_panel_copy(
-			_selected_table_power.display_name,
-			_build_table_power_meta(_selected_table_power, player_state),
-			_build_table_power_detail(_selected_table_power, player_state),
-			_build_table_power_preview_hint(_selected_table_power, player_state)
-		)
-		return
-
-	if _selected_card != null:
-		selected_card_view.set_card_instance(_selected_card)
-		selected_card_view.set_selected(true)
-		_set_selected_panel_copy(
-			_selected_card.definition.display_name,
-			_build_card_meta(_selected_card),
-			_build_card_detail(_selected_card.definition),
-			_build_card_preview_hint(_selected_card, player_state, enemy_state)
-		)
-		return
-
-	if _selected_attacker != null:
-		selected_card_view.set_card_instance(_selected_attacker)
-		selected_card_view.set_selected(true)
-		_set_selected_panel_copy(
-			"Utocnik: %s" % _selected_attacker.definition.display_name,
-			_build_attacker_meta(_selected_attacker),
-			_build_card_detail(_selected_attacker.definition),
-			_build_attack_preview_hint(_selected_attacker, enemy_state)
-		)
-		return
-
-	if _selected_info_zone != INFO_ZONE_NONE:
-		selected_card_view.set_card_instance(null)
-		_set_selected_panel_copy(
-			_build_info_zone_title(_selected_info_zone),
-			_build_info_zone_meta(_selected_info_zone, player_state),
-			_build_info_zone_detail(_selected_info_zone, player_state),
-			_build_info_zone_hint(_selected_info_zone)
-		)
-		return
-
-	selected_card_view.set_card_instance(null)
-	_set_selected_panel_copy(
-		"Vybrana karta",
-		"NIC VYBRÁNO",
-		"Vyber kartu z ruky pro vyložení, nebo klikni připravenou kočku na své straně pro útok.",
-		_build_simple_idle_hint(player_state, enemy_state)
-	)
-
-
-func _build_simple_idle_hint(player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> String:
-	var warning := _build_enemy_lethal_warning(player_state, enemy_state)
-	if not warning.is_empty():
-		return "%s\nVyloz blok nebo zavri otevrenou lajnu." % warning
-	return "Vyloz kocku do prazdne lajny, nebo klikni pripravenou kocku na sve strane a pak vyber cil utoku."
-
-
-func _set_selected_panel_copy(title: String, meta: String, detail: String, hint: String) -> void:
-	selected_card_title.text = title
-	selected_card_meta.text = meta
-	selected_card_detail.text = detail
-	selected_card_hint.text = hint
+	_preview_presenter.refresh_selected_panel({
+		"selected_card": _selected_card,
+		"selected_attacker": _selected_attacker,
+		"selected_table_power": _selected_table_power,
+		"selected_info_zone": _selected_info_zone,
+		"player_state": _battle_state.get_player_state(PLAYER_ID),
+		"enemy_state": _battle_state.get_player_state(ENEMY_ID),
+	})
 
 
 func _refresh_combat_info_panel() -> void:
-	if combat_info_panel == null or _combat_info_panel_base_style == null or _battle_state == null:
-		return
-
-	var panel_style := _combat_info_panel_base_style.duplicate() as StyleBoxFlat
-	var status_color := Color(0.97, 0.93, 0.86, 1.0)
-	var feed_title_color := Color(0.95, 0.84, 0.62, 1.0)
-
-	if _battle_state.battle_over:
-		panel_style.bg_color = Color(0.17, 0.12, 0.08, 0.96)
-		panel_style.border_color = Color(0.92, 0.72, 0.32, 0.98)
-		status_color = Color(1.0, 0.95, 0.84, 1.0)
-		feed_title_color = Color(0.98, 0.83, 0.45, 1.0)
-	elif _selected_attacker != null or _selected_card != null or _selected_table_power != null or _selected_info_zone != INFO_ZONE_NONE:
-		panel_style.bg_color = Color(0.18, 0.12, 0.07, 0.96)
-		panel_style.border_color = Color(0.95, 0.73, 0.35, 0.97)
-		status_color = Color(1.0, 0.92, 0.82, 1.0)
-		feed_title_color = Color(0.98, 0.8, 0.46, 1.0)
-	elif _battle_state.active_player_id == PLAYER_ID:
-		panel_style.bg_color = Color(0.10, 0.13, 0.09, 0.96)
-		panel_style.border_color = Color(0.58, 0.82, 0.48, 0.95)
-		status_color = Color(0.92, 0.98, 0.92, 1.0)
-		feed_title_color = Color(0.76, 0.95, 0.76, 1.0)
-	else:
-		panel_style.bg_color = Color(0.17, 0.09, 0.08, 0.96)
-		panel_style.border_color = Color(0.84, 0.42, 0.32, 0.95)
-		status_color = Color(0.99, 0.91, 0.88, 1.0)
-		feed_title_color = Color(0.97, 0.74, 0.66, 1.0)
-
-	combat_info_panel.add_theme_stylebox_override("panel", panel_style)
-	status_label.add_theme_color_override("font_color", status_color)
-	battle_feed_title.add_theme_color_override("font_color", feed_title_color)
-
-
-func _build_card_meta(card_instance: CardInstance) -> String:
-	if card_instance == null or card_instance.definition == null:
-		return "NEZNAMO"
-
-	var parts: Array[String] = [_card_type_label(card_instance.definition.card_type), "Cena %s Tuna" % card_instance.definition.cost]
-	if card_instance.definition.card_type == CardGameConstants.CardType.CAT:
-		parts.append("%s UTK / %s ZIV" % [card_instance.current_attack, card_instance.current_life])
-	return " | ".join(parts)
-
-
-func _build_attacker_meta(card_instance: CardInstance) -> String:
-	if card_instance == null or card_instance.definition == null:
-		return "UTOCNIK"
-
-	return "UTOCNIK | %s UTK / %s ŽIV | Lajna %s" % [
-		card_instance.current_attack,
-		card_instance.current_life,
-		card_instance.lane_index + 1
-	]
-
-
-func _build_attack_preview_hint(card_instance: CardInstance, enemy_state: PlayerBattleState) -> String:
-	if card_instance == null or enemy_state == null:
-		return "Neni vybran utocnik."
-
-	var preview_lines := _build_attack_preview_lines(card_instance, enemy_state)
-	if preview_lines.is_empty():
-		return "Není validní nepřátelská lajna."
-	return "Klikni nepřátelskou lajnu.\n%s" % "\n".join(preview_lines)
-
-
-func _build_table_power_meta(power_definition: TablePowerDefinition, player_state: PlayerBattleState) -> String:
-	if power_definition == null:
-		return "SÍLA STOLU"
-
-	var parts: Array[String] = ["SÍLA STOLU", "Cena %s Tuna" % power_definition.cost]
-	if player_state != null:
-		if player_state.table_power_used_this_turn:
-			parts.append("VYUZITO")
-		elif player_state.tuna_current < power_definition.cost:
-			parts.append("MALO TUNY")
-		else:
-			parts.append("PŘIPRAVENO")
-	return " | ".join(parts)
-
-
-func _build_table_power_preview_hint(power_definition: TablePowerDefinition, player_state: PlayerBattleState) -> String:
-	if power_definition == null:
-		return "Neni vybrana Síla stolu."
-	if player_state == null:
-		return "Chybi stav hrace."
-	if player_state.table_power_used_this_turn:
-		return "Tohle jsi už tento tah použil."
-	if player_state.tuna_current < power_definition.cost:
-		return "Nemas dost Tuna."
-	if _table_power_requires_lane_selection(power_definition):
-		var valid_lanes := _get_valid_table_power_lanes(power_definition, player_state)
-		if valid_lanes.is_empty():
-			return "Není validní lajna na tvé straně."
-		var lines: Array[String] = []
-		for lane_index in valid_lanes:
-			lines.append("Ty %s: vyvola %s." % [lane_index + 1, _build_table_power_lane_preview(power_definition)])
-		return "Klikni svou lajnu.\n%s" % "\n".join(lines)
-	return "Pouzij Silu stolu."
-
-
-func _build_card_preview_hint(card_instance: CardInstance, player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> String:
-	if card_instance == null or card_instance.definition == null:
-		return "Vyber z ruky zrusen."
-
-	if card_instance.definition.card_type == CardGameConstants.CardType.CAT:
-		var valid_play_lanes := _battle_rules.get_valid_play_lanes(card_instance, player_state)
-		if valid_play_lanes.is_empty():
-			return "Na tvé straně není volná lajna."
-		var lines: Array[String] = []
-		for lane_index in valid_play_lanes:
-			lines.append("Ty %s: vyložit %s." % [lane_index + 1, card_instance.definition.display_name])
-		return "Klikni na volnou lajnu.\n%s" % "\n".join(lines)
-
-	if not _card_requires_board_target(card_instance):
-		return _build_instant_card_preview_hint(card_instance)
-
-	var target_lines := _build_target_preview_lines(card_instance, player_state, enemy_state)
-	if target_lines.is_empty():
-		return "Na stole neni validni cil."
-	return "Klikni na zvyrazneny cil.\n%s" % "\n".join(target_lines)
-
-
-func _build_instant_card_preview_hint(card_instance: CardInstance) -> String:
-	if card_instance == null or card_instance.definition == null:
-		return "Tahle karta se vyřeší hned."
-
-	var effect_lines: Array[String] = []
-	for effect in card_instance.definition.effects:
-		var typed_effect: CardEffect = effect
-		if typed_effect == null:
-			continue
-		match typed_effect.action:
-			&"draw_cards":
-				effect_lines.append("Potáhne %s kart%s." % [typed_effect.value, "u" if typed_effect.value == 1 else "y"])
-			&"heal_life":
-				effect_lines.append("Vyléčí %s životu." % typed_effect.value)
-			&"deal_damage":
-				effect_lines.append("Udělí %s zranění." % typed_effect.value)
-
-	if effect_lines.is_empty():
-		return "Tahle karta se vyřeší hned."
-	return "Tahle karta se vyřeší hned.\n%s" % "\n".join(effect_lines)
-
-
-func _build_target_preview_lines(card_instance: CardInstance, player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> Array[String]:
-	var lines: Array[String] = []
-	if card_instance == null or player_state == null or enemy_state == null:
-		return lines
-
-	for lane_index in _get_valid_card_target_lanes(card_instance, player_state, enemy_state, player_state.player_id):
-		var slot := player_state.board[lane_index]
-		if slot == null or slot.occupant == null:
-			continue
-		lines.append("Ty %s: %s" % [lane_index + 1, _describe_target_preview(card_instance, slot.occupant)])
-
-	for lane_index in _get_valid_card_target_lanes(card_instance, player_state, enemy_state, enemy_state.player_id):
-		var slot := enemy_state.board[lane_index]
-		if slot == null or slot.occupant == null:
-			continue
-		lines.append("Soupeř %s: %s" % [lane_index + 1, _describe_target_preview(card_instance, slot.occupant)])
-
-	return lines
-
-
-func _describe_target_preview(card_instance: CardInstance, target_card: CardInstance) -> String:
-	if card_instance == null or target_card == null:
-		return "bez efektu"
-
-	var parts: Array[String] = []
-	for effect in card_instance.definition.effects:
-		var typed_effect: CardEffect = effect
-		if typed_effect == null:
-			continue
-		match typed_effect.action:
-			&"modify_attack":
-				parts.append("%s UTK -> %s" % [_format_signed_number(typed_effect.value), target_card.current_attack + typed_effect.value])
-			&"modify_life":
-				var next_life := maxi(0, target_card.current_life + typed_effect.value)
-				parts.append("%s ŽIV -> %s" % [_format_signed_number(typed_effect.value), next_life])
-			&"deal_damage":
-				var remaining_life := maxi(0, target_card.current_life - typed_effect.value)
-				parts.append("KO" if remaining_life <= 0 else "zbyde %s ZIV" % remaining_life)
-			&"ready_attack":
-				parts.append("pripravi utok")
-			&"return_to_hand":
-				parts.append("vrátí do ruky")
-			&"steal_item":
-				parts.append("ukradne predmet")
-			&"destroy_item":
-				parts.append("znici predmet")
-			&"grant_keyword":
-				parts.append("+%s" % CardGameConstants.keyword_label(typed_effect.keyword_arg))
-
-	if parts.is_empty():
-		return "bez efektu"
-	return ", ".join(parts)
-
-
-func _build_target_preview_banner(card_instance: CardInstance, target_card: CardInstance) -> Dictionary:
-	var preview := {
-		"text": "CIL",
-		"tone": LaneSlotView.EVENT_ACTION,
-	}
-	if card_instance == null or target_card == null or card_instance.definition == null:
-		return preview
-
-	var parts: Array[String] = []
-	var tone := LaneSlotView.EVENT_ACTION
-	for effect in card_instance.definition.effects:
-		var typed_effect: CardEffect = effect
-		if typed_effect == null:
-			continue
-		match typed_effect.action:
-			&"modify_attack":
-				parts.append("%s UTK" % _format_signed_number(typed_effect.value))
-				tone = LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE
-			&"modify_life":
-				parts.append("%s ZIV" % _format_signed_number(typed_effect.value))
-				tone = LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE
-			&"deal_damage":
-				var remaining_life := maxi(0, target_card.current_life - typed_effect.value)
-				parts.append("KO" if remaining_life <= 0 else "-%s ZIV" % typed_effect.value)
-				tone = LaneSlotView.EVENT_KO if remaining_life <= 0 else LaneSlotView.EVENT_DAMAGE
-			&"ready_attack":
-				parts.append("PRIPRAVI")
-				tone = LaneSlotView.EVENT_SUPPORT
-			&"return_to_hand":
-				parts.append("VRÁTÍ")
-				tone = LaneSlotView.EVENT_ACTION
-			&"steal_item":
-				parts.append("UKRADNE")
-				tone = LaneSlotView.EVENT_ACTION
-			&"destroy_item":
-				parts.append("ZNICI")
-				tone = LaneSlotView.EVENT_DAMAGE
-			&"grant_keyword":
-				parts.append("+%s" % CardGameConstants.keyword_label(typed_effect.keyword_arg).to_upper())
-				tone = LaneSlotView.EVENT_SUPPORT
-
-	if parts.is_empty():
-		return preview
-
-	if parts.size() > 2:
-		parts.resize(2)
-	preview["text"] = ", ".join(parts)
-	preview["tone"] = tone
-	return preview
-
-
-func _build_attack_preview_lines(attacker: CardInstance, defender_state: PlayerBattleState) -> Array[String]:
-	var lines: Array[String] = []
-	if attacker == null or defender_state == null:
-		return lines
-
-	for lane_index in _battle_rules.get_valid_attack_lanes(attacker, defender_state):
-		lines.append("Soupeř %s: %s" % [lane_index + 1, _describe_attack_preview(attacker, defender_state, lane_index)])
-	return lines
-
-
-func _describe_attack_preview(attacker: CardInstance, defender_state: PlayerBattleState, lane_index: int) -> String:
-	if attacker == null or defender_state == null:
-		return "bez cile"
-
-	var target_slot: LaneSlotState = defender_state.board[lane_index]
-	if target_slot != null and target_slot.occupant != null:
-		var target_card: CardInstance = target_slot.occupant
-		var remaining_life := maxi(0, target_card.current_life - attacker.current_attack)
-		if remaining_life <= 0:
-			return "%s padne." % target_card.definition.display_name
-		return "%s zbyde %s ŽIV." % [target_card.definition.display_name, remaining_life]
-
-	var guard_target := _battle_rules.find_guard_for_direct_damage(defender_state, lane_index)
-	if guard_target != null:
-		var guard_life := maxi(0, guard_target.current_life - attacker.current_attack)
-		if guard_life <= 0:
-			return "%s zachytí zásah a padne." % guard_target.definition.display_name
-		return "%s zachyti zasah, zbyde %s ŽIV." % [guard_target.definition.display_name, guard_life]
-
-	return "přímý zásah za %s." % attacker.current_attack
-
-
-func _build_attack_preview_banner(attacker: CardInstance, defender_state: PlayerBattleState, lane_index: int) -> Dictionary:
-	var preview := {
-		"text": "UTOK",
-		"tone": LaneSlotView.EVENT_ACTION,
-	}
-	if attacker == null or defender_state == null:
-		return preview
-
-	var target_slot: LaneSlotState = defender_state.board[lane_index]
-	if target_slot != null and target_slot.occupant != null:
-		var target_card: CardInstance = target_slot.occupant
-		var remaining_life := maxi(0, target_card.current_life - attacker.current_attack)
-		preview["text"] = "KO" if remaining_life <= 0 else "ZBYDE %s" % remaining_life
-		preview["tone"] = LaneSlotView.EVENT_KO if remaining_life <= 0 else LaneSlotView.EVENT_DAMAGE
-		return preview
-
-	var guard_target := _battle_rules.find_guard_for_direct_damage(defender_state, lane_index)
-	if guard_target != null:
-		var guard_life := maxi(0, guard_target.current_life - attacker.current_attack)
-		preview["text"] = "GUARD KO" if guard_life <= 0 else "GUARD %s" % guard_life
-		preview["tone"] = LaneSlotView.EVENT_BLOCK
-		return preview
-
-	preview["text"] = "PŘÍMO %s" % attacker.current_attack
-	preview["tone"] = LaneSlotView.EVENT_DIRECT
-	return preview
-
-
-func _build_idle_panel_hint(player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> String:
-	var warning := _build_enemy_lethal_warning(player_state, enemy_state)
-	if not warning.is_empty():
-		return "%s\nVyloz blok nebo zavri otevrenou lajnu." % warning
-	return "Síla stolu je tlacitko dole. Aktivni cil se ti zvyrazni na stole."
-
-
-func _build_enemy_lethal_warning(player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> String:
-	if player_state == null or enemy_state == null or player_state.life <= 0:
-		return ""
-
-	var direct_damage := 0
-	var threat_lines: Array[String] = []
-	for slot in enemy_state.board:
-		if slot == null or slot.occupant == null:
-			continue
-		var attacker: CardInstance = slot.occupant
-		var direct_lane := _find_direct_attack_lane(attacker, player_state)
-		if direct_lane < 0:
-			continue
-		direct_damage += attacker.current_attack
-		threat_lines.append("%s pres lajnu %s" % [attacker.definition.display_name, direct_lane + 1])
-
-	if direct_damage < player_state.life:
-		return ""
-
-	var threat_count := threat_lines.size()
-	if threat_count <= 1:
-		return "SMRTICI HROZBA: hrozi %s primeho zraneni." % direct_damage
-	return "SMRTICI HROZBA: hrozi %s primeho zraneni z %s lajn." % [direct_damage, threat_count]
-
-
-func _find_direct_attack_lane(attacker: CardInstance, defender_state: PlayerBattleState) -> int:
-	if attacker == null or defender_state == null or attacker.lane_index < 0:
-		return -1
-
-	var lane_indexes: Array[int] = [attacker.lane_index]
-	if attacker.has_keyword(CardGameConstants.KEYWORD_POUNCE):
-		if attacker.lane_index > 0:
-			lane_indexes.append(attacker.lane_index - 1)
-		if attacker.lane_index < defender_state.board.size() - 1:
-			lane_indexes.append(attacker.lane_index + 1)
-
-	for lane_index in lane_indexes:
-		var slot: LaneSlotState = defender_state.board[lane_index]
-		if slot != null and slot.occupant != null:
-			continue
-		if _battle_rules.find_guard_for_direct_damage(defender_state, lane_index) != null:
-			continue
-		return lane_index
-
-	return -1
-
-
-func _collect_enemy_direct_threats(player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> Array[Dictionary]:
-	var threats: Array[Dictionary] = []
-	if player_state == null or enemy_state == null:
-		return threats
-
-	for slot in enemy_state.board:
-		if slot == null or slot.occupant == null:
-			continue
-		var attacker: CardInstance = slot.occupant
-		var direct_lane := _find_direct_attack_lane(attacker, player_state)
-		if direct_lane < 0:
-			continue
-		threats.append({
-			"attacker_lane": attacker.lane_index,
-			"target_lane": direct_lane,
-			"damage": attacker.current_attack,
-		})
-	return threats
+	_preview_presenter.refresh_combat_info_panel({
+		"battle_state": _battle_state,
+		"selected_attacker": _selected_attacker,
+		"selected_card": _selected_card,
+		"selected_table_power": _selected_table_power,
+		"selected_info_zone": _selected_info_zone,
+	})
 
 
 func _set_lane_preview(owner_id: int, lane_index: int, text: String, tone: StringName = LaneSlotView.EVENT_ACTION) -> void:
@@ -2213,7 +1688,7 @@ func _apply_enemy_lethal_lane_previews(player_state: PlayerBattleState, enemy_st
 	if player_state == null or enemy_state == null or player_state.life <= 0:
 		return
 
-	var threats := _collect_enemy_direct_threats(player_state, enemy_state)
+	var threats := _preview_presenter.collect_enemy_direct_threats(player_state, enemy_state)
 	var total_direct_damage := 0
 	for threat in threats:
 		total_direct_damage += int(threat.get("damage", 0))
@@ -2239,12 +1714,12 @@ func _build_info_zone_title(zone_id: StringName) -> String:
 			return "Balík"
 		INFO_ZONE_DISCARD:
 			return "Odhazování"
-	return "Nahled"
+	return "N?hled"
 
 
 func _build_info_zone_meta(zone_id: StringName, player_state: PlayerBattleState) -> String:
 	if player_state == null:
-		return "CHYBI DATA"
+		return "CHYB? DATA"
 
 	var cards := _get_info_zone_cards(zone_id, player_state)
 	var type_count := _count_unique_card_names(cards)
@@ -2252,13 +1727,13 @@ func _build_info_zone_meta(zone_id: StringName, player_state: PlayerBattleState)
 		INFO_ZONE_DECK:
 			return "BALÍK | %s karet | %s typů" % [cards.size(), type_count]
 		INFO_ZONE_DISCARD:
-			return "ODHAZOVANI | %s karet | %s typu" % [cards.size(), type_count]
+			return "ODHAZOV?N? | %s karet | %s typ?" % [cards.size(), type_count]
 	return "NAHLED"
 
 
 func _build_info_zone_detail(zone_id: StringName, player_state: PlayerBattleState) -> String:
 	if player_state == null:
-		return "Chybi stav hrace."
+		return "Chyb? stav hr??e."
 
 	var cards := _get_info_zone_cards(zone_id, player_state)
 	if cards.is_empty():
@@ -2272,7 +1747,7 @@ func _build_info_zone_hint(zone_id: StringName) -> String:
 			return "Klikni znovu na Balík pro zavření."
 		INFO_ZONE_DISCARD:
 			return "Klikni znovu na Odhazování pro zavření."
-	return "Klikni znovu pro zavreni."
+	return "Klikni znovu pro zav?en?."
 
 
 func _get_info_zone_cards(zone_id: StringName, player_state: PlayerBattleState) -> Array[CardInstance]:
@@ -2361,13 +1836,13 @@ func _refresh_lane_highlights(player_state: PlayerBattleState, enemy_state: Play
 				_player_lanes[lane_index].set_highlight_mode(LaneSlotView.HIGHLIGHT_PLAY)
 				var player_slot := player_state.board[lane_index]
 				if player_slot != null and player_slot.occupant != null:
-					var player_preview := _build_target_preview_banner(_selected_card, player_slot.occupant)
+					var player_preview := _preview_presenter.build_target_preview_banner(_selected_card, player_slot.occupant)
 					_set_lane_preview(PLAYER_ID, lane_index, str(player_preview.get("text", "")), StringName(player_preview.get("tone", LaneSlotView.EVENT_ACTION)))
 			for lane_index in _get_valid_card_target_lanes(_selected_card, player_state, enemy_state, enemy_state.player_id):
 				_enemy_lanes[lane_index].set_highlight_mode(LaneSlotView.HIGHLIGHT_ATTACK)
 				var enemy_slot := enemy_state.board[lane_index]
 				if enemy_slot != null and enemy_slot.occupant != null:
-					var enemy_preview := _build_target_preview_banner(_selected_card, enemy_slot.occupant)
+					var enemy_preview := _preview_presenter.build_target_preview_banner(_selected_card, enemy_slot.occupant)
 					_set_lane_preview(ENEMY_ID, lane_index, str(enemy_preview.get("text", "")), StringName(enemy_preview.get("tone", LaneSlotView.EVENT_ACTION)))
 		return
 
@@ -2376,7 +1851,7 @@ func _refresh_lane_highlights(player_state: PlayerBattleState, enemy_state: Play
 		var valid_attack_lanes: Array[int] = _battle_rules.get_valid_attack_lanes(_selected_attacker, enemy_state)
 		for lane_index in valid_attack_lanes:
 			_enemy_lanes[lane_index].set_highlight_mode(LaneSlotView.HIGHLIGHT_ATTACK)
-			var attack_preview := _build_attack_preview_banner(_selected_attacker, enemy_state, lane_index)
+			var attack_preview := _preview_presenter.build_attack_preview_banner(_selected_attacker, enemy_state, lane_index)
 			_set_lane_preview(ENEMY_ID, lane_index, str(attack_preview.get("text", "")), StringName(attack_preview.get("tone", LaneSlotView.EVENT_ACTION)))
 		return
 
@@ -2416,7 +1891,7 @@ func _on_table_power_button_pressed() -> void:
 		return
 
 	if not _can_use_table_power(player_state, power_definition):
-		status_label.text = "%s jeste nejde pouzit." % power_definition.display_name
+		status_label.text = "%s je?t? nejde pou??t." % power_definition.display_name
 		_refresh_ui()
 		return
 
@@ -2427,58 +1902,14 @@ func _on_table_power_button_pressed() -> void:
 	if _table_power_requires_lane_selection(power_definition):
 		_selected_table_power = null if _selected_table_power == power_definition else power_definition
 		if _selected_table_power == null:
-			status_label.text = "Vyber Sily stolu zrusen."
+			status_label.text = "Výběr Síly stolu zrušen."
 		else:
-			status_label.text = "Vybráno: %s. Klikni na volnou lajnu na své straně." % power_definition.display_name
+			status_label.text = "%s vybraná. Klikni na volnou lajnu." % power_definition.display_name
 	else:
 		_selected_table_power = null
 		status_label.text = _activate_table_power(player_state, enemy_state, power_definition)
 
 	_refresh_ui()
-
-
-func _build_card_detail(card_definition: CardDefinition) -> String:
-	if not card_definition.rules_text.is_empty():
-		if card_definition.keywords.is_empty():
-			return card_definition.rules_text
-		var detail_lines: Array[String] = [card_definition.rules_text]
-		for keyword in card_definition.keywords:
-			detail_lines.append("%s: %s" % [CardGameConstants.keyword_label(keyword), CardGameConstants.keyword_summary(keyword)])
-		return "\n".join(detail_lines)
-
-	if card_definition.keywords.is_empty():
-		return "Bez dalsich efektu."
-
-	var lines: Array[String] = []
-	for keyword in card_definition.keywords:
-		lines.append("%s: %s" % [CardGameConstants.keyword_label(keyword), CardGameConstants.keyword_summary(keyword)])
-	return "\n".join(lines)
-
-
-func _build_table_power_detail(power_definition: TablePowerDefinition, player_state: PlayerBattleState) -> String:
-	if power_definition == null:
-		return "Žádná síla stolu."
-
-	var lines: Array[String] = [power_definition.rules_text]
-	lines.append("Cena: %s Tuna" % power_definition.cost)
-	if player_state != null:
-		if player_state.table_power_used_this_turn:
-			lines.append("Stav: uz vyuzito v tomto kole.")
-		elif player_state.tuna_current < power_definition.cost:
-			lines.append("Stav: malo Tuny.")
-		elif _table_power_requires_lane_selection(power_definition):
-			lines.append("Validni lajny: %s" % _format_lane_names(_get_valid_table_power_lanes(power_definition, player_state)))
-	return "\n".join(lines)
-
-
-func _format_lane_names(lane_indexes: Array[int]) -> String:
-	if lane_indexes.is_empty():
-		return "zadna"
-
-	var lane_names: Array[String] = []
-	for lane_index in lane_indexes:
-		lane_names.append("Lajna %s" % (lane_index + 1))
-	return ", ".join(lane_names)
 
 
 func _build_runtime_style_box(background_color: Color, border_color: Color, corner_radius: int, border_width: int) -> StyleBoxFlat:

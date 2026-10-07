@@ -19,7 +19,7 @@ func choose_play(player_state: PlayerBattleState, defender_state: PlayerBattleSt
     for card in player_state.hand:
         if card == null or card.definition == null:
             continue
-        if player_state.tuna_current < card.definition.cost:
+        if not rules.can_pay_card_cost(card, player_state):
             continue
 
         match card.definition.card_type:
@@ -103,9 +103,14 @@ func _score_play(card: CardInstance, lane_index: int, player_state: PlayerBattle
 
 
 func _score_tuna_use(card: CardInstance, player_state: PlayerBattleState) -> float:
-    if player_state.tuna_current <= 0:
+    if card == null or player_state == null:
         return 0.0
-    return (float(card.definition.cost) / float(player_state.tuna_current)) * 1.6
+    var available_tuna := player_state.tuna_current
+    if card.definition.card_type == CardGameConstants.CardType.TRICK:
+        available_tuna += player_state.saved_tuna_current
+    if available_tuna <= 0:
+        return 0.0
+    return (float(card.definition.cost) / float(available_tuna)) * 1.6
 
 
 func _score_lane_block_value(lane_index: int, defender_state: PlayerBattleState) -> float:

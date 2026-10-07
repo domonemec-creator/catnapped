@@ -10,6 +10,7 @@ var life: int = 10
 var max_life: int = 10
 var tuna_current: int = 0
 var tuna_max: int = 0
+var saved_tuna_current: int = 0
 var deck: Array[CardInstance] = []
 var hand: Array[CardInstance] = []
 var discard: Array[CardInstance] = []
@@ -30,6 +31,7 @@ func initialize(player_id_value: int, display_name_value: String, starting_life:
     max_life = starting_life
     tuna_current = starting_tuna
     tuna_max = starting_tuna
+    saved_tuna_current = 0
     table_power_id = table_power_id_value
     immediate_entry_attack_used_this_turn = false
     has_started_turn = false

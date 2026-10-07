@@ -18,6 +18,7 @@ func _reset_battle_state(battle, player_state, enemy_state) -> void:
 		state.life = 30
 		state.tuna_current = 10
 		state.tuna_max = 10
+		state.saved_tuna_current = 0
 		state.table_power_id = StringName()
 		state.table_power_used_this_turn = false
 		state.immediate_entry_attack_used_this_turn = false
@@ -111,8 +112,8 @@ func _run() -> void:
 	if enemy_state.life != 27:
 		_fail("Direct attack did not hit enemy life.")
 		return
-	if _lane_event_text(battle._enemy_lanes[0]) != "PŘÍMO 3":
-		_fail("Direct attack lane did not show PŘÍMO 3.")
+	if _lane_event_text(battle._enemy_lanes[0]) != "PRIMO 3":
+		_fail("Direct attack lane did not show PRIMO 3.")
 		return
 
 	_reset_battle_state(battle, player_state, enemy_state)

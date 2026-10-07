@@ -7,6 +7,8 @@ enum CardType {
     ITEM,
 }
 
+const SAVED_TUNA_CAP := 2
+
 const KEYWORD_BATTLECRY := &"battlecry"
 const KEYWORD_LAST_BREATH := &"last_breath"
 const KEYWORD_QUICK_PAWS := &"quick_paws"

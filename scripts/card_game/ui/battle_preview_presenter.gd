@@ -1,0 +1,689 @@
+class_name BattlePreviewPresenter
+extends RefCounted
+
+const CardEffect = preload("res://scripts/card_game/data/card_effect.gd")
+const CardGameConstants = preload("res://scripts/card_game/data/card_game_constants.gd")
+const LaneSlotView = preload("res://scripts/card_game/ui/lane_slot_view.gd")
+
+var _selected_card_view
+var _selected_card_title: Label
+var _selected_card_meta: Label
+var _selected_card_detail: RichTextLabel
+var _selected_card_hint: Label
+var _combat_info_panel: PanelContainer
+var _status_label: Label
+var _battle_feed_title: Label
+var _combat_info_panel_base_style: StyleBoxFlat
+
+var _battle_rules
+var _card_library: Dictionary = {}
+var _player_id := 0
+var _info_zone_none: StringName = &""
+var _info_zone_deck: StringName = &"deck"
+var _info_zone_discard: StringName = &"discard"
+
+var _get_valid_table_power_lanes: Callable
+var _table_power_requires_lane_selection: Callable
+var _card_requires_board_target: Callable
+var _get_valid_card_target_lanes: Callable
+var _card_display_name_from_id: Callable
+
+
+func setup(config: Dictionary) -> void:
+	_selected_card_view = config.get("selected_card_view")
+	_selected_card_title = config.get("selected_card_title") as Label
+	_selected_card_meta = config.get("selected_card_meta") as Label
+	_selected_card_detail = config.get("selected_card_detail") as RichTextLabel
+	_selected_card_hint = config.get("selected_card_hint") as Label
+	_combat_info_panel = config.get("combat_info_panel") as PanelContainer
+	_status_label = config.get("status_label") as Label
+	_battle_feed_title = config.get("battle_feed_title") as Label
+	_battle_rules = config.get("battle_rules")
+	_player_id = int(config.get("player_id", 0))
+	_info_zone_none = config.get("info_zone_none", &"")
+	_info_zone_deck = config.get("info_zone_deck", &"deck")
+	_info_zone_discard = config.get("info_zone_discard", &"discard")
+	_get_valid_table_power_lanes = config.get("get_valid_table_power_lanes", Callable())
+	_table_power_requires_lane_selection = config.get("table_power_requires_lane_selection", Callable())
+	_card_requires_board_target = config.get("card_requires_board_target", Callable())
+	_get_valid_card_target_lanes = config.get("get_valid_card_target_lanes", Callable())
+	_card_display_name_from_id = config.get("card_display_name_from_id", Callable())
+
+
+func set_card_library(card_library: Dictionary) -> void:
+	_card_library = card_library.duplicate()
+
+
+func set_combat_info_panel_base_style(style: StyleBoxFlat) -> void:
+	_combat_info_panel_base_style = style
+
+
+func refresh_selected_panel(state: Dictionary) -> void:
+	if _selected_card_view == null:
+		return
+	_selected_card_view.set_selected(false)
+	_selected_card_view.set_playable(false)
+
+	var player_state = state.get("player_state")
+	var enemy_state = state.get("enemy_state")
+	var selected_table_power = state.get("selected_table_power")
+	var selected_card = state.get("selected_card")
+	var selected_attacker = state.get("selected_attacker")
+	var selected_info_zone: StringName = state.get("selected_info_zone", _info_zone_none)
+
+	if selected_table_power != null:
+		_selected_card_view.set_card_instance(null)
+		set_selected_panel_copy(
+			selected_table_power.display_name,
+			build_table_power_meta(selected_table_power, player_state),
+			build_table_power_detail(selected_table_power, player_state),
+			build_table_power_preview_hint(selected_table_power, player_state)
+		)
+		return
+
+	if selected_card != null:
+		_selected_card_view.set_card_instance(selected_card)
+		_selected_card_view.set_selected(true)
+		set_selected_panel_copy(
+			selected_card.definition.display_name,
+			build_card_meta(selected_card),
+			build_card_detail(selected_card.definition),
+			build_card_preview_hint(selected_card, player_state, enemy_state)
+		)
+		return
+
+	if selected_attacker != null:
+		_selected_card_view.set_card_instance(selected_attacker)
+		_selected_card_view.set_selected(true)
+		set_selected_panel_copy(
+			"Útočník: %s" % selected_attacker.definition.display_name,
+			build_attacker_meta(selected_attacker),
+			build_card_detail(selected_attacker.definition),
+			build_attack_preview_hint(selected_attacker, enemy_state)
+		)
+		return
+
+	if selected_info_zone != _info_zone_none:
+		_selected_card_view.set_card_instance(null)
+		set_selected_panel_copy(
+			build_info_zone_title(selected_info_zone),
+			build_info_zone_meta(selected_info_zone, player_state),
+			build_info_zone_detail(selected_info_zone, player_state),
+			build_info_zone_hint(selected_info_zone)
+		)
+		return
+
+	_selected_card_view.set_card_instance(null)
+	set_selected_panel_copy(
+		"Vybraná karta",
+		"NIC VYBRÁNO",
+		"Vyber kartu z ruky nebo klikni na připravenou kočku k útoku.",
+		build_simple_idle_hint(player_state, enemy_state)
+	)
+
+
+func refresh_combat_info_panel(state: Dictionary) -> void:
+	var battle_state = state.get("battle_state")
+	if _combat_info_panel == null or _combat_info_panel_base_style == null or battle_state == null:
+		return
+
+	var panel_style := _combat_info_panel_base_style.duplicate() as StyleBoxFlat
+	var status_color := Color(0.97, 0.93, 0.86, 1.0)
+	var feed_title_color := Color(0.95, 0.84, 0.62, 1.0)
+
+	if battle_state.battle_over:
+		panel_style.bg_color = Color(0.17, 0.12, 0.08, 0.96)
+		panel_style.border_color = Color(0.92, 0.72, 0.32, 0.98)
+		status_color = Color(1.0, 0.95, 0.84, 1.0)
+		feed_title_color = Color(0.98, 0.83, 0.45, 1.0)
+	elif state.get("selected_attacker") != null or state.get("selected_card") != null or state.get("selected_table_power") != null or state.get("selected_info_zone", _info_zone_none) != _info_zone_none:
+		panel_style.bg_color = Color(0.18, 0.12, 0.07, 0.96)
+		panel_style.border_color = Color(0.95, 0.73, 0.35, 0.97)
+		status_color = Color(1.0, 0.92, 0.82, 1.0)
+		feed_title_color = Color(0.98, 0.8, 0.46, 1.0)
+	else:
+		if battle_state.active_player_id == _player_id:
+			panel_style.bg_color = Color(0.10, 0.13, 0.09, 0.96)
+			panel_style.border_color = Color(0.58, 0.82, 0.48, 0.95)
+			status_color = Color(0.92, 0.98, 0.92, 1.0)
+			feed_title_color = Color(0.76, 0.95, 0.76, 1.0)
+		else:
+			panel_style.bg_color = Color(0.17, 0.09, 0.08, 0.96)
+			panel_style.border_color = Color(0.84, 0.42, 0.32, 0.95)
+			status_color = Color(0.99, 0.91, 0.88, 1.0)
+			feed_title_color = Color(0.97, 0.74, 0.66, 1.0)
+
+	_combat_info_panel.add_theme_stylebox_override("panel", panel_style)
+	if _status_label != null:
+		_status_label.add_theme_color_override("font_color", status_color)
+	if _battle_feed_title != null:
+		_battle_feed_title.add_theme_color_override("font_color", feed_title_color)
+
+
+func build_simple_idle_hint(player_state, enemy_state) -> String:
+	var warning := build_enemy_lethal_warning(player_state, enemy_state)
+	if not warning.is_empty():
+		return "%s\nZavři otevřenou lajnu nebo přidej blok." % warning
+	return "Vylož kočku nebo zaútoč připravenou kočkou."
+
+
+func build_card_meta(card_instance, player_state = null) -> String:
+	if card_instance == null or card_instance.definition == null:
+		return "NEZNAMO"
+
+	var parts: Array[String] = [card_type_label(card_instance.definition.card_type), "Cena %s Tuna" % card_instance.definition.cost]
+	if card_instance.definition.card_type == CardGameConstants.CardType.TRICK and player_state != null:
+		parts.append("Rez. %s" % player_state.saved_tuna_current)
+	if card_instance.definition.card_type == CardGameConstants.CardType.CAT:
+		parts.append("%s UTK / %s ZIV" % [card_instance.current_attack, card_instance.current_life])
+	return " | ".join(parts)
+
+
+func build_attacker_meta(card_instance) -> String:
+	if card_instance == null or card_instance.definition == null:
+		return "ÚTOČNÍK"
+
+	return "ÚTOČNÍK | %s UTK / %s ZIV | Lajna %s" % [
+		card_instance.current_attack,
+		card_instance.current_life,
+		card_instance.lane_index + 1
+	]
+
+
+func build_attack_preview_hint(card_instance, enemy_state) -> String:
+	if card_instance == null or enemy_state == null:
+		return "Není vybraný útočník."
+
+	var preview_lines := build_attack_preview_lines(card_instance, enemy_state)
+	if preview_lines.is_empty():
+		return "Není validní nepřátelská lajna."
+	return "Klikni na nepřátelskou lajnu.\n%s" % "\n".join(preview_lines)
+
+
+func build_table_power_meta(power_definition, player_state) -> String:
+	if power_definition == null:
+		return "SÍLA STOLU"
+
+	var parts: Array[String] = ["SÍLA STOLU", "Cena %s Tuny" % power_definition.cost]
+	if player_state != null:
+		if player_state.table_power_used_this_turn:
+			parts.append("VYUŽITO")
+		elif player_state.tuna_current < power_definition.cost:
+			parts.append("MÁLO TUNY")
+		else:
+			parts.append("PŘIPRAVENO")
+	return " | ".join(parts)
+
+
+func build_table_power_preview_hint(power_definition, player_state) -> String:
+	if power_definition == null:
+		return "Není vybraná Síla stolu."
+	if player_state == null:
+		return "Chybí stav hráče."
+	if player_state.table_power_used_this_turn:
+		return "Tohle jsi už tenhle tah použil."
+	if player_state.tuna_current < power_definition.cost:
+		return "Nemáš dost Tuny."
+	if _table_power_requires_lane_selection.is_valid() and _table_power_requires_lane_selection.call(power_definition):
+		var valid_lanes: Array = _get_valid_table_power_lanes.call(power_definition, player_state)
+		if valid_lanes.is_empty():
+			return "Není validní lajna na tvé straně."
+		var lines: Array[String] = []
+		for lane_index in valid_lanes:
+			lines.append("Ty %s: vyvolá %s." % [lane_index + 1, build_table_power_lane_preview(power_definition)])
+		return "Klikni na svou lajnu.\n%s" % "\n".join(lines)
+	return "Použij Sílu stolu."
+
+
+func build_card_preview_hint(card_instance, player_state, enemy_state) -> String:
+	if card_instance == null or card_instance.definition == null:
+		return "Vyber z ruky zrusen."
+
+	if player_state != null:
+		var available_tuna: int = int(player_state.tuna_current)
+		if card_instance.definition.card_type == CardGameConstants.CardType.TRICK:
+			available_tuna += player_state.saved_tuna_current
+		if available_tuna < card_instance.definition.cost:
+			if card_instance.definition.card_type == CardGameConstants.CardType.TRICK:
+				return "Nemas dost Tuny. Bezna %s + rezerva %s." % [player_state.tuna_current, player_state.saved_tuna_current]
+			return "Nemas dost Tuny."
+
+	if card_instance.definition.card_type == CardGameConstants.CardType.CAT:
+		var valid_play_lanes: Array = _battle_rules.get_valid_play_lanes(card_instance, player_state)
+		if valid_play_lanes.is_empty():
+			return "Na tve strane neni volna lajna."
+		var lines: Array[String] = []
+		for lane_index in valid_play_lanes:
+			lines.append("Ty %s: vylozit %s." % [lane_index + 1, card_instance.definition.display_name])
+		return "Klikni na volnou lajnu.\n%s" % "\n".join(lines)
+
+	if _card_requires_board_target.is_valid() and not _card_requires_board_target.call(card_instance):
+		return build_instant_card_preview_hint(card_instance)
+
+	var target_lines := build_target_preview_lines(card_instance, player_state, enemy_state)
+	if target_lines.is_empty():
+		return "Na stole neni validni cil."
+	return "Klikni na cil.\n%s" % "\n".join(target_lines)
+
+
+func build_instant_card_preview_hint(card_instance) -> String:
+	if card_instance == null or card_instance.definition == null:
+		return "Tahle karta se vyřeší hned."
+
+	var effect_lines: Array[String] = []
+	for effect in card_instance.definition.effects:
+		var typed_effect: CardEffect = effect
+		if typed_effect == null:
+			continue
+		match typed_effect.action:
+			&"draw_cards":
+				effect_lines.append("Lízneš %s kart%s." % [typed_effect.value, "u" if typed_effect.value == 1 else "y"])
+			&"heal_life":
+				effect_lines.append("Vyléčí %s životů." % typed_effect.value)
+			&"deal_damage":
+				effect_lines.append("Udělí %s zranění." % typed_effect.value)
+
+	if effect_lines.is_empty():
+		return "Tahle karta se vyřeší hned."
+	return "Tahle karta se vyřeší hned.\n%s" % "\n".join(effect_lines)
+
+
+func build_target_preview_lines(card_instance, player_state, enemy_state) -> Array[String]:
+	var lines: Array[String] = []
+	if card_instance == null or player_state == null or enemy_state == null or not _get_valid_card_target_lanes.is_valid():
+		return lines
+
+	for lane_index in _get_valid_card_target_lanes.call(card_instance, player_state, enemy_state, player_state.player_id):
+		var slot = player_state.board[lane_index]
+		if slot == null or slot.occupant == null:
+			continue
+		lines.append("Ty %s: %s" % [lane_index + 1, describe_target_preview(card_instance, slot.occupant)])
+
+	for lane_index in _get_valid_card_target_lanes.call(card_instance, player_state, enemy_state, enemy_state.player_id):
+		var slot = enemy_state.board[lane_index]
+		if slot == null or slot.occupant == null:
+			continue
+		lines.append("Soupeř %s: %s" % [lane_index + 1, describe_target_preview(card_instance, slot.occupant)])
+
+	return lines
+
+
+func describe_target_preview(card_instance, target_card) -> String:
+	if card_instance == null or target_card == null:
+		return "bez efektu"
+
+	var parts: Array[String] = []
+	for effect in card_instance.definition.effects:
+		var typed_effect: CardEffect = effect
+		if typed_effect == null:
+			continue
+		match typed_effect.action:
+			&"modify_attack":
+				parts.append("%s UTK -> %s" % [format_signed_number(typed_effect.value), target_card.current_attack + typed_effect.value])
+			&"modify_life":
+				var next_life := maxi(0, target_card.current_life + typed_effect.value)
+				parts.append("%s ZIV -> %s" % [format_signed_number(typed_effect.value), next_life])
+			&"deal_damage":
+				var remaining_life := maxi(0, target_card.current_life - typed_effect.value)
+				parts.append("KO" if remaining_life <= 0 else "zbyde %s ZIV" % remaining_life)
+			&"ready_attack":
+				parts.append("připraví útok")
+			&"return_to_hand":
+				parts.append("vrátí do ruky")
+			&"steal_item":
+				parts.append("ukradne předmět")
+			&"destroy_item":
+				parts.append("zničí předmět")
+			&"grant_keyword":
+				parts.append("+%s" % CardGameConstants.keyword_label(typed_effect.keyword_arg))
+
+	if parts.is_empty():
+		return "bez efektu"
+	return ", ".join(parts)
+
+
+func build_target_preview_banner(card_instance, target_card) -> Dictionary:
+	var preview := {
+		"text": "CÍL",
+		"tone": LaneSlotView.EVENT_ACTION,
+	}
+	if card_instance == null or target_card == null or card_instance.definition == null:
+		return preview
+
+	var parts: Array[String] = []
+	var tone := LaneSlotView.EVENT_ACTION
+	for effect in card_instance.definition.effects:
+		var typed_effect: CardEffect = effect
+		if typed_effect == null:
+			continue
+		match typed_effect.action:
+			&"modify_attack":
+				parts.append("%s UTK" % format_signed_number(typed_effect.value))
+				tone = LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE
+			&"modify_life":
+				parts.append("%s ZIV" % format_signed_number(typed_effect.value))
+				tone = LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE
+			&"deal_damage":
+				var remaining_life := maxi(0, target_card.current_life - typed_effect.value)
+				parts.append("KO" if remaining_life <= 0 else "-%s ZIV" % typed_effect.value)
+				tone = LaneSlotView.EVENT_KO if remaining_life <= 0 else LaneSlotView.EVENT_DAMAGE
+			&"ready_attack":
+				parts.append("PRIPRAVI")
+				tone = LaneSlotView.EVENT_SUPPORT
+			&"return_to_hand":
+				parts.append("VRATI")
+				tone = LaneSlotView.EVENT_ACTION
+			&"steal_item":
+				parts.append("UKRADNE")
+				tone = LaneSlotView.EVENT_ACTION
+			&"destroy_item":
+				parts.append("ZNICI")
+				tone = LaneSlotView.EVENT_DAMAGE
+			&"grant_keyword":
+				parts.append("+%s" % CardGameConstants.keyword_label(typed_effect.keyword_arg).to_upper())
+				tone = LaneSlotView.EVENT_SUPPORT
+
+	if parts.is_empty():
+		return preview
+
+	if parts.size() > 2:
+		parts.resize(2)
+	preview["text"] = ", ".join(parts)
+	preview["tone"] = tone
+	return preview
+
+
+func build_attack_preview_lines(attacker, defender_state) -> Array[String]:
+	var lines: Array[String] = []
+	if attacker == null or defender_state == null:
+		return lines
+
+	for lane_index in _battle_rules.get_valid_attack_lanes(attacker, defender_state):
+		lines.append("Soupeř %s: %s" % [lane_index + 1, describe_attack_preview(attacker, defender_state, lane_index)])
+	return lines
+
+
+func describe_attack_preview(attacker, defender_state, lane_index: int) -> String:
+	if attacker == null or defender_state == null:
+		return "bez cíle"
+
+	var target_slot = defender_state.board[lane_index]
+	if target_slot != null and target_slot.occupant != null:
+		var target_card = target_slot.occupant
+		var remaining_life := maxi(0, target_card.current_life - attacker.current_attack)
+		if remaining_life <= 0:
+			return "%s padne." % target_card.definition.display_name
+		return "%s zbyde %s ZIV." % [target_card.definition.display_name, remaining_life]
+
+	var guard_target = _battle_rules.find_guard_for_direct_damage(defender_state, lane_index)
+	if guard_target != null:
+		var guard_life := maxi(0, guard_target.current_life - attacker.current_attack)
+		if guard_life <= 0:
+			return "%s zachytí zásah a padne." % guard_target.definition.display_name
+		return "%s zachytí zásah, zbyde %s ZIV." % [guard_target.definition.display_name, guard_life]
+
+	return "přímý zásah za %s." % attacker.current_attack
+
+
+func build_attack_preview_banner(attacker, defender_state, lane_index: int) -> Dictionary:
+	var preview := {
+		"text": "UTOK",
+		"tone": LaneSlotView.EVENT_ACTION,
+	}
+	if attacker == null or defender_state == null:
+		return preview
+
+	var target_slot = defender_state.board[lane_index]
+	if target_slot != null and target_slot.occupant != null:
+		var target_card = target_slot.occupant
+		var remaining_life := maxi(0, target_card.current_life - attacker.current_attack)
+		preview["text"] = "KO" if remaining_life <= 0 else "ZBYDE %s" % remaining_life
+		preview["tone"] = LaneSlotView.EVENT_KO if remaining_life <= 0 else LaneSlotView.EVENT_DAMAGE
+		return preview
+
+	var guard_target = _battle_rules.find_guard_for_direct_damage(defender_state, lane_index)
+	if guard_target != null:
+		var guard_life := maxi(0, guard_target.current_life - attacker.current_attack)
+		preview["text"] = "GUARD KO" if guard_life <= 0 else "GUARD %s" % guard_life
+		preview["tone"] = LaneSlotView.EVENT_BLOCK
+		return preview
+
+	preview["text"] = "PRIMO %s" % attacker.current_attack
+	preview["tone"] = LaneSlotView.EVENT_DIRECT
+	return preview
+
+
+func build_enemy_lethal_warning(player_state, enemy_state) -> String:
+	if player_state == null or enemy_state == null or player_state.life <= 0:
+		return ""
+
+	var direct_damage := 0
+	var threat_lines: Array[String] = []
+	for slot in enemy_state.board:
+		if slot == null or slot.occupant == null:
+			continue
+		var attacker = slot.occupant
+		var direct_lane := find_direct_attack_lane(attacker, player_state)
+		if direct_lane < 0:
+			continue
+		direct_damage += attacker.current_attack
+		threat_lines.append("%s přes lajnu %s" % [attacker.definition.display_name, direct_lane + 1])
+
+	if direct_damage < player_state.life:
+		return ""
+
+	var threat_count := threat_lines.size()
+	if threat_count <= 1:
+		return "SMRTÍCÍ HROZBA: hrozí %s přímého zranění." % direct_damage
+	return "SMRTÍCÍ HROZBA: hrozí %s přímého zranění z %s lajn." % [direct_damage, threat_count]
+
+
+func find_direct_attack_lane(attacker, defender_state) -> int:
+	if attacker == null or defender_state == null or attacker.lane_index < 0:
+		return -1
+
+	var lane_indexes: Array[int] = [attacker.lane_index]
+	if attacker.has_keyword(CardGameConstants.KEYWORD_POUNCE):
+		if attacker.lane_index > 0:
+			lane_indexes.append(attacker.lane_index - 1)
+		if attacker.lane_index < defender_state.board.size() - 1:
+			lane_indexes.append(attacker.lane_index + 1)
+
+	for lane_index in lane_indexes:
+		var slot = defender_state.board[lane_index]
+		if slot != null and slot.occupant != null:
+			continue
+		if _battle_rules.find_guard_for_direct_damage(defender_state, lane_index) != null:
+			continue
+		return lane_index
+
+	return -1
+
+
+func collect_enemy_direct_threats(player_state, enemy_state) -> Array[Dictionary]:
+	var threats: Array[Dictionary] = []
+	if player_state == null or enemy_state == null:
+		return threats
+
+	for slot in enemy_state.board:
+		if slot == null or slot.occupant == null:
+			continue
+		var attacker = slot.occupant
+		var direct_lane := find_direct_attack_lane(attacker, player_state)
+		if direct_lane < 0:
+			continue
+		threats.append({
+			"attacker_lane": attacker.lane_index,
+			"target_lane": direct_lane,
+			"damage": attacker.current_attack,
+		})
+	return threats
+
+
+func build_info_zone_title(zone_id: StringName) -> String:
+	match zone_id:
+		_info_zone_deck:
+			return "Balík"
+		_info_zone_discard:
+			return "Odhazování"
+	return "Náhled"
+
+
+func build_info_zone_meta(zone_id: StringName, player_state) -> String:
+	if player_state == null:
+		return "CHYBÍ DATA"
+
+	var cards = get_info_zone_cards(zone_id, player_state)
+	var type_count := count_unique_card_names(cards)
+	match zone_id:
+		_info_zone_deck:
+			return "BALÍK | %s karet | %s typů" % [cards.size(), type_count]
+		_info_zone_discard:
+			return "ODHAZOVÁNÍ | %s karet | %s typů" % [cards.size(), type_count]
+	return "NÁHLED"
+
+
+func build_info_zone_detail(zone_id: StringName, player_state) -> String:
+	if player_state == null:
+		return "Chybí stav hráče."
+
+	var cards = get_info_zone_cards(zone_id, player_state)
+	if cards.is_empty():
+		return "Prázdno."
+	return build_card_stack_summary(cards)
+
+
+func build_info_zone_hint(zone_id: StringName) -> String:
+	match zone_id:
+		_info_zone_deck:
+			return "Klikni znovu na Balík pro zavření."
+		_info_zone_discard:
+			return "Klikni znovu na Odhazování pro zavření."
+	return "Klikni znovu pro zavření."
+
+
+func get_info_zone_cards(zone_id: StringName, player_state) -> Array:
+	match zone_id:
+		_info_zone_deck:
+			return player_state.deck
+		_info_zone_discard:
+			return player_state.discard
+	return []
+
+
+func count_unique_card_names(cards: Array) -> int:
+	return count_cards_by_name(cards).size()
+
+
+func build_card_stack_summary(cards: Array) -> String:
+	var counts := count_cards_by_name(cards)
+	var names := counts.keys()
+	names.sort()
+
+	var lines: Array[String] = []
+	for card_name_value in names:
+		var card_name: String = str(card_name_value)
+		lines.append("%sx %s" % [counts[card_name], card_name])
+	return "\n".join(lines)
+
+
+func count_cards_by_name(cards: Array) -> Dictionary:
+	var counts: Dictionary = {}
+	for card in cards:
+		if card == null or card.definition == null:
+			continue
+		var card_name: String = str(card.definition.display_name)
+		counts[card_name] = int(counts.get(card_name, 0)) + 1
+	return counts
+
+
+func build_table_power_lane_preview(power_definition) -> String:
+	if power_definition == null:
+		return "token"
+
+	for effect in power_definition.effects:
+		var typed_effect: CardEffect = effect
+		if typed_effect != null and typed_effect.action == &"summon_token":
+			return card_display_name_from_id(StringName(typed_effect.keyword_arg))
+	return power_definition.display_name
+
+
+func format_signed_number(value: int) -> String:
+	return "%s%s" % ["+" if value >= 0 else "", value]
+
+
+func card_type_label(card_type: int) -> String:
+	match card_type:
+		CardGameConstants.CardType.TRICK:
+			return "TRIK"
+		CardGameConstants.CardType.ITEM:
+			return "PŘEDMĚT"
+		_:
+			return "KOČKA"
+
+
+func build_card_detail(card_definition) -> String:
+	if not card_definition.rules_text.is_empty():
+		if card_definition.keywords.is_empty():
+			return card_definition.rules_text
+		var detail_lines: Array[String] = [card_definition.rules_text]
+		for keyword in card_definition.keywords:
+			detail_lines.append("%s: %s" % [CardGameConstants.keyword_label(keyword), CardGameConstants.keyword_summary(keyword)])
+		return "\n".join(detail_lines)
+
+	if card_definition.keywords.is_empty():
+		return "Bez dalších efektů."
+
+	var lines: Array[String] = []
+	for keyword in card_definition.keywords:
+		lines.append("%s: %s" % [CardGameConstants.keyword_label(keyword), CardGameConstants.keyword_summary(keyword)])
+	return "\n".join(lines)
+
+
+func build_table_power_detail(power_definition, player_state) -> String:
+	if power_definition == null:
+		return "Žádná Síla stolu."
+
+	var lines: Array[String] = [power_definition.rules_text]
+	lines.append("Cena: %s Tuna" % power_definition.cost)
+	if player_state != null:
+		if player_state.table_power_used_this_turn:
+			lines.append("Stav: už využito v tomto kole.")
+		elif player_state.tuna_current < power_definition.cost:
+			lines.append("Stav: málo Tuny.")
+		elif _table_power_requires_lane_selection.is_valid() and _table_power_requires_lane_selection.call(power_definition):
+			lines.append("Validní lajny: %s" % format_lane_names(_get_valid_table_power_lanes.call(power_definition, player_state)))
+	return "\n".join(lines)
+
+
+func format_lane_names(lane_indexes: Array) -> String:
+	if lane_indexes.is_empty():
+		return "žádná"
+
+	var lane_names: Array[String] = []
+	for lane_index in lane_indexes:
+		lane_names.append("Lajna %s" % (lane_index + 1))
+	return ", ".join(lane_names)
+
+
+func card_display_name_from_id(card_id: StringName) -> String:
+	if _card_display_name_from_id.is_valid():
+		return str(_card_display_name_from_id.call(card_id))
+	var card_definition = _card_library.get(card_id)
+	if card_definition == null or card_definition.display_name.is_empty():
+		return String(card_id)
+	return card_definition.display_name
+
+
+func set_selected_panel_copy(title: String, meta: String, detail: String, hint: String) -> void:
+	if _selected_card_title != null:
+		_selected_card_title.text = title
+	if _selected_card_meta != null:
+		_selected_card_meta.text = meta
+	if _selected_card_detail != null:
+		_selected_card_detail.text = detail
+	if _selected_card_hint != null:
+		_selected_card_hint.text = hint
+
+
+

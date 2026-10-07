@@ -7,11 +7,45 @@ const LaneSlotState = preload("res://scripts/card_game/runtime/lane_slot_state.g
 const PlayerBattleState = preload("res://scripts/card_game/runtime/player_battle_state.gd")
 
 
+func card_uses_saved_tuna(card_instance: CardInstance) -> bool:
+    return card_instance != null and card_instance.definition != null and card_instance.definition.card_type == CardGameConstants.CardType.TRICK
+
+
+func get_available_tuna_for_card(card_instance: CardInstance, player_state: PlayerBattleState) -> int:
+    if card_instance == null or player_state == null:
+        return 0
+    if card_uses_saved_tuna(card_instance):
+        return player_state.tuna_current + player_state.saved_tuna_current
+    return player_state.tuna_current
+
+
+func can_pay_card_cost(card_instance: CardInstance, player_state: PlayerBattleState) -> bool:
+    if card_instance == null or card_instance.definition == null or player_state == null:
+        return false
+    return get_available_tuna_for_card(card_instance, player_state) >= card_instance.definition.cost
+
+
+func build_card_cost_payment(card_instance: CardInstance, player_state: PlayerBattleState) -> Dictionary:
+    if not can_pay_card_cost(card_instance, player_state):
+        return {}
+
+    var cost := card_instance.definition.cost
+    var saved_spent := 0
+    if card_uses_saved_tuna(card_instance):
+        saved_spent = mini(player_state.saved_tuna_current, cost)
+    var normal_spent := cost - saved_spent
+    return {
+        "total_cost": cost,
+        "saved_spent": saved_spent,
+        "normal_spent": normal_spent,
+    }
+
+
 func get_valid_play_lanes(card_instance: CardInstance, player_state: PlayerBattleState) -> Array[int]:
     var valid_lanes: Array[int] = []
     if card_instance == null or card_instance.definition.card_type != CardGameConstants.CardType.CAT:
         return valid_lanes
-    if player_state.tuna_current < card_instance.definition.cost:
+    if not can_pay_card_cost(card_instance, player_state):
         return valid_lanes
 
     for slot in player_state.board:

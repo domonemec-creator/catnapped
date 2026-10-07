@@ -19,8 +19,10 @@ func _reset_battlefield(player_state, enemy_state) -> void:
     enemy_state.discard.clear()
     player_state.tuna_current = 10
     player_state.tuna_max = 10
+    player_state.saved_tuna_current = 0
     enemy_state.tuna_current = 10
     enemy_state.tuna_max = 10
+    enemy_state.saved_tuna_current = 0
     for slot in player_state.board:
         slot.occupant = null
     for slot in enemy_state.board:

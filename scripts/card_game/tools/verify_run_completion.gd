@@ -70,7 +70,7 @@ func _run() -> void:
 	if battle.post_match_result_title.text != "Výprava dokončena":
 		_fail("Final reward did not switch the overlay to Výprava dokončena.")
 		return
-	if battle.post_match_choose_encounter_button.text != "Zpet na vyber":
+	if battle.post_match_choose_encounter_button.text != "Zpět na výběr":
 		_fail("Completion overlay did not expose the expected exit button.")
 		return
 	if battle.post_match_reward_buttons.visible:

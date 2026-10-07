@@ -90,3 +90,10 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Kontext: Pro noveho hrace byla hra neprehledna hlavne kvuli off-board trikum, itemum a powers, ktere zabijely nebo menily board bez jasneho modelu v hlave.
 - Rozhodnuti: Defaultni starter, defaultni NPC decky, run reward pool a threat profily se v jednoduchem zakladu osekavaji na kocky a citelne keywordy. Defaultni encountery i hrac zacinaji bez `Sily stolu`; engine pro powers, itemy a triky zustava v projektu pro pozdejsi navrat.
 - Dopad: Prvni hry jsou citelnejsi, smrt karty casteji plyne z viditelneho boardu a dalsi rozvoj muze znovu pridavat slozitost az nad stabilni jednoduchy zaklad.
+
+### D-012 - LoR inspirace bude selektivni, ne plny prepis combat modelu
+- Datum: 2026-07-24
+- Stav: aktivni
+- Kontext: Padl pozadavek prozkoumat `Legends of Runeterra` a pouzit jeji principy pro dalsi smer Catnapped. Projekt ale uz ma zamceny `3 lane` board, kratke zapasy, jednosmerny tlak do otevrenych linek a zjednoduseny `cat-only core`.
+- Rozhodnuti: Catnapped nebude prejimat plne sdilene roundy, volne blocker assignment ani plny spell stack. Pokud se z LoR bude neco brat, pujde hlavne o omezeny `Saved Tuna` bank pro Triky, uzky `Combat Trick` response window a formalni initiative/tie-break pravidla. Podrobny navrh je v `design/catnapped_runeterra_lite.md`.
+- Dopad: Hra si neznici lane identitu ani citelnost, ale porad muze ziskat vic napeti, bluffu a resource planningu bez skoku do mnohem drazsi AI a UI complexity.

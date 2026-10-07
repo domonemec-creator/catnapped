@@ -18,6 +18,7 @@ func _reset_battle_state(battle, player_state, enemy_state) -> void:
         state.life = 10
         state.tuna_current = 10
         state.tuna_max = 10
+        state.saved_tuna_current = 0
         state.table_power_used_this_turn = false
         state.immediate_entry_attack_used_this_turn = false
         for slot in state.board:

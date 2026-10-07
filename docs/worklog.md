@@ -14,6 +14,55 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-07-24 - Saved Tuna je zavedena a verifier sada znovu beha
+- Oblast: battle economy, AI, verifikace
+- Soubory: `scripts/card_game/data/card_game_constants.gd`, `scripts/card_game/runtime/player_battle_state.gd`, `scripts/card_game/systems/battle_rules.gd`, `scripts/card_game/systems/battle_controller.gd`, `scripts/card_game/systems/ai_controller.gd`, `scripts/card_game/ui/battle_preview_presenter.gd`, `scripts/card_game/tools/verify_saved_tuna.gd`, `scripts/card_game/tools/verify_trick_item.gd`, `scripts/card_game/tools/verify_enemy_ai_support.gd`, `scripts/card_game/tools/verify_battle_previews.gd`, `scripts/card_game/tools/verify_battle_feedback.gd`, `scripts/card_game/tools/verify_table_power_ai.gd`, `scripts/card_game/tools/verify_item_steal_burn.gd`
+- Zmena: Prvni LoR-like rez pridal `Saved Tuna` jako bank do `2`, ktery se plni z nevyuzite bezne Tuny na konci tahu a muze se utracet jen na `Trick` karty. Runtime a AI uz s tim pocitaji pri affordability a utraceni. Preview presenter byl opraven tak, aby battle scena znovu kompilovala, a reset helpery verifieru nulujou i `saved_tuna_current`, aby se testy navzajem nekontaminovaly.
+- Overeni: `verify_saved_tuna.gd`, `verify_trick_item.gd`, `verify_enemy_ai_support.gd`, `verify_battle_previews.gd`, `verify_battle_feedback.gd`, `verify_table_power_ai.gd`, `verify_item_steal_burn.gd`
+- Dalsi krok: Pokud budes chtit navazat dalsim LoR-like krokem, dalsi rozumny rez je pridat `Combat Trick` window jen pro uzkou podmnozinu Triku a az potom resit slozitejsi timing.
+
+### 2026-07-17 - UI recovery po rozbitem encoding cisteni
+- Oblast: battle UI, run completion verification
+- Soubory: `scripts/card_game/ui/battle_preview_presenter.gd`, `scripts/card_game/ui/battle_overlay_presenter.gd`, `scripts/card_game/tools/verify_run_completion.gd`
+- Zmena: Rozbite UI texty a verifier ocekavani byly vraceny do validniho stavu bez zasahu do scene wiring. `battle_preview_presenter` byl zapsan znovu jako cisty presenter s normalni cestinou a completion overlay ted znovu pouziva text `Zpět na výběr`, ktery verifier kontroluje.
+- Overeni: `verify_battle_previews.gd`, `verify_battle_feedback.gd`, `verify_battle_layout.gd`, `verify_run_completion.gd`
+- Dalsi krok: Dalsi cisteni cestiny delat po mensich blocich, hlavne ve `battle_controller.gd`, a po kazdem bloku hned pustit relevantni verifier.
+
+### 2026-07-17 - Combat prose se vratila k normalni cestine
+- Oblast: battle UI readability
+- Soubory: `scripts/card_game/systems/battle_controller.gd`
+- Zmena: Akcni vety v battle summary uz znovu pouzivaji normalni ceska slova jako `zraneni`, `zivoty`, `ukradne` a `vraci se do ruky`. Zkratky `UTK/ZIV/PRIMO` zustaly jen v bannerech, preview hodnotach a stat blocich, kde jsou citelnejsi nez plna veta.
+- Overeni: `verify_battle_layout.gd`, `verify_lane_slot_view.gd`, `verify_battle_feedback.gd`, `verify_battle_previews.gd`, `verify_trick_item.gd`, `verify_item_steal_burn.gd`
+- Dalsi krok: Pokud budes chtit dalsi cisteni, dalsi rez je sjednotit diakritiku a ceske copy i v nekterych starsich skriptech mimo tenhle refaktor.
+
+### 2026-07-17 - Instant a trick feedback mluvi kratsimi vetami
+- Oblast: battle UI readability
+- Soubory: `scripts/card_game/systems/battle_controller.gd`
+- Zmena: Texty z instant/trick efektu, targeted karet a Sily stolu byly zkracene na kratke akcni vety. Buffy, heal, draw, steal, destroy itemu a navrat do ruky ted rikaji hlavne vysledek a nepopisuji zbytecne celou situaci.
+- Overeni: `verify_battle_layout.gd`, `verify_lane_slot_view.gd`, `verify_battle_feedback.gd`, `verify_battle_previews.gd`, `verify_trick_item.gd`, `verify_item_steal_burn.gd`
+- Dalsi krok: Pokud budes chtit jeste cistsi UX, dalsi rez je sjednotit naming `ZIV/UTK/dmg` vs plna slova a rozhodnout jeden stabilni styl pro celou hru.
+
+### 2026-07-24 - Runeterra-like smer je zapsany jako selektivni LoR-lite navrh
+- Oblast: dlouhodoby battle design, pravidla
+- Soubory: `design/catnapped_runeterra_lite.md`, `docs/decisions.md`
+- Zmena: Misto slepeho kopirovani `Legends of Runeterra` byl zapsan konkretni navrh, co se pro Catnapped hodi a co ne. Doporuceny smer je `Saved Tuna` bank jen pro Triky, volitelne pozdeji uzky `Combat Trick` window a formalni initiative/tie-break pravidla. Naopak byly vedome odmitnuty plne sdilene roundy, full stack a defender-assigned blokovani, protoze by rozbily lane identitu a nafoukly AI/UI slozitost.
+- Overeni: dokumentacni zmena, bez headless verifieru
+- Dalsi krok: pokud ten smer potvrdis, prvni implementacni rez ma byt samotne `Saved Tuna` bez reaction window a s novymi verifiery pro ekonomiku a preview.
+
+### 2026-07-17 - Combat feedback copy je kratsi a primocarejsi
+- Oblast: battle UI readability
+- Soubory: `scripts/card_game/systems/battle_controller.gd`, `scripts/card_game/ui/battle_preview_presenter.gd`, `scripts/card_game/tools/verify_battle_feedback.gd`
+- Zmena: Status zpravy a hinty v boji byly zkracene. Vyber karty, vyber utoku, neplatne cile, vstup do lajny, primy zasah a idle hint v pravem panelu ted rikaji stejnou vec mensim poctem slov a bez zbytecne omacky.
+- Overeni: `verify_battle_layout.gd`, `verify_lane_slot_view.gd`, `verify_battle_feedback.gd`, `verify_battle_previews.gd`
+- Dalsi krok: Pokud budes chtit jit jeste dal, dalsi rozumny rez je zkratit i texty z instant/trick efektu a sjednotit battle log do jeste kratsich vet.
+
+### 2026-07-16 - Battle controller je rozdeleny na controller plus dva presentery
+- Oblast: battle architecture, battle UI
+- Soubory: `scripts/card_game/systems/battle_controller.gd`, `scripts/card_game/ui/battle_overlay_presenter.gd`, `scripts/card_game/ui/battle_preview_presenter.gd`
+- Zmena: `battle_controller.gd` ted drzi hlavne orchestraci boje, lane highlight flow a scene wiring. Tutorial a post-match overlay logika se presunula do `battle_overlay_presenter.gd`, selected panel a combat preview copy do `battle_preview_presenter.gd`. Kvuli kompatibilite verifieru zustal v controlleru tenky mirror `_current_reward_offers`, ale zdroj pravdy je presenter.
+- Overeni: `verify_battle_layout.gd`, `verify_battle_feedback.gd`, `verify_battle_previews.gd`, `verify_lane_slot_view.gd`, `verify_run_flow.gd`, `verify_reward_flow.gd`, `verify_run_completion.gd`, `verify_run_failure.gd`
+- Dalsi krok: Pokud budes chtit dalsi refaktor, dalsi rozumny rez je vytahnout i lane highlight orchestration do samostatneho presenteru nebo helperu bez sahani do battle rules.
+
 ### 2026-07-07 - Jednoduchy zaklad osekal defaultni obsah na cat-only core
 - Oblast: game clarity, default content
 - Soubory: `data/decks/starter_player.tres`, `data/decks/npc_smug_tabby.tres`, `data/decks/npc_ragclaw_brawler.tres`, `data/decks/npc_harbor_warden.tres`, `data/decks/npc_lantern_striker.tres`, `data/encounters/*.tres`, `scripts/card_game/systems/battle_controller.gd`, `scripts/card_game/systems/run_session.gd`, `scripts/card_game/systems/progression_system.gd`, `scripts/card_game/tools/verify_threat_progression.gd`, `docs/decisions.md`

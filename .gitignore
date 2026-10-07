@@ -3,3 +3,6 @@
 export_presets.cfg
 artifacts/*
 !artifacts/.gdignore
+
+# Externi Codex skill (design reference, neni soucasti hry)
+skills/

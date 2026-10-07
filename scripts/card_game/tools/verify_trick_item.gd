@@ -36,8 +36,10 @@ func _run() -> void:
     enemy_state.discard.clear()
     player_state.tuna_current = 10
     player_state.tuna_max = 10
+    player_state.saved_tuna_current = 0
     enemy_state.tuna_current = 10
     enemy_state.tuna_max = 10
+    enemy_state.saved_tuna_current = 0
 
     for slot in player_state.board:
         slot.occupant = null
@@ -72,6 +74,7 @@ func _run() -> void:
         return
 
     player_state.tuna_current = 10
+    player_state.saved_tuna_current = 0
     var collar = battle._create_card_instance(&"spiked_collar", battle.PLAYER_ID)
     player_state.hand.append(collar)
     battle._selected_card = collar
@@ -88,6 +91,7 @@ func _run() -> void:
     enemy_alley.lane_index = 1
 
     player_state.tuna_current = 10
+    player_state.saved_tuna_current = 0
     var hidden = battle._create_card_instance(&"hidden_claws", battle.PLAYER_ID)
     player_state.hand.append(hidden)
     battle._selected_card = hidden
@@ -104,6 +108,7 @@ func _run() -> void:
     scout.lane_index = 2
 
     player_state.tuna_current = 10
+    player_state.saved_tuna_current = 0
     var table_flip = battle._create_card_instance(&"table_flip", battle.PLAYER_ID)
     player_state.hand.append(table_flip)
     battle._selected_card = table_flip
