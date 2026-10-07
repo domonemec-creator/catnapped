@@ -178,18 +178,24 @@ Card game už není jen nápad. Má hotový základ, který je hratelný.
 - persistent `threat` progression
 - post-match summary overlay
 - screenshot a verification tooling
+- run struktura s více NPC (smug_tabby → ragclaw_brawler → harbor_warden → lantern_striker), reward draft, deck/progression screen, persistence (`user://catnapped_progress.cfg`)
+- keyword `Feast`
+- **(07-16)** `battle_controller.gd` rozdělen na controller + `battle_overlay_presenter.gd` (tutorial, post-match) + `battle_preview_presenter.gd` (selected panel, combat preview)
+- **(07-17)** oprava češtiny v UI a battle summary, kratší feedback texty
+- **(07-24)** `Saved Tuna`: bank do 2, plní se z nevyužité Tuny na konci tahu, utratí se jen na `Trick` karty; AI s tím počítá; test `verify_saved_tuna.gd`
+- default hra je od 07-07 „cat-only core“ bez Table Powers/Items/hand-damage triků (D-011); engine zůstává
+- headless sada 19 `verify_*.gd` prochází (stav 2026-10-07)
 
 ### Co hotové není
 
-- full run struktura s více NPC za sebou
-- reward draft po výhře
 - deckbuilding menu
 - shop
 - collection
 - plná menu integrace a polishing
 - audio / VFX polish
-- více encounterů
-- víc NPC osobností
+- audio/VFX polish a vizuální kontrola board tokenu naživo
+- `Combat Trick` window (další LoR-lite krok, čeká na potvrzení směru)
+- rámy slot highlight / counter s průhledným středem
 
 ---
 
@@ -878,7 +884,14 @@ To je v pořádku. Síťový základ je uložený bokem pro pozdější použit�
 
 Tady je pořadí, které dává smysl.
 
-### Krátkodobě
+### Aktuální priority (2026-10-07)
+
+- Majitel potvrdí směr LoR-lite (`design/catnapped_runeterra_lite.md`, D-012); pak případně `Combat Trick` window jen pro úzkou podmnožinu Triků.
+- Vizuální kontrola board tokenu a UI v živém okně.
+- Dodat rámy slot highlight / counter s průhledným středem.
+- Případně commitnout/rozšířit další sdílené sady testů; roadmapa je v `PLAN.md`.
+
+### Krátkodobě (starší seznam)
 
 1. Zamknout start economy:
    `3 Tuna / 3 cards` vs `1 Tuna / 4 cards`
@@ -938,6 +951,16 @@ Když budeme pokračovat:
 ---
 
 ## 20. Update log
+
+### 2026-10-07 — Souhrn změn 07-11 až 07-24 + zápis stavu
+
+- **07-16:** `battle_controller.gd` rozdělen na controller (orchestrace, lane highlight, wiring scény) + `battle_overlay_presenter.gd` + `battle_preview_presenter.gd`. Controller drží tenký mirror `_current_reward_offers` kvůli verifierům.
+- **07-17:** oprava rozbitého cleanup-u kódování, čeština v combat summary a feedbacku, kratší hlášky.
+- **07-24:** návrh `design/catnapped_runeterra_lite.md` a rozhodnutí D-012 (LoR jen selektivně: Saved Tuna, případně úzký Combat Trick window, initiative/tie-break; ne sdílené roundy, stack ani blokování obráncem).
+- **07-24:** mechanika `Saved Tuna` (+ `verify_saved_tuna.gd`, resety `saved_tuna_current` ve verifierech).
+- **Ověření 2026-10-07:** všech 19 `verify_*.gd` prošlo headless. Capture tool vyžaduje okno (ne `--headless`).
+- Změny commitnuty lokálně (bez pushe). `skills/` je externí Codex skill, je v `.gitignore`.
+- Changelog je `docs/worklog.md`; tento soubor drží aktuální stav a rozhodnutí.
 
 ### 2026-06-20 — Board: kompaktní token místo ornátního rámu
 
