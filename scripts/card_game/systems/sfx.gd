@@ -29,6 +29,11 @@ const SOUNDS := {
 }
 const PLAYER_POOL_SIZE := 8
 
+const SETTINGS_PATH := "user://settings.cfg"
+
+# Hlasitost 0..1 (ukládá se); dB se počítá z nich. 0 = ztlumeno.
+var sfx_volume: float = 0.8
+var music_volume: float = 0.45
 var sfx_volume_db: float = -4.0
 var music_volume_db: float = -16.0
 var _players: Array[AudioStreamPlayer] = []
@@ -40,6 +45,7 @@ var _enabled := true
 
 func _ready() -> void:
 	_enabled = DisplayServer.get_name() != "headless"
+	_load_settings()
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	for i in range(PLAYER_POOL_SIZE):
 		var player := AudioStreamPlayer.new()
@@ -94,6 +100,45 @@ func play_music(track_index: int = -1) -> void:
 	_music_player.stream = stream
 	_music_player.volume_db = music_volume_db
 	_music_player.play()
+	_music_player.stream_paused = music_volume <= 0.001
+
+
+func set_sfx_volume(value: float) -> void:
+	sfx_volume = clampf(value, 0.0, 1.0)
+	_apply_volumes()
+	_save_settings()
+
+
+func set_music_volume(value: float) -> void:
+	music_volume = clampf(value, 0.0, 1.0)
+	_apply_volumes()
+	_save_settings()
+
+
+func _apply_volumes() -> void:
+	# 0.8 lineárně ≈ původních -4 dB efektů, 0.45 ≈ -16 dB hudby.
+	sfx_volume_db = linear_to_db(maxf(sfx_volume, 0.0001)) - 2.0
+	music_volume_db = linear_to_db(maxf(music_volume, 0.0001)) - 9.0
+	if _music_player != null:
+		_music_player.volume_db = music_volume_db
+		_music_player.stream_paused = music_volume <= 0.001
+
+
+func _load_settings() -> void:
+	var config := ConfigFile.new()
+	if config.load(SETTINGS_PATH) == OK:
+		sfx_volume = float(config.get_value("audio", "sfx", sfx_volume))
+		music_volume = float(config.get_value("audio", "music", music_volume))
+	_apply_volumes()
+
+
+func _save_settings() -> void:
+	if not _enabled:
+		return
+	var config := ConfigFile.new()
+	config.set_value("audio", "sfx", sfx_volume)
+	config.set_value("audio", "music", music_volume)
+	config.save(SETTINGS_PATH)
 
 
 func stop_music() -> void:

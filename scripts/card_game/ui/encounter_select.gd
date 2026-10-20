@@ -153,7 +153,18 @@ func _build_ui() -> void:
     _progress_button.add_theme_stylebox_override("hover", _progress_button_hover_style)
     _progress_button.add_theme_stylebox_override("pressed", _progress_button_pressed_style)
     _progress_button.pressed.connect(_open_progression_screen)
-    header_vbox.add_child(_progress_button)
+    var secondary_row := HBoxContainer.new()
+    secondary_row.add_theme_constant_override("separation", 12)
+    header_vbox.add_child(secondary_row)
+    secondary_row.add_child(_progress_button)
+
+    # Nastavení hlasitosti + titulky (licence CC BY vyžaduje uvedení autorů).
+    var settings_button := _progress_button.duplicate() as Button
+    settings_button.text = "Nastavení a titulky"
+    settings_button.size_flags_horizontal = Control.SIZE_FILL
+    settings_button.custom_minimum_size = Vector2(260, 48)
+    settings_button.pressed.connect(_open_settings)
+    secondary_row.add_child(settings_button)
 
     var body := HBoxContainer.new()
     body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -327,14 +338,13 @@ func _refresh_details() -> void:
 
     _selected_title.text = _selected_encounter.display_name
     _selected_npc.text = "Soupeř: %s" % _selected_encounter.npc_name
-    _selected_summary.text = "Balík soupeře se mění podle hrozby."
-    _selected_stats.text = "Síla stolu: %s\nStartovní životy: %s" % [
-        _get_table_power_display_name(_selected_encounter.table_power_id),
-        _selected_encounter.starting_life,
-    ]
+    _selected_summary.text = "%s. S každou prohrou proti němu roste hrozba a jeho balík sílí." % str(ENCOUNTER_STYLES.get(_selected_encounter.id, "Soupeř"))
+    _selected_stats.text = "Startovní životy: %s" % _selected_encounter.starting_life
+    if _selected_encounter.table_power_id != StringName():
+        _selected_stats.text += "\nSíla stolu: %s" % _get_table_power_display_name(_selected_encounter.table_power_id)
     _selected_portrait.texture = _load_texture(_selected_encounter.portrait_path)
     _status_label.text = "Tahle volba nastaví jen příští tréninkový souboj. Postup zůstává v save."
-    _run_note_label.text = "Run začne u %s a naváže 5 soubojů." % _selected_encounter.display_name
+    _run_note_label.text = "Run má 5 soubojů. První soupeř: %s." % _selected_encounter.display_name
     _run_button.disabled = false
     _start_button.disabled = false
 
@@ -359,11 +369,17 @@ func _get_encounter_by_id(encounter_id: StringName) -> EncounterDefinition:
     return null
 
 
+# Styl soupeře pro hráče, který karetní hry nezná (místo technických údajů).
+const ENCOUNTER_STYLES := {
+    &"smug_tabby": "Učitel · drží obranu, dobrý na začátek",
+    &"ragclaw_brawler": "Rváč · rychlé útoky hned od prvního kola",
+    &"lantern_striker": "Útočník · skoky do sousedních lajn",
+    &"harbor_warden": "Boss · tvrdá obrana a velké kočky",
+}
+
+
 func _build_encounter_button_text(encounter: EncounterDefinition) -> String:
-    var summary := "Síla %s | %s životů" % [
-        _get_table_power_display_name(encounter.table_power_id),
-        encounter.starting_life,
-    ]
+    var summary := "%s | %s životů" % [str(ENCOUNTER_STYLES.get(encounter.id, "Soupeř")), encounter.starting_life]
     return "%s\n%s" % [encounter.display_name, summary]
 
 
@@ -393,6 +409,14 @@ func _start_battle() -> void:
 
     _get_run_session().end_run()
     _open_battle_scene(_selected_encounter.id)
+
+
+func _open_settings() -> void:
+    if get_node_or_null("SettingsOverlay") != null:
+        return
+    var overlay: Control = load("res://scripts/card_game/ui/settings_overlay.gd").new()
+    overlay.name = "SettingsOverlay"
+    add_child(overlay)
 
 
 func _start_run() -> void:

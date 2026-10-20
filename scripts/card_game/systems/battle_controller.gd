@@ -124,6 +124,9 @@ var _progression_state: Dictionary = {}
 var _player_lane_feedback: Array[Dictionary] = []
 var _enemy_lane_feedback: Array[Dictionary] = []
 var _battle_feed_lines: Array[String] = []
+# Záznam celého zápasu pro zpětnou analýzu lidských testů (user://match_logs/), jen v okně.
+var _match_log: Array[String] = []
+var _match_log_saved := false
 var _last_logged_status_text: String = ""
 var _postmatch_victory_emblem_texture: Texture2D
 var _postmatch_defeat_emblem_texture: Texture2D
@@ -487,9 +490,48 @@ func _sync_battle_feed() -> void:
 		return
 
 	_battle_feed_lines.append(status_text)
+	_log_match_line(status_text)
 	while _battle_feed_lines.size() > 6:
 		_battle_feed_lines.remove_at(0)
 	battle_feed_label.text = "\n".join(_battle_feed_lines)
+
+
+func _log_match_line(text: String) -> void:
+	if not _pace_actions or _battle_state == null:
+		return
+	var p: PlayerBattleState = _battle_state.get_player_state(PLAYER_ID)
+	var e: PlayerBattleState = _battle_state.get_player_state(ENEMY_ID)
+	if p == null or e == null:
+		return
+	_match_log.append("[kolo %s | hráč %s ŽIV, ruka %s, Tuna %s/%s | soupeř %s ŽIV, ruka %s] %s" % [_battle_state.turn_number, p.life, p.hand.size(), p.tuna_current, p.tuna_max, e.life, e.hand.size(), text])
+
+
+func _log_board_snapshot(label: String) -> void:
+	if not _pace_actions or _battle_state == null:
+		return
+	var parts: Array[String] = []
+	for owner in [ENEMY_ID, PLAYER_ID]:
+		var state: PlayerBattleState = _battle_state.get_player_state(owner)
+		var lanes: Array[String] = []
+		for slot in state.board:
+			lanes.append("-" if slot.occupant == null else "%s %s/%s" % [slot.occupant.definition.display_name, slot.occupant.current_attack, slot.occupant.current_life])
+		parts.append(("Soupeř: " if owner == ENEMY_ID else "Hráč: ") + " | ".join(lanes))
+	_log_match_line("%s — %s" % [label, " || ".join(parts)])
+
+
+func _save_match_log(result: String) -> void:
+	if not _pace_actions or _match_log_saved:
+		return
+	_match_log_saved = true
+	DirAccess.make_dir_recursive_absolute("user://match_logs")
+	var enemy_id := String(_encounter.id) if _encounter != null else "unknown"
+	var stamp := Time.get_datetime_string_from_system().replace(":", "-")
+	var file := FileAccess.open("user://match_logs/%s_%s_%s.txt" % [stamp, enemy_id, result], FileAccess.WRITE)
+	if file == null:
+		return
+	file.store_line("Catnapped! záznam zápasu | soupeř %s | výsledek %s | kol %s | odveta=%s ruka=%s" % [enemy_id, result, _battle_state.turn_number, CardGameConstants.combat_retaliation, CardGameConstants.starting_hand])
+	for line in _match_log:
+		file.store_line(line)
 
 
 func _get_table_power_definition(player_state: PlayerBattleState) -> TablePowerDefinition:
@@ -1186,7 +1228,7 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 			_queue_lane_fx(defender_state.player_id, target_lane, &"fx_direct", [attacker.current_attack])
 			_play_sfx(&"direct_hit")
 			_set_lane_feedback(defender_state.player_id, target_lane, "PŘÍMO %s" % attacker.current_attack, LaneSlotView.EVENT_DIRECT)
-			summary = "%s udělí %s přímého zranění. Soupeři zbývá %s životů." % [attacker.definition.display_name, attacker.current_attack, defender_state.life]
+			summary = "%s udělí %s přímého zranění. %s %s životů." % [attacker.definition.display_name, attacker.current_attack, "Tobě zbývá" if defender_state.player_id == PLAYER_ID else "Soupeři zbývá", defender_state.life]
 			_resolve_triggered_effects(attacker, attacker_owner_state, CardGameConstants.TRIGGER_ON_DIRECT_DAMAGE)
 
 	# Odveta: bránící kočka (i když sama padne) vrátí útočníkovi úder svým útokem.
@@ -1380,6 +1422,7 @@ func _check_battle_end() -> void:
 			_overlay_presenter.clear_reward_offers()
 		enemy_name_label.text = _build_enemy_header_name(enemy_state.display_name)
 		_play_sfx(&"victory")
+		_save_match_log.call_deferred("vyhra")
 		status_label.text = "Výhra. %s došel o všechny životy. Hrozba klesá na %s." % [enemy_state.display_name, _get_current_threat()]
 		_show_post_match_overlay("win", "Výhra", "Zlomil jsi %s a stůl se pro příští odvetu uklidnil." % enemy_state.display_name, previous_threat, victory_threat, victory_deck_messages)
 		return
@@ -1395,6 +1438,7 @@ func _check_battle_end() -> void:
 		_progression_system.save_state(_progression_state)
 		enemy_name_label.text = _build_enemy_header_name(enemy_state.display_name)
 		_play_sfx(&"defeat")
+		_save_match_log.call_deferred("prohra")
 		status_label.text = "Prohra. Tvoje strana došla o všechny životy. Hrozba roste na %s." % _get_current_threat()
 		_show_post_match_overlay("loss", "Prohra", "%s si stůl drží a příště se vrátí ještě horší." % enemy_state.display_name, previous_threat, defeat_threat, defeat_deck_messages)
 
@@ -1443,6 +1487,7 @@ func _on_end_turn_pressed() -> void:
 	_battle_state.active_player_id = PLAYER_ID
 	_battle_state.turn_number += 1
 	_start_turn(player_state)
+	_log_board_snapshot("Začátek tvého tahu")
 	_play_sfx(&"card_draw")
 	status_label.text = "Jsi na tahu. Vylož, použij Sílu stolu nebo zaútoč."
 	_refresh_ui()
