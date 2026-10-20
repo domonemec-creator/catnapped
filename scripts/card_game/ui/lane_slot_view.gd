@@ -8,6 +8,8 @@ const BattleFx = preload("res://scripts/card_game/ui/battle_fx.gd")
 
 signal slot_pressed(lane_index: int, owner_id: int)
 signal card_dropped(instance_id: int, lane_index: int, owner_id: int)
+# Najetí myší na kočku na stole (null = myš odjela). Pravý panel ukáže náhled.
+signal card_hovered(card_instance)
 
 @onready var side_badge: PanelContainer = $Margin/VBox/Header/SideBadge
 @onready var side_label: Label = $Margin/VBox/Header/SideBadge/SideLabel
@@ -278,6 +280,8 @@ func _ready() -> void:
 	event_background.visible = false
 	event_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	_build_token_panel()
+	mouse_entered.connect(func() -> void: card_hovered.emit(_card_instance))
+	mouse_exited.connect(func() -> void: card_hovered.emit(null))
 	_make_children_click_through(self)
 	_apply_side_accent()
 	_refresh_slot_contents()

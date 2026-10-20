@@ -17,6 +17,7 @@ const FRAME_PATHS_BY_VARIANT := {
 }
 
 signal card_pressed(instance_id: int)
+signal card_hovered(card_instance)
 
 const VISUAL_PRESETS := {
     CardGameConstants.CardType.CAT: {
@@ -91,6 +92,8 @@ func _ready() -> void:
     selection_glow.visible = false
     playable_glow.visible = false
     frame_texture.visible = false
+    mouse_entered.connect(func() -> void: card_hovered.emit(card_instance))
+    mouse_exited.connect(func() -> void: card_hovered.emit(null))
     _make_children_click_through(self)
 
 

@@ -63,6 +63,13 @@ func _capture() -> void:
 	battle._refresh_ui()
 	if not await _save(output_path.get_basename() + "_selected.png"):
 		return
+
+	# Třetí snímek: nic nevybráno, myš nad soupeřovou kočkou (náhled v pravém panelu).
+	battle._clear_selection_state()
+	battle._on_card_hovered(enemy_state.board[0].occupant)
+	battle._refresh_ui()
+	if not await _save(output_path.get_basename() + "_hover.png"):
+		return
 	quit()
 
 

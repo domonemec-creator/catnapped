@@ -97,6 +97,7 @@ var _player_lanes: Array[LaneSlotView] = []
 # Tempo a efekty: v okně se tah soupeře přehrává po krocích s animacemi, headless (verifiery) synchronně.
 var _pace_actions := false
 var _enemy_turn_running := false
+var _hover_card: CardInstance
 const ENEMY_ACTION_DELAY := 0.75
 var _card_library: Dictionary = {}
 var _deck_library: Dictionary = {}
@@ -218,6 +219,8 @@ func _ready() -> void:
 		_enemy_lanes[lane_index].slot_pressed.connect(_on_lane_pressed)
 		_player_lanes[lane_index].slot_pressed.connect(_on_lane_pressed)
 		_enemy_lanes[lane_index].card_dropped.connect(_on_lane_card_dropped)
+		_enemy_lanes[lane_index].card_hovered.connect(_on_card_hovered)
+		_player_lanes[lane_index].card_hovered.connect(_on_card_hovered)
 		_player_lanes[lane_index].card_dropped.connect(_on_lane_card_dropped)
 
 	selected_card_view.set_interactive(false)
@@ -1742,8 +1745,10 @@ func _refresh_ui() -> void:
 		var player_power := _get_table_power_definition(player_state)
 		table_power_button.visible = true
 		if player_power == null:
+			# Bez Síly stolu (výchozí hra, D-011) tlačítko jen zabíralo místo.
 			table_power_button.text = "Bez Síly stolu"
 			table_power_button.disabled = true
+			table_power_button.visible = false
 		else:
 			var power_label := "%s (%s)" % [player_power.display_name, player_power.cost]
 			if player_state.table_power_used_this_turn:
@@ -1824,6 +1829,7 @@ func _refresh_hand(player_state: PlayerBattleState) -> void:
 		card_view.set_interactive(_battle_state.active_player_id == PLAYER_ID and not _battle_state.battle_over)
 		if not card_view.card_pressed.is_connected(_on_hand_card_pressed):
 			card_view.card_pressed.connect(_on_hand_card_pressed)
+			card_view.card_hovered.connect(_on_card_hovered)
 
 
 func _refresh_selected_panel() -> void:
@@ -1835,6 +1841,7 @@ func _refresh_selected_panel() -> void:
 		"player_state": _battle_state.get_player_state(PLAYER_ID),
 		"enemy_state": _battle_state.get_player_state(ENEMY_ID),
 		"enemy_turn": _enemy_turn_running,
+		"hover_card": _hover_card,
 	})
 
 
@@ -2039,6 +2046,14 @@ func _update_turn_indicator() -> void:
 		enemy_portrait_frame.texture = _portrait_frame_green_texture
 	else:
 		enemy_portrait_frame.texture = _portrait_frame_red_texture
+
+
+func _on_card_hovered(card_instance) -> void:
+	if card_instance == _hover_card:
+		return
+	_hover_card = card_instance
+	if _battle_state != null:
+		_refresh_selected_panel()
 
 
 func _on_hand_card_pressed(instance_id: int) -> void:

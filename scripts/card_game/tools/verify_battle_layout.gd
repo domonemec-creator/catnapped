@@ -95,7 +95,9 @@ func _run() -> void:
 	var table_power_button_rect := table_power_button.get_global_rect()
 	var end_turn_button_rect := end_turn_button.get_global_rect()
 	var info_panel_bottom := info_panel_rect.position.y + info_panel_rect.size.y
-	if info_panel_bottom > table_power_button_rect.position.y - 4:
+	# Bez Síly stolu je její tlačítko skryté; hlídá se první viditelné tlačítko.
+	var first_button_top := table_power_button_rect.position.y if table_power_button.visible else end_turn_button_rect.position.y
+	if info_panel_bottom > first_button_top - 4:
 		_fail("Selected info panel overlaps the action buttons when the lethal warning is shown.")
 		return
 	if table_power_button_rect.position.y + table_power_button_rect.size.y > end_turn_button_rect.position.y - 4:

@@ -113,6 +113,19 @@ func refresh_selected_panel(state: Dictionary) -> void:
 		)
 		return
 
+	# Náhled pod myší (jen když nic není vybrané): hlavně soupeřovy kočky, které nejde kliknout.
+	var hover_card = state.get("hover_card")
+	if hover_card != null and hover_card.definition != null:
+		_selected_card_view.set_card_instance(hover_card)
+		var owner_text := "Tvoje kočka" if hover_card.owner_id == _player_id else "Soupeřova kočka"
+		set_selected_panel_copy(
+			hover_card.definition.display_name,
+			build_card_meta(hover_card),
+			build_card_detail(hover_card.definition),
+			"%s. Klikni pro výběr." % owner_text if hover_card.owner_id == _player_id else "%s. Útočí %s, vydrží %s zranění." % [owner_text, hover_card.current_attack, hover_card.current_life]
+		)
+		return
+
 	_selected_card_view.set_card_instance(null)
 	if _selected_card_view.has_method("set_empty_guide"):
 		_selected_card_view.set_empty_guide(build_next_step_guide(player_state, enemy_state, bool(state.get("enemy_turn", false))))
