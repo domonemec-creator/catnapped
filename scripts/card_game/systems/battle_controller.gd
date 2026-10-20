@@ -9,6 +9,7 @@ const CardGameConstants = preload("res://scripts/card_game/data/card_game_consta
 const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
 const CardView = preload("res://scripts/card_game/ui/card_view.gd")
 const BattleFx = preload("res://scripts/card_game/ui/battle_fx.gd")
+const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
 const BattleOverlayPresenter = preload("res://scripts/card_game/ui/battle_overlay_presenter.gd")
 const BattlePreviewPresenter = preload("res://scripts/card_game/ui/battle_preview_presenter.gd")
 const DeckDefinition = preload("res://scripts/card_game/data/deck_definition.gd")
@@ -1296,6 +1297,7 @@ func _send_to_discard(owner_state: PlayerBattleState, slot: LaneSlotState) -> vo
 	var former_lane_index := dead_card.lane_index
 	dead_card.lane_index = -1
 	_set_lane_feedback(owner_state.player_id, former_lane_index, "KO", LaneSlotView.EVENT_KO)
+	_queue_lane_fx(owner_state.player_id, former_lane_index, &"fx_death", [CardArtCache.get_cropped(dead_card.definition.art_path)])
 	if dead_card.attached_item != null:
 		owner_state.discard.append(dead_card.attached_item)
 		dead_card.attached_item = null
@@ -1474,6 +1476,7 @@ func _on_end_turn_pressed() -> void:
 	_start_turn(enemy_state)
 	_enemy_turn_running = true
 	end_turn_button.disabled = true
+	BattleFx.banner(self, "Tah soupeře", Color(0.95, 0.55, 0.45))
 	await _run_enemy_stub_turn()
 	_enemy_turn_running = false
 	end_turn_button.disabled = false
@@ -1491,6 +1494,7 @@ func _on_end_turn_pressed() -> void:
 	_battle_state.turn_number += 1
 	_start_turn(player_state)
 	_log_board_snapshot("Začátek tvého tahu")
+	BattleFx.banner(self, "Tvůj tah")
 	_play_sfx(&"card_draw")
 	status_label.text = "Jsi na tahu. Vylož, použij Sílu stolu nebo zaútoč."
 	_refresh_ui()

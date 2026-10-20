@@ -805,6 +805,11 @@ func fx_block(amount: int) -> void:
 	BattleFx.float_text(slot_shell, "-%s" % amount, Color(0.6, 0.85, 1.0))
 
 
+# Kočka padla: duch artu zmizí na místě slotu (volá se před vyprázdněním tokenu).
+func fx_death(art: Texture2D) -> void:
+	BattleFx.death_fade(slot_shell, art)
+
+
 # Nově vyložená kočka „dopadne“ na stůl.
 func fx_enter() -> void:
 	if not BattleFx.is_enabled() or _token_panel == null:
