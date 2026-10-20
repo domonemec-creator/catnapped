@@ -144,7 +144,7 @@ func _run() -> void:
     await process_frame
     await process_frame
 
-    if not battle.enemy_name_label.text.contains("[T0]"):
+    if not battle.enemy_name_label.text.contains("Hrozba 0"):
         _fail("Battle scene did not show threat 0 at startup.")
         return
 
@@ -164,7 +164,7 @@ func _run() -> void:
     await process_frame
     await process_frame
 
-    if not rematch.enemy_name_label.text.contains("[T0]"):
+    if not rematch.enemy_name_label.text.contains("Hrozba 0"):
         _fail("Battle scene should reload with threat 0 before the first player win.")
         return
 

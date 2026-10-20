@@ -4,6 +4,7 @@ extends PanelContainer
 const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
 const SelectedCardPreviewScript = preload("res://scripts/card_game/ui/selected_card_preview.gd")
 const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
+const BattleFx = preload("res://scripts/card_game/ui/battle_fx.gd")
 
 signal slot_pressed(lane_index: int, owner_id: int)
 signal card_dropped(instance_id: int, lane_index: int, owner_id: int)
@@ -56,6 +57,7 @@ var _token_attack: Label
 var _token_life: Label
 var _token_art: TextureRect
 var _token_keyword_box: PanelContainer
+var _token_content: Control
 
 const OWNER_PLAYER := 0
 const OWNER_ENEMY := 1
@@ -425,6 +427,7 @@ func _build_token_panel() -> void:
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.clip_contents = true
 	_token_panel.add_child(content)
+	_token_content = content
 
 	# Art karty přes celý token (oříznutý na střed), aby hráč poznal kočku na první pohled.
 	_token_art = TextureRect.new()
@@ -510,6 +513,24 @@ func _fix_status_badge_layout() -> void:
 	status_badge.offset_top = 4.0
 	status_badge.offset_right = -6.0
 	status_badge.offset_bottom = 48.0
+
+	# Event štítek: dole nad pruhem se jménem, uprostřed, jen tak velký jako text.
+	if event_panel.get_parent() == slot_shell:
+		var event_overlay := Control.new()
+		event_overlay.name = "EventOverlay"
+		event_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		slot_shell.add_child(event_overlay)
+		event_panel.reparent(event_overlay, false)
+		event_panel.anchor_left = 0.5
+		event_panel.anchor_right = 0.5
+		event_panel.anchor_top = 1.0
+		event_panel.anchor_bottom = 1.0
+		event_panel.offset_left = 0.0
+		event_panel.offset_right = 0.0
+		event_panel.offset_top = -88.0
+		event_panel.offset_bottom = -54.0
+		event_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		event_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
 
 
 func _make_token_label(text: String, font_size: int, halign: int, valign: int) -> Label:
@@ -618,19 +639,26 @@ func _refresh_recent_event() -> void:
 	var event_token_texture: Texture2D = _load_ui_texture(str(EVENT_TOKEN_TEXTURES.get(active_tone, "")))
 	var show_banner := banner_texture != null
 
-	event_panel.visible = show_banner
-	if show_banner:
-		event_panel.add_theme_stylebox_override("panel", _build_texture_box(banner_texture))
-	else:
-		event_panel.add_theme_stylebox_override("panel", _build_style_box(style_data["bg"], style_data["border"], 10, 1))
+	# Kompaktní štítek místo velkého texturového banneru přes celou kartu (D-008). Záblesky
+	# a otřesy teď dělá BattleFx, takže celoplošné flash/token textury se u obsazeného slotu nekreslí.
+	event_panel.visible = show_banner or not active_text.is_empty()
+	var pill := _build_style_box(style_data["bg"], style_data["border"], 12, 2, 6, Color(0, 0, 0, 0.5))
+	pill.content_margin_left = 12.0
+	pill.content_margin_right = 12.0
+	pill.content_margin_top = 3.0
+	pill.content_margin_bottom = 3.0
+	event_panel.add_theme_stylebox_override("panel", pill)
+	event_background.visible = false
 	event_label.visible = true
 	event_label.add_theme_color_override("font_color", style_data["text"])
+	event_label.add_theme_font_size_override("font_size", 16)
 	event_label.text = active_text
 
+	var has_card := _card_instance != null
 	flash_texture.texture = flash_texture_resource
-	flash_texture.visible = flash_texture_resource != null
+	flash_texture.visible = false
 	event_token.texture = event_token_texture
-	event_token_center.visible = event_token_texture != null
+	event_token_center.visible = event_token_texture != null and not has_card
 
 
 func _get_active_event_text() -> String:
@@ -728,6 +756,46 @@ func _load_ui_texture(resource_path: String) -> Texture2D:
 
 	_ui_texture_cache[resource_path] = texture
 	return texture
+
+
+# --- Bojové efekty (volá controller po změně stavu) ---
+
+# Útočník vyrazí směrem k soupeři.
+func fx_attack() -> void:
+	var direction := -1.0 if owner_id == OWNER_PLAYER else 1.0
+	BattleFx.lunge(_token_panel, direction)
+
+
+# Zásah do kočky v tomhle slotu.
+func fx_hit(amount: int) -> void:
+	BattleFx.shake(slot_shell)
+	BattleFx.flash(slot_shell)
+	BattleFx.float_text(slot_shell, "-%s" % amount, Color(1.0, 0.42, 0.36))
+
+
+# Přímé zranění hráči skrz prázdnou lajnu.
+func fx_direct(amount: int) -> void:
+	BattleFx.flash(slot_shell, Color(1.7, 1.2, 0.5))
+	BattleFx.float_text(slot_shell, "-%s ♥" % amount, Color(1.0, 0.78, 0.3), 46)
+
+
+# Ochrana zachytila zásah.
+func fx_block(amount: int) -> void:
+	BattleFx.shake(slot_shell, 5.0)
+	BattleFx.flash(slot_shell, Color(0.7, 1.0, 1.6))
+	BattleFx.float_text(slot_shell, "-%s" % amount, Color(0.6, 0.85, 1.0))
+
+
+# Nově vyložená kočka „dopadne“ na stůl.
+func fx_enter() -> void:
+	if not BattleFx.is_enabled() or _token_panel == null:
+		return
+	_token_panel.pivot_offset = _token_panel.size * 0.5
+	_token_panel.scale = Vector2(1.18, 1.18)
+	_token_panel.modulate.a = 0.0
+	var tween := _token_panel.create_tween().set_parallel(true)
+	tween.tween_property(_token_panel, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(_token_panel, "modulate:a", 1.0, 0.14)
 
 
 func _make_children_click_through(node: Node) -> void:

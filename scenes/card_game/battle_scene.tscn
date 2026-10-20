@@ -134,7 +134,7 @@ theme_override_constants/separation = 12
 theme_override_constants/separation = 12
 
 [node name="EnemyPortrait" type="Control" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader"]
-custom_minimum_size = Vector2(84, 84)
+custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 
 [node name="PortraitArt" type="TextureRect" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyPortrait"]
@@ -181,7 +181,7 @@ theme_override_font_sizes/font_size = 22
 text = "Soupeř"
 
 [node name="EnemyStatsPanel" type="PanelContainer" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader"]
-custom_minimum_size = Vector2(148, 58)
+custom_minimum_size = Vector2(170, 74)
 theme_override_styles/panel = SubResource("1_panel_style")
 mouse_filter = 2
 
@@ -209,13 +209,13 @@ theme_override_constants/separation = 0
 [node name="EnemyLife" type="Label" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyStatsPanel/MarginContainer/VBox"]
 size_flags_horizontal = 3
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 24
 text = "Životy 10"
 
 [node name="EnemyTuna" type="Label" parent="Margin/Layout/TopRow/BoardColumn/EnemyHeader/EnemyStatsPanel/MarginContainer/VBox"]
 size_flags_horizontal = 3
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 16
 text = "Tuna 0/0"
 
 [node name="CombatInfoPanel" type="PanelContainer" parent="Margin/Layout/TopRow/BoardColumn"]

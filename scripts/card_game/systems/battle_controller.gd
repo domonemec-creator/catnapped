@@ -8,6 +8,7 @@ const CardEffect = preload("res://scripts/card_game/data/card_effect.gd")
 const CardGameConstants = preload("res://scripts/card_game/data/card_game_constants.gd")
 const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
 const CardView = preload("res://scripts/card_game/ui/card_view.gd")
+const BattleFx = preload("res://scripts/card_game/ui/battle_fx.gd")
 const BattleOverlayPresenter = preload("res://scripts/card_game/ui/battle_overlay_presenter.gd")
 const BattlePreviewPresenter = preload("res://scripts/card_game/ui/battle_preview_presenter.gd")
 const DeckDefinition = preload("res://scripts/card_game/data/deck_definition.gd")
@@ -93,6 +94,10 @@ const INFO_ZONE_DISCARD := &"discard"
 
 var _enemy_lanes: Array[LaneSlotView] = []
 var _player_lanes: Array[LaneSlotView] = []
+# Tempo a efekty: v okně se tah soupeře přehrává po krocích s animacemi, headless (verifiery) synchronně.
+var _pace_actions := false
+var _enemy_turn_running := false
+const ENEMY_ACTION_DELAY := 0.75
 var _card_library: Dictionary = {}
 var _deck_library: Dictionary = {}
 var _table_power_library: Dictionary = {}
@@ -134,6 +139,10 @@ var _combat_info_panel_base_style: StyleBoxFlat
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_pace_actions = BattleFx.is_enabled()
+	var sfx := _get_sfx()
+	if sfx != null:
+		sfx.play_music()
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_postmatch_victory_emblem_texture = _load_texture(POSTMATCH_VICTORY_EMBLEM_PATH)
@@ -284,7 +293,7 @@ func _get_current_threat() -> int:
 
 
 func _build_enemy_header_name(display_name: String) -> String:
-	return "%s [T%s]" % [display_name, _get_current_threat()]
+	return "%s · Hrozba %s" % [display_name, _get_current_threat()]
 
 
 func _build_opening_status() -> String:
@@ -1125,6 +1134,8 @@ func _play_card_to_lane(player_state: PlayerBattleState, lane_index: int, card_i
 		player_state.immediate_entry_attack_used_this_turn = true
 	_spend_card_cost(card_instance, player_state)
 	player_state.hand.erase(card_instance)
+	_play_sfx(&"card_place")
+	_queue_lane_fx(player_state.player_id, lane_index, &"fx_enter")
 	_resolve_triggered_effects(card_instance, player_state, CardGameConstants.TRIGGER_BATTLECRY)
 	if card_instance.can_attack and not card_instance.has_attacked:
 		status_label.text = "%s jde do lajny %s a může hned útočit." % [card_instance.definition.display_name, lane_index + 1]
@@ -1146,9 +1157,13 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 	_set_lane_feedback(attacker.owner_id, attacker.lane_index, "ÚTOK %s" % attacker.current_attack, LaneSlotView.EVENT_ACTION)
 	var target_slot: LaneSlotState = defender_state.board[target_lane]
 	var summary := ""
+	_play_sfx(&"attack")
+	_queue_lane_fx(attacker.owner_id, attacker.lane_index, &"fx_attack")
 
 	if target_slot.occupant != null:
 		_adjust_card_life(target_slot.occupant, -attacker.current_attack)
+		_queue_lane_fx(defender_state.player_id, target_lane, &"fx_hit", [attacker.current_attack])
+		_play_sfx(&"ko" if target_slot.occupant.current_life <= 0 else &"hit")
 		_set_lane_feedback(defender_state.player_id, target_lane, "-%s ŽIV" % attacker.current_attack, LaneSlotView.EVENT_DAMAGE)
 		if target_slot.occupant.current_life <= 0:
 			summary = "%s zasáhne %s za %s zranění a vyřadí ji." % [attacker.definition.display_name, target_slot.occupant.definition.display_name, attacker.current_attack]
@@ -1159,6 +1174,8 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 		if guard_target != null:
 			_set_lane_feedback(defender_state.player_id, target_lane, "ZASTAVENO", LaneSlotView.EVENT_BLOCK)
 			_adjust_card_life(guard_target, -attacker.current_attack)
+			_queue_lane_fx(defender_state.player_id, guard_target.lane_index, &"fx_block", [attacker.current_attack])
+			_play_sfx(&"ko" if guard_target.current_life <= 0 else &"guard")
 			_set_lane_feedback_for_card(guard_target, "OCHRANA -%s" % attacker.current_attack, LaneSlotView.EVENT_BLOCK)
 			if guard_target.current_life <= 0:
 				summary = "%s útočí do lajny %s, ale %s zásah zachytí a padne." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name]
@@ -1166,6 +1183,8 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 				summary = "%s útočí do lajny %s, ale %s zásah zachytí. Zbývá %s životů." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name, guard_target.current_life]
 		else:
 			_adjust_player_life(defender_state, -attacker.current_attack)
+			_queue_lane_fx(defender_state.player_id, target_lane, &"fx_direct", [attacker.current_attack])
+			_play_sfx(&"direct_hit")
 			_set_lane_feedback(defender_state.player_id, target_lane, "PŘÍMO %s" % attacker.current_attack, LaneSlotView.EVENT_DIRECT)
 			summary = "%s udělí %s přímého zranění. Soupeři zbývá %s životů." % [attacker.definition.display_name, attacker.current_attack, defender_state.life]
 			_resolve_triggered_effects(attacker, attacker_owner_state, CardGameConstants.TRIGGER_ON_DIRECT_DAMAGE)
@@ -1287,6 +1306,7 @@ func _check_battle_end() -> void:
 		else:
 			_overlay_presenter.clear_reward_offers()
 		enemy_name_label.text = _build_enemy_header_name(enemy_state.display_name)
+		_play_sfx(&"victory")
 		status_label.text = "Výhra. %s došel o všechny životy. Hrozba klesá na %s." % [enemy_state.display_name, _get_current_threat()]
 		_show_post_match_overlay("win", "Výhra", "Zlomil jsi %s a stůl se pro příští odvetu uklidnil." % enemy_state.display_name, previous_threat, victory_threat, victory_deck_messages)
 		return
@@ -1301,6 +1321,7 @@ func _check_battle_end() -> void:
 		_progression_state = defeat_state
 		_progression_system.save_state(_progression_state)
 		enemy_name_label.text = _build_enemy_header_name(enemy_state.display_name)
+		_play_sfx(&"defeat")
 		status_label.text = "Prohra. Tvoje strana došla o všechny životy. Hrozba roste na %s." % _get_current_threat()
 		_show_post_match_overlay("loss", "Prohra", "%s si stůl drží a příště se vrátí ještě horší." % enemy_state.display_name, previous_threat, defeat_threat, defeat_deck_messages)
 
@@ -1312,8 +1333,11 @@ func _on_end_turn_pressed() -> void:
 	if _battle_state.battle_over:
 		get_tree().reload_current_scene()
 		return
+	if _enemy_turn_running:
+		return
 
 	_clear_selection_state()
+	_play_sfx(&"end_turn")
 
 	var player_state: PlayerBattleState = _battle_state.get_player_state(PLAYER_ID)
 	var enemy_state: PlayerBattleState = _battle_state.get_player_state(ENEMY_ID)
@@ -1328,7 +1352,11 @@ func _on_end_turn_pressed() -> void:
 
 	_battle_state.active_player_id = ENEMY_ID
 	_start_turn(enemy_state)
-	_run_enemy_stub_turn()
+	_enemy_turn_running = true
+	end_turn_button.disabled = true
+	await _run_enemy_stub_turn()
+	_enemy_turn_running = false
+	end_turn_button.disabled = false
 	if _battle_state.battle_over:
 		_refresh_ui()
 		return
@@ -1342,6 +1370,7 @@ func _on_end_turn_pressed() -> void:
 	_battle_state.active_player_id = PLAYER_ID
 	_battle_state.turn_number += 1
 	_start_turn(player_state)
+	_play_sfx(&"card_draw")
 	status_label.text = "Jsi na tahu. Vylož, použij Sílu stolu nebo zaútoč."
 	_refresh_ui()
 
@@ -1457,7 +1486,18 @@ func _spend_card_cost(card_instance: CardInstance, player_state: PlayerBattleSta
 func _format_tuna_label(player_state: PlayerBattleState) -> String:
 	if player_state == null:
 		return "Tuna 0/0 | Rez. 0"
+	# Rezerva (Saved Tuna) jde utratit jen za Tricky; bez Triků v balíku je to šum (D-013).
+	if not _player_has_tricks(player_state):
+		return "Tuna %s/%s" % [player_state.tuna_current, player_state.tuna_max]
 	return "Tuna %s/%s | Rez. %s" % [player_state.tuna_current, player_state.tuna_max, player_state.saved_tuna_current]
+
+
+func _player_has_tricks(player_state: PlayerBattleState) -> bool:
+	for pile in [player_state.hand, player_state.deck, player_state.discard]:
+		for card in pile:
+			if card != null and card.definition != null and card.definition.card_type == CardGameConstants.CardType.TRICK:
+				return true
+	return false
 
 
 func _refresh_attack_state_for_player(player_state: PlayerBattleState) -> void:
@@ -1475,6 +1515,10 @@ func _run_enemy_stub_turn() -> void:
 		return
 
 	var action_log: Array[String] = []
+	if _pace_actions:
+		status_label.text = "%s přemýšlí…" % enemy_state.display_name
+		_refresh_ui()
+		await _pace_pause(ENEMY_ACTION_DELAY)
 	var play_iterations := 0
 	while not _battle_state.battle_over and play_iterations < 10:
 		var play_choice: Dictionary = _ai_controller.choose_play(enemy_state, player_state, _battle_rules)
@@ -1508,6 +1552,10 @@ func _run_enemy_stub_turn() -> void:
 					action_log.append("%s vykládá %s do lajny %s a může hned útočit." % [enemy_state.display_name, played_card.definition.display_name, played_lane + 1])
 				else:
 					action_log.append("%s vykládá %s do lajny %s." % [enemy_state.display_name, played_card.definition.display_name, played_lane + 1])
+		if _pace_actions and not action_log.is_empty():
+			status_label.text = action_log[action_log.size() - 1]
+			_refresh_ui()
+			await _pace_pause(ENEMY_ACTION_DELAY)
 		play_iterations += 1
 
 	var enemy_power := _get_table_power_definition(enemy_state)
@@ -1528,6 +1576,10 @@ func _run_enemy_stub_turn() -> void:
 		var attack_summary := _perform_attack(enemy_state, player_state, attacking_card, target_lane)
 		if not attack_summary.is_empty():
 			action_log.append(attack_summary)
+			if _pace_actions:
+				status_label.text = attack_summary
+				_refresh_ui()
+				await _pace_pause(ENEMY_ACTION_DELAY)
 		attack_iterations += 1
 
 	if action_log.is_empty():
@@ -1871,7 +1923,37 @@ func _update_turn_indicator() -> void:
 
 
 func _on_hand_card_pressed(instance_id: int) -> void:
-	_select_hand_card_by_instance_id(instance_id, true)
+	if _enemy_turn_running:
+		return
+	if _select_hand_card_by_instance_id(instance_id, true):
+		_play_sfx(&"card_select")
+
+
+# --- Zvuky a efekty ---
+
+func _get_sfx() -> Node:
+	return get_node_or_null("/root/Sfx")
+
+
+func _play_sfx(sound_id: StringName) -> void:
+	var sfx := _get_sfx()
+	if sfx != null:
+		sfx.play(sound_id)
+
+
+# Efekt na slot se spustí až po nejbližším _refresh_ui (deferred), aby animoval nový stav.
+func _queue_lane_fx(owner_id: int, lane_index: int, method: StringName, args: Array = []) -> void:
+	if not _pace_actions:
+		return
+	var views: Array[LaneSlotView] = _player_lanes if owner_id == PLAYER_ID else _enemy_lanes
+	if lane_index < 0 or lane_index >= views.size():
+		return
+	views[lane_index].callv.call_deferred(method, args)
+
+
+func _pace_pause(seconds: float) -> void:
+	if _pace_actions and is_inside_tree():
+		await get_tree().create_timer(seconds).timeout
 
 
 func _on_lane_card_dropped(instance_id: int, lane_index: int, owner_id: int) -> void:
