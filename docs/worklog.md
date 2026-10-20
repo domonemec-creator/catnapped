@@ -14,6 +14,10 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc, 2. blok) - Čitelnost voleb pro začátečníka (Claude Opus 5.5, /loop)
+- Změna: hratelné karty v ruce svítí, nehratelné jsou ztmavené. Připravené kočky mají pulzující zelený rámeček (průvodce na něj odkazuje). Soupeřova ruka se ukazuje jako ruby karet + počet v balíku. Animace líznutí karty.
+- Ověření: 20/20 verify PASS; `capture_midgame.gd`, `capture_enemy_turn.gd` (snímky v `artifacts/`)
+
 ### 2026-10-20 (noc) - Samostatná práce bez majitele (Claude Opus 5.5, /loop)
 - Oblast: UX pro začátečníka, analýza testů, pravidla proti patu
 - Změna: záznamy zápasů `user://match_logs/` (každá akce s kolem a životy, snímek stolu na začátku tahu). Nastavení hlasitosti a titulky (CC BY) v menu. Roztmívání scén (autoload `SceneFade`). Menu ukazuje styl soupeře. Náhled karty pod myší (i soupeřovy). Skryté tlačítko Síly stolu bez síly. Odměny jako karty s artem a staty. Banner „Tvůj tah“ / „Tah soupeře“. Mizení padlé kočky. Hlad (D-017). Harbor přeladěn.

@@ -16,6 +16,7 @@
 5. Nové karty (s tlapkou místo obrázku) se objevují v odměnách po výhře. Dávají smysl?
 6. Art nových karet: prompty v `design/art_prompts_2026-10.md`, obrázky ulož do `assets/card_game/card_art/<id>.png`.
 7. Nové: najeď myší na soupeřovu kočku (náhled vpravo), Nastavení v menu (hlasitost), Hlad při prázdném balíku.
+8. Je jasné, které karty můžeš zahrát (svítí) a které kočky můžou útočit (zelený pulzující rámeček)?
 
 ## Co se změnilo (podrobně `docs/worklog.md`)
 - Stůl: token s artem, jménem a odznaky; opraven roztažený StatusBadge; event bannery jsou malé štítky.

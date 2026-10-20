@@ -100,6 +100,8 @@ var _pace_actions := false
 var _enemy_turn_running := false
 var _hover_card: CardInstance
 var _enemy_hand_row: HBoxContainer
+# instance_id karet, které už hráč v ruce viděl (nové dostanou animaci líznutí).
+var _seen_hand_ids: Dictionary = {}
 const ENEMY_ACTION_DELAY := 0.75
 var _card_library: Dictionary = {}
 var _deck_library: Dictionary = {}
@@ -1847,12 +1849,25 @@ func _refresh_hand(player_state: PlayerBattleState) -> void:
 			existing_views.append(card_view)
 
 		card_view.set_card_instance(card)
+		if _pace_actions and not _seen_hand_ids.has(card.instance_id):
+			_seen_hand_ids[card.instance_id] = true
+			_animate_card_draw(card_view, card_index)
 		card_view.set_selected(card == _selected_card)
 		card_view.set_playable(_battle_state.active_player_id == PLAYER_ID and _can_play_card_from_hand(card, player_state, enemy_state))
 		card_view.set_interactive(_battle_state.active_player_id == PLAYER_ID and not _battle_state.battle_over)
 		if not card_view.card_pressed.is_connected(_on_hand_card_pressed):
 			card_view.card_pressed.connect(_on_hand_card_pressed)
 			card_view.card_hovered.connect(_on_card_hovered)
+
+
+func _animate_card_draw(card_view: Control, order: int) -> void:
+	card_view.pivot_offset = card_view.custom_minimum_size * 0.5
+	card_view.scale = Vector2(0.6, 0.6)
+	card_view.self_modulate.a = 0.0
+	var tween := card_view.create_tween().set_parallel(true)
+	var delay := 0.06 * float(order % 5)
+	tween.tween_property(card_view, "scale", Vector2.ONE, 0.28).set_delay(delay).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(card_view, "self_modulate:a", 1.0, 0.18).set_delay(delay)
 
 
 func _refresh_selected_panel() -> void:
