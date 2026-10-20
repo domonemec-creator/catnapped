@@ -26,9 +26,9 @@
 - [x] B1 Výpad útočníka, otřes + záblesk + plovoucí číslo, dopad vyložené karty (smrt: zatím jen KO zvuk)
 - [x] B2 Tah AI po krocích (0,75 s/akce), zámek vstupu
 - [x] B3 Zvuky + hudba (Kenney CC0, RandomMind CC0), cvaknutí tlačítek, font Alegreya
-- [ ] B4 Přechody mezi scénami (fade)
-- [ ] B5 Pravý panel bez výběru: místo prázdné plochy užitečný obsah (tah, tip)
-- [ ] B6 Nastavení hlasitosti (hudba/efekty) v menu
+- [x] B4 Přechody mezi scénami (fade), banner tahů, mizení padlé kočky
+- [x] B5 Pravý panel: průvodce „Co teď?“ + náhled karty pod myší
+- [x] B6 Nastavení hlasitosti + titulky (CC BY)
 
 ## Fáze C – Obsah a hloubka core
 - [x] C0 Odveta + ruka 4 + balanc starteru a NPC (D-014, D-015)
@@ -36,7 +36,8 @@
 - [ ] C1b Art nových karet (čeká na majitele, `design/art_prompts_2026-10.md`)
 - [x] C1c Ikony keywordů (game-icons CC BY) u štítků na stole
 - [ ] **Lidský test #2** (checklist v HANDOFF.md)
-- [ ] C2 Balanc podle `sim_ai_matches.gd` po změnách
+- [x] C2 Balanc podle `sim_ai_matches.gd` (D-015, D-017 Hlad proti patu)
+- [x] C2b Záznamy zápasů pro analýzu lidských testů (`user://match_logs/`)
 - [ ] C3 Po lidském testu: rozhodnout návrat malé sady čitelných Triků do rewardů (oživí Saved Tuna)
 
 ## Odloženo (vědomé rozhodnutí, D-013)

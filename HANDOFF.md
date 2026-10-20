@@ -5,6 +5,8 @@
 - 20/20 headless `verify_*.gd` PASS (ověřeno 2026-10-20 po všech změnách).
 - Hotové fáze A a B. Po lidském testu #1 nová pravidla: odveta (D-014), ruka 4 a balanc (D-015), 7 nových koček (D-016).
 - Lidský test #1: „přehlednější“, 1 výhra a 1 prohra, smyčka smrti → řeší D-014 a D-015.
+- Noc 20./21. 10.: Hlad proti patům (D-017), záznamy zápasů, nastavení a titulky, náhled pod myší, odměny s kartami, banner tahů, přechody scén.
+- **Záznamy tvých zápasů:** `%APPDATA%\Godotpp_userdata\Catnapped!\match_logs\` (stačí odehrát, AI je pak projde).
 
 ## Lidský test #2 (Mark) – checklist
 1. Pořád vzniká smyčka „vyložím, umře, dokola“? Je to lepší, nebo horší?
@@ -13,6 +15,7 @@
 4. Smug Tabby (první soupeř): hratelný, příliš lehký, nebo těžký?
 5. Nové karty (s tlapkou místo obrázku) se objevují v odměnách po výhře. Dávají smysl?
 6. Art nových karet: prompty v `design/art_prompts_2026-10.md`, obrázky ulož do `assets/card_game/card_art/<id>.png`.
+7. Nové: najeď myší na soupeřovu kočku (náhled vpravo), Nastavení v menu (hlasitost), Hlad při prázdném balíku.
 
 ## Co se změnilo (podrobně `docs/worklog.md`)
 - Stůl: token s artem, jménem a odznaky; opraven roztažený StatusBadge; event bannery jsou malé štítky.

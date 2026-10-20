@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-20 (noc) - Samostatná práce bez majitele (Claude Opus 5.5, /loop)
+- Oblast: UX pro začátečníka, analýza testů, pravidla proti patu
+- Změna: záznamy zápasů `user://match_logs/` (každá akce s kolem a životy, snímek stolu na začátku tahu). Nastavení hlasitosti a titulky (CC BY) v menu. Roztmívání scén (autoload `SceneFade`). Menu ukazuje styl soupeře. Náhled karty pod myší (i soupeřovy). Skryté tlačítko Síly stolu bez síly. Odměny jako karty s artem a staty. Banner „Tvůj tah“ / „Tah soupeře“. Mizení padlé kočky. Hlad (D-017). Harbor přeladěn.
+- Ověření: 20/20 verify PASS; screenshoty `artifacts/lead_settings*.png`, `lead_reward.png`, `lead_midgame_hover.png`, `lead_enemy_turn_*.png`; simulace viz D-017
+- Další krok: lidský test #2, art nových karet
+
 ### 2026-10-20 - Lidský test #1 → odveta, ruka 4, balanc, nové karty (Claude Opus 5.5)
 - Oblast: pravidla, balanc, obsah, UX
 - Zpětná vazba majitele (nehraje karetní hry): „přehlednější než dřív“, 1 výhra a 1 prohra, ale „smyčka“: vyložené kočky další kolo umřou, a tak dokola až do konce zápasu.
