@@ -36,5 +36,5 @@ count = 4
 [resource]
 script = ExtResource("1_deck_definition")
 id = &"npc_lantern_striker"
-display_name = "Balik Lucernoveho utocnika"
+display_name = "Balík Lucernového útočníka"
 cards = [SubResource("1_entry"), SubResource("2_entry"), SubResource("3_entry"), SubResource("4_entry"), SubResource("5_entry"), SubResource("6_entry")]

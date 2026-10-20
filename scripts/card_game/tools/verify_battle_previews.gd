@@ -115,7 +115,7 @@ func _run() -> void:
 		_fail("Could not select the item card from hand.")
 		return
 
-	if battle.selected_card_hint.text.find("Ty 1: +1 UTK -> 4") < 0:
+	if battle.selected_card_hint.text.find("Ty 1: +1 ÚTK -> 4") < 0:
 		_fail("Targeted preview did not show the attack buff result.")
 		return
 	if battle._player_lanes[0].event_panel.visible:

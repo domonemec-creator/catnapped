@@ -4,6 +4,7 @@ extends PanelContainer
 const CardGameConstants = preload("res://scripts/card_game/data/card_game_constants.gd")
 const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
 const CardTextFormatter = preload("res://scripts/card_game/ui/card_text_formatter.gd")
+const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
 
 const CAT_FRAME_PATH := "res://assets/card_game/card_frames/cat_frame.png"
 const TRICK_FRAME_PATH := "res://assets/card_game/card_frames/trick_frame.png"
@@ -54,8 +55,8 @@ const VISUAL_PRESETS := {
         "title_color": Color(0.93, 0.97, 0.92, 1.0),
         "body_color": Color(0.88, 0.93, 0.89, 1.0),
         "accent_text": Color(0.97, 0.99, 0.95, 1.0),
-        "placeholder_text": "PREDMET",
-        "type_text": "PREDMET",
+        "placeholder_text": "PŘEDMĚT",
+        "type_text": "PŘEDMĚT",
         "show_stats": false,
         "frame_path": ITEM_FRAME_PATH,
         "frame_alpha": 0.22,
@@ -165,8 +166,12 @@ func _refresh() -> void:
     var show_stats := bool(visual["show_stats"])
     attack_badge.visible = show_stats
     life_badge.visible = show_stats
-    type_badge.visible = not show_stats
-    type_label.text = str(visual["type_text"])
+    # U koček ukazuje prostřední odznak první keyword, aby ho hráč viděl už v ruce.
+    var keyword_text := ""
+    if show_stats and not card_definition.keywords.is_empty():
+        keyword_text = str(CardGameConstants.keyword_label(card_definition.keywords[0]))
+    type_badge.visible = not show_stats or not keyword_text.is_empty()
+    type_label.text = keyword_text if show_stats else str(visual["type_text"])
 
 
 func _refresh_art(card_definition: CardDefinition, visual: Dictionary) -> void:
@@ -178,7 +183,7 @@ func _refresh_art(card_definition: CardDefinition, visual: Dictionary) -> void:
         art_label.text = placeholder_text if not placeholder_text.is_empty() else card_definition.display_name
         return
 
-    var texture := load(card_definition.art_path) as Texture2D
+    var texture := CardArtCache.get_cropped(card_definition.art_path, 0.06, 0.36)
     if texture == null:
         art_texture.visible = false
         art_label.visible = true

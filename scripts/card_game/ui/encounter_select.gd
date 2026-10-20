@@ -118,7 +118,7 @@ func _build_ui() -> void:
     header_vbox.add_child(title)
 
     var subtitle := Label.new()
-    subtitle.text = "Vyber soupeře pred startem. Save i hrozba zustavaji zachovane."
+    subtitle.text = "Vyber soupeře před startem. Save i hrozba zůstávají zachované."
     _style_label(subtitle, 18, Color(0.9, 0.82, 0.67, 0.95), true)
     header_vbox.add_child(subtitle)
 
@@ -138,7 +138,7 @@ func _build_ui() -> void:
 
     _run_note_label = Label.new()
     _style_label(_run_note_label, 15, Color(0.88, 0.79, 0.64, 0.95), true)
-    _run_note_label.text = "Run zacne od vybraneho soupeře a projde 5 souboju."
+    _run_note_label.text = "Run začne od vybraného soupeře a projde 5 soubojů."
     header_vbox.add_child(_run_note_label)
 
     _progress_button = Button.new()
@@ -188,7 +188,7 @@ func _build_ui() -> void:
     list_vbox.add_child(list_title)
 
     var list_note := Label.new()
-    list_note.text = "Vyber jednoho soupeře a spust souboj."
+    list_note.text = "Vyber jednoho soupeře a spusť souboj."
     _style_label(list_note, 15, Color(0.88, 0.79, 0.64, 0.95), true)
     list_vbox.add_child(list_note)
 
@@ -376,7 +376,7 @@ func _build_encounter_tooltip(encounter: EncounterDefinition) -> String:
 
 func _get_table_power_display_name(table_power_id: StringName) -> String:
     if table_power_id == StringName():
-        return "Bez Sily stolu"
+        return "Bez Síly stolu"
 
     var resource_path := "res://data/table_powers/%s.tres" % String(table_power_id)
     var power_definition := load(resource_path) as TablePowerDefinition

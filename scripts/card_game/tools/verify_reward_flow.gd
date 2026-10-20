@@ -72,13 +72,13 @@ func _run() -> void:
     if battle._current_reward_offers.size() != 3:
         _fail("Reward draft did not generate 3 offers.")
         return
-    if not battle.post_match_reward_add_button.text.begins_with("Pridat "):
+    if not battle.post_match_reward_add_button.text.begins_with("Přidat "):
         _fail("Reward add button did not get a card label.")
         return
     if not battle.post_match_reward_remove_button.text.begins_with("Odebrat "):
         _fail("Reward remove button did not get a card label.")
         return
-    if not battle.post_match_reward_upgrade_button.text.begins_with("Vylepsit "):
+    if not battle.post_match_reward_upgrade_button.text.begins_with("Vylepšit "):
         _fail("Reward upgrade button did not get a card label.")
         return
     if battle.post_match_choose_encounter_button.visible:

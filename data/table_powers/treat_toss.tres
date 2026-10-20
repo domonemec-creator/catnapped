@@ -14,5 +14,5 @@ script = ExtResource("1_power_definition")
 id = &"treat_toss"
 display_name = "Hod pamlskem"
 cost = 2
-rules_text = "Vyvolej toulavou 1/1 do prazdne lajny."
+rules_text = "Vyvolej toulavou 1/1 do prázdné lajny."
 effects = [SubResource("1_effect")]

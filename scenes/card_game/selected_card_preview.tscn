@@ -26,7 +26,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 theme_override_font_sizes/font_size = 16
-text = "Klikni nebo pretahni kartu z ruky na lajnu. Pak vyber zvyrazneny cil."
+text = "Klikni nebo přetáhni kartu z ruky na lajnu. Pak vyber zvýrazněný cíl."
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 anchor_right = 1.0
@@ -97,7 +97,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "Nazev karty"
+text = "Název karty"
 
 [node name="RulesLabel" type="RichTextLabel" parent="CenterContainer/CardCanvas"]
 offset_left = 24.0
@@ -115,7 +115,7 @@ autowrap_mode = 3
 theme_override_colors/default_color = Color(0.25, 0.18, 0.12, 1)
 theme_override_font_sizes/normal_font_size = 14
 theme_override_font_sizes/bold_font_size = 14
-text = "Bez dalsich efektu."
+text = "Bez dalších efektů."
 
 [node name="AttackLabel" type="Label" parent="CenterContainer/CardCanvas"]
 offset_left = 12.0

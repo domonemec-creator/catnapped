@@ -36,5 +36,5 @@ count = 3
 [resource]
 script = ExtResource("1_deck_definition")
 id = &"npc_smug_tabby"
-display_name = "Balik Namysleneho kocoura"
+display_name = "Balík Namyšleného kocoura"
 cards = [SubResource("1_entry"), SubResource("2_entry"), SubResource("3_entry"), SubResource("4_entry"), SubResource("5_entry"), SubResource("6_entry")]

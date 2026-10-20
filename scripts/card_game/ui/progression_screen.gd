@@ -141,11 +141,11 @@ func _build_ui() -> void:
 
     _status_label = Label.new()
     _style_label(_status_label, 15, Color(0.88, 0.79, 0.64, 0.95), true)
-    _status_label.text = "Nacitam..."
+    _status_label.text = "Načítám..."
     stats_vbox.add_child(_status_label)
 
     _threat_label = _make_stat_label(stats_vbox, "Hrozba")
-    _win_label = _make_stat_label(stats_vbox, "Vyhry")
+    _win_label = _make_stat_label(stats_vbox, "Výhry")
     _loss_label = _make_stat_label(stats_vbox, "Prohry")
     _deck_total_label = _make_stat_label(stats_vbox, "Velikost balíku")
     _run_label = _make_stat_label(stats_vbox, "Výprava")
@@ -216,7 +216,7 @@ func _build_ui() -> void:
     button_row.add_child(_reset_button)
 
     _back_button = Button.new()
-    _back_button.text = "Zpet na vyber"
+    _back_button.text = "Zpět na výběr"
     _back_button.custom_minimum_size = Vector2(0, 52)
     _back_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     _back_button.add_theme_font_size_override("font_size", 18)
@@ -240,7 +240,7 @@ func _refresh_ui() -> void:
         _progression_system.get_threat_level(_progression_state),
         _progression_system.get_threat_label(_progression_system.get_threat_level(_progression_state)),
     ]
-    _win_label.text = "Vyhry: %s" % _progression_system.get_win_count(_progression_state)
+    _win_label.text = "Výhry: %s" % _progression_system.get_win_count(_progression_state)
     _loss_label.text = "Prohry: %s" % _progression_system.get_loss_count(_progression_state)
 
     var deck_card_ids: Array[StringName] = _progression_system.get_player_deck_card_ids(_progression_state)

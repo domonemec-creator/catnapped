@@ -11,7 +11,7 @@ target_mode = &"enemy_player"
 [resource]
 script = ExtResource("1_power_definition")
 id = &"smug_glare"
-display_name = "Namysleny pohled"
+display_name = "Namyšlený pohled"
 cost = 2
-rules_text = "Odhal jednu nahodnou kartu v ruce."
+rules_text = "Odhal jednu náhodnou kartu v ruce."
 effects = [SubResource("1_reveal")]

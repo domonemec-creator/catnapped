@@ -3,6 +3,7 @@ extends PanelContainer
 
 const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
 const SelectedCardPreviewScript = preload("res://scripts/card_game/ui/selected_card_preview.gd")
+const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
 
 signal slot_pressed(lane_index: int, owner_id: int)
 signal card_dropped(instance_id: int, lane_index: int, owner_id: int)
@@ -53,6 +54,8 @@ var _token_keyword: Label
 var _token_name: Label
 var _token_attack: Label
 var _token_life: Label
+var _token_art: TextureRect
+var _token_keyword_box: PanelContainer
 
 const OWNER_PLAYER := 0
 const OWNER_ENEMY := 1
@@ -420,23 +423,93 @@ func _build_token_panel() -> void:
 	# wouldn't distribute reliably inside the slot's container chain).
 	var content := Control.new()
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.clip_contents = true
 	_token_panel.add_child(content)
 
-	_token_cost = _make_token_label("0", 24, HORIZONTAL_ALIGNMENT_LEFT, VERTICAL_ALIGNMENT_TOP)
-	_place_token_label(content, _token_cost, 0.0, 0.0, 0.0, 0.0, 8.0, 6.0, 64.0, 42.0)
+	# Art karty přes celý token (oříznutý na střed), aby hráč poznal kočku na první pohled.
+	_token_art = TextureRect.new()
+	_token_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_token_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_token_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_token_art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	content.add_child(_token_art)
+	_token_art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
-	_token_keyword = _make_token_label("", 12, HORIZONTAL_ALIGNMENT_RIGHT, VERTICAL_ALIGNMENT_TOP)
-	_place_token_label(content, _token_keyword, 0.0, 0.0, 1.0, 0.0, 60.0, 8.0, -8.0, 36.0)
+	# Tmavý pruh dole pod jménem a staty, aby text byl čitelný přes art.
+	var strip := Panel.new()
+	strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	strip.add_theme_stylebox_override("panel", _build_style_box(Color(0.06, 0.04, 0.03, 0.82), Color(0, 0, 0, 0), 0, 0))
+	content.add_child(strip)
+	strip.anchor_top = 1.0
+	strip.anchor_right = 1.0
+	strip.anchor_bottom = 1.0
+	strip.offset_top = -44.0
 
-	_token_name = _make_token_label("", 15, HORIZONTAL_ALIGNMENT_CENTER, VERTICAL_ALIGNMENT_CENTER)
+	_token_name = _make_token_label("", 16, HORIZONTAL_ALIGNMENT_CENTER, VERTICAL_ALIGNMENT_CENTER)
 	_token_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_place_token_label(content, _token_name, 0.0, 0.0, 1.0, 1.0, 8.0, 34.0, -8.0, -42.0)
+	_token_name.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	_token_name.add_theme_constant_override("outline_size", 4)
+	_place_token_label(content, _token_name, 0.0, 1.0, 1.0, 1.0, 54.0, -44.0, -54.0, 0.0)
 
-	_token_attack = _make_token_label("0", 26, HORIZONTAL_ALIGNMENT_LEFT, VERTICAL_ALIGNMENT_BOTTOM)
-	_place_token_label(content, _token_attack, 0.0, 1.0, 0.0, 1.0, 8.0, -46.0, 70.0, -6.0)
+	_token_cost = _make_token_badge(content, Color(0.16, 0.34, 0.62), 0.0, 0.0, 6.0, 6.0, 34.0, 20)
+	_token_attack = _make_token_badge(content, Color(0.7, 0.42, 0.1), 0.0, 1.0, 6.0, -46.0, 40.0, 24)
+	_token_life = _make_token_badge(content, Color(0.62, 0.16, 0.14), 1.0, 1.0, -46.0, -46.0, 40.0, 24)
 
-	_token_life = _make_token_label("0", 26, HORIZONTAL_ALIGNMENT_RIGHT, VERTICAL_ALIGNMENT_BOTTOM)
-	_place_token_label(content, _token_life, 1.0, 1.0, 1.0, 1.0, -70.0, -46.0, -8.0, -6.0)
+	_token_keyword_box = PanelContainer.new()
+	_token_keyword_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_token_keyword_box.add_theme_stylebox_override("panel", _build_style_box(Color(0.08, 0.06, 0.04, 0.85), Color(0.9, 0.78, 0.45, 0.7), 8, 1))
+	content.add_child(_token_keyword_box)
+	_token_keyword_box.anchor_left = 0.5
+	_token_keyword_box.anchor_right = 0.5
+	_token_keyword_box.offset_top = 6.0
+	_token_keyword_box.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_token_keyword = _make_token_label("", 13, HORIZONTAL_ALIGNMENT_CENTER, VERTICAL_ALIGNMENT_CENTER)
+	_token_keyword_box.add_child(_token_keyword)
+
+	_fix_status_badge_layout()
+
+
+# Kruhový odznak s číslem (cena / útok / životy) v rohu tokenu.
+func _make_token_badge(parent: Control, color: Color, anchor_x: float, anchor_y: float, off_x: float, off_y: float, diameter: float, font_size: int) -> Label:
+	var badge := Panel.new()
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.add_theme_stylebox_override("panel", _build_style_box(color, Color(0.98, 0.88, 0.62, 0.95), int(diameter / 2.0), 2, 4, Color(0, 0, 0, 0.5)))
+	parent.add_child(badge)
+	badge.anchor_left = anchor_x
+	badge.anchor_right = anchor_x
+	badge.anchor_top = anchor_y
+	badge.anchor_bottom = anchor_y
+	badge.offset_left = off_x
+	badge.offset_top = off_y
+	badge.offset_right = off_x + diameter
+	badge.offset_bottom = off_y + diameter
+	var label := _make_token_label("0", font_size, HORIZONTAL_ALIGNMENT_CENTER, VERTICAL_ALIGNMENT_CENTER)
+	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	label.add_theme_constant_override("outline_size", 4)
+	badge.add_child(label)
+	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	return label
+
+
+# SlotShell je PanelContainer, který ignoruje anchory dětí a StatusBadge roztáhl přes
+# celý slot (velký medailon přes kartu). Přesuneme ho do volného overlaye, kde anchory platí.
+func _fix_status_badge_layout() -> void:
+	if status_badge.get_parent() != slot_shell:
+		return
+	var overlay := Control.new()
+	overlay.name = "StatusOverlay"
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot_shell.add_child(overlay)
+	slot_shell.move_child(overlay, status_badge.get_index())
+	status_badge.reparent(overlay, false)
+	status_badge.anchor_left = 1.0
+	status_badge.anchor_right = 1.0
+	status_badge.anchor_top = 0.0
+	status_badge.anchor_bottom = 0.0
+	status_badge.offset_left = -50.0
+	status_badge.offset_top = 4.0
+	status_badge.offset_right = -6.0
+	status_badge.offset_bottom = 48.0
 
 
 func _make_token_label(text: String, font_size: int, halign: int, valign: int) -> Label:
@@ -467,6 +540,7 @@ func _populate_token() -> void:
 	var def = _card_instance.definition
 	_token_cost.text = str(def.cost)
 	_token_name.text = def.display_name
+	_token_art.texture = CardArtCache.get_cropped(def.art_path)
 	_token_attack.text = str(_card_instance.current_attack)
 	_token_life.text = str(_card_instance.current_life)
 
@@ -475,10 +549,10 @@ func _populate_token() -> void:
 		var keyword_text := str(CardGameConstants.keyword_label(keywords[0]))
 		if keywords.size() > 1:
 			keyword_text += " +%s" % (keywords.size() - 1)
-		_token_keyword.text = keyword_text
-		_token_keyword.visible = true
+		_token_keyword.text = " %s " % keyword_text
+		_token_keyword_box.visible = true
 	else:
-		_token_keyword.visible = false
+		_token_keyword_box.visible = false
 
 	var wounded := _is_card_wounded(_card_instance)
 	var base_attack: int = def.attack

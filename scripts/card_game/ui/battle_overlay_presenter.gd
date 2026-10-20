@@ -261,7 +261,7 @@ func update_post_match_actions(run_session) -> void:
 	if run_session != null and run_session.is_active():
 		if _run_completion_pending:
 			if _post_match_deck_shift_title != null:
-				_post_match_deck_shift_title.text = "Výprava hotova"
+				_post_match_deck_shift_title.text = "Výprava hotová"
 			if _post_match_rematch_button != null:
 				_post_match_rematch_button.visible = false
 			if _post_match_choose_encounter_button != null:

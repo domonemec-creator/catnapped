@@ -30,21 +30,21 @@ const TARGET_ADJACENT_LANE := &"adjacent_lane"
 const TARGET_ENEMY_PLAYER := &"enemy_player"
 
 const KEYWORD_LABELS := {
-    KEYWORD_BATTLECRY: "Bojovy nastup",
-    KEYWORD_LAST_BREATH: "Posledni dech",
-    KEYWORD_QUICK_PAWS: "Rychle tlapy",
+    KEYWORD_BATTLECRY: "Bojový nástup",
+    KEYWORD_LAST_BREATH: "Poslední dech",
+    KEYWORD_QUICK_PAWS: "Rychlé tlapy",
     KEYWORD_GUARD: "Ochrana",
-    KEYWORD_POUNCE: "Vypad",
+    KEYWORD_POUNCE: "Výpad",
     KEYWORD_FEAST: "Hostina",
 }
 
 const KEYWORD_SUMMARIES := {
-    KEYWORD_BATTLECRY: "Spusti se hned po vylozeni karty.",
-    KEYWORD_LAST_BREATH: "Spusti se pri smrti kocky.",
-    KEYWORD_QUICK_PAWS: "V tahu muze hned utocit jen jedna nova kocka s timto keywordem.",
-    KEYWORD_GUARD: "Zachyti prime zraneni ve sve lajne i sousednich lajnach.",
-    KEYWORD_POUNCE: "Muze utocit na protilehlou nebo sousedni lajnu.",
-    KEYWORD_FEAST: "Kdyz umre jakakoliv jina kocka, tahle ziska +1/+1 napevno.",
+    KEYWORD_BATTLECRY: "Spustí se hned po vyložení karty.",
+    KEYWORD_LAST_BREATH: "Spustí se při smrti kočky.",
+    KEYWORD_QUICK_PAWS: "V tahu může hned útočit jen jedna nová kočka s tímto klíčovým slovem.",
+    KEYWORD_GUARD: "Zachytí přímé zranění ve své lajně i v sousedních lajnách.",
+    KEYWORD_POUNCE: "Může útočit na protilehlou nebo sousední lajnu.",
+    KEYWORD_FEAST: "Když umře jakákoliv jiná kočka, tahle získá +1/+1 napevno.",
 }
 
 

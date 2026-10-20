@@ -1,0 +1,17 @@
+[gd_resource type="Theme" load_steps=3 format=3]
+
+[ext_resource type="FontFile" path="res://assets/fonts/Alegreya-Variable.ttf" id="1_alegreya"]
+
+[sub_resource type="FontVariation" id="1_body"]
+base_font = ExtResource("1_alegreya")
+variation_opentype = {
+2003265652: 560
+}
+opentype_features = {
+1819178349: 1,
+1953396077: 1
+}
+
+[resource]
+default_font = SubResource("1_body")
+default_font_size = 17

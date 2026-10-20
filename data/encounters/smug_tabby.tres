@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = &"smug_tabby"
-display_name = "Namysleny kocour"
-npc_name = "Namysleny kocour"
+display_name = "Namyšlený kocour"
+npc_name = "Namyšlený kocour"
 portrait_path = "res://assets/card_game/ui/postmatch_smug_tabby.png"
 deck_id = &"npc_smug_tabby"
 table_power_id = &""

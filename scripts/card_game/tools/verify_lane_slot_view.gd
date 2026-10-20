@@ -104,11 +104,11 @@ func _run() -> void:
 		_fail("Playable lane highlight should no longer tint the whole slot rectangle.")
 		return
 
-	slot.set_recent_event("UTOK 3", slot.EVENT_ACTION)
+	slot.set_recent_event("ÚTOK 3", slot.EVENT_ACTION)
 	if not slot.event_panel.visible:
 		_fail("Lane event banner did not appear.")
 		return
-	if slot.event_label.text != "UTOK 3":
+	if slot.event_label.text != "ÚTOK 3":
 		_fail("Lane event banner text did not update.")
 		return
 
@@ -118,7 +118,7 @@ func _run() -> void:
 		return
 
 	slot.clear_preview_event()
-	if slot.event_label.text != "UTOK 3":
+	if slot.event_label.text != "ÚTOK 3":
 		_fail("Clearing preview event did not restore the runtime event banner.")
 		return
 

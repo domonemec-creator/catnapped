@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = &"lantern_striker"
-display_name = "Lucernovy utocnik"
-npc_name = "Lucernovy utocnik"
+display_name = "Lucernový útočník"
+npc_name = "Lucernový útočník"
 portrait_path = "res://assets/card_game/card_art/captain_ironmaw.png"
 deck_id = &"npc_lantern_striker"
 table_power_id = &""

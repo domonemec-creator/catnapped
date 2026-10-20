@@ -41,5 +41,5 @@ count = 2
 [resource]
 script = ExtResource("1_deck_definition")
 id = &"npc_harbor_warden"
-display_name = "Balik Pristavniho strazneho"
+display_name = "Balík Přístavního strážného"
 cards = [SubResource("1_entry"), SubResource("2_entry"), SubResource("3_entry"), SubResource("4_entry"), SubResource("5_entry"), SubResource("6_entry"), SubResource("7_entry")]

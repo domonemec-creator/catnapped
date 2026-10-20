@@ -14,6 +14,14 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-20 - Audit + čitelnost boardu, ruky a pravého panelu (Claude Opus 5.5, větev `lead/plan-2026-10`)
+- Oblast: battle UI, audit stavu, plán
+- Soubory: `scripts/card_game/ui/lane_slot_view.gd`, `scripts/card_game/ui/card_view.gd`, `scenes/card_game/card_view.tscn`, `scripts/card_game/ui/selected_card_preview.gd`, `scenes/card_game/battle_scene.tscn`, nové `scripts/card_game/ui/card_art_cache.gd`, `scripts/card_game/tools/capture_midgame.gd`, `assets/card_game/card_art/*.png.import`
+- Zjištění: karty na stole neměly art ani jméno. `StatusBadge` je dítě `PanelContainer`u (`SlotShell`), takže se roztáhl přes celý slot jako velký medailon a překryl text. Art v ruce byl malá ikonka. Pravý panel kombinoval ozdobný rám s nesedícími okny a duplicitní texty. Saved Tuna je ve výchozí hře mrtvá (žádný deck ani reward nemá Trick).
+- Změna: token na stole ukazuje oříznutý art, jméno, odznaky cena/útok/životy a keyword. StatusBadge přesunut do volného overlaye (malý v rohu). Karta v ruce je větší (176×118), ukazuje oříznutý art a první keyword. Pravý panel místo rámu vykresluje čistou kartu (art, jméno, keyword, text, staty) a panel je přes celou výšku sloupce. Art má mipmapy. Sdílený `CardArtCache` načítá art přes `load()`, což funguje i v exportu (na rozdíl od `Image.load_from_file` v `_load_ui_texture`).
+- Ověření: screenshoty `artifacts/lead_midgame.png` a `artifacts/lead_midgame_selected.png` (capture_midgame), verifiery viz níže
+- Další krok: diakritika všude, D-013 (skrýt Saved Tuna v UI bez Triků), audio/VFX
+
 ### 2026-07-24 - Saved Tuna je zavedena a verifier sada znovu beha
 - Oblast: battle economy, AI, verifikace
 - Soubory: `scripts/card_game/data/card_game_constants.gd`, `scripts/card_game/runtime/player_battle_state.gd`, `scripts/card_game/systems/battle_rules.gd`, `scripts/card_game/systems/battle_controller.gd`, `scripts/card_game/systems/ai_controller.gd`, `scripts/card_game/ui/battle_preview_presenter.gd`, `scripts/card_game/tools/verify_saved_tuna.gd`, `scripts/card_game/tools/verify_trick_item.gd`, `scripts/card_game/tools/verify_enemy_ai_support.gd`, `scripts/card_game/tools/verify_battle_previews.gd`, `scripts/card_game/tools/verify_battle_feedback.gd`, `scripts/card_game/tools/verify_table_power_ai.gd`, `scripts/card_game/tools/verify_item_steal_burn.gd`

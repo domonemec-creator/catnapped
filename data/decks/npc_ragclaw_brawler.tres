@@ -31,5 +31,5 @@ count = 4
 [resource]
 script = ExtResource("1_deck_definition")
 id = &"npc_ragclaw_brawler"
-display_name = "Balik Ragclawa rvace"
+display_name = "Balík Ragclawa rváče"
 cards = [SubResource("1_entry"), SubResource("2_entry"), SubResource("3_entry"), SubResource("4_entry"), SubResource("5_entry")]

@@ -169,13 +169,13 @@ func build_simple_idle_hint(player_state, enemy_state) -> String:
 
 func build_card_meta(card_instance, player_state = null) -> String:
 	if card_instance == null or card_instance.definition == null:
-		return "NEZNAMO"
+		return "NEZNÁMO"
 
 	var parts: Array[String] = [card_type_label(card_instance.definition.card_type), "Cena %s Tuna" % card_instance.definition.cost]
 	if card_instance.definition.card_type == CardGameConstants.CardType.TRICK and player_state != null:
 		parts.append("Rez. %s" % player_state.saved_tuna_current)
 	if card_instance.definition.card_type == CardGameConstants.CardType.CAT:
-		parts.append("%s UTK / %s ZIV" % [card_instance.current_attack, card_instance.current_life])
+		parts.append("%s ÚTK / %s ŽIV" % [card_instance.current_attack, card_instance.current_life])
 	return " | ".join(parts)
 
 
@@ -183,7 +183,7 @@ func build_attacker_meta(card_instance) -> String:
 	if card_instance == null or card_instance.definition == null:
 		return "ÚTOČNÍK"
 
-	return "ÚTOČNÍK | %s UTK / %s ZIV | Lajna %s" % [
+	return "ÚTOČNÍK | %s ÚTK / %s ŽIV | Lajna %s" % [
 		card_instance.current_attack,
 		card_instance.current_life,
 		card_instance.lane_index + 1
@@ -196,7 +196,7 @@ func build_attack_preview_hint(card_instance, enemy_state) -> String:
 
 	var preview_lines := build_attack_preview_lines(card_instance, enemy_state)
 	if preview_lines.is_empty():
-		return "Není validní nepřátelská lajna."
+		return "Není platná nepřátelská lajna."
 	return "Klikni na nepřátelskou lajnu.\n%s" % "\n".join(preview_lines)
 
 
@@ -227,7 +227,7 @@ func build_table_power_preview_hint(power_definition, player_state) -> String:
 	if _table_power_requires_lane_selection.is_valid() and _table_power_requires_lane_selection.call(power_definition):
 		var valid_lanes: Array = _get_valid_table_power_lanes.call(power_definition, player_state)
 		if valid_lanes.is_empty():
-			return "Není validní lajna na tvé straně."
+			return "Není platná lajna na tvé straně."
 		var lines: Array[String] = []
 		for lane_index in valid_lanes:
 			lines.append("Ty %s: vyvolá %s." % [lane_index + 1, build_table_power_lane_preview(power_definition)])
@@ -237,7 +237,7 @@ func build_table_power_preview_hint(power_definition, player_state) -> String:
 
 func build_card_preview_hint(card_instance, player_state, enemy_state) -> String:
 	if card_instance == null or card_instance.definition == null:
-		return "Vyber z ruky zrusen."
+		return "Výběr z ruky zrušen."
 
 	if player_state != null:
 		var available_tuna: int = int(player_state.tuna_current)
@@ -245,16 +245,16 @@ func build_card_preview_hint(card_instance, player_state, enemy_state) -> String
 			available_tuna += player_state.saved_tuna_current
 		if available_tuna < card_instance.definition.cost:
 			if card_instance.definition.card_type == CardGameConstants.CardType.TRICK:
-				return "Nemas dost Tuny. Bezna %s + rezerva %s." % [player_state.tuna_current, player_state.saved_tuna_current]
-			return "Nemas dost Tuny."
+				return "Nemáš dost Tuny. Běžná %s + rezerva %s." % [player_state.tuna_current, player_state.saved_tuna_current]
+			return "Nemáš dost Tuny."
 
 	if card_instance.definition.card_type == CardGameConstants.CardType.CAT:
 		var valid_play_lanes: Array = _battle_rules.get_valid_play_lanes(card_instance, player_state)
 		if valid_play_lanes.is_empty():
-			return "Na tve strane neni volna lajna."
+			return "Na tvé straně není volná lajna."
 		var lines: Array[String] = []
 		for lane_index in valid_play_lanes:
-			lines.append("Ty %s: vylozit %s." % [lane_index + 1, card_instance.definition.display_name])
+			lines.append("Ty %s: vyložit %s." % [lane_index + 1, card_instance.definition.display_name])
 		return "Klikni na volnou lajnu.\n%s" % "\n".join(lines)
 
 	if _card_requires_board_target.is_valid() and not _card_requires_board_target.call(card_instance):
@@ -262,8 +262,8 @@ func build_card_preview_hint(card_instance, player_state, enemy_state) -> String
 
 	var target_lines := build_target_preview_lines(card_instance, player_state, enemy_state)
 	if target_lines.is_empty():
-		return "Na stole neni validni cil."
-	return "Klikni na cil.\n%s" % "\n".join(target_lines)
+		return "Na stole není platný cíl."
+	return "Klikni na cíl.\n%s" % "\n".join(target_lines)
 
 
 func build_instant_card_preview_hint(card_instance) -> String:
@@ -319,13 +319,13 @@ func describe_target_preview(card_instance, target_card) -> String:
 			continue
 		match typed_effect.action:
 			&"modify_attack":
-				parts.append("%s UTK -> %s" % [format_signed_number(typed_effect.value), target_card.current_attack + typed_effect.value])
+				parts.append("%s ÚTK -> %s" % [format_signed_number(typed_effect.value), target_card.current_attack + typed_effect.value])
 			&"modify_life":
 				var next_life := maxi(0, target_card.current_life + typed_effect.value)
-				parts.append("%s ZIV -> %s" % [format_signed_number(typed_effect.value), next_life])
+				parts.append("%s ŽIV -> %s" % [format_signed_number(typed_effect.value), next_life])
 			&"deal_damage":
 				var remaining_life := maxi(0, target_card.current_life - typed_effect.value)
-				parts.append("KO" if remaining_life <= 0 else "zbyde %s ZIV" % remaining_life)
+				parts.append("KO" if remaining_life <= 0 else "zbyde %s ŽIV" % remaining_life)
 			&"ready_attack":
 				parts.append("připraví útok")
 			&"return_to_hand":
@@ -358,26 +358,26 @@ func build_target_preview_banner(card_instance, target_card) -> Dictionary:
 			continue
 		match typed_effect.action:
 			&"modify_attack":
-				parts.append("%s UTK" % format_signed_number(typed_effect.value))
+				parts.append("%s ÚTK" % format_signed_number(typed_effect.value))
 				tone = LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE
 			&"modify_life":
-				parts.append("%s ZIV" % format_signed_number(typed_effect.value))
+				parts.append("%s ŽIV" % format_signed_number(typed_effect.value))
 				tone = LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE
 			&"deal_damage":
 				var remaining_life := maxi(0, target_card.current_life - typed_effect.value)
-				parts.append("KO" if remaining_life <= 0 else "-%s ZIV" % typed_effect.value)
+				parts.append("KO" if remaining_life <= 0 else "-%s ŽIV" % typed_effect.value)
 				tone = LaneSlotView.EVENT_KO if remaining_life <= 0 else LaneSlotView.EVENT_DAMAGE
 			&"ready_attack":
-				parts.append("PRIPRAVI")
+				parts.append("PŘIPRAVÍ")
 				tone = LaneSlotView.EVENT_SUPPORT
 			&"return_to_hand":
-				parts.append("VRATI")
+				parts.append("VRÁTÍ")
 				tone = LaneSlotView.EVENT_ACTION
 			&"steal_item":
 				parts.append("UKRADNE")
 				tone = LaneSlotView.EVENT_ACTION
 			&"destroy_item":
-				parts.append("ZNICI")
+				parts.append("ZNIČÍ")
 				tone = LaneSlotView.EVENT_DAMAGE
 			&"grant_keyword":
 				parts.append("+%s" % CardGameConstants.keyword_label(typed_effect.keyword_arg).to_upper())
@@ -413,21 +413,21 @@ func describe_attack_preview(attacker, defender_state, lane_index: int) -> Strin
 		var remaining_life := maxi(0, target_card.current_life - attacker.current_attack)
 		if remaining_life <= 0:
 			return "%s padne." % target_card.definition.display_name
-		return "%s zbyde %s ZIV." % [target_card.definition.display_name, remaining_life]
+		return "%s zbyde %s ŽIV." % [target_card.definition.display_name, remaining_life]
 
 	var guard_target = _battle_rules.find_guard_for_direct_damage(defender_state, lane_index)
 	if guard_target != null:
 		var guard_life := maxi(0, guard_target.current_life - attacker.current_attack)
 		if guard_life <= 0:
 			return "%s zachytí zásah a padne." % guard_target.definition.display_name
-		return "%s zachytí zásah, zbyde %s ZIV." % [guard_target.definition.display_name, guard_life]
+		return "%s zachytí zásah, zbyde %s ŽIV." % [guard_target.definition.display_name, guard_life]
 
 	return "přímý zásah za %s." % attacker.current_attack
 
 
 func build_attack_preview_banner(attacker, defender_state, lane_index: int) -> Dictionary:
 	var preview := {
-		"text": "UTOK",
+		"text": "ÚTOK",
 		"tone": LaneSlotView.EVENT_ACTION,
 	}
 	if attacker == null or defender_state == null:
@@ -444,11 +444,11 @@ func build_attack_preview_banner(attacker, defender_state, lane_index: int) -> D
 	var guard_target = _battle_rules.find_guard_for_direct_damage(defender_state, lane_index)
 	if guard_target != null:
 		var guard_life := maxi(0, guard_target.current_life - attacker.current_attack)
-		preview["text"] = "GUARD KO" if guard_life <= 0 else "GUARD %s" % guard_life
+		preview["text"] = "OCHRANA KO" if guard_life <= 0 else "OCHRANA %s" % guard_life
 		preview["tone"] = LaneSlotView.EVENT_BLOCK
 		return preview
 
-	preview["text"] = "PRIMO %s" % attacker.current_attack
+	preview["text"] = "PŘÍMO %s" % attacker.current_attack
 	preview["tone"] = LaneSlotView.EVENT_DIRECT
 	return preview
 
@@ -652,7 +652,7 @@ func build_table_power_detail(power_definition, player_state) -> String:
 		elif player_state.tuna_current < power_definition.cost:
 			lines.append("Stav: málo Tuny.")
 		elif _table_power_requires_lane_selection.is_valid() and _table_power_requires_lane_selection.call(power_definition):
-			lines.append("Validní lajny: %s" % format_lane_names(_get_valid_table_power_lanes.call(power_definition, player_state)))
+			lines.append("Platné lajny: %s" % format_lane_names(_get_valid_table_power_lanes.call(power_definition, player_state)))
 	return "\n".join(lines)
 
 

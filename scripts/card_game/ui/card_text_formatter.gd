@@ -6,13 +6,13 @@ const CardGameConstants = preload("res://scripts/card_game/data/card_game_consta
 
 static func rules_preview_bbcode(card_definition: CardDefinition) -> String:
     if card_definition == null:
-        return "Bez dalsich efektu."
+        return "Bez dalších efektů."
 
     if not card_definition.rules_text.is_empty():
         return _emphasize_rule_text(card_definition.rules_text)
 
     if card_definition.keywords.is_empty():
-        return "Bez dalsich efektu."
+        return "Bez dalších efektů."
 
     var lines: Array[String] = []
     for keyword in card_definition.keywords:

@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_script")
 id = &"ragclaw_brawler"
-display_name = "Ragclaw rvac"
-npc_name = "Ragclaw rvac"
+display_name = "Ragclaw rváč"
+npc_name = "Ragclaw rváč"
 portrait_path = "res://assets/card_game/card_art/dockside_bruiser.png"
 deck_id = &"npc_ragclaw_brawler"
 table_power_id = &""

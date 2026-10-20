@@ -21,12 +21,12 @@ const THREAT_LABELS := [
 	"Nepokoj",
 	"Ostrost",
 	"Nabito",
-	"Nebezpeci",
+	"Nebezpečí",
 	"Krutost",
-	"Zurivost",
+	"Zuřivost",
 	"Lov",
 	"Brutalita",
-	"Nocni mura",
+	"Noční můra",
 ]
 
 const SMUG_TABBY_UPGRADE_LINES := {
@@ -117,8 +117,8 @@ const RAGCLAW_BRAWLER_UPGRADE_LINES := {
 
 const HARBOR_WARDEN_UPGRADE_LINES := {
 	1: {
-		"gain": "Přístavní strážný meni Svicotlapeho zveda za Skryté drápy.",
-		"lose": "Přístavní strážný prichazi o Skryté drápy a vraci se ke Svicotlapemu zvedovi.",
+		"gain": "Přístavní strážný mění Svíčkotlapého zvěda za Skryté drápy.",
+		"lose": "Přístavní strážný přichází o Skryté drápy a vrací se ke Svíčkotlapému zvědovi.",
 	},
 	2: {
 		"gain": "Přístavní strážný mění Hospodského myšolovce za Hod rybou.",
@@ -141,16 +141,16 @@ const HARBOR_WARDEN_UPGRADE_LINES := {
 		"lose": "Přístavní strážný přichází o Železnou misku a vrací se ke Kotelnímu strážci.",
 	},
 	7: {
-		"gain": "Přístavní strážný meni Hospodskeho mysivce za Převrácení stolu.",
-		"lose": "Přístavní strážný prichazi o Převrácení stolu a vraci se k Hospodskemu mysivci.",
+		"gain": "Přístavní strážný mění Hospodského myšolovce za Převrácení stolu.",
+		"lose": "Přístavní strážný přichází o Převrácení stolu a vrací se k Hospodskému myšolovci.",
 	},
 	8: {
 		"gain": "Přístavní strážný povyšuje Rybokostěného plíživce na Síťodrápého nájezdníka.",
 		"lose": "Přístavní strážný vrací Síťodrápého nájezdníka zpět na Rybokostěného plíživce.",
 	},
 	9: {
-		"gain": "Přístavní strážný meni Dokoveho rvace za druhe Skryté drápy.",
-		"lose": "Přístavní strážný prichazi o druhe Skryté drápy a vraci se k Dokovemu rvaci.",
+		"gain": "Přístavní strážný mění Dokového rváče za druhé Skryté drápy.",
+		"lose": "Přístavní strážný přichází o druhé Skryté drápy a vrací se k Dokovému rváči.",
 	},
 	10: {
 		"gain": "Přístavní strážný povyšuje Svíčkotlapého zvěda na Kotelního strážce.",

@@ -668,7 +668,7 @@ func _build_card_selection_message(card_instance: CardInstance, player_state: Pl
 
 	var display_name := card_instance.definition.display_name
 	if not _battle_rules.can_pay_card_cost(card_instance, player_state):
-		return "%s vybranĂˇ, ale nemĂˇĹˇ dost Tuny." % display_name
+		return "%s vybraná, ale nemáš dost Tuny." % display_name
 	match card_instance.definition.card_type:
 		CardGameConstants.CardType.CAT:
 			if _battle_rules.get_valid_play_lanes(card_instance, player_state).is_empty():
@@ -703,7 +703,7 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				if target_card == null:
 					continue
 				target_card.current_attack += typed_effect.value
-				_set_lane_feedback_for_card(target_card, _format_signed_stat_delta(typed_effect.value, "UTK"), LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE)
+				_set_lane_feedback_for_card(target_card, _format_signed_stat_delta(typed_effect.value, "ÚTK"), LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE)
 				if typed_effect.value_2 > 0:
 					target_card.temporary_attack_bonus += typed_effect.value
 					summaries.append("%s získa +%s útoku do konce kola." % [target_card.definition.display_name, typed_effect.value])
@@ -713,7 +713,7 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				if target_card == null:
 					continue
 				_adjust_card_life(target_card, typed_effect.value)
-				_set_lane_feedback_for_card(target_card, _format_signed_stat_delta(typed_effect.value, "ZIV"), LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE)
+				_set_lane_feedback_for_card(target_card, _format_signed_stat_delta(typed_effect.value, "ŽIV"), LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE)
 				if typed_effect.value_2 > 0:
 					target_card.temporary_life_bonus += typed_effect.value
 					summaries.append("%s získa +%s životů do konce kola." % [target_card.definition.display_name, typed_effect.value])
@@ -723,17 +723,17 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				if target_card == null:
 					continue
 				_adjust_card_life(target_card, -typed_effect.value)
-				_set_lane_feedback_for_card(target_card, "-%s ZIV" % typed_effect.value, LaneSlotView.EVENT_DAMAGE)
+				_set_lane_feedback_for_card(target_card, "-%s ŽIV" % typed_effect.value, LaneSlotView.EVENT_DAMAGE)
 				summaries.append("%s dostane %s zranění." % [target_card.definition.display_name, typed_effect.value])
 			&"ready_attack":
 				if target_card == null:
 					continue
 				if target_card.entered_this_turn and not target_card.immediate_entry_attack_granted:
-					summaries.append("%s tenhle tah je?t? neza?to??." % target_card.definition.display_name)
+					summaries.append("%s tenhle tah ještě nezaútočí." % target_card.definition.display_name)
 					continue
 				target_card.can_attack = true
 				target_card.has_attacked = false
-				_set_lane_feedback_for_card(target_card, "ZNOVU PRIPR.", LaneSlotView.EVENT_SUPPORT)
+				_set_lane_feedback_for_card(target_card, "ZNOVU PŘIPR.", LaneSlotView.EVENT_SUPPORT)
 				summaries.append("%s může znovu útočit." % target_card.definition.display_name)
 			&"return_to_hand":
 				if target_card == null:
@@ -766,8 +766,8 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				steal_host.attached_item = stolen_item
 				steal_host.attached_item_instance_id = stolen_item.instance_id
 				stolen_item.owner_id = owner_state.player_id
-				_set_lane_feedback_for_card(target_card, "PREDMET PRYC", LaneSlotView.EVENT_DAMAGE)
-				_set_lane_feedback_for_card(steal_host, "PREDMET UKRADEN", LaneSlotView.EVENT_SUPPORT)
+				_set_lane_feedback_for_card(target_card, "PŘEDMĚT PRYČ", LaneSlotView.EVENT_DAMAGE)
+				_set_lane_feedback_for_card(steal_host, "PŘEDMĚT UKRADEN", LaneSlotView.EVENT_SUPPORT)
 				summaries.append("%s ukradne %s pro %s." % [owner_state.display_name, stolen_item.definition.display_name, steal_host.definition.display_name])
 			&"destroy_item":
 				if target_card == null or target_card.attached_item == null:
@@ -777,7 +777,7 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				target_card.attached_item = null
 				target_card.attached_item_instance_id = -1
 				opposing_state.discard.append(wrecked_item)
-				_set_lane_feedback_for_card(target_card, "PREDMET PRYC", LaneSlotView.EVENT_DAMAGE)
+				_set_lane_feedback_for_card(target_card, "PŘEDMĚT PRYČ", LaneSlotView.EVENT_DAMAGE)
 				summaries.append("%s strhne %s z %s." % [owner_state.display_name, wrecked_item.definition.display_name, target_card.definition.display_name])
 			&"grant_keyword":
 				if target_card == null or typed_effect.keyword_arg == StringName():
@@ -827,7 +827,7 @@ func _return_card_to_hand(owner_state: PlayerBattleState, target_card: CardInsta
 	var lane_index := target_card.lane_index
 	if lane_index >= 0 and lane_index < owner_state.board.size():
 		owner_state.board[lane_index].occupant = null
-		_set_lane_feedback(owner_state.player_id, lane_index, "VRACENO", LaneSlotView.EVENT_SUPPORT)
+		_set_lane_feedback(owner_state.player_id, lane_index, "VRÁCENO", LaneSlotView.EVENT_SUPPORT)
 	if target_card.attached_item != null:
 		owner_state.discard.append(target_card.attached_item)
 	_reset_card_instance_runtime_state(target_card)
@@ -860,9 +860,9 @@ func _play_targeted_card(owner_state: PlayerBattleState, opposing_state: PlayerB
 
 func _activate_table_power(user_state: PlayerBattleState, opposing_state: PlayerBattleState, power_definition: TablePowerDefinition, lane_index: int = -1) -> String:
 	if user_state == null or power_definition == null:
-		return "??dn? S?la stolu."
+		return "Žádná Síla stolu."
 	if not _can_use_table_power(user_state, power_definition):
-		return "%s te? nejde pou??t." % power_definition.display_name
+		return "%s teď nejde použít." % power_definition.display_name
 	if _table_power_requires_lane_selection(power_definition) and not _get_valid_table_power_lanes(power_definition, user_state).has(lane_index):
 		return "Sem %s nejde." % power_definition.display_name
 
@@ -870,7 +870,7 @@ func _activate_table_power(user_state: PlayerBattleState, opposing_state: Player
 	user_state.tuna_current -= power_definition.cost
 	user_state.table_power_used_this_turn = true
 
-	var lines: Array[String] = ["%s pou?ije %s." % [user_state.display_name, power_definition.display_name]]
+	var lines: Array[String] = ["%s použije %s." % [user_state.display_name, power_definition.display_name]]
 	for effect in power_definition.effects:
 		var typed_effect: CardEffect = effect
 		if typed_effect == null:
@@ -900,15 +900,15 @@ func _resolve_table_power_effect(user_state: PlayerBattleState, opposing_state: 
 			token_instance.has_attacked = false
 			token_instance.can_attack = false
 			slot.occupant = token_instance
-			_set_lane_feedback(user_state.player_id, lane_index, "VYVOLANO", LaneSlotView.EVENT_SUPPORT)
+			_set_lane_feedback(user_state.player_id, lane_index, "VYVOLÁNO", LaneSlotView.EVENT_SUPPORT)
 			return "%s jde do lajny %s." % [token_instance.definition.display_name, lane_index + 1]
 		&"reveal_random_hand_card":
 			var target_state := opposing_state if effect.target_mode == CardGameConstants.TARGET_ENEMY_PLAYER else user_state
 			if target_state == null or target_state.hand.is_empty():
-				return "Nen? co odhalit."
+				return "Není co odhalit."
 			var reveal_index := randi() % target_state.hand.size()
 			var revealed_card: CardInstance = target_state.hand[reveal_index]
-			return "Odhal? %s." % revealed_card.definition.display_name
+			return "Odhalí %s." % revealed_card.definition.display_name
 		&"heal_life":
 			if effect.target_mode == CardGameConstants.TARGET_SELF_OWNER:
 				_adjust_player_life(user_state, effect.value)
@@ -927,7 +927,7 @@ func _setup_battle() -> void:
 	_battle_state.priority_player_id = PLAYER_ID
 
 	var player_state := PlayerBattleState.new()
-	player_state.initialize(PLAYER_ID, "Hrac", STARTING_LIFE, STARTING_TUNA, PLAYER_TABLE_POWER_ID, LANE_COUNT)
+	player_state.initialize(PLAYER_ID, "Hráč", STARTING_LIFE, STARTING_TUNA, PLAYER_TABLE_POWER_ID, LANE_COUNT)
 	# The player's first turn is the opening setup (no _start_turn call), so their next
 	# _start_turn (turn 2) should ramp normally. The enemy keeps has_started_turn = false
 	# so its first turn opens on STARTING_TUNA instead of an unfair +1.
@@ -1055,7 +1055,7 @@ func _handle_player_lane_pressed(lane_index: int) -> void:
 			_clear_selection_state()
 			return
 
-		status_label.text = "Tohle nen? c?l pro %s." % _selected_card.definition.display_name
+		status_label.text = "Tohle není cíl pro %s." % _selected_card.definition.display_name
 		return
 
 	var slot: LaneSlotState = player_state.board[lane_index]
@@ -1086,7 +1086,7 @@ func _handle_enemy_lane_pressed(lane_index: int) -> void:
 
 	if _selected_card != null:
 		if _selected_card.definition.card_type == CardGameConstants.CardType.CAT:
-			status_label.text = "Ko?ky hraj jen na svou stranu."
+			status_label.text = "Kočky hrají jen na svou stranu."
 			return
 
 		var slot: LaneSlotState = enemy_state.board[lane_index]
@@ -1095,7 +1095,7 @@ func _handle_enemy_lane_pressed(lane_index: int) -> void:
 			_clear_selection_state()
 			return
 
-		status_label.text = "Tohle nen? c?l pro %s." % _selected_card.definition.display_name
+		status_label.text = "Tohle není cíl pro %s." % _selected_card.definition.display_name
 		return
 
 	if _selected_attacker == null:
@@ -1127,7 +1127,7 @@ func _play_card_to_lane(player_state: PlayerBattleState, lane_index: int, card_i
 	player_state.hand.erase(card_instance)
 	_resolve_triggered_effects(card_instance, player_state, CardGameConstants.TRIGGER_BATTLECRY)
 	if card_instance.can_attack and not card_instance.has_attacked:
-		status_label.text = "%s jde do lajny %s a m??e hned ?to?it." % [card_instance.definition.display_name, lane_index + 1]
+		status_label.text = "%s jde do lajny %s a může hned útočit." % [card_instance.definition.display_name, lane_index + 1]
 	else:
 		status_label.text = "%s jde do lajny %s." % [card_instance.definition.display_name, lane_index + 1]
 	_check_battle_end()
@@ -1139,17 +1139,17 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 
 	var valid_attack_lanes: Array[int] = _battle_rules.get_valid_attack_lanes(attacker, defender_state)
 	if not valid_attack_lanes.has(target_lane):
-		return "Sem %s ne?to??." % attacker.definition.display_name
+		return "Sem %s neútočí." % attacker.definition.display_name
 
 	_clear_lane_feedback()
 	attacker.has_attacked = true
-	_set_lane_feedback(attacker.owner_id, attacker.lane_index, "UTOK %s" % attacker.current_attack, LaneSlotView.EVENT_ACTION)
+	_set_lane_feedback(attacker.owner_id, attacker.lane_index, "ÚTOK %s" % attacker.current_attack, LaneSlotView.EVENT_ACTION)
 	var target_slot: LaneSlotState = defender_state.board[target_lane]
 	var summary := ""
 
 	if target_slot.occupant != null:
 		_adjust_card_life(target_slot.occupant, -attacker.current_attack)
-		_set_lane_feedback(defender_state.player_id, target_lane, "-%s ZIV" % attacker.current_attack, LaneSlotView.EVENT_DAMAGE)
+		_set_lane_feedback(defender_state.player_id, target_lane, "-%s ŽIV" % attacker.current_attack, LaneSlotView.EVENT_DAMAGE)
 		if target_slot.occupant.current_life <= 0:
 			summary = "%s zasáhne %s za %s zranění a vyřadí ji." % [attacker.definition.display_name, target_slot.occupant.definition.display_name, attacker.current_attack]
 		else:
@@ -1166,7 +1166,7 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 				summary = "%s útočí do lajny %s, ale %s zásah zachytí. Zbývá %s životů." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name, guard_target.current_life]
 		else:
 			_adjust_player_life(defender_state, -attacker.current_attack)
-			_set_lane_feedback(defender_state.player_id, target_lane, "PRIMO %s" % attacker.current_attack, LaneSlotView.EVENT_DIRECT)
+			_set_lane_feedback(defender_state.player_id, target_lane, "PŘÍMO %s" % attacker.current_attack, LaneSlotView.EVENT_DIRECT)
 			summary = "%s udělí %s přímého zranění. Soupeři zbývá %s životů." % [attacker.definition.display_name, attacker.current_attack, defender_state.life]
 			_resolve_triggered_effects(attacker, attacker_owner_state, CardGameConstants.TRIGGER_ON_DIRECT_DAMAGE)
 
@@ -1505,9 +1505,9 @@ func _run_enemy_stub_turn() -> void:
 					break
 				_play_card_to_lane(enemy_state, played_lane, played_card)
 				if played_card.can_attack and not played_card.has_attacked:
-					action_log.append("%s vykl?d? %s do lajny %s a m??e hned ?to?it." % [enemy_state.display_name, played_card.definition.display_name, played_lane + 1])
+					action_log.append("%s vykládá %s do lajny %s a může hned útočit." % [enemy_state.display_name, played_card.definition.display_name, played_lane + 1])
 				else:
-					action_log.append("%s vyklada %s do lajny %s." % [enemy_state.display_name, played_card.definition.display_name, played_lane + 1])
+					action_log.append("%s vykládá %s do lajny %s." % [enemy_state.display_name, played_card.definition.display_name, played_lane + 1])
 		play_iterations += 1
 
 	var enemy_power := _get_table_power_definition(enemy_state)
@@ -1714,12 +1714,12 @@ func _build_info_zone_title(zone_id: StringName) -> String:
 			return "Balík"
 		INFO_ZONE_DISCARD:
 			return "Odhazování"
-	return "N?hled"
+	return "Náhled"
 
 
 func _build_info_zone_meta(zone_id: StringName, player_state: PlayerBattleState) -> String:
 	if player_state == null:
-		return "CHYB? DATA"
+		return "CHYBÍ DATA"
 
 	var cards := _get_info_zone_cards(zone_id, player_state)
 	var type_count := _count_unique_card_names(cards)
@@ -1727,13 +1727,13 @@ func _build_info_zone_meta(zone_id: StringName, player_state: PlayerBattleState)
 		INFO_ZONE_DECK:
 			return "BALÍK | %s karet | %s typů" % [cards.size(), type_count]
 		INFO_ZONE_DISCARD:
-			return "ODHAZOV?N? | %s karet | %s typ?" % [cards.size(), type_count]
-	return "NAHLED"
+			return "ODHAZOVÁNÍ | %s karet | %s typů" % [cards.size(), type_count]
+	return "NÁHLED"
 
 
 func _build_info_zone_detail(zone_id: StringName, player_state: PlayerBattleState) -> String:
 	if player_state == null:
-		return "Chyb? stav hr??e."
+		return "Chybí stav hráče."
 
 	var cards := _get_info_zone_cards(zone_id, player_state)
 	if cards.is_empty():
@@ -1747,7 +1747,7 @@ func _build_info_zone_hint(zone_id: StringName) -> String:
 			return "Klikni znovu na Balík pro zavření."
 		INFO_ZONE_DISCARD:
 			return "Klikni znovu na Odhazování pro zavření."
-	return "Klikni znovu pro zav?en?."
+	return "Klikni znovu pro zavření."
 
 
 func _get_info_zone_cards(zone_id: StringName, player_state: PlayerBattleState) -> Array[CardInstance]:
@@ -1806,7 +1806,7 @@ func _card_type_label(card_type: int) -> String:
 		CardGameConstants.CardType.TRICK:
 			return "TRIK"
 		CardGameConstants.CardType.ITEM:
-			return "PREDMET"
+			return "PŘEDMĚT"
 		_:
 			return "KOČKA"
 
@@ -1891,7 +1891,7 @@ func _on_table_power_button_pressed() -> void:
 		return
 
 	if not _can_use_table_power(player_state, power_definition):
-		status_label.text = "%s je?t? nejde pou??t." % power_definition.display_name
+		status_label.text = "%s ještě nejde použít." % power_definition.display_name
 		_refresh_ui()
 		return
 

@@ -4,6 +4,7 @@ extends Control
 const CardGameConstants = preload("res://scripts/card_game/data/card_game_constants.gd")
 const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
 const CardTextFormatter = preload("res://scripts/card_game/ui/card_text_formatter.gd")
+const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
 
 const SELECTED_PREVIEW_FRAME_PATH := "res://assets/card_game/ui/selected_card_preview_frame.png"
 const DISPLAY_FULL := &"full"
@@ -25,21 +26,21 @@ const DISPLAY_CONFIGS := {
 const LAYOUTS := {
     CardGameConstants.CardType.CAT: {
         "canvas_size": Vector2(258, 387),
-        "art_rect": Rect2(55, 22, 148, 116),
-        "cost_rect": Rect2(10, 24, 44, 50),
-        "name_rect": Rect2(38, 144, 182, 28),
-        "rules_rect": Rect2(54, 240, 150, 58),
-        "attack_rect": Rect2(12, 339, 44, 36),
-        "life_rect": Rect2(202, 339, 44, 36),
-        "type_rect": Rect2(79, 341, 100, 28),
+        "art_rect": Rect2(8, 8, 242, 188),
+        "cost_rect": Rect2(14, 14, 40, 40),
+        "name_rect": Rect2(8, 200, 242, 30),
+        "rules_rect": Rect2(18, 262, 222, 74),
+        "attack_rect": Rect2(12, 338, 42, 42),
+        "life_rect": Rect2(204, 338, 42, 42),
+        "type_rect": Rect2(64, 232, 130, 24),
         "show_stats": true,
-        "show_name": false,
-        "show_type_badge": false,
+        "show_name": true,
+        "show_type_badge": true,
         "name_mode": "display_name",
         "placeholder": "",
-        "frame_path": SELECTED_PREVIEW_FRAME_PATH,
+        "frame_path": "",
         "title_color": Color(0.96, 0.93, 0.88, 1.0),
-        "text_color": Color(0.25, 0.18, 0.12, 1.0),
+        "text_color": Color(0.93, 0.89, 0.8, 1.0),
         "accent_color": Color(1, 1, 1, 1.0),
         "badge_bg": Color(0.1, 0.2, 0.28, 0.92),
         "badge_border": Color(0.83, 0.68, 0.36, 1.0),
@@ -53,21 +54,21 @@ const LAYOUTS := {
     },
     CardGameConstants.CardType.TRICK: {
         "canvas_size": Vector2(258, 387),
-        "art_rect": Rect2(55, 22, 148, 116),
-        "cost_rect": Rect2(10, 24, 44, 50),
-        "name_rect": Rect2(38, 144, 182, 28),
-        "rules_rect": Rect2(54, 240, 150, 58),
-        "attack_rect": Rect2(0, 0, 0, 0),
-        "life_rect": Rect2(0, 0, 0, 0),
-        "type_rect": Rect2(0, 0, 0, 0),
+        "art_rect": Rect2(8, 8, 242, 188),
+        "cost_rect": Rect2(14, 14, 40, 40),
+        "name_rect": Rect2(8, 200, 242, 30),
+        "rules_rect": Rect2(18, 262, 222, 74),
+        "attack_rect": Rect2(12, 338, 42, 42),
+        "life_rect": Rect2(204, 338, 42, 42),
+        "type_rect": Rect2(64, 232, 130, 24),
         "show_stats": false,
-        "show_name": false,
-        "show_type_badge": false,
+        "show_name": true,
+        "show_type_badge": true,
         "name_mode": "display_name",
         "placeholder": "",
-        "frame_path": SELECTED_PREVIEW_FRAME_PATH,
+        "frame_path": "",
         "title_color": Color(0.98, 0.91, 0.83, 1.0),
-        "text_color": Color(0.33, 0.17, 0.12, 1.0),
+        "text_color": Color(0.95, 0.88, 0.82, 1.0),
         "accent_color": Color(1.0, 0.95, 0.88, 1.0),
         "badge_bg": Color(0.39, 0.15, 0.12, 0.86),
         "badge_border": Color(0.87, 0.58, 0.33, 1.0),
@@ -81,21 +82,21 @@ const LAYOUTS := {
     },
     CardGameConstants.CardType.ITEM: {
         "canvas_size": Vector2(258, 387),
-        "art_rect": Rect2(55, 22, 148, 116),
-        "cost_rect": Rect2(10, 24, 44, 50),
-        "name_rect": Rect2(38, 144, 182, 28),
-        "rules_rect": Rect2(54, 240, 150, 58),
-        "attack_rect": Rect2(0, 0, 0, 0),
-        "life_rect": Rect2(0, 0, 0, 0),
-        "type_rect": Rect2(0, 0, 0, 0),
+        "art_rect": Rect2(8, 8, 242, 188),
+        "cost_rect": Rect2(14, 14, 40, 40),
+        "name_rect": Rect2(8, 200, 242, 30),
+        "rules_rect": Rect2(18, 262, 222, 74),
+        "attack_rect": Rect2(12, 338, 42, 42),
+        "life_rect": Rect2(204, 338, 42, 42),
+        "type_rect": Rect2(64, 232, 130, 24),
         "show_stats": false,
-        "show_name": false,
-        "show_type_badge": false,
+        "show_name": true,
+        "show_type_badge": true,
         "name_mode": "display_name",
         "placeholder": "",
-        "frame_path": SELECTED_PREVIEW_FRAME_PATH,
+        "frame_path": "",
         "title_color": Color(0.91, 0.95, 0.92, 1.0),
-        "text_color": Color(0.18, 0.2, 0.18, 1.0),
+        "text_color": Color(0.88, 0.93, 0.9, 1.0),
         "accent_color": Color(0.97, 0.99, 0.96, 1.0),
         "badge_bg": Color(0.18, 0.23, 0.22, 0.88),
         "badge_border": Color(0.78, 0.8, 0.63, 1.0),
@@ -129,9 +130,28 @@ static var _frame_texture_cache: Dictionary = {}
 var _card_instance: CardInstance
 var _interactive := false
 var _display_mode: StringName = DISPLAY_FULL
+var _card_background: Panel
 
 
 func _ready() -> void:
+    # Čistý podklad karty místo ozdobného rámu, jehož okna neseděla na art ani texty.
+    _card_background = Panel.new()
+    _card_background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    card_canvas.add_child(_card_background)
+    card_canvas.move_child(_card_background, 0)
+    _card_background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    frame_texture.visible = false
+    art_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+    art_texture.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+    for label in [cost_label, attack_label, life_label]:
+        label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+        label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+        label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+        label.add_theme_constant_override("outline_size", 4)
+    name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    name_label.clip_text = true
+    type_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     _refresh()
 
 
@@ -221,7 +241,10 @@ func _apply_content(layout: Dictionary) -> void:
     name_label.visible = show_name
     type_badge.visible = show_type_badge
     rules_label.visible = show_rules
+    # U koček ukazuje odznak první keyword (víc řekne než „KOČKA“), jinak typ karty.
     type_label.text = _card_type_label(definition.card_type)
+    if definition.card_type == CardGameConstants.CardType.CAT and not definition.keywords.is_empty():
+        type_label.text = str(CardGameConstants.keyword_label(definition.keywords[0])).to_upper()
 
     name_label.add_theme_font_size_override("font_size", _scaled_font_size(int(layout["name_font_size"]), display_scale, 12))
     rules_label.add_theme_font_size_override("normal_font_size", _scaled_font_size(int(layout["rules_font_size"]), display_scale, 10))
@@ -245,6 +268,10 @@ func _apply_content(layout: Dictionary) -> void:
         art_background = Color(0.15, 0.11, 0.08, 1.0)
     art_rect.add_theme_stylebox_override("panel", _build_panel_style(art_background, Color(0, 0, 0, 0)))
     type_badge.add_theme_stylebox_override("panel", _build_panel_style(layout["badge_bg"], layout["badge_border"]))
+    _card_background.add_theme_stylebox_override("panel", _build_panel_style(Color(0.12, 0.09, 0.07, 0.98), layout["badge_border"]))
+    cost_label.add_theme_stylebox_override("normal", _build_round_style(Color(0.16, 0.34, 0.62), display_scale))
+    attack_label.add_theme_stylebox_override("normal", _build_round_style(Color(0.7, 0.42, 0.1), display_scale))
+    life_label.add_theme_stylebox_override("normal", _build_round_style(Color(0.62, 0.16, 0.14), display_scale))
 
     _refresh_art(layout)
 
@@ -255,7 +282,7 @@ func _refresh_art(layout: Dictionary) -> void:
 
     var texture: Texture2D = null
     if not definition.art_path.is_empty():
-        texture = load(definition.art_path) as Texture2D
+        texture = CardArtCache.get_cropped(definition.art_path, 0.03, 0.5)
 
     if texture != null:
         art_texture.texture = texture
@@ -319,11 +346,21 @@ func _build_panel_style(background_color: Color, border_color: Color) -> StyleBo
     return style
 
 
+func _build_round_style(color: Color, scale: float) -> StyleBoxFlat:
+    var style := _build_panel_style(color, Color(0.98, 0.88, 0.62, 0.95))
+    var radius := int(21.0 * scale)
+    style.corner_radius_top_left = radius
+    style.corner_radius_top_right = radius
+    style.corner_radius_bottom_right = radius
+    style.corner_radius_bottom_left = radius
+    return style
+
+
 func _card_type_label(card_type: int) -> String:
     match card_type:
         CardGameConstants.CardType.TRICK:
             return "TRIK"
         CardGameConstants.CardType.ITEM:
-            return "PREDMET"
+            return "PŘEDMĚT"
         _:
             return "KOČKA"

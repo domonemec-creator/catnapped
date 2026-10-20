@@ -25,6 +25,20 @@ shadow_size = 8
 
 [sub_resource type="StyleBoxEmpty" id="2_board_empty"]
 
+[sub_resource type="StyleBoxFlat" id="20_selected_panel"]
+bg_color = Color(0.09, 0.065, 0.05, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.62, 0.46, 0.24, 0.9)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 10
+
 [sub_resource type="StyleBoxFlat" id="3_btn_primary"]
 bg_color = Color(0.82, 0.56, 0.2, 1)
 corner_radius_top_left = 10
@@ -231,7 +245,7 @@ custom_minimum_size = Vector2(0, 28)
 autowrap_mode = 3
 theme_override_font_sizes/font_size = 15
 theme_override_colors/font_color = Color(0.97, 0.93, 0.86, 1)
-text = "Nacitam..."
+text = "Načítám..."
 
 [node name="BattleFeedTitle" type="Label" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox"]
 theme_override_font_sizes/font_size = 12
@@ -312,10 +326,11 @@ size_flags_vertical = 3
 
 [node name="SelectedPanel" type="PanelContainer" parent="Margin/Layout/TopRow"]
 custom_minimum_size = Vector2(392, 544)
-size_flags_vertical = 4
-theme_override_styles/panel = SubResource("2_board_empty")
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("20_selected_panel")
 
 [node name="FrameArt" type="TextureRect" parent="Margin/Layout/TopRow/SelectedPanel"]
+visible = false
 texture = ExtResource("6_selected_frame")
 expand_mode = 1
 stretch_mode = 0
@@ -326,10 +341,10 @@ mouse_filter = 2
 
 [node name="TopZone" type="MarginContainer" parent="Margin/Layout/TopRow/SelectedPanel/Content"]
 layout_mode = 1
-anchor_left = 0.1
-anchor_top = 0.05
-anchor_right = 0.9
-anchor_bottom = 0.64
+anchor_left = 0.04
+anchor_top = 0.015
+anchor_right = 0.96
+anchor_bottom = 0.62
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 0.0
@@ -340,10 +355,10 @@ mouse_filter = 2
 
 [node name="TitleBanner" type="MarginContainer" parent="Margin/Layout/TopRow/SelectedPanel/Content"]
 layout_mode = 1
-anchor_left = 0.14
-anchor_top = 0.64
-anchor_right = 0.86
-anchor_bottom = 0.70
+anchor_left = 0.06
+anchor_top = 0.625
+anchor_right = 0.94
+anchor_bottom = 0.67
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 0.0
@@ -354,14 +369,14 @@ mouse_filter = 2
 theme_override_font_sizes/font_size = 18
 horizontal_alignment = 1
 vertical_alignment = 1
-text = "Vybrana karta"
+text = "Vybraná karta"
 
 [node name="BottomZone" type="VBoxContainer" parent="Margin/Layout/TopRow/SelectedPanel/Content"]
 layout_mode = 1
-anchor_left = 0.12
-anchor_top = 0.71
-anchor_right = 0.88
-anchor_bottom = 0.97
+anchor_left = 0.05
+anchor_top = 0.675
+anchor_right = 0.95
+anchor_bottom = 0.985
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 0.0
@@ -390,7 +405,7 @@ mouse_filter = 2
 [node name="SelectedMeta" type="Label" parent="Margin/Layout/TopRow/SelectedPanel/Content/BottomZone/InfoPanel/MarginContainer/InfoVBox"]
 theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.92, 0.84, 0.68, 1)
-text = "Vyber kartu nebo pripravenou kocku."
+text = "Vyber kartu nebo připravenou kočku."
 
 [node name="SelectedDetail" type="RichTextLabel" parent="Margin/Layout/TopRow/SelectedPanel/Content/BottomZone/InfoPanel/MarginContainer/InfoVBox"]
 custom_minimum_size = Vector2(0, 40)
@@ -405,7 +420,7 @@ autowrap_mode = 3
 theme_override_colors/default_color = Color(0.93, 0.9, 0.84, 0.96)
 theme_override_font_sizes/normal_font_size = 14
 theme_override_font_sizes/bold_font_size = 14
-text = "Vyber kartu z ruky nebo pripravenou kocku na stole."
+text = "Vyber kartu z ruky nebo připravenou kočku na stole."
 
 [node name="SelectedHint" type="Label" parent="Margin/Layout/TopRow/SelectedPanel/Content/BottomZone/InfoPanel/MarginContainer/InfoVBox"]
 autowrap_mode = 3
@@ -413,7 +428,7 @@ clip_text = true
 max_lines_visible = 2
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.97, 0.78, 0.46, 1)
-text = "Klikni na validni cil nebo lane."
+text = "Klikni na platný cíl nebo lajnu."
 
 [node name="TablePowerButton" type="Button" parent="Margin/Layout/TopRow/SelectedPanel/Content/BottomZone"]
 custom_minimum_size = Vector2(0, 44)
@@ -633,7 +648,7 @@ text = "Výhra"
 [node name="ResultSummary" type="Label" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
 autowrap_mode = 3
 theme_override_font_sizes/font_size = 18
-text = "Shrnuti vysledku."
+text = "Shrnutí výsledku."
 
 [node name="ThreatRow" type="HBoxContainer" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
 theme_override_constants/separation = 12
@@ -652,16 +667,16 @@ text = "Hrozba 0 -> 1"
 
 [node name="DeckShiftTitle" type="Label" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
 theme_override_font_sizes/font_size = 22
-text = "Dalsi smena"
+text = "Další směna"
 
 [node name="DeckShiftDetail" type="Label" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
 autowrap_mode = 3
 theme_override_font_sizes/font_size = 17
-text = "Balík beze zmen."
+text = "Balík beze změn."
 
 [node name="RecordLabel" type="Label" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
 theme_override_font_sizes/font_size = 16
-text = "Vyhry 0  Prohry 0"
+text = "Výhry 0  Prohry 0"
 
 [node name="RewardButtons" type="VBoxContainer" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
 visible = false
@@ -677,7 +692,7 @@ theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("5_btn_secondary")
 theme_override_styles/hover = SubResource("5_btn_secondary")
 theme_override_styles/pressed = SubResource("5_btn_secondary")
-text = "Pridat kartu"
+text = "Přidat kartu"
 
 [node name="RewardRemoveButton" type="Button" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox/RewardButtons"]
 custom_minimum_size = Vector2(0, 44)
@@ -701,7 +716,7 @@ theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("5_btn_secondary")
 theme_override_styles/hover = SubResource("5_btn_secondary")
 theme_override_styles/pressed = SubResource("5_btn_secondary")
-text = "Vylepsit kartu"
+text = "Vylepšit kartu"
 
 [node name="Buttons" type="HBoxContainer" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
 alignment = 1
