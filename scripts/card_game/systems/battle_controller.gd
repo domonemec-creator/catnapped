@@ -99,6 +99,7 @@ var _player_lanes: Array[LaneSlotView] = []
 var _pace_actions := false
 var _enemy_turn_running := false
 var _hover_card: CardInstance
+var _enemy_hand_row: HBoxContainer
 const ENEMY_ACTION_DELAY := 0.75
 var _card_library: Dictionary = {}
 var _deck_library: Dictionary = {}
@@ -1740,6 +1741,7 @@ func _refresh_ui() -> void:
 		return
 
 	enemy_life_label.text = "Životy %s" % enemy_state.life
+	_refresh_enemy_hand_row(enemy_state)
 	enemy_tuna_label.text = _format_tuna_label(enemy_state)
 	player_life_label.text = "Životy %s" % player_state.life
 	player_tuna_label.text = _format_tuna_label(player_state)
@@ -2067,6 +2069,45 @@ func _update_turn_indicator() -> void:
 		enemy_portrait_frame.texture = _portrait_frame_green_texture
 	else:
 		enemy_portrait_frame.texture = _portrait_frame_red_texture
+
+
+# Soupeřova ruka jako ruby karet v hlavičce (kolik karet drží) + zbytek balíku.
+func _refresh_enemy_hand_row(enemy_state: PlayerBattleState) -> void:
+	if _enemy_hand_row == null:
+		var header := enemy_life_label.get_node_or_null("../../../..") as HBoxContainer
+		if header == null:
+			return
+		_enemy_hand_row = HBoxContainer.new()
+		_enemy_hand_row.name = "EnemyHandRow"
+		_enemy_hand_row.add_theme_constant_override("separation", -10)
+		_enemy_hand_row.alignment = BoxContainer.ALIGNMENT_END
+		_enemy_hand_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		header.add_child(_enemy_hand_row)
+		header.move_child(_enemy_hand_row, header.get_child_count() - 2)
+	var back := CardArtCache.get_full(CardArtCache.PLACEHOLDER_PATH)
+	var count := enemy_state.hand.size()
+	while _enemy_hand_row.get_child_count() > count + 1:
+		_enemy_hand_row.get_child(_enemy_hand_row.get_child_count() - 1).free()
+	if _enemy_hand_row.get_child_count() == 0:
+		var deck_label := Label.new()
+		deck_label.add_theme_font_size_override("font_size", 14)
+		deck_label.add_theme_color_override("font_color", Color(0.85, 0.78, 0.64))
+		deck_label.custom_minimum_size = Vector2(70, 0)
+		deck_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_enemy_hand_row.add_child(deck_label)
+	while _enemy_hand_row.get_child_count() < count + 1:
+		var card_back := TextureRect.new()
+		card_back.texture = back
+		card_back.custom_minimum_size = Vector2(34, 50)
+		card_back.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		card_back.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		card_back.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+		card_back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		card_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_enemy_hand_row.add_child(card_back)
+	var deck_label_node := _enemy_hand_row.get_child(0) as Label
+	deck_label_node.text = "Ruka %s\nBalík %s" % [count, enemy_state.deck.size()]
+	_enemy_hand_row.tooltip_text = "Soupeř drží %s karet, v balíku má %s." % [count, enemy_state.deck.size()]
 
 
 func _on_card_hovered(card_instance) -> void:
