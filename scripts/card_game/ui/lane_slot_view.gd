@@ -58,6 +58,7 @@ var _token_life: Label
 var _token_art: TextureRect
 var _token_keyword_box: PanelContainer
 var _token_content: Control
+var _token_keyword_icon: TextureRect
 
 const OWNER_PLAYER := 0
 const OWNER_ENEMY := 1
@@ -466,8 +467,20 @@ func _build_token_panel() -> void:
 	_token_keyword_box.anchor_right = 0.5
 	_token_keyword_box.offset_top = 6.0
 	_token_keyword_box.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	var keyword_row := HBoxContainer.new()
+	keyword_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	keyword_row.add_theme_constant_override("separation", 4)
+	_token_keyword_box.add_child(keyword_row)
+	# Ikona keywordu (game-icons.net, CC BY 3.0, viz assets/card_game/icons/ATTRIBUTION.md).
+	_token_keyword_icon = TextureRect.new()
+	_token_keyword_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_token_keyword_icon.custom_minimum_size = Vector2(16, 16)
+	_token_keyword_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_token_keyword_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_token_keyword_icon.modulate = Color(0.98, 0.84, 0.5)
+	keyword_row.add_child(_token_keyword_icon)
 	_token_keyword = _make_token_label("", 13, HORIZONTAL_ALIGNMENT_CENTER, VERTICAL_ALIGNMENT_CENTER)
-	_token_keyword_box.add_child(_token_keyword)
+	keyword_row.add_child(_token_keyword)
 
 	_fix_status_badge_layout()
 
@@ -570,7 +583,9 @@ func _populate_token() -> void:
 		var keyword_text := str(CardGameConstants.keyword_label(keywords[0]))
 		if keywords.size() > 1:
 			keyword_text += " +%s" % (keywords.size() - 1)
-		_token_keyword.text = " %s " % keyword_text
+		_token_keyword.text = "%s " % keyword_text
+		_token_keyword_icon.texture = CardArtCache.get_keyword_icon(keywords[0])
+		_token_keyword_icon.visible = _token_keyword_icon.texture != null
 		_token_keyword_box.visible = true
 	else:
 		_token_keyword_box.visible = false

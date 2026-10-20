@@ -38,3 +38,8 @@ static func get_cropped(resource_path: String, top: float = 0.04, height: float 
 		result = atlas
 	_crop_cache[key] = result
 	return result
+
+
+# Ikona keywordu (bílá SVG, obarvuje se přes modulate). Null, když ikona neexistuje.
+static func get_keyword_icon(keyword: StringName) -> Texture2D:
+	return get_full("res://assets/card_game/icons/%s.svg" % keyword)
