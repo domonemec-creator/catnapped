@@ -14,19 +14,21 @@
 6. **Obsah:** reálně se hraje s 10 kočkami (jen ty mají art). Feast karty jsou hotové v enginu, ale bez artu a mimo pool.
 
 ## Fáze A – Čitelnost (blokuje lidské testování)
-- [ ] A1 Board token: art karty, jméno, cost/útok/životy v odznacích; oprava roztaženého StatusBadge
-- [ ] A2 Karty v ruce: velký art, čitelné jméno a staty
-- [ ] A3 Pravý panel (vybraná karta): art, bez překryvů
-- [ ] A4 Diakritika ve jménech NPC a UI textech
-- [ ] A5 `capture_midgame.gd` (rozehraná hra bez tutorialu) pro vizuální kontrolu
-- [ ] A6 Skrýt „Rez.“ (Saved Tuna) v UI, když žádný deck nemá Trick (D-013)
-- [ ] **Lidský test #1** (Mark): odehrát 1 run, checklist v HANDOFF.md
+- [x] A1 Board token: art karty, jméno, cost/útok/životy v odznacích; oprava roztaženého StatusBadge
+- [x] A2 Karty v ruce: velký art, čitelné jméno a staty
+- [x] A3 Pravý panel (vybraná karta): art, bez překryvů
+- [x] A4 Diakritika ve jménech NPC a UI textech (+ texty rozbité na „?“)
+- [x] A5 `capture_midgame.gd` + `capture_enemy_turn.gd` pro vizuální kontrolu
+- [x] A6 Skrýt „Rez.“ (Saved Tuna) v UI, když deck nemá Trick (D-013)
+- [ ] **Lidský test #1** (Mark): checklist v HANDOFF.md
 
 ## Fáze B – Herní pocit
-- [ ] B1 Animace útoku (výpad tokenu), poškození (otřes + plovoucí číslo), smrt (fade)
-- [ ] B2 Zpomalit tah AI, aby šlo sledovat, co soupeř dělá
-- [ ] B3 Jednoduché zvuky (procedurálně generované, bez externích assetů)
+- [x] B1 Výpad útočníka, otřes + záblesk + plovoucí číslo, dopad vyložené karty (smrt: zatím jen KO zvuk)
+- [x] B2 Tah AI po krocích (0,75 s/akce), zámek vstupu
+- [x] B3 Zvuky + hudba (Kenney CC0, RandomMind CC0), cvaknutí tlačítek, font Alegreya
 - [ ] B4 Přechody mezi scénami (fade)
+- [ ] B5 Pravý panel bez výběru: místo prázdné plochy užitečný obsah (tah, tip)
+- [ ] B6 Nastavení hlasitosti (hudba/efekty) v menu
 
 ## Fáze C – Obsah a hloubka core
 - [ ] C1 Feast karty (Mrchožravý slídil, Hřbitovní hodovník) do reward poolu s placeholder artem

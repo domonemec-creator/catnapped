@@ -14,6 +14,13 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-20 - Herní pocit: tempo AI, animace, zvuk, font (Claude Opus 5.5)
+- Oblast: battle flow, audio, téma
+- Soubory: `scripts/card_game/systems/battle_controller.gd`, `scripts/card_game/ui/lane_slot_view.gd`, `scripts/card_game/ui/battle_fx.gd`, `scripts/card_game/systems/sfx.gd` (autoload `Sfx`), `assets/audio/**`, `assets/fonts/**`, `assets/ui_theme/catnapped_theme.tres`, `project.godot`, `scripts/card_game/tools/verify_threat_progression.gd`
+- Změna: Tah soupeře byl synchronní, hráč viděl jen výsledek. Teď se v okně přehrává po krocích. Útok/zásah/ochrana/přímý zásah mají animaci a zvuk. Event bannery přes celou kartu nahrazeny malým štítkem. Hlavička soupeře má „Hrozba N“ místo „[TN]“ (verifier upraven). „Rez.“ se ukazuje jen s Triky v balíku. Diakritiku doplnil subagent (Sonnet) v ~46 souborech včetně 4 verifierů.
+- Ověření: 19/19 verify PASS; `capture_enemy_turn.gd` (tah doběhne, hráč je zpět na tahu, snímky průběhu); spuštění hlavní scény bez script erroru
+- Další krok: lidský test #1, pak fáze C
+
 ### 2026-10-20 - Audit + čitelnost boardu, ruky a pravého panelu (Claude Opus 5.5, větev `lead/plan-2026-10`)
 - Oblast: battle UI, audit stavu, plán
 - Soubory: `scripts/card_game/ui/lane_slot_view.gd`, `scripts/card_game/ui/card_view.gd`, `scenes/card_game/card_view.tscn`, `scripts/card_game/ui/selected_card_preview.gd`, `scenes/card_game/battle_scene.tscn`, nové `scripts/card_game/ui/card_art_cache.gd`, `scripts/card_game/tools/capture_midgame.gd`, `assets/card_game/card_art/*.png.import`

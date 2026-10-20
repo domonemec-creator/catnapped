@@ -1,17 +1,39 @@
-# HANDOFF.md (2026-10-07)
+# HANDOFF.md (2026-10-20, Claude Opus 5.5 – hlavní jednatel projektu)
 
 ## Stav
-- Projekt funguje: 19/19 headless `verify_*.gd` prošlo.
-- Git: lokální commity, nepushnuto. `skills/` ignorováno (externí Codex skill).
-- Poslední práce: split `battle_controller.gd` + presentery (`ui/battle_overlay_presenter.gd`, `ui/battle_preview_presenter.gd`), oprava češtiny, `Saved Tuna`, návrh LoR-lite.
+- Větev `lead/plan-2026-10` (lokální commity, nepushnuto; `master` beze změny).
+- 19/19 headless `verify_*.gd` PASS (ověřeno 2026-10-20 po všech změnách).
+- Hotová fáze A (čitelnost) a většina fáze B (herní pocit), viz `PLAN.md`.
+
+## Co se změnilo (podrobně `docs/worklog.md`)
+- Stůl: token s artem, jménem a odznaky; opraven roztažený StatusBadge; event bannery jsou malé štítky.
+- Ruka: větší karty s artem a keywordem. Pravý panel: čistá karta místo rámu.
+- Diakritika všude, opraveny texty rozbité na „?“.
+- Tah soupeře se v okně přehrává po krocích (0,75 s), s výpadem, otřesem, plovoucími čísly a zvuky. Headless zůstává synchronní (verifiery).
+- Audio: autoload `Sfx` (`scripts/card_game/systems/sfx.gd`), Kenney CC0 zvuky, 2 CC0 hudební smyčky, cvaknutí u všech tlačítek.
+- Font Alegreya (OFL) v globálním tématu `assets/ui_theme/catnapped_theme.tres`.
+- Zdroj stažených assetů: `C:\Users\voone\Desktop\karty` (licence v `LICENSES.md`, kopie `assets/audio/LICENSES_SOURCE.md`).
+
+## Ověřeno čím
+- Verifiery (headless), screenshoty v okně: `capture_midgame.gd` (rozehraná hra + vybraná karta), `capture_enemy_turn.gd` (průběh tahu soupeře).
+
+## Neověřeno (jen člověk)
+- Zvuk a hudba (hlasitost, jestli neruší). Plynulost animací v reálném hraní. Celý run od začátku do konce rukama.
+
+## Lidský test #1 (Mark) – checklist
+1. Spusť hru (F5 v Godotu nebo `Godot --path .`), dej „Spustit run“.
+2. Poznáš na první pohled, co je na stole za kočky a kolik mají útok a životy?
+3. Je tah soupeře dost pomalý, abys viděl, co dělá? Nebo moc pomalý?
+4. Zvuky a hudba: příjemné, nebo otravné? (hlasitost)
+5. Najdi cokoli, co se překrývá, je useknuté nebo nedává smysl, a pošli screenshot.
+6. Dohraj aspoň 2 souboje. Byla hra zábavná? Co nudilo?
 
 ## Pozor
-- Controller závisí na presenterech (musí zůstat spolu).
-- Verifiery resetují `saved_tuna_current`, jinak se testy kontaminují.
-- Capture tool běží jen s oknem.
-- Screenshot ukazuje tutorial overlay „Jak to hrát“ překrývající board; board token nebyl vizuálně ověřen.
+- Controller závisí na presenterech; verifiery resetují `saved_tuna_current`.
+- `_run_enemy_stub_turn` je coroutine; v okně ho volej přes `await`. Verifiery ho volají synchronně (headless), proto pacing hlídá `_pace_actions`.
+- `SlotShell` je PanelContainer, takže děti s anchory je potřeba dát do volného `Control` overlaye (viz `_fix_status_badge_layout`).
+- Alegreya má minuskové číslice („0“ je nízká); `lnum` ve variabilní verzi nefunguje.
+- `_load_ui_texture` v `lane_slot_view.gd` používá `Image.load_from_file` (v exportu nefunguje); art už jde přes `CardArtCache`.
 
 ## Další krok
-Viz `PLAN.md` – nejdřív potvrzení směru LoR-lite od majitele.
-
-Mapa a spuštění testů: `AGENTS.md`. Changelog: `docs/worklog.md`.
+Viz `PLAN.md`: fáze C (obsah: Feast karty, víc odměn), přechody scén, úklid pravého panelu bez výběru, export build.

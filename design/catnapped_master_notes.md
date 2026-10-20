@@ -836,18 +836,11 @@ Příklady:
 
 To je potřeba časem zamknout.
 
-### 2. Chybí run vrstva
+### 2. ~~Chybí run vrstva~~ (vyřešeno 06-18: run se 4 NPC, reward draft, progression screen)
 
-Máme zatím:
+### 2b. Saved Tuna bez Triků (2026-10-20, D-013)
 
-- jeden encounter
-- rematch escalation
-
-Nemáme:
-
-- sérii soupeřů
-- reward volby
-- route / progression menu
+Výchozí hra nemá Tricky, takže Saved Tuna je zatím mrtvá. Combat Trick window odložen.
 
 ### 3. Chybí content economy
 

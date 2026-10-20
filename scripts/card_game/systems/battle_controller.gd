@@ -140,9 +140,6 @@ var _combat_info_panel_base_style: StyleBoxFlat
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_pace_actions = BattleFx.is_enabled()
-	var sfx := _get_sfx()
-	if sfx != null:
-		sfx.play_music()
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_postmatch_victory_emblem_texture = _load_texture(POSTMATCH_VICTORY_EMBLEM_PATH)

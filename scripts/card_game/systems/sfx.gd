@@ -47,6 +47,21 @@ func _ready() -> void:
 		_players.append(player)
 	_music_player = AudioStreamPlayer.new()
 	add_child(_music_player)
+	if _enabled:
+		# Každé tlačítko ve hře cvakne, bez nutnosti zapojovat zvuk v jednotlivých scénách.
+		get_tree().node_added.connect(_on_node_added)
+		play_music.call_deferred()
+
+
+func _on_node_added(node: Node) -> void:
+	if node is BaseButton:
+		var button := node as BaseButton
+		if not button.pressed.is_connected(_on_any_button_pressed):
+			button.pressed.connect(_on_any_button_pressed)
+
+
+func _on_any_button_pressed() -> void:
+	play(&"ui_click", 0.04, -3.0)
 
 
 func play(sound_id: StringName, pitch_jitter: float = 0.06, volume_offset_db: float = 0.0) -> void:
