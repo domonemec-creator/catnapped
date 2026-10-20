@@ -61,6 +61,8 @@ var _token_art: TextureRect
 var _token_keyword_box: PanelContainer
 var _token_content: Control
 var _token_keyword_icon: TextureRect
+var _ready_frame: Panel
+var _ready_tween: Tween
 
 const OWNER_PLAYER := 0
 const OWNER_ENEMY := 1
@@ -486,6 +488,19 @@ func _build_token_panel() -> void:
 	_token_keyword = _make_token_label("", 13, HORIZONTAL_ALIGNMENT_CENTER, VERTICAL_ALIGNMENT_CENTER)
 	keyword_row.add_child(_token_keyword)
 
+	# Pulzující zelený rámeček: tvoje kočka je připravená zaútočit.
+	_ready_frame = Panel.new()
+	_ready_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var frame_style := StyleBoxFlat.new()
+	frame_style.bg_color = Color(0, 0, 0, 0)
+	frame_style.border_color = Color(0.5, 1.0, 0.55, 0.95)
+	frame_style.set_border_width_all(3)
+	frame_style.set_corner_radius_all(10)
+	_ready_frame.add_theme_stylebox_override("panel", frame_style)
+	content.add_child(_ready_frame)
+	_ready_frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_ready_frame.visible = false
+
 	_fix_status_badge_layout()
 
 
@@ -626,9 +641,11 @@ func _refresh_status_badge() -> void:
 	if _card_instance == null:
 		status_badge.visible = false
 		status_badge_label.visible = false
+		_set_ready_pulse(false)
 		return
 
 	var status := STATUS_READY if _card_instance.can_attack and not _card_instance.has_attacked else STATUS_SPENT
+	_set_ready_pulse(status == STATUS_READY and owner_id == OWNER_PLAYER)
 	status_badge.texture = _load_ui_texture(str(STATUS_BADGE_TEXTURES.get(status, "")))
 	status_badge.visible = status_badge.texture != null
 	status_badge_label.visible = false
@@ -775,6 +792,23 @@ func _load_ui_texture(resource_path: String) -> Texture2D:
 
 	_ui_texture_cache[resource_path] = texture
 	return texture
+
+
+func _set_ready_pulse(active: bool) -> void:
+	if _ready_frame == null:
+		return
+	_ready_frame.visible = active
+	if not active:
+		if _ready_tween != null:
+			_ready_tween.kill()
+			_ready_tween = null
+		return
+	if _ready_tween != null or not BattleFx.is_enabled():
+		return
+	_ready_frame.modulate.a = 1.0
+	_ready_tween = _ready_frame.create_tween().set_loops()
+	_ready_tween.tween_property(_ready_frame, "modulate:a", 0.3, 0.6).set_trans(Tween.TRANS_SINE)
+	_ready_tween.tween_property(_ready_frame, "modulate:a", 1.0, 0.6).set_trans(Tween.TRANS_SINE)
 
 
 # --- Bojové efekty (volá controller po změně stavu) ---

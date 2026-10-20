@@ -171,7 +171,7 @@ Přetáhni kartu z ruky na volné místo dole. Máš [b]%s Tuny[/b], cena je v m
 		step += 1
 	if ready_attackers > 0:
 		lines.append("[color=#f2b25c][b]%s. Zaútoč[/b][/color]
-Klikni na svou kočku (zelená tečka = připravená) a pak na soupeřovu lajnu nad ní. Prázdná lajna = zásah přímo do soupeře. Pozor: napadená kočka vrací úder." % step)
+Klikni na svou kočku (zelený rámeček = připravená) a pak na soupeřovu lajnu nad ní. Prázdná lajna = zásah přímo do soupeře. Pozor: napadená kočka vrací úder." % step)
 		lines.append("")
 		step += 1
 	if step == 1:

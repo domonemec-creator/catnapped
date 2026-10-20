@@ -111,7 +111,10 @@ func set_selected(is_selected: bool) -> void:
 
 
 func set_playable(is_playable: bool) -> void:
+    # Hratelná karta svítí, nehratelná (málo Tuny / cizí tah) ztmavne, ať začátečník hned vidí volby.
     playable_glow.visible = is_playable
+    playable_glow.color = Color(0.45, 0.95, 0.55, 0.26)
+    modulate = Color.WHITE if is_playable else Color(0.62, 0.6, 0.58, 1.0)
 
 
 func _gui_input(event: InputEvent) -> void:
