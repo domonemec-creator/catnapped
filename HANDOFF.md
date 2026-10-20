@@ -27,6 +27,7 @@
 - Zdroj stažených assetů: `C:\Users\voone\Desktop\karty` (licence v `LICENSES.md`, kopie `assets/audio/LICENSES_SOURCE.md`).
 
 ## Ověřeno čím
+- `smoke_full_flow.gd` v okně (2026-10-20 noc): menu → run → celý zápas 16 kol, bez script errorů, záznam zápasu vznikl.
 - Verifiery (headless), screenshoty v okně: `capture_midgame.gd` (rozehraná hra + vybraná karta), `capture_enemy_turn.gd` (průběh tahu soupeře).
 
 ## Neověřeno (jen člověk)
