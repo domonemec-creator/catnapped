@@ -20,7 +20,7 @@
 - [x] A4 Diakritika ve jménech NPC a UI textech (+ texty rozbité na „?“)
 - [x] A5 `capture_midgame.gd` + `capture_enemy_turn.gd` pro vizuální kontrolu
 - [x] A6 Skrýt „Rez.“ (Saved Tuna) v UI, když deck nemá Trick (D-013)
-- [ ] **Lidský test #1** (Mark): checklist v HANDOFF.md
+- [x] **Lidský test #1**: přehlednější, ale smyčka smrti → D-014, D-015
 
 ## Fáze B – Herní pocit
 - [x] B1 Výpad útočníka, otřes + záblesk + plovoucí číslo, dopad vyložené karty (smrt: zatím jen KO zvuk)
@@ -31,7 +31,11 @@
 - [ ] B6 Nastavení hlasitosti (hudba/efekty) v menu
 
 ## Fáze C – Obsah a hloubka core
-- [ ] C1 Feast karty (Mrchožravý slídil, Hřbitovní hodovník) do reward poolu s placeholder artem
+- [x] C0 Odveta + ruka 4 + balanc starteru a NPC (D-014, D-015)
+- [x] C1 Feast karty + 7 nových koček v reward poolu, placeholder art, prompty (D-016)
+- [ ] C1b Art nových karet (čeká na majitele, `design/art_prompts_2026-10.md`)
+- [ ] C1c Ikony keywordů (game-icons CC BY) u odznaků
+- [ ] **Lidský test #2** (checklist v HANDOFF.md)
 - [ ] C2 Balanc podle `sim_ai_matches.gd` po změnách
 - [ ] C3 Po lidském testu: rozhodnout návrat malé sady čitelných Triků do rewardů (oživí Saved Tuna)
 

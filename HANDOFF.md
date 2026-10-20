@@ -2,8 +2,17 @@
 
 ## Stav
 - Větev `lead/plan-2026-10` (lokální commity, nepushnuto; `master` beze změny).
-- 19/19 headless `verify_*.gd` PASS (ověřeno 2026-10-20 po všech změnách).
-- Hotová fáze A (čitelnost) a většina fáze B (herní pocit), viz `PLAN.md`.
+- 20/20 headless `verify_*.gd` PASS (ověřeno 2026-10-20 po všech změnách).
+- Hotové fáze A a B. Po lidském testu #1 nová pravidla: odveta (D-014), ruka 4 a balanc (D-015), 7 nových koček (D-016).
+- Lidský test #1: „přehlednější“, 1 výhra a 1 prohra, smyčka smrti → řeší D-014 a D-015.
+
+## Lidský test #2 (Mark) – checklist
+1. Pořád vzniká smyčka „vyložím, umře, dokola“? Je to lepší, nebo horší?
+2. Chápeš, že napadená kočka vrací úder (plovoucí číslo nad útočníkem)?
+3. Pomáhá panel „Co teď?“ vpravo?
+4. Smug Tabby (první soupeř): hratelný, příliš lehký, nebo těžký?
+5. Nové karty (s tlapkou místo obrázku) se objevují v odměnách po výhře. Dávají smysl?
+6. Art nových karet: prompty v `design/art_prompts_2026-10.md`, obrázky ulož do `assets/card_game/card_art/<id>.png`.
 
 ## Co se změnilo (podrobně `docs/worklog.md`)
 - Stůl: token s artem, jménem a odznaky; opraven roztažený StatusBadge; event bannery jsou malé štítky.
@@ -20,7 +29,7 @@
 ## Neověřeno (jen člověk)
 - Zvuk a hudba (hlasitost, jestli neruší). Plynulost animací v reálném hraní. Celý run od začátku do konce rukama.
 
-## Lidský test #1 (Mark) – checklist
+## Lidský test #1 (Mark) – checklist (HOTOVO 2026-10-20)
 1. Spusť hru (F5 v Godotu nebo `Godot --path .`), dej „Spustit run“.
 2. Poznáš na první pohled, co je na stole za kočky a kolik mají útok a životy?
 3. Je tah soupeře dost pomalý, abys viděl, co dělá? Nebo moc pomalý?
