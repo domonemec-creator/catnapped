@@ -615,7 +615,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="Panel" type="Control" parent="PostMatchOverlay/Center"]
-custom_minimum_size = Vector2(900, 675)
+custom_minimum_size = Vector2(960, 780)
 mouse_filter = 2
 
 [node name="FrameArt" type="TextureRect" parent="PostMatchOverlay/Center/Panel"]
@@ -689,12 +689,14 @@ text = "Balík beze změn."
 theme_override_font_sizes/font_size = 16
 text = "Výhry 0  Prohry 0"
 
-[node name="RewardButtons" type="VBoxContainer" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
+[node name="RewardButtons" type="HBoxContainer" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox"]
 visible = false
-theme_override_constants/separation = 8
+theme_override_constants/separation = 14
+alignment = 1
 
 [node name="RewardAddButton" type="Button" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox/RewardButtons"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(232, 212)
+size_flags_horizontal = 3
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.95, 0.86, 0.7, 1)
 theme_override_colors/font_hover_color = Color(0.98, 0.9, 0.75, 1)
@@ -706,7 +708,8 @@ theme_override_styles/pressed = SubResource("5_btn_secondary")
 text = "Přidat kartu"
 
 [node name="RewardRemoveButton" type="Button" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox/RewardButtons"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(232, 212)
+size_flags_horizontal = 3
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.95, 0.86, 0.7, 1)
 theme_override_colors/font_hover_color = Color(0.98, 0.9, 0.75, 1)
@@ -718,7 +721,8 @@ theme_override_styles/pressed = SubResource("5_btn_secondary")
 text = "Odebrat kartu"
 
 [node name="RewardUpgradeButton" type="Button" parent="PostMatchOverlay/Center/Panel/MarginContainer/VBox/RewardButtons"]
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(232, 212)
+size_flags_horizontal = 3
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.95, 0.86, 0.7, 1)
 theme_override_colors/font_hover_color = Color(0.98, 0.9, 0.75, 1)

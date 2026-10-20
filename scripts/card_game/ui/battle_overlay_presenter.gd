@@ -1,6 +1,8 @@
 ﻿class_name BattleOverlayPresenter
 extends RefCounted
 
+const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
+
 var _style_box_builder: Callable
 var _tutorial_dismiss_pressed: Callable
 var _progression_system
@@ -15,7 +17,7 @@ var _post_match_threat_summary: Label
 var _post_match_deck_shift_title: Label
 var _post_match_deck_shift_detail: Label
 var _post_match_record_label: Label
-var _post_match_reward_buttons: VBoxContainer
+var _post_match_reward_buttons: BoxContainer
 var _post_match_reward_add_button: Button
 var _post_match_reward_remove_button: Button
 var _post_match_reward_upgrade_button: Button
@@ -43,7 +45,7 @@ func setup(config: Dictionary) -> void:
 	_post_match_deck_shift_title = config.get("post_match_deck_shift_title") as Label
 	_post_match_deck_shift_detail = config.get("post_match_deck_shift_detail") as Label
 	_post_match_record_label = config.get("post_match_record_label") as Label
-	_post_match_reward_buttons = config.get("post_match_reward_buttons") as VBoxContainer
+	_post_match_reward_buttons = config.get("post_match_reward_buttons") as BoxContainer
 	_post_match_reward_add_button = config.get("post_match_reward_add_button") as Button
 	_post_match_reward_remove_button = config.get("post_match_reward_remove_button") as Button
 	_post_match_reward_upgrade_button = config.get("post_match_reward_upgrade_button") as Button
@@ -303,6 +305,25 @@ func refresh_reward_buttons() -> void:
 	_post_match_reward_add_button.text = str(_reward_offers[0].get("label", "Přidat kartu"))
 	_post_match_reward_remove_button.text = str(_reward_offers[1].get("label", "Odebrat kartu"))
 	_post_match_reward_upgrade_button.text = str(_reward_offers[2].get("label", "Vylepšit kartu"))
+	# Art karty jako ikona tlačítka: začátečník vidí, o jakou kočku jde.
+	_style_reward_button(_post_match_reward_add_button, StringName(_reward_offers[0].get("card_id", StringName())))
+	_style_reward_button(_post_match_reward_remove_button, StringName(_reward_offers[1].get("card_id", StringName())))
+	_style_reward_button(_post_match_reward_upgrade_button, StringName(_reward_offers[2].get("to_card_id", StringName())))
+
+
+func _style_reward_button(button: Button, card_id: StringName) -> void:
+	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	button.expand_icon = true
+	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+	button.add_theme_constant_override("icon_max_width", 210)
+	button.icon = null
+	var card_path := "res://data/cards/%s.tres" % String(card_id)
+	if card_id != StringName() and ResourceLoader.exists(card_path):
+		var definition = load(card_path)
+		button.icon = CardArtCache.get_cropped(definition.art_path)
+		button.tooltip_text = "%s (%s/%s): %s" % [definition.display_name, definition.attack, definition.life, definition.rules_text]
+		button.text += "\n%s útok · %s životy" % [definition.attack, definition.life]
 
 
 func build_post_match_threat_text(progression_system, previous_threat: int, next_threat: int) -> String:
