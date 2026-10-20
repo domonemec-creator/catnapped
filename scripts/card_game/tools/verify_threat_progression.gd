@@ -75,8 +75,8 @@ func _run() -> void:
     if _count_card_ids(ragclaw_threat_zero_cards, &"wharf_cutthroat") != 4:
         _fail("Ragclaw threat 0 deck should start with 4 Wharf Cutthroats.")
         return
-    if _count_card_ids(ragclaw_threat_ten_cards, &"netclaw_raider") != 7:
-        _fail("Ragclaw threat 10 deck should contain 7 Netclaw Raiders.")
+    if _count_card_ids(ragclaw_threat_ten_cards, &"netclaw_raider") != 6:
+        _fail("Ragclaw threat 10 deck should contain 6 Netclaw Raiders (podpisová karta zůstává).")
         return
     if _count_card_ids(ragclaw_threat_ten_cards, &"rafter_pouncer") != 7:
         _fail("Ragclaw threat 10 deck should contain 7 Rafter Pouncers.")
@@ -121,8 +121,8 @@ func _run() -> void:
     if lantern_threat_zero_cards.size() != 20 or lantern_threat_ten_cards.size() != 20:
         _fail("Lantern Striker threat deck size changed away from 20.")
         return
-    if _count_card_ids(lantern_threat_ten_cards, &"netclaw_raider") != 7:
-        _fail("Lantern threat 10 deck should contain 7 Netclaw Raiders.")
+    if _count_card_ids(lantern_threat_ten_cards, &"netclaw_raider") != 6:
+        _fail("Lantern threat 10 deck should contain 6 Netclaw Raiders (podpisová karta zůstává).")
         return
     if _count_card_ids(lantern_threat_ten_cards, &"rafter_pouncer") != 7:
         _fail("Lantern threat 10 deck should contain 7 Rafter Pouncers.")

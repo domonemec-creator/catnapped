@@ -105,8 +105,8 @@ func _run() -> void:
     if run_session.get_current_step_number() != 2:
         _fail("Run did not advance to step 2 after reward selection.")
         return
-    if run_session.get_current_encounter_id() != &"ragclaw_brawler":
-        _fail("Run did not advance to the second encounter.")
+    if run_session.get_current_encounter_id() != &"lantern_striker":
+        _fail("Run did not advance to the second encounter (Lantern Striker).")
         return
     if run_session.get_player_deck_card_ids().size() != starting_deck_size + 1:
         _fail("Reward add did not persist to the run deck.")

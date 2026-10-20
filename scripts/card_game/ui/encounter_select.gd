@@ -372,9 +372,9 @@ func _get_encounter_by_id(encounter_id: StringName) -> EncounterDefinition:
 # Styl soupeře pro hráče, který karetní hry nezná (místo technických údajů).
 const ENCOUNTER_STYLES := {
     &"smug_tabby": "Učitel · drží obranu, dobrý na začátek",
-    &"ragclaw_brawler": "Rváč · rychlé útoky hned od prvního kola",
-    &"lantern_striker": "Útočník · skoky do sousedních lajn",
-    &"harbor_warden": "Boss · tvrdá obrana a velké kočky",
+    &"ragclaw_brawler": "Rváč · rychlé útoky hned od prvního kola, Kapsáři",
+    &"lantern_striker": "Útočník · skoky do sousedních lajn, Lampářky",
+    &"harbor_warden": "Boss · tvrdá obrana, velké kočky a Harpunář",
 }
 
 

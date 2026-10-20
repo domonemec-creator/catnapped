@@ -132,3 +132,8 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Kontext: Odveta (D-014) udělala ze zdí s vysokými životy pevné pozice. AI odmítá nevýhodné útoky, zápasy se táhly (mirror 35–39 půltahů) a 3–7 % skončilo v patu na limitu tahů. Pat je další forma „smyčky“, na kterou si majitel stěžoval.
 - Rozhodnutí: Když má hráč líznout z prázdného balíku, ztratí `hunger_count` životů (1, 2, 3…). Hlášku dostane status i průvodce „Co teď?“. `PlayerBattleState.hunger_count`, `_draw_or_starve`.
 - Dopad: Pat 0 %, zápasy kratší. Harbor Warden tím zeslábl (11 → 57 %), proto má zpět 2. Kotelního strážce (→ ~41 %, boss). Verifier v `verify_new_cards.gd`.
+
+### D-018 - Podpisové karty soupeřů a pořadí runu podle obtížnosti
+- Datum: 2026-10-20
+- Stav: aktivni
+- Rozhodnutí: Lucernový útočník má 2× Lampářku, Ragclaw 2× Kapsáře, Harbor 1× Harpunáře (zůstávají i při eskalaci hrozby). Pořadí runu je Smug → Lantern → Ragclaw → Harbor. Simulace (AI starter, výhra hráče): ~82 / ~59 / ~50 / ~29 %, tedy stoupající obtížnost. Menu u soupeře zmiňuje jeho podpisovou kartu.

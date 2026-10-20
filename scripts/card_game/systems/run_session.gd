@@ -2,7 +2,7 @@ extends Node
 
 const DeckDefinition = preload("res://scripts/card_game/data/deck_definition.gd")
 
-const DEFAULT_RUN_ROSTER: Array[StringName] = [&"smug_tabby", &"ragclaw_brawler", &"lantern_striker", &"harbor_warden"]
+const DEFAULT_RUN_ROSTER: Array[StringName] = [&"smug_tabby", &"lantern_striker", &"ragclaw_brawler", &"harbor_warden"]
 const DEFAULT_RUN_LENGTH := 5
 const STARTER_DECK_PATH := "res://data/decks/starter_player.tres"
 const REWARD_ADD_POOL: Array[StringName] = [
