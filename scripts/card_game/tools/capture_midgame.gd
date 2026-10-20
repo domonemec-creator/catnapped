@@ -48,7 +48,7 @@ func _capture() -> void:
 	_place_card(enemy_state, battle._create_card_instance(&"dockside_bruiser", battle.ENEMY_ID), 0, false, true)
 	_place_card(enemy_state, battle._create_card_instance(&"rafter_pouncer", battle.ENEMY_ID), 1, false, true)
 
-	for card_id in [&"candlepaw_scout", &"tavern_mouser", &"netclaw_raider", &"captain_ironmaw"]:
+	for card_id in [&"candlepaw_scout", &"dock_harpooner", &"netclaw_raider", &"grey_veteran", &"pickpocket"]:
 		player_state.hand.append(battle._create_card_instance(card_id, battle.PLAYER_ID))
 
 	battle._battle_state.active_player_id = battle.PLAYER_ID

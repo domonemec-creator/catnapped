@@ -13,5 +13,5 @@ life = 4
 rules_text = "Hostina."
 keywords = [&"feast"]
 effects = []
-art_path = ""
+art_path = "res://assets/card_game/card_art/graveyard_glutton.png"
 frame_variant = &"default"

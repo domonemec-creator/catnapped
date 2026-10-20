@@ -118,3 +118,10 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Kontext: Start na 3 Tunách s líznutím 1 karty za kolo vede k hladovění: kolem 3. a 4. kola dojdou karty a pak rozhoduje jen stůl. Starter (samé kočky 1/2 a 3/2) proti Smug Tabbymu (první soupeř runu) v simulaci vyhrával 2–6 %.
 - Rozhodnutí: `starting_hand = 4` (líznutí zůstává 1, protože 2 líznutí příliš zvýhodnila prvního hráče). Nový starter: Svíčkotlapý zvěd ×3, Uliční rváč ×4, Hospodský myšolovec ×3, Rybokostěný plíživec ×3, Síťodrápý nájezdník ×2, Dokový rváč ×3, Kotelní strážce ×1, Kapitán ×1. Smug Tabby je teď „učitelský“ balík s menším počtem těžkých obránců. Harbor Warden je zmírněný a přesunutý na konec runu jako boss (pořadí Smug → Ragclaw → Lantern → Harbor). Save se starým starterem se migruje na nový (`ProgressionSystem.LEGACY_STARTER_2026_07`).
 - Dopad: Simulace AI starter vs NPC (výhra hráče): Smug ~80 %, Ragclaw ~50 %, Lantern ~45 %, Harbor ~11 %. Člověk hraje líp než AI. Balanc je velmi citlivý na 2–3 karty, takže změny balíků vždy přeměř přes `sim_ai_matches.gd` (sloupce `wasted_pct`, `starved_pct`, `timeout_pct`).
+
+### D-016 - Nové kočky přes rozšířené spouštěné efekty, art od majitele
+- Datum: 2026-10-20
+- Stav: aktivni
+- Kontext: Hrálo se jen s 10 kočkami. Majitel chtěl nové karty. Malovaný art ve stejném stylu se nedá legálně stáhnout, majitel ho generuje sám.
+- Rozhodnutí: `_resolve_triggered_effects` umí nově `deal_damage` (opposite_lane / enemy_player), `modify_attack` a `modify_life` (adjacent_lane) a `summon_token`. Poslední dech zná lajnu zemřelé kočky. Přibylo 7 koček (Lampářka, Harpunář, Kapsář, Toulavá máma, Kuchař z podpalubí, Přístavní bubeník, Šedivý veterán), všechny v reward poolu spolu s oběma Feast kartami. Karty bez artu ukazují rub karty (`_placeholder_back.png`) přes `CardArtCache`. Prompty jsou v `design/art_prompts_2026-10.md`.
+- Dopad: Vlastní art stačí uložit jako `assets/card_game/card_art/<id>.png`. Verifier `verify_new_cards.gd`.

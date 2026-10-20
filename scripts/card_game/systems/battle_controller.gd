@@ -1255,7 +1255,7 @@ func _send_to_discard(owner_state: PlayerBattleState, slot: LaneSlotState) -> vo
 		owner_state.discard.append(dead_card.attached_item)
 		dead_card.attached_item = null
 		dead_card.attached_item_instance_id = -1
-	_resolve_triggered_effects(dead_card, owner_state, CardGameConstants.TRIGGER_LAST_BREATH)
+	_resolve_triggered_effects(dead_card, owner_state, CardGameConstants.TRIGGER_LAST_BREATH, former_lane_index)
 	owner_state.discard.append(dead_card)
 	# Feast: any other cat that survives this death grows +1/+1. The dead cat is
 	# already off the board, so it never feasts on its own death.
@@ -1279,7 +1279,13 @@ func _trigger_feast_for_death() -> void:
 			_set_lane_feedback_for_card(cat, "HOSTINA +1/+1", LaneSlotView.EVENT_SUPPORT)
 
 
-func _resolve_triggered_effects(card_instance: CardInstance, owner_state: PlayerBattleState, trigger: StringName) -> void:
+# lane_override: lajna karty, která už ze stolu odešla (Poslední dech).
+func _resolve_triggered_effects(card_instance: CardInstance, owner_state: PlayerBattleState, trigger: StringName, lane_override: int = -1) -> void:
+	var lane_index := lane_override if lane_override >= 0 else card_instance.lane_index
+	var opposing_state: PlayerBattleState = null
+	if _battle_state != null:
+		opposing_state = _battle_state.get_player_state(ENEMY_ID if owner_state.player_id == PLAYER_ID else PLAYER_ID)
+	var damaged_opponent := false
 	for effect in card_instance.definition.effects:
 		var typed_effect: CardEffect = effect
 		if typed_effect == null or typed_effect.trigger != trigger:
@@ -1292,6 +1298,53 @@ func _resolve_triggered_effects(card_instance: CardInstance, owner_state: Player
 			&"draw_cards":
 				if typed_effect.target_mode == CardGameConstants.TARGET_SELF_OWNER:
 					_deck_system.draw_cards(owner_state, typed_effect.value)
+			&"deal_damage":
+				if opposing_state == null:
+					continue
+				if typed_effect.target_mode == CardGameConstants.TARGET_OPPOSITE_LANE and lane_index >= 0:
+					var target: CardInstance = opposing_state.board[lane_index].occupant
+					if target != null:
+						_adjust_card_life(target, -typed_effect.value)
+						_set_lane_feedback(opposing_state.player_id, lane_index, "-%s ŽIV" % typed_effect.value, LaneSlotView.EVENT_DAMAGE)
+						_queue_lane_fx(opposing_state.player_id, lane_index, &"fx_hit", [typed_effect.value])
+						damaged_opponent = true
+				elif typed_effect.target_mode == CardGameConstants.TARGET_ENEMY_PLAYER:
+					_adjust_player_life(opposing_state, -typed_effect.value)
+					if lane_index >= 0:
+						_queue_lane_fx(opposing_state.player_id, lane_index, &"fx_direct", [typed_effect.value])
+			&"modify_attack", &"modify_life":
+				if typed_effect.target_mode != CardGameConstants.TARGET_ADJACENT_LANE or lane_index < 0:
+					continue
+				for neighbor in [lane_index - 1, lane_index + 1]:
+					if neighbor < 0 or neighbor >= owner_state.board.size():
+						continue
+					var ally: CardInstance = owner_state.board[neighbor].occupant
+					if ally == null:
+						continue
+					if typed_effect.action == &"modify_attack":
+						ally.current_attack += typed_effect.value
+						_set_lane_feedback(owner_state.player_id, neighbor, "+%s ÚTK" % typed_effect.value, LaneSlotView.EVENT_SUPPORT)
+					else:
+						ally.current_life += typed_effect.value
+						_set_lane_feedback(owner_state.player_id, neighbor, "+%s ŽIV" % typed_effect.value, LaneSlotView.EVENT_SUPPORT)
+			&"summon_token":
+				if lane_index < 0 or lane_index >= owner_state.board.size():
+					continue
+				var slot: LaneSlotState = owner_state.board[lane_index]
+				if slot == null or not slot.is_empty():
+					continue
+				var token := _create_card_instance(typed_effect.keyword_arg, owner_state.player_id)
+				if token == null:
+					continue
+				token.lane_index = lane_index
+				token.entered_this_turn = true
+				token.can_attack = false
+				token.has_attacked = false
+				slot.occupant = token
+				_set_lane_feedback(owner_state.player_id, lane_index, "VYVOLÁNO", LaneSlotView.EVENT_SUPPORT)
+				_queue_lane_fx(owner_state.player_id, lane_index, &"fx_enter")
+	if damaged_opponent:
+		_resolve_deaths(opposing_state)
 
 
 func _check_battle_end() -> void:

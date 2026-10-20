@@ -19,7 +19,7 @@ Godot: `C:\Users\voone\Desktop\Godot_v4.6.2-stable_win64_console.exe`
 
     Godot --headless --path . --script res://scripts/card_game/tools/verify_saved_tuna.gd
 
-Spusť všechny `scripts/card_game/tools/verify_*.gd` (19 skriptů); každý končí hláškou „... verification passed.“. Po změně pravidel/UI vždy pusť relevantní verifiery. Tempo a animace ověř v okně přes `capture_midgame.gd` a `capture_enemy_turn.gd`.
+Spusť všechny `scripts/card_game/tools/verify_*.gd` (20 skriptů); každý končí hláškou „... verification passed.“. Po změně pravidel/UI vždy pusť relevantní verifiery. Tempo a animace ověř v okně přes `capture_midgame.gd` a `capture_enemy_turn.gd`.
 
 ## Screenshot
 `scripts/card_game/tools/capture_battle_scene.gd` se spouští **S oknem, NE `--headless`**:

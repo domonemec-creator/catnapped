@@ -3,6 +3,8 @@ extends RefCounted
 # Sdílené načítání artu karet přes importované resources (funguje i v exportu).
 # Portrétní art (2:3) se pro malé náhledy ořízne na horní pás kolem hlavy.
 
+const PLACEHOLDER_PATH := "res://assets/card_game/card_art/_placeholder_back.png"
+
 static var _full_cache: Dictionary = {}
 static var _crop_cache: Dictionary = {}
 
@@ -22,6 +24,11 @@ static func get_cropped(resource_path: String, top: float = 0.04, height: float 
 		return _crop_cache[key]
 	var full := get_full(resource_path)
 	var result: Texture2D = null
+	if full == null and not resource_path.is_empty():
+		# Karta bez artu: rub karty s tlapkou, výřez na střed (emblém).
+		full = get_full(PLACEHOLDER_PATH)
+		top = 0.3
+		height = 0.4
 	if full != null:
 		var atlas := AtlasTexture.new()
 		atlas.atlas = full

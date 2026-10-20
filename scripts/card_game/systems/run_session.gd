@@ -16,6 +16,16 @@ const REWARD_ADD_POOL: Array[StringName] = [
     &"dockside_bruiser",
     &"captain_ironmaw",
     &"boilerback_guardian",
+    # Nové karty 2026-10-20 (D-016)
+    &"lamplighter",
+    &"dock_harpooner",
+    &"pickpocket",
+    &"stray_mother",
+    &"galley_cook",
+    &"harbor_drummer",
+    &"grey_veteran",
+    &"carrion_prowler",
+    &"graveyard_glutton",
 ]
 const REWARD_UPGRADE_MAP := {
     &"candlepaw_scout": &"wharf_cutthroat",

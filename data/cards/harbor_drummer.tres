@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[sub_resource type="Resource" id="1_effect"]
+script = ExtResource("2_card_effect")
+trigger = &"battlecry"
+action = &"modify_attack"
+target_mode = &"adjacent_lane"
+value = 1
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"harbor_drummer"
+display_name = "Přístavní bubeník"
+card_type = 0
+cost = 4
+attack = 3
+life = 4
+rules_text = "Bojový nástup: sousední kočky +1 útok."
+keywords = [&"battlecry"]
+effects = [SubResource("1_effect")]
+art_path = "res://assets/card_game/card_art/harbor_drummer.png"
+frame_variant = &"default"

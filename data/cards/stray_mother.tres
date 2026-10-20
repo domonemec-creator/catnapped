@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[sub_resource type="Resource" id="1_effect"]
+script = ExtResource("2_card_effect")
+trigger = &"last_breath"
+action = &"summon_token"
+target_mode = &"self_owner"
+value = 0
+keyword_arg = &"stray_token"
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"stray_mother"
+display_name = "Toulavá máma"
+card_type = 0
+cost = 3
+attack = 2
+life = 3
+rules_text = "Poslední dech: vyvolej Tuláka 1/1 na její místo."
+keywords = [&"last_breath"]
+effects = [SubResource("1_effect")]
+art_path = "res://assets/card_game/card_art/stray_mother.png"
+frame_variant = &"default"

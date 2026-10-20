@@ -102,6 +102,30 @@ func _score_play(card: CardInstance, lane_index: int, player_state: PlayerBattle
     score += _score_guard_cover_value(card, lane_index, player_state, defender_state)
     score += _score_keyword_value(card, lane_index, defender_state, rules)
     score += _score_effect_value(card, player_state)
+    score += _score_lane_effect_value(card, lane_index, player_state, defender_state)
+    return score
+
+
+# Efekty závislé na lajně (nové karty 2026-10-20): zranění kočce naproti, posílení sousedů.
+func _score_lane_effect_value(card: CardInstance, lane_index: int, player_state: PlayerBattleState, defender_state: PlayerBattleState) -> float:
+    var score := 0.0
+    for effect in card.definition.effects:
+        if effect == null:
+            continue
+        if effect.trigger == CardGameConstants.TRIGGER_BATTLECRY and effect.action == &"deal_damage" and effect.target_mode == CardGameConstants.TARGET_OPPOSITE_LANE:
+            var target: CardInstance = defender_state.board[lane_index].occupant
+            if target != null:
+                score += float(mini(effect.value, target.current_life)) * 2.5
+                if effect.value >= target.current_life:
+                    score += _card_board_value(target)
+        elif effect.trigger == CardGameConstants.TRIGGER_BATTLECRY and effect.target_mode == CardGameConstants.TARGET_ADJACENT_LANE:
+            for neighbor in [lane_index - 1, lane_index + 1]:
+                if neighbor >= 0 and neighbor < player_state.board.size() and player_state.board[neighbor].occupant != null:
+                    score += float(effect.value) * 2.0
+        elif effect.trigger == CardGameConstants.TRIGGER_LAST_BREATH and effect.action == &"summon_token":
+            score += 2.5
+        elif effect.trigger == CardGameConstants.TRIGGER_ON_DIRECT_DAMAGE:
+            score += 2.0
     return score
 
 

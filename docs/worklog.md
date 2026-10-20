@@ -14,6 +14,14 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-20 - Lidský test #1 → odveta, ruka 4, balanc, nové karty (Claude Opus 5.5)
+- Oblast: pravidla, balanc, obsah, UX
+- Zpětná vazba majitele (nehraje karetní hry): „přehlednější než dřív“, 1 výhra a 1 prohra, ale „smyčka“: vyložené kočky další kolo umřou, a tak dokola až do konce zápasu.
+- Diagnóza (simulace, `sim_ai_matches.gd` s novými metrikami): jednosměrný souboj (35 % koček umře bez útoku) plus hladovění po kartách (13–26 % tahů s max. 1 kartou). Starter proti Smug Tabbymu vyhrával 2–6 %.
+- Změna: D-014 odveta, D-015 ruka 4, nový starter a NPC balíky, Harbor jako boss na konci runu, D-016 sedm nových koček a nové efekty. Panel „Co teď?“ radí konkrétní další krok. Tutorial zmiňuje odvetu. Pozadí souboje = interiér krčmy (od majitele), rub karty jako placeholder art.
+- Ověření: 20/20 verify PASS (nový `verify_new_cards.gd`); simulace viz D-015; screenshot `artifacts/lead_midgame_selected.png`
+- Další krok: lidský test #2 (pocit ze smyčky, odveta pochopitelná?), art nových karet od majitele
+
 ### 2026-10-20 - Herní pocit: tempo AI, animace, zvuk, font (Claude Opus 5.5)
 - Oblast: battle flow, audio, téma
 - Soubory: `scripts/card_game/systems/battle_controller.gd`, `scripts/card_game/ui/lane_slot_view.gd`, `scripts/card_game/ui/battle_fx.gd`, `scripts/card_game/systems/sfx.gd` (autoload `Sfx`), `assets/audio/**`, `assets/fonts/**`, `assets/ui_theme/catnapped_theme.tres`, `project.godot`, `scripts/card_game/tools/verify_threat_progression.gd`
