@@ -22,6 +22,8 @@ var immediate_entry_attack_used_this_turn: bool = false
 # Tuna, so both sides actually open on the locked 3 Tuna (the player who moves first
 # trades that for initiative; the second mover's compensation is the extra turn-1 draw).
 var has_started_turn: bool = false
+# Hlad (D-017): kolikrát už hráč chtěl líznout z prázdného balíku. Každý další hlad bolí víc.
+var hunger_count: int = 0
 
 
 func initialize(player_id_value: int, display_name_value: String, starting_life: int, starting_tuna: int, table_power_id_value: StringName, lane_count: int) -> void:

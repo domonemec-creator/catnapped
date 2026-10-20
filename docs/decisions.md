@@ -125,3 +125,10 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Kontext: Hrálo se jen s 10 kočkami. Majitel chtěl nové karty. Malovaný art ve stejném stylu se nedá legálně stáhnout, majitel ho generuje sám.
 - Rozhodnutí: `_resolve_triggered_effects` umí nově `deal_damage` (opposite_lane / enemy_player), `modify_attack` a `modify_life` (adjacent_lane) a `summon_token`. Poslední dech zná lajnu zemřelé kočky. Přibylo 7 koček (Lampářka, Harpunář, Kapsář, Toulavá máma, Kuchař z podpalubí, Přístavní bubeník, Šedivý veterán), všechny v reward poolu spolu s oběma Feast kartami. Karty bez artu ukazují rub karty (`_placeholder_back.png`) přes `CardArtCache`. Prompty jsou v `design/art_prompts_2026-10.md`.
 - Dopad: Vlastní art stačí uložit jako `assets/card_game/card_art/<id>.png`. Verifier `verify_new_cards.gd`.
+
+### D-017 - Hlad: prázdný balík bere životy
+- Datum: 2026-10-20
+- Stav: aktivni
+- Kontext: Odveta (D-014) udělala ze zdí s vysokými životy pevné pozice. AI odmítá nevýhodné útoky, zápasy se táhly (mirror 35–39 půltahů) a 3–7 % skončilo v patu na limitu tahů. Pat je další forma „smyčky“, na kterou si majitel stěžoval.
+- Rozhodnutí: Když má hráč líznout z prázdného balíku, ztratí `hunger_count` životů (1, 2, 3…). Hlášku dostane status i průvodce „Co teď?“. `PlayerBattleState.hunger_count`, `_draw_or_starve`.
+- Dopad: Pat 0 %, zápasy kratší. Harbor Warden tím zeslábl (11 → 57 %), proto má zpět 2. Kotelního strážce (→ ~41 %, boss). Verifier v `verify_new_cards.gd`.

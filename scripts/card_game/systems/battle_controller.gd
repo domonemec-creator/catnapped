@@ -1588,8 +1588,25 @@ func _start_turn(player_state: PlayerBattleState) -> void:
 	player_state.tuna_current = player_state.tuna_max
 	player_state.table_power_used_this_turn = false
 	player_state.immediate_entry_attack_used_this_turn = false
-	_deck_system.draw_cards(player_state, CardGameConstants.draw_per_turn)
+	_draw_or_starve(player_state, CardGameConstants.draw_per_turn)
 	_refresh_attack_state_for_player(player_state)
+
+
+# Hlad (D-017): líznutí z prázdného balíku bere životy 1, 2, 3…, aby zápas nikdy neuvízl v patu.
+func _draw_or_starve(player_state: PlayerBattleState, amount: int) -> void:
+	for _i in range(amount):
+		if not player_state.deck.is_empty():
+			_deck_system.draw_cards(player_state, 1)
+			continue
+		player_state.hunger_count += 1
+		_adjust_player_life(player_state, -player_state.hunger_count)
+		var lives_word := "život" if player_state.hunger_count == 1 else ("životy" if player_state.hunger_count < 5 else "životů")
+		if player_state.player_id == PLAYER_ID:
+			status_label.text = "Hlad! Máš prázdný balík a ztrácíš %s %s." % [player_state.hunger_count, lives_word]
+		else:
+			status_label.text = "Hlad! %s má prázdný balík a ztrácí %s %s." % [player_state.display_name, player_state.hunger_count, lives_word]
+		_play_sfx(&"hit_heavy")
+		_check_battle_end()
 
 
 func _bank_unused_tuna(player_state: PlayerBattleState) -> void:

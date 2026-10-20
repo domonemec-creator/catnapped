@@ -98,8 +98,8 @@ func _run() -> void:
     if harbor_threat_zero_cards.size() != 20 or harbor_threat_ten_cards.size() != 20:
         _fail("Harbor Warden threat deck size changed away from 20.")
         return
-    if _count_card_ids(harbor_threat_ten_cards, &"boilerback_guardian") != 5:
-        _fail("Harbor threat 10 deck should contain 5 Boilerback Guardians.")
+    if _count_card_ids(harbor_threat_ten_cards, &"boilerback_guardian") != 6:
+        _fail("Harbor threat 10 deck should contain 6 Boilerback Guardians.")
         return
     if _count_card_ids(harbor_threat_ten_cards, &"captain_ironmaw") != 4:
         _fail("Harbor threat 10 deck should contain 4 Captain Ironmaws.")

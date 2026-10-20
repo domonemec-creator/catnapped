@@ -128,6 +128,20 @@ func _run() -> void:
 		_fail("Pickpocket direct hit should deal 1 damage.")
 		return
 
+	# Hlad (D-017): prázdný balík bere 1, pak 2 životy.
+	_reset(battle, player_state, enemy_state)
+	player_state.deck.clear()
+	player_state.hunger_count = 0
+	player_state.has_started_turn = true
+	battle._start_turn(player_state)
+	if player_state.life != 19:
+		_fail("First hunger should cost 1 life (expected 19, got %s)." % player_state.life)
+		return
+	battle._start_turn(player_state)
+	if player_state.life != 17:
+		_fail("Second hunger should cost 2 life (expected 17, got %s)." % player_state.life)
+		return
+
 	if not _failed:
 		print("New cards verification passed.")
 		quit()

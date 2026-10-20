@@ -180,6 +180,9 @@ Už nemůžeš nic vyložit ani zaútočit. Klikni na [b]Konec tahu[/b].")
 	else:
 		lines.append("[color=#bfae8a]Až budeš hotový, klikni na [b]Konec tahu[/b].[/color]")
 	lines.append("")
+	if player_state.deck.is_empty():
+		lines.append("[color=#e06a5a][b]Prázdný balík![/b] Každé další líznutí tě stojí životy (Hlad). Dotlač to rychle.[/color]")
+		lines.append("")
 	lines.append("[font_size=13][color=#9c8f78]Kolečka: [color=#7fa8e6]modré[/color] cena · [color=#e0a050]oranžové[/color] útok · [color=#e06a5a]červené[/color] životy[/color][/font_size]")
 	return "
 ".join(lines)
