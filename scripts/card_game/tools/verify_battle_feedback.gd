@@ -84,6 +84,7 @@ func _run() -> void:
 	var attacker = battle._create_card_instance(&"alley_scrapper", battle.PLAYER_ID)
 	var defender = battle._create_card_instance(&"dockside_bruiser", battle.ENEMY_ID)
 	attacker.current_attack = 3
+	attacker.current_life = 5
 	defender.current_life = 6
 	_place_card(player_state, attacker, 1, true, false)
 	_place_card(enemy_state, defender, 1, false, false)
@@ -94,6 +95,10 @@ func _run() -> void:
 
 	if _lane_event_text(battle._player_lanes[1]) != "ÚTOK 3":
 		_fail("Attacker lane did not show UTOK 3.")
+		return
+	# Odveta (D-014): bruiser vrací 3 zranění útočníkovi.
+	if attacker.current_life != 2:
+		_fail("Retaliation should leave the attacker at 2 life, got %s." % attacker.current_life)
 		return
 	if _lane_event_text(battle._enemy_lanes[1]) != "-3 ŽIV":
 		_fail("Defender lane did not show -3 ŽIV.")

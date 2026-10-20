@@ -114,12 +114,62 @@ func refresh_selected_panel(state: Dictionary) -> void:
 		return
 
 	_selected_card_view.set_card_instance(null)
+	if _selected_card_view.has_method("set_empty_guide"):
+		_selected_card_view.set_empty_guide(build_next_step_guide(player_state, enemy_state, bool(state.get("enemy_turn", false))))
 	set_selected_panel_copy(
-		"Vybraná karta",
+		"Co teď?",
 		"NIC VYBRÁNO",
-		"Vyber kartu z ruky nebo klikni na připravenou kočku k útoku.",
+		"Klikni na kartu v ruce nebo na svou kočku na stole a uvidíš, co umí.",
 		build_simple_idle_hint(player_state, enemy_state)
 	)
+
+
+# Průvodce pro hráče, který karetní hry nezná: podle stavu řekne konkrétní další krok.
+func build_next_step_guide(player_state, enemy_state, enemy_turn: bool) -> String:
+	if player_state == null or enemy_state == null:
+		return ""
+	if enemy_turn:
+		return "[center][b]Soupeř je na tahu[/b]
+
+Sleduj, co dělá. Až skončí, jsi zase na řadě ty.[/center]"
+
+	var lines: Array[String] = ["[center][b]Co můžeš udělat teď[/b][/center]", ""]
+	var free_lanes := 0
+	for slot in player_state.board:
+		if slot != null and slot.occupant == null:
+			free_lanes += 1
+	var playable := 0
+	for card in player_state.hand:
+		if card != null and card.definition != null and card.definition.cost <= player_state.tuna_current:
+			playable += 1
+	var ready_attackers := 0
+	for slot in player_state.board:
+		if slot == null or slot.occupant == null:
+			continue
+		var cat = slot.occupant
+		if cat.can_attack and not cat.has_attacked and _battle_rules != null and not _battle_rules.get_valid_attack_lanes(cat, enemy_state).is_empty():
+			ready_attackers += 1
+
+	var step := 1
+	if playable > 0 and free_lanes > 0:
+		lines.append("[color=#8fe39a][b]%s. Vylož kočku[/b][/color]
+Přetáhni kartu z ruky na volné místo dole. Máš [b]%s Tuny[/b], cena je v modrém kolečku." % [step, player_state.tuna_current])
+		lines.append("")
+		step += 1
+	if ready_attackers > 0:
+		lines.append("[color=#f2b25c][b]%s. Zaútoč[/b][/color]
+Klikni na svou kočku (zelená tečka = připravená) a pak na soupeřovu lajnu nad ní. Prázdná lajna = zásah přímo do soupeře. Pozor: napadená kočka vrací úder." % step)
+		lines.append("")
+		step += 1
+	if step == 1:
+		lines.append("[color=#e8d8b0][b]Hotovo pro tohle kolo[/b][/color]
+Už nemůžeš nic vyložit ani zaútočit. Klikni na [b]Konec tahu[/b].")
+	else:
+		lines.append("[color=#bfae8a]Až budeš hotový, klikni na [b]Konec tahu[/b].[/color]")
+	lines.append("")
+	lines.append("[font_size=13][color=#9c8f78]Kolečka: [color=#7fa8e6]modré[/color] cena · [color=#e0a050]oranžové[/color] útok · [color=#e06a5a]červené[/color] životy[/color][/font_size]")
+	return "
+".join(lines)
 
 
 func refresh_combat_info_panel(state: Dictionary) -> void:

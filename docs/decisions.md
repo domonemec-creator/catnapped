@@ -104,3 +104,17 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Kontext: Audit ukázal, že výchozí hra (D-011) neobsahuje žádný Trick, takže Saved Tuna i plánovaný Combat Trick window nemají ve skutečné hře využití. Zároveň byl board vizuálně nečitelný (karty bez artu a jména), takže nikdo nemohl hru reálně hodnotit.
 - Rozhodnutí: Priorita je čitelnost a herní pocit core (art, animace, zvuk, tempo AI) a lidský playtest. Combat Trick window se odkládá, dokud se Tricky nevrátí do hry. Saved Tuna zůstává v enginu, ale UI ji ukazuje jen tehdy, když některý deck v zápase obsahuje Trick. Návrat malé sady čitelných Triků (přes reward draft, ne starter) se rozhodne po lidském testu.
 - Dopad: Žádná další LoR-like pravidla, dokud core neprojde testem. Vývoj jde do UX a obsahu, které hráč opravdu uvidí.
+
+### D-014 - Odveta: napadená kočka vrací úder
+- Datum: 2026-10-20
+- Stav: aktivni (nahrazuje „one-way lane combat“ z `design/catnapped_runeterra_lite.md`)
+- Kontext: Lidský test #1: „vyložím kočky, další kolo umřou, a tak dokola, dokud neumřu“. Jednosměrný souboj dělal útok zadarmo. Kdo měl připravené kočky, zabíjel každou čerstvou kočku soupeře bez ztráty. Simulace: asi 35 % vyložených koček umřelo bez jediného útoku.
+- Rozhodnutí: Při útoku na kočku (i na Ochranu, která zásah zachytí) vrací bránící kočka útočníkovi úder svým aktuálním útokem, současně (i když sama padne). Přímý zásah do soupeře odvetu nemá. AI hodnotí výměny (`_score_trade`) a nevýhodné útoky vynechá. Přepínač je `CardGameConstants.combat_retaliation` (static var kvůli A/B simulaci).
+- Dopad: Ve hrách proti agresivním soupeřům klesl podíl „zbytečných“ koček z 35 na 25 %. Kočky s vysokými životy zesílily, proto prošly balancem 3-dropy (Síťodrápý nájezdník 3/3, Přístavní hrdlořez 3/3, Trámový skokan 4/2) a Dokový rváč (3/5).
+
+### D-015 - Startovní ruka 4 karty, starter a NPC balíky přeladěné
+- Datum: 2026-10-20
+- Stav: aktivni
+- Kontext: Start na 3 Tunách s líznutím 1 karty za kolo vede k hladovění: kolem 3. a 4. kola dojdou karty a pak rozhoduje jen stůl. Starter (samé kočky 1/2 a 3/2) proti Smug Tabbymu (první soupeř runu) v simulaci vyhrával 2–6 %.
+- Rozhodnutí: `starting_hand = 4` (líznutí zůstává 1, protože 2 líznutí příliš zvýhodnila prvního hráče). Nový starter: Svíčkotlapý zvěd ×3, Uliční rváč ×4, Hospodský myšolovec ×3, Rybokostěný plíživec ×3, Síťodrápý nájezdník ×2, Dokový rváč ×3, Kotelní strážce ×1, Kapitán ×1. Smug Tabby je teď „učitelský“ balík s menším počtem těžkých obránců. Harbor Warden je zmírněný a přesunutý na konec runu jako boss (pořadí Smug → Ragclaw → Lantern → Harbor). Save se starým starterem se migruje na nový (`ProgressionSystem.LEGACY_STARTER_2026_07`).
+- Dopad: Simulace AI starter vs NPC (výhra hráče): Smug ~80 %, Ragclaw ~50 %, Lantern ~45 %, Harbor ~11 %. Člověk hraje líp než AI. Balanc je velmi citlivý na 2–3 karty, takže změny balíků vždy přeměř přes `sim_ai_matches.gd` (sloupce `wasted_pct`, `starved_pct`, `timeout_pct`).

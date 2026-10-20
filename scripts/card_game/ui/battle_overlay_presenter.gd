@@ -103,7 +103,7 @@ func ensure_tutorial_overlay(parent: Control) -> void:
 
 	var body := Label.new()
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	body.text = "1. Vylož kočku z ruky na volnou lajnu.\n2. Připravenou kočkou útoč do nepřátelské lajny nebo přímo.\n3. Sraz soupeři životy na nulu dřív, než to udělá on."
+	body.text = "1. Vylož kočku z ruky na volnou lajnu (stojí Tunu, číslo v modrém kolečku).\n2. Další kolo s ní zaútoč na soupeřovu lajnu. Prázdná lajna = zásah přímo do soupeře.\n3. Napadená kočka vrací úder svým útokem, tak si výměny rozmysli.\n4. Sraz soupeři životy na nulu dřív, než to udělá on.\n\nVpravo tě panel „Co teď?“ vždycky navede."
 	body.add_theme_font_size_override("font_size", 18)
 	body.add_theme_color_override("font_color", Color(0.95, 0.9, 0.84, 1.0))
 	content.add_child(body)

@@ -131,6 +131,7 @@ var _card_instance: CardInstance
 var _interactive := false
 var _display_mode: StringName = DISPLAY_FULL
 var _card_background: Panel
+var _guide_label: RichTextLabel
 
 
 func _ready() -> void:
@@ -152,11 +153,33 @@ func _ready() -> void:
     name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
     name_label.clip_text = true
     type_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    # Průvodce „Co teď?“ v prázdném stavu (vyplňuje battle_preview_presenter).
+    _guide_label = RichTextLabel.new()
+    _guide_label.bbcode_enabled = true
+    _guide_label.fit_content = false
+    _guide_label.scroll_active = false
+    _guide_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    _guide_label.add_theme_font_size_override("normal_font_size", 16)
+    _guide_label.add_theme_font_size_override("bold_font_size", 17)
+    _guide_label.add_theme_color_override("default_color", Color(0.92, 0.88, 0.8))
+    add_child(_guide_label)
+    _guide_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    _guide_label.offset_left = 10.0
+    _guide_label.offset_right = -10.0
+    _guide_label.offset_top = 14.0
+    _guide_label.visible = false
     _refresh()
 
 
 func set_card_instance(card_instance: CardInstance) -> void:
     _card_instance = card_instance
+    _refresh()
+
+
+func set_empty_guide(bbcode: String) -> void:
+    if _guide_label == null:
+        return
+    _guide_label.text = bbcode
     _refresh()
 
 
@@ -185,11 +208,16 @@ func _refresh() -> void:
     _apply_display_root()
     if _card_instance == null or _card_instance.definition == null:
         center_container.visible = false
-        empty_hint.visible = true
+        var has_guide := _guide_label != null and not _guide_label.text.is_empty()
+        empty_hint.visible = not has_guide
+        if _guide_label != null:
+            _guide_label.visible = has_guide
         return
 
     center_container.visible = true
     empty_hint.visible = false
+    if _guide_label != null:
+        _guide_label.visible = false
 
     var layout := _get_layout(_card_instance)
     _apply_layout(layout)

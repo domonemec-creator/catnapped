@@ -8,6 +8,12 @@ enum CardType {
 }
 
 const SAVED_TUNA_CAP := 2
+# Odveta (D-014): napadená kočka vrací útočníkovi úder svým útokem. Static var, aby šlo
+# v simulaci porovnat obě varianty; ve hře se nemění.
+static var combat_retaliation := true
+# Ekonomika karet (D-015): líznutí za tah a startovní ruka. Static var kvůli A/B simulaci.
+static var draw_per_turn := 1
+static var starting_hand := 4
 
 const KEYWORD_BATTLECRY := &"battlecry"
 const KEYWORD_LAST_BREATH := &"last_breath"

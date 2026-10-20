@@ -956,8 +956,8 @@ func _setup_battle() -> void:
 
 	_battle_state.player_states = [player_state, enemy_state]
 
-	_deck_system.draw_cards(player_state, STARTING_HAND)
-	_deck_system.draw_cards(enemy_state, STARTING_HAND)
+	_deck_system.draw_cards(player_state, CardGameConstants.starting_hand)
+	_deck_system.draw_cards(enemy_state, CardGameConstants.starting_hand)
 
 	enemy_name_label.text = _build_enemy_header_name(enemy_state.display_name)
 	enemy_portrait_art.texture = _get_post_match_backdrop_texture()
@@ -1157,7 +1157,9 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 	_play_sfx(&"attack")
 	_queue_lane_fx(attacker.owner_id, attacker.lane_index, &"fx_attack")
 
+	var defender_card: CardInstance = null
 	if target_slot.occupant != null:
+		defender_card = target_slot.occupant
 		_adjust_card_life(target_slot.occupant, -attacker.current_attack)
 		_queue_lane_fx(defender_state.player_id, target_lane, &"fx_hit", [attacker.current_attack])
 		_play_sfx(&"ko" if target_slot.occupant.current_life <= 0 else &"hit")
@@ -1169,6 +1171,7 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 	else:
 		var guard_target: CardInstance = _battle_rules.find_guard_for_direct_damage(defender_state, target_lane)
 		if guard_target != null:
+			defender_card = guard_target
 			_set_lane_feedback(defender_state.player_id, target_lane, "ZASTAVENO", LaneSlotView.EVENT_BLOCK)
 			_adjust_card_life(guard_target, -attacker.current_attack)
 			_queue_lane_fx(defender_state.player_id, guard_target.lane_index, &"fx_block", [attacker.current_attack])
@@ -1186,9 +1189,29 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 			summary = "%s udělí %s přímého zranění. Soupeři zbývá %s životů." % [attacker.definition.display_name, attacker.current_attack, defender_state.life]
 			_resolve_triggered_effects(attacker, attacker_owner_state, CardGameConstants.TRIGGER_ON_DIRECT_DAMAGE)
 
+	# Odveta: bránící kočka (i když sama padne) vrátí útočníkovi úder svým útokem.
+	var retaliation_text := _apply_retaliation(attacker, defender_card)
+	if not retaliation_text.is_empty():
+		summary = "%s %s" % [summary, retaliation_text]
+
 	_resolve_deaths(defender_state)
+	_resolve_deaths(attacker_owner_state)
 	_check_battle_end()
 	return summary
+
+
+func _apply_retaliation(attacker: CardInstance, defender_card: CardInstance) -> String:
+	if not CardGameConstants.combat_retaliation or attacker == null or defender_card == null:
+		return ""
+	var strike := defender_card.current_attack
+	if strike <= 0:
+		return ""
+	_adjust_card_life(attacker, -strike)
+	# Feedback útočníka zůstává „ÚTOK N“ (co udělal); odvetu ukáže plovoucí číslo a souhrn.
+	_queue_lane_fx(attacker.owner_id, attacker.lane_index, &"fx_hit", [strike])
+	if attacker.current_life <= 0:
+		return "%s vrací úder za %s a útočník padne." % [defender_card.definition.display_name, strike]
+	return "%s vrací úder za %s." % [defender_card.definition.display_name, strike]
 
 
 func _resolve_deaths(owner_state: PlayerBattleState) -> void:
@@ -1460,7 +1483,7 @@ func _start_turn(player_state: PlayerBattleState) -> void:
 	player_state.tuna_current = player_state.tuna_max
 	player_state.table_power_used_this_turn = false
 	player_state.immediate_entry_attack_used_this_turn = false
-	_deck_system.draw_cards(player_state, 1)
+	_deck_system.draw_cards(player_state, CardGameConstants.draw_per_turn)
 	_refresh_attack_state_for_player(player_state)
 
 
@@ -1713,6 +1736,7 @@ func _refresh_selected_panel() -> void:
 		"selected_info_zone": _selected_info_zone,
 		"player_state": _battle_state.get_player_state(PLAYER_ID),
 		"enemy_state": _battle_state.get_player_state(ENEMY_ID),
+		"enemy_turn": _enemy_turn_running,
 	})
 
 

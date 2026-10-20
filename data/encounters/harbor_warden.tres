@@ -10,4 +10,4 @@ npc_name = "Přístavní strážný"
 portrait_path = "res://assets/card_game/card_art/wharf_cutthroat.png"
 deck_id = &"npc_harbor_warden"
 table_power_id = &""
-starting_life = 11
+starting_life = 10

@@ -49,14 +49,14 @@ func _run() -> void:
     if smug_threat_ten_cards.size() != 20:
         _fail("Threat 10 deck size is not 20.")
         return
-    if _count_card_ids(smug_threat_zero_cards, &"boilerback_guardian") != 3:
-        _fail("Smug threat 0 deck should start with 3 Boilerback Guardians.")
+    if _count_card_ids(smug_threat_zero_cards, &"boilerback_guardian") != 1:
+        _fail("Smug threat 0 deck should start with 1 Boilerback Guardian (učitelský balík, 2026-10-20).")
         return
-    if _count_card_ids(smug_threat_ten_cards, &"boilerback_guardian") != 7:
-        _fail("Smug threat 10 deck should lean into 7 Boilerback Guardians.")
+    if _count_card_ids(smug_threat_ten_cards, &"boilerback_guardian") != 5:
+        _fail("Smug threat 10 deck should lean into 5 Boilerback Guardians.")
         return
-    if _count_card_ids(smug_threat_ten_cards, &"captain_ironmaw") != 6:
-        _fail("Smug threat 10 deck should contain 6 Captain Ironmaws.")
+    if _count_card_ids(smug_threat_ten_cards, &"captain_ironmaw") != 4:
+        _fail("Smug threat 10 deck should contain 4 Captain Ironmaws.")
         return
     if _count_card_ids(smug_threat_ten_cards, &"fish_toss") != 0:
         _fail("Simple-core Smug deck should not contain Fish Toss.")
@@ -98,11 +98,11 @@ func _run() -> void:
     if harbor_threat_zero_cards.size() != 20 or harbor_threat_ten_cards.size() != 20:
         _fail("Harbor Warden threat deck size changed away from 20.")
         return
-    if _count_card_ids(harbor_threat_ten_cards, &"boilerback_guardian") != 8:
-        _fail("Harbor threat 10 deck should contain 8 Boilerback Guardians.")
+    if _count_card_ids(harbor_threat_ten_cards, &"boilerback_guardian") != 5:
+        _fail("Harbor threat 10 deck should contain 5 Boilerback Guardians.")
         return
-    if _count_card_ids(harbor_threat_ten_cards, &"captain_ironmaw") != 5:
-        _fail("Harbor threat 10 deck should contain 5 Captain Ironmaws.")
+    if _count_card_ids(harbor_threat_ten_cards, &"captain_ironmaw") != 4:
+        _fail("Harbor threat 10 deck should contain 4 Captain Ironmaws.")
         return
     if _count_card_ids(harbor_threat_ten_cards, &"hidden_claws") != 0:
         _fail("Simple-core Harbor deck should not contain Hidden Claws.")

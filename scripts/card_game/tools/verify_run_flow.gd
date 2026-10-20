@@ -79,10 +79,10 @@ func _run() -> void:
     if run_session.get_current_step_number() != 2:
         _fail("Run did not advance to step 2.")
         return
-    if run_session.get_current_encounter_id() != &"harbor_warden":
-        _fail("Second run battle did not switch to Harbor Warden.")
+    if run_session.get_current_encounter_id() != &"lantern_striker":
+        _fail("Second run battle did not switch to Lantern Striker.")
         return
-    if next_battle._encounter.id != &"harbor_warden":
+    if next_battle._encounter.id != &"lantern_striker":
         _fail("Battle scene did not load the second run encounter.")
         return
 

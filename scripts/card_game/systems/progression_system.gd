@@ -252,9 +252,28 @@ func get_loss_count(state: Dictionary) -> int:
 	return maxi(0, int(state.get(KEY_LOSSES, 0)))
 
 
+# Starter před balancem 2026-10-20 (D-015). Save, který ho drží beze změny, dostane nový starter;
+# upravené balíky (po odměnách) zůstávají, jak jsou.
+const LEGACY_STARTER_2026_07: Array[String] = ["alley_scrapper", "alley_scrapper", "alley_scrapper", "alley_scrapper", "candlepaw_scout", "candlepaw_scout", "candlepaw_scout", "candlepaw_scout", "captain_ironmaw", "fishbone_skulker", "fishbone_skulker", "netclaw_raider", "netclaw_raider", "rafter_pouncer", "tavern_mouser", "tavern_mouser", "tavern_mouser", "tavern_mouser", "wharf_cutthroat", "wharf_cutthroat"]
+
+
 func get_player_deck_card_ids(state: Dictionary) -> Array[StringName]:
 	var sanitized := _sanitize_state(state)
-	return _copy_card_id_array(sanitized.get(KEY_PLAYER_DECK, []))
+	var ids := _copy_card_id_array(sanitized.get(KEY_PLAYER_DECK, []))
+	var sorted_ids: Array[String] = []
+	for id in ids:
+		sorted_ids.append(String(id))
+	sorted_ids.sort()
+	if sorted_ids == LEGACY_STARTER_2026_07:
+		var starter := load(STARTER_DECK_PATH)
+		if starter != null:
+			var fresh: Array[StringName] = []
+			for entry in starter.cards:
+				for _i in range(entry.count):
+					fresh.append(entry.card_id)
+			if not fresh.is_empty():
+				return fresh
+	return ids
 
 
 func set_player_deck_card_ids(state: Dictionary, card_ids: Array[StringName]) -> Dictionary:

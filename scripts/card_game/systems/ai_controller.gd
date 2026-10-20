@@ -59,6 +59,9 @@ func choose_attack_action(attacker_state: PlayerBattleState, defender_state: Pla
         var valid_lanes := rules.get_valid_attack_lanes(attacker, defender_state)
         for lane_index in valid_lanes:
             var score := _score_attack_option(attacker, lane_index, defender_state, rules)
+            # S odvetou se nevyplatí každý útok; špatnou výměnu AI vynechá.
+            if CardGameConstants.combat_retaliation and score <= 0.0:
+                continue
             if score > best_score:
                 best_score = score
                 best_action = {
@@ -558,13 +561,41 @@ func _score_attack_option_for_lane(attacker: CardInstance, lane_index: int, defe
 func _score_attack_option_for_lane_with_attack(attacker: CardInstance, lane_index: int, attack_value: int, defender_state: PlayerBattleState, rules: BattleRules) -> float:
     var slot = defender_state.board[lane_index]
     if slot != null and slot.occupant != null:
+        if CardGameConstants.combat_retaliation:
+            return _score_trade(attacker, attack_value, slot.occupant)
         return _score_target_card_with_attack(attack_value, slot.occupant)
 
     var guard_target: CardInstance = rules.find_guard_for_direct_damage(defender_state, lane_index)
     if guard_target != null:
+        if CardGameConstants.combat_retaliation:
+            return _score_trade(attacker, attack_value, guard_target) + 2.0
         return _score_target_card_with_attack(attack_value, guard_target) + 4.0
 
     return _score_direct_attack_value(attack_value, defender_state.life)
+
+
+# Hodnota výměny s odvetou: co získám (zabití / zranění cíle) minus co ztratím (vlastní kočka).
+func _score_trade(attacker: CardInstance, attack_value: int, target: CardInstance) -> float:
+    var target_value := _card_board_value(target)
+    var gain := target_value + 4.0 if attack_value >= target.current_life else float(mini(attack_value, target.current_life)) * 1.0
+    var strike := target.current_attack
+    var loss := 0.0
+    if strike >= attacker.current_life:
+        loss = _card_board_value(attacker)
+    else:
+        loss = float(strike) * 0.8
+    return gain - loss
+
+
+func _card_board_value(card: CardInstance) -> float:
+    var value := float(card.current_attack) * 3.0 + float(card.current_life) * 1.5
+    if card.has_keyword(CardGameConstants.KEYWORD_GUARD):
+        value += 4.0
+    if card.has_keyword(CardGameConstants.KEYWORD_POUNCE):
+        value += 2.0
+    if card.has_keyword(CardGameConstants.KEYWORD_LAST_BREATH):
+        value -= 2.0
+    return value
 
 
 func _score_target_card(attacker: CardInstance, target: CardInstance) -> float:
