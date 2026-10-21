@@ -14,6 +14,10 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - MP: klient vidí efekty a slyší zvuky soupeřových akcí (Claude Opus 5.5)
+- Host si zapisuje `_queue_lane_fx` a `_play_sfx` (net_battle.gd `record_fx/record_sfx`), pošle je se snímkem, klient je přehraje (`_replay_net_events`). Výhra/prohra se nesdílí (každý má svou).
+- Ověření: net_smoke v okně (host i klient), bez chyb; 23/23 verifierů.
+
 ### 2026-10-21 (noc) - Incident: síťový test v okně přepsal skutečný save (Claude Opus 5.5)
 - Co: `net_smoke.gd` spuštěný v okně (kvůli screenshotu) volal `reset_state()`; testovací save se volil jen podle headless, takže se smazal Markův postup (6 výher, 2 prohry, balík 23 karet).
 - Náprava: save obnoven ze screenshotů artifacts/c_prog.png a deckbuild.png (záloha artifacts/save_backup_2026-10-21.cfg; hrozba 0, trénink 0, tutoriál viděn). Hrozba ani pořadí nemusí sedět na 100 %.

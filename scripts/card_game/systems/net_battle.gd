@@ -19,6 +19,9 @@ var snapshot_count := 0
 var _battle  # battle_controller.gd (bez typu kvůli cyklickému preloadu)
 var _snapshot_queued := false
 var _last_snapshot_hash := 0
+# Efekty a zvuky od posledního snímku (host je pošle, klient je přehraje).
+var _events: Array = []
+const UNSHARED_SFX: Array[StringName] = [&"victory", &"defeat"]
 var _remote_turn_active := false
 
 
@@ -87,10 +90,27 @@ func _send_snapshot() -> void:
 	var snapshot := serialize_state(_battle._battle_state)
 	snapshot["status"] = _battle.status_label.text
 	var snapshot_hash := snapshot.hash()
-	if snapshot_hash == _last_snapshot_hash:
+	if snapshot_hash == _last_snapshot_hash and _events.is_empty():
 		return
 	_last_snapshot_hash = snapshot_hash
+	snapshot["events"] = _events
+	_events = []
 	_manager().send_snapshot(snapshot)
+
+
+func record_fx(owner_id: int, lane_index: int, method: StringName, args: Array, art_path: String) -> void:
+	if not is_host():
+		return
+	var safe_args: Array = []
+	for arg in args:
+		safe_args.append(arg if typeof(arg) in [TYPE_INT, TYPE_FLOAT, TYPE_STRING, TYPE_BOOL] else null)
+	_events.append({"k": "fx", "owner": _swap(owner_id), "lane": lane_index, "m": method, "a": safe_args, "art": art_path})
+	queue_snapshot()
+
+
+func record_sfx(sound_id: StringName) -> void:
+	if is_host() and not UNSHARED_SFX.has(sound_id):
+		_events.append({"k": "sfx", "id": sound_id})
 
 
 # Tah klienta: host čeká, dokud klient nepošle konec tahu (nebo souboj neskončí).
@@ -169,6 +189,7 @@ func _on_snapshot(snapshot: Dictionary) -> void:
 		return
 	snapshot_count += 1
 	_battle._apply_net_snapshot(deserialize_state(snapshot, _battle._card_library), str(snapshot.get("status", "")))
+	_battle._replay_net_events(snapshot.get("events", []))
 
 
 # --- Snímek stavu -------------------------------------------------------------------

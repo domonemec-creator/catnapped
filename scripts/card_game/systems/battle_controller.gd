@@ -1440,7 +1440,7 @@ func _send_to_discard(owner_state: PlayerBattleState, slot: LaneSlotState) -> vo
 	var former_lane_index := dead_card.lane_index
 	dead_card.lane_index = -1
 	_set_lane_feedback(owner_state.player_id, former_lane_index, "KO", LaneSlotView.EVENT_KO)
-	_queue_lane_fx(owner_state.player_id, former_lane_index, &"fx_death", [CardArtCache.get_cropped(dead_card.definition.art_path)])
+	_queue_lane_fx(owner_state.player_id, former_lane_index, &"fx_death", [CardArtCache.get_cropped(dead_card.definition.art_path)], dead_card.definition.art_path)
 	if dead_card.attached_item != null:
 		owner_state.discard.append(dead_card.attached_item)
 		dead_card.attached_item = null
@@ -2376,13 +2376,17 @@ func _get_sfx() -> Node:
 
 
 func _play_sfx(sound_id: StringName) -> void:
+	if _net != null:
+		_net.record_sfx(sound_id)
 	var sfx := _get_sfx()
 	if sfx != null:
 		sfx.play(sound_id)
 
 
 # Efekt na slot se spustí až po nejbližším _refresh_ui (deferred), aby animoval nový stav.
-func _queue_lane_fx(owner_id: int, lane_index: int, method: StringName, args: Array = []) -> void:
+func _queue_lane_fx(owner_id: int, lane_index: int, method: StringName, args: Array = [], art_path: String = "") -> void:
+	if _net != null:
+		_net.record_fx(owner_id, lane_index, method, args, art_path)
 	if not _pace_actions:
 		return
 	var views: Array[LaneSlotView] = _player_lanes if owner_id == PLAYER_ID else _enemy_lanes
@@ -2568,3 +2572,16 @@ func _leave_net_match() -> void:
 			manager.session_disconnected.disconnect(_on_net_disconnected)
 		manager.leave_match()
 	_return_to_encounter_select()
+
+
+# Klient: efekty a zvuky z hostova snímku (strany už jsou otočené).
+func _replay_net_events(events: Array) -> void:
+	for event in events:
+		match str(event.get("k", "")):
+			"sfx":
+				_play_sfx(StringName(event.get("id", "")))
+			"fx":
+				var args: Array = event.get("a", [])
+				if str(event.get("m", "")) == "fx_death":
+					args = [CardArtCache.get_cropped(str(event.get("art", "")))]
+				_queue_lane_fx(int(event.get("owner", 0)), int(event.get("lane", -1)), StringName(event.get("m", "")), args)
