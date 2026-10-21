@@ -106,7 +106,26 @@ static func apply(battle: Control) -> Container:
 	_move(hand_panel, board_column)
 	hand_panel.size_flags_vertical = Control.SIZE_SHRINK_END
 	bottom_bar.visible = false
+
+	_apply_selected_panel(battle)
 	return hand_host
+
+
+# Pravý panel: velký náhled karty, bez zdvojeného jména a řádku statistik (vše je na kartě).
+static func _apply_selected_panel(battle: Control) -> void:
+	var content := battle.get_node("Margin/Layout/TopRow/SelectedPanel/Content") as Control
+	(content.get_node("TitleBanner") as Control).visible = false
+	var top_zone := content.get_node("TopZone") as Control
+	top_zone.anchor_bottom = 0.66
+	var bottom_zone := content.get_node("BottomZone") as Control
+	bottom_zone.anchor_top = 0.68
+	top_zone.get_node("SelectedCardView").set_display_mode(&"large")
+	var info := bottom_zone.get_node("InfoPanel/MarginContainer/InfoVBox")
+	(info.get_node("SelectedMeta") as Control).visible = false
+	var detail := info.get_node("SelectedDetail") as RichTextLabel
+	detail.add_theme_font_size_override("normal_font_size", 16)
+	detail.add_theme_font_size_override("bold_font_size", 16)
+	(info.get_node("SelectedHint") as Label).add_theme_font_size_override("font_size", 14)
 
 
 # Rám portrétu: TextureRect bez textury, okraj kreslí StyleBox přes výchozí panel.

@@ -9,12 +9,18 @@ const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
 const SELECTED_PREVIEW_FRAME_PATH := "res://assets/card_game/ui/selected_card_preview_frame.png"
 const DISPLAY_FULL := &"full"
 const DISPLAY_BOARD := &"board"
+const DISPLAY_LARGE := &"large"  # pravý panel souboje (layout v2)
 
 const DISPLAY_CONFIGS := {
     DISPLAY_FULL: {
         "scale": 1.0,
         "show_rules": true,
         "minimum_height": 404.0,
+    },
+    DISPLAY_LARGE: {
+        "scale": 1.28,
+        "show_rules": true,
+        "minimum_height": 510.0,
     },
     DISPLAY_BOARD: {
         "scale": 0.37,

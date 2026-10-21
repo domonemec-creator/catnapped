@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - Pravý panel: velký náhled karty; Stokový král ověřen jako nejtěžší (Claude Opus 5.5)
+- Oblast: UI rozbor bod 3. SelectedCardPreview má režim `large` (měřítko 1.28), battle_layout.gd ho zapne v pravém panelu, schová zdvojené jméno (TitleBanner) a řádek statistik (SelectedMeta), detail 16 px.
+- Balanc: sim 60 her/pořadí: Smug 70.8, Lantern 35.8, Ragclaw 20.0, Fog 19.2, Harbor 10.0, Bilge 2.5 % (AI hráč se startovním balíkem). Stokový král už je nejtěžší; 11–12 životů ho srazilo na ~1 %, proto zůstává 10. Dřívější „Bilge = Harbor“ byl šum 40 her.
+- Ověření: 21/21 verifierů, screenshot artifacts/rp_mid_hover.png.
+
 ### 2026-10-21 (noc) - Hrozba pryč z UI, Balík a postup bez nebezpečného resetu (Claude Opus 5.5)
 - Oblast: UI rozbor body 5–6. Obtížnost hráči ukazuje jen žebříček tréninku; hrozba dál interně volí sestavu balíku soupeře (tooltip pro ladění).
 - Soubory: battle_controller.gd (úvodní a koncové hlášky), battle_overlay_presenter.gd (řádek hrozby ve výsledku skrytý), encounter_select.gd („výprava“ místo „run“), progression_screen.gd (Trénink X/6, „Smazat postup“ malé vlevo s potvrzením druhým klikem, hlavička bez černého pruhu).
