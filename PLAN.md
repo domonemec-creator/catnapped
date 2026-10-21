@@ -42,7 +42,7 @@
 
 ## Fáze D – Trénink + multiplayer (D-022)
 - [x] D1 Trénink: žebříček soupeřů, každý těžší, odemykání postupně
-- [ ] D2 Stavění vlastního balíku (z odemčených karet)
+- [x] D2 Stavění vlastního balíku (z odemčených karet), D-023
 - [ ] D3 Víc karet (cíl ~50), art arch 3×3 → `slice_art_sheet.gd`
 - [ ] D4 Multiplayer 1v1 LAN/přímá IP (host je autorita, synchronizace akcí)
 - [ ] D5 Hra přes internet (relay/Steam), až po D4

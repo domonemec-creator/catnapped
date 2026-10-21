@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - D2 stavění balíku (Claude Opus 5.5)
+- Oblast: kolekce a úprava balíku, D-023.
+- Soubory: progression_system.gd (KEY_COLLECTION, TRAINING_CARD_UNLOCKS, limity, add/remove), progression_screen.gd (levý panel Kolekce s +, balík s −, řazení podle ceny, statistiky v jednom řádku), battle_controller.gd (výhra v tréninku vypíše nové karty v kolekci), nový verify_deck_building.gd.
+- Ověření: 22/22 verifierů, screenshot artifacts/deckbuild.png.
+
 ### 2026-10-21 (noc) - Pravý panel: velký náhled karty; Stokový král ověřen jako nejtěžší (Claude Opus 5.5)
 - Oblast: UI rozbor bod 3. SelectedCardPreview má režim `large` (měřítko 1.28), battle_layout.gd ho zapne v pravém panelu, schová zdvojené jméno (TitleBanner) a řádek statistik (SelectedMeta), detail 16 px.
 - Balanc: sim 60 her/pořadí: Smug 70.8, Lantern 35.8, Ragclaw 20.0, Fog 19.2, Harbor 10.0, Bilge 2.5 % (AI hráč se startovním balíkem). Stokový král už je nejtěžší; 11–12 životů ho srazilo na ~1 %, proto zůstává 10. Dřívější „Bilge = Harbor“ byl šum 40 her.

@@ -331,16 +331,27 @@ func _get_threat_bonus() -> int:
 	return 0
 
 
-# Výhra mimo run posune žebříček tréninku; vrátí jméno nově odemčeného soupeře.
+# Výhra mimo výpravu posune žebříček tréninku; vrátí text o odemčeném soupeři a kartách.
 func _record_training_win(state: Dictionary) -> String:
 	var run_session = _get_run_session()
 	if _encounter == null or (run_session != null and run_session.is_active()):
 		return ""
+	var cleared_before := _progression_system.get_training_cleared(state)
 	var unlocked_id := _progression_system.mark_training_win(state, _encounter.id)
-	if unlocked_id == StringName():
+	if _progression_system.get_training_cleared(state) == cleared_before:
 		return ""
-	var unlocked := load("res://data/encounters/%s.tres" % String(unlocked_id)) as EncounterDefinition
-	return unlocked.display_name if unlocked != null else String(unlocked_id)
+	var lines: Array[String] = []
+	if unlocked_id != StringName():
+		var unlocked := load("res://data/encounters/%s.tres" % String(unlocked_id)) as EncounterDefinition
+		lines.append("V tréninku se odemkl další, silnější soupeř: %s." % (unlocked.display_name if unlocked != null else String(unlocked_id)))
+	var card_names: Array[String] = []
+	for card_id in _progression_system.get_training_unlock_card_ids(_encounter.id):
+		var definition = load("res://data/cards/%s.tres" % String(card_id))
+		if definition != null:
+			card_names.append(definition.display_name)
+	if not card_names.is_empty():
+		lines.append("Do kolekce přibylo: %s. Balík si uprav v Balík a postup." % ", ".join(card_names))
+	return "\n".join(lines)
 
 
 func _build_enemy_header_name(display_name: String) -> String:
@@ -1506,7 +1517,7 @@ func _check_battle_end() -> void:
 		_battle_state.winner_player_id = PLAYER_ID
 		var victory_state := _progression_system.apply_battle_result(_progression_state, PLAYER_ID, PLAYER_ID, ENEMY_ID)
 		var victory_threat := _progression_system.get_threat_level(victory_state) + _get_threat_bonus()
-		var unlocked_name := _record_training_win(victory_state)
+		var training_text := _record_training_win(victory_state)
 		var victory_deck_messages := _progression_system.get_threat_transition_messages(_get_enemy_deck_id(), previous_threat, victory_threat)
 		_progression_state = victory_state
 		_progression_system.save_state(_progression_state)
@@ -1520,8 +1531,8 @@ func _check_battle_end() -> void:
 		_save_match_log.call_deferred("vyhra")
 		status_label.text = "Výhra. %s došel o všechny životy." % enemy_state.display_name
 		var victory_text := "Soupeř %s je poražen. Stůl se pro příští odvetu uklidnil." % enemy_state.display_name
-		if unlocked_name != "":
-			victory_text += "\nV tréninku se odemkl další, silnější soupeř: %s." % unlocked_name
+		if training_text != "":
+			victory_text += "\n" + training_text
 		_show_post_match_overlay("win", "Výhra", victory_text, previous_threat, victory_threat, victory_deck_messages)
 		return
 

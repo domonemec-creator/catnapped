@@ -169,3 +169,11 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Doplněk: Testovat se bude přes Radmin VPN (virtuální LAN), takže stačí D4 (přímá IP přes ENet, port 7000 povolit ve firewallu). D5 (internet/relay) zatím ne.
 - D1 provedení: stupeň = pořadí v žebříčku (i krok runu − 1): +2 životy za stupeň, od 3. stupně +1 karta do ruky, hrozba +2 za stupeň. Samotná hrozba se v simulaci ukázala jako slabá páka.
 - Riziko: Multiplayer je největší kus práce (synchronizace, skryté ruce, odpojení, testování ve dvou). Hra přes internet bez vlastního serveru vyžaduje přesměrování portů nebo relay.
+
+### D-023 - Stavění balíku (D2) a Hrozba mimo UI
+- Datum: 2026-10-21
+- Stav: aktivni
+- Rozhodnutí: Kolekce = startovní karty + 3 karty za každého poraženého soupeře v tréninku (`TRAINING_CARD_UNLOCKS`) + vše, co kdy bylo v balíku (odměny výprav; ukládá se `collection_card_ids`). Balík 20–30 karet, max 4 kopie, Kapitán Železná tlama a Vyhazovač max 1. Úpravy v obrazovce Balík a postup (+/−), ukládají se hned, takže balík je vždy platný. Během výpravy je úprava zamčená (balík mění odměny).
+- Hrozba: hráči ji už neukazujeme (obtížnost = žebříček tréninku). Interně dál volí sestavu balíku soupeře; je vidět jen v tooltipu pro ladění.
+- Proč: limit 4 kopií odpovídá startovnímu balíku (4× Uliční rváč); okno 20–30 snese odměny výprav, které balík zvětšují.
+- Otevřené: karty mimo trénink (Mrchožravý slídil, Bubeník, Toulavá máma, kouzla a vybavení navíc) zatím jen z odměn výprav.

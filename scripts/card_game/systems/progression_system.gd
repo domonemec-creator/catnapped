@@ -17,6 +17,22 @@ const KEY_LOSSES := "player_losses"
 const KEY_PLAYER_DECK := "player_deck_card_ids"
 const KEY_TUTORIAL_SEEN := "battle_tutorial_seen"
 const KEY_TRAINING_CLEARED := "training_cleared"
+const KEY_COLLECTION := "collection_card_ids"
+
+# Stavění balíku (D2): kolekce = startovní karty + odemčené tréninkem + vše, co kdy bylo v balíku.
+const DECK_MIN_SIZE := 20
+const DECK_MAX_SIZE := 30
+const MAX_COPIES := 4
+const SINGLE_COPY_IDS: Array[StringName] = [&"captain_ironmaw", &"tavern_bouncer"]
+# Výhra v tréninku přidá do kolekce karty typické pro poraženého soupeře.
+const TRAINING_CARD_UNLOCKS := {
+	&"smug_tabby": [&"wharf_cutthroat", &"iron_bowl", &"catnip_burst"],
+	&"lantern_striker": [&"lamplighter", &"rafter_pouncer", &"pry_bar"],
+	&"ragclaw_brawler": [&"pickpocket", &"hidden_claws", &"hunters_harness"],
+	&"fog_seer": [&"ship_lookout", &"galley_cook", &"fish_toss"],
+	&"harbor_warden": [&"dock_harpooner", &"grey_veteran", &"war_plate"],
+	&"bilge_king": [&"smuggler", &"graveyard_glutton", &"tavern_bouncer"],
+}
 # Trénink (D-022): žebříček soupeřů ve stejném pořadí jako run. Každý další má o
 # TRAINING_TIER_STEP vyšší hrozbu a odemkne se až po porážce předchozího.
 const TRAINING_ORDER: Array[StringName] = [&"smug_tabby", &"lantern_striker", &"ragclaw_brawler", &"fog_seer", &"harbor_warden", &"bilge_king"]
@@ -233,6 +249,7 @@ func load_state() -> Dictionary:
 	state[KEY_PLAYER_DECK] = _sanitize_deck_card_ids(loaded_deck)
 	state[KEY_TUTORIAL_SEEN] = bool(config.get_value(SECTION_PROGRESS, KEY_TUTORIAL_SEEN, false))
 	state[KEY_TRAINING_CLEARED] = int(config.get_value(SECTION_PROGRESS, KEY_TRAINING_CLEARED, 0))
+	state[KEY_COLLECTION] = _copy_card_id_array(config.get_value(SECTION_PROGRESS, KEY_COLLECTION, []))
 	return state
 
 
@@ -245,6 +262,12 @@ func save_state(state: Dictionary) -> void:
 	config.set_value(SECTION_PROGRESS, KEY_PLAYER_DECK, _to_string_array(sanitized[KEY_PLAYER_DECK]))
 	config.set_value(SECTION_PROGRESS, KEY_TUTORIAL_SEEN, bool(sanitized[KEY_TUTORIAL_SEEN]))
 	config.set_value(SECTION_PROGRESS, KEY_TRAINING_CLEARED, int(sanitized[KEY_TRAINING_CLEARED]))
+	# Karty z balíku zůstanou v kolekci, i když je odměna výpravy později odebere.
+	var collection: Array[StringName] = _copy_card_id_array(sanitized[KEY_COLLECTION])
+	for card_id in sanitized[KEY_PLAYER_DECK]:
+		if not collection.has(card_id):
+			collection.append(card_id)
+	config.set_value(SECTION_PROGRESS, KEY_COLLECTION, _to_string_array(collection))
 	var save_error := config.save(_save_path())
 	if save_error != OK:
 		push_warning("Could not save progression to %s." % _save_path())
@@ -325,6 +348,64 @@ func mark_training_win(state: Dictionary, encounter_id: StringName) -> StringNam
 	return TRAINING_ORDER[index + 1] if index + 1 < TRAINING_ORDER.size() else StringName()
 
 
+# Unikátní id karet, které hráč smí dát do balíku.
+func get_collection_card_ids(state: Dictionary) -> Array[StringName]:
+	var ids: Array[StringName] = []
+	var sources: Array = [_load_starter_deck_card_ids(), _copy_card_id_array(state.get(KEY_COLLECTION, [])), get_player_deck_card_ids(state)]
+	var cleared := get_training_cleared(state)
+	for index in cleared:
+		sources.append(get_training_unlock_card_ids(TRAINING_ORDER[index]))
+	for source in sources:
+		for card_id in source:
+			if not ids.has(card_id):
+				ids.append(card_id)
+	return ids
+
+
+func get_training_unlock_card_ids(encounter_id: StringName) -> Array[StringName]:
+	var ids: Array[StringName] = []
+	for card_id in TRAINING_CARD_UNLOCKS.get(encounter_id, []):
+		ids.append(card_id)
+	return ids
+
+
+func get_card_copy_limit(card_id: StringName) -> int:
+	return 1 if SINGLE_COPY_IDS.has(card_id) else MAX_COPIES
+
+
+# Prázdný řetězec = karta jde přidat; jinak důvod pro hráče.
+func get_add_block_reason(state: Dictionary, card_id: StringName) -> String:
+	var deck := get_player_deck_card_ids(state)
+	if not get_collection_card_ids(state).has(card_id):
+		return "Kartu ještě nemáš v kolekci."
+	if deck.size() >= DECK_MAX_SIZE:
+		return "Balík je plný (%s karet)." % DECK_MAX_SIZE
+	if deck.count(card_id) >= get_card_copy_limit(card_id):
+		return "Víc kopií nejde (max %s)." % get_card_copy_limit(card_id)
+	return ""
+
+
+func add_card_to_deck(state: Dictionary, card_id: StringName) -> Dictionary:
+	if not get_add_block_reason(state, card_id).is_empty():
+		return state
+	var deck := get_player_deck_card_ids(state)
+	deck.append(card_id)
+	return set_player_deck_card_ids(state, deck)
+
+
+func can_remove_from_deck(state: Dictionary, card_id: StringName) -> bool:
+	var deck := get_player_deck_card_ids(state)
+	return deck.has(card_id) and deck.size() > DECK_MIN_SIZE
+
+
+func remove_card_from_deck(state: Dictionary, card_id: StringName) -> Dictionary:
+	if not can_remove_from_deck(state, card_id):
+		return state
+	var deck := get_player_deck_card_ids(state)
+	deck.erase(card_id)
+	return set_player_deck_card_ids(state, deck)
+
+
 func has_seen_battle_tutorial(state: Dictionary) -> bool:
 	return bool(_sanitize_state(state).get(KEY_TUTORIAL_SEEN, false))
 
@@ -402,6 +483,7 @@ func _make_default_state() -> Dictionary:
 		KEY_PLAYER_DECK: _load_starter_deck_card_ids(),
 		KEY_TUTORIAL_SEEN: false,
 		KEY_TRAINING_CLEARED: 0,
+		KEY_COLLECTION: [],
 	}
 
 
@@ -414,6 +496,7 @@ func _sanitize_state(state: Dictionary) -> Dictionary:
 	next_state[KEY_PLAYER_DECK] = _sanitize_deck_card_ids(state.get(KEY_PLAYER_DECK, next_state[KEY_PLAYER_DECK]))
 	next_state[KEY_TUTORIAL_SEEN] = bool(state.get(KEY_TUTORIAL_SEEN, false))
 	next_state[KEY_TRAINING_CLEARED] = get_training_cleared(state)
+	next_state[KEY_COLLECTION] = _copy_card_id_array(state.get(KEY_COLLECTION, []))
 	return next_state
 
 

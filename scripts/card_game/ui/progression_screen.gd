@@ -19,6 +19,8 @@ var _progression_system := ProgressionSystem.new()
 var _card_library: Dictionary = {}
 var _progression_state: Dictionary = {}
 var _deck_list: VBoxContainer
+var _collection_list: VBoxContainer
+var _deck_note: Label
 var _deck_total_label: Label
 var _threat_label: Label
 var _win_label: Label
@@ -148,16 +150,37 @@ func _build_ui() -> void:
     _status_label.text = "Poraz soupeře v tréninku a odemkneš dalšího."
     stats_vbox.add_child(_status_label)
 
-    _threat_label = _make_stat_label(stats_vbox, "Trénink")
-    _win_label = _make_stat_label(stats_vbox, "Výhry")
-    _loss_label = _make_stat_label(stats_vbox, "Prohry")
-    _deck_total_label = _make_stat_label(stats_vbox, "Velikost balíku")
-    _run_label = _make_stat_label(stats_vbox, "Výprava")
+    # Statistiky v jednom řádku, ať zbyde místo na kolekci.
+    var stats_flow := HFlowContainer.new()
+    stats_flow.add_theme_constant_override("h_separation", 28)
+    stats_vbox.add_child(stats_flow)
+    _threat_label = _make_stat_label(stats_flow, "Trénink")
+    _win_label = _make_stat_label(stats_flow, "Výhry")
+    _loss_label = _make_stat_label(stats_flow, "Prohry")
+    _deck_total_label = _make_stat_label(stats_flow, "Velikost balíku")
+    _run_label = _make_stat_label(stats_flow, "Výprava")
 
     var reset_tip := Label.new()
     reset_tip.text = "Smazání postupu vrátí startovní balík a zamkne trénink. Nejde vrátit zpět."
     _style_label(reset_tip, 14, Color(0.82, 0.73, 0.58, 0.92), true)
     stats_vbox.add_child(reset_tip)
+
+    # Kolekce (D2): karty, které smíš dát do balíku. Tlačítko + přidá kopii.
+    var collection_title := Label.new()
+    collection_title.text = "Kolekce"
+    _style_label(collection_title, 24, Color(0.96, 0.88, 0.73, 1))
+    stats_vbox.add_child(collection_title)
+
+    var collection_scroll := ScrollContainer.new()
+    collection_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    collection_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    collection_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+    stats_vbox.add_child(collection_scroll)
+
+    _collection_list = VBoxContainer.new()
+    _collection_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    _collection_list.add_theme_constant_override("separation", 6)
+    collection_scroll.add_child(_collection_list)
 
     var deck_panel := PanelContainer.new()
     deck_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -184,12 +207,12 @@ func _build_ui() -> void:
     _style_label(deck_title, 24, Color(0.96, 0.88, 0.73, 1))
     deck_vbox.add_child(deck_title)
 
-    var deck_note := Label.new()
-    deck_note.text = "Aktuální uložené složení balíku."
-    _style_label(deck_note, 15, Color(0.88, 0.79, 0.64, 0.95), true)
-    deck_vbox.add_child(deck_note)
+    _deck_note = Label.new()
+    _style_label(_deck_note, 15, Color(0.88, 0.79, 0.64, 0.95), true)
+    deck_vbox.add_child(_deck_note)
 
     var scroll := ScrollContainer.new()
+    scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
     scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
     deck_vbox.add_child(scroll)
@@ -255,7 +278,109 @@ func _refresh_ui() -> void:
     var deck_card_ids: Array[StringName] = _progression_system.get_player_deck_card_ids(_progression_state)
     _deck_total_label.text = "Velikost balíku: %s" % deck_card_ids.size()
     _refresh_run_label()
+    var locked := _is_deck_locked()
+    if locked:
+        _deck_note.text = "Během výpravy balík upravit nejde (mění ho odměny)."
+    else:
+        _deck_note.text = "%s až %s karet, nejvýš %s kopie stejné karty. Změny se ukládají hned." % [
+            ProgressionSystem.DECK_MIN_SIZE, ProgressionSystem.DECK_MAX_SIZE, ProgressionSystem.MAX_COPIES,
+        ]
     _refresh_deck_list(deck_card_ids)
+    _refresh_collection_list(deck_card_ids, locked)
+
+
+func _is_deck_locked() -> bool:
+    var run_session = _get_run_session()
+    return run_session != null and run_session.is_active()
+
+
+func _refresh_collection_list(deck_card_ids: Array[StringName], locked: bool) -> void:
+    for child in _collection_list.get_children():
+        child.queue_free()
+    var ids := _progression_system.get_collection_card_ids(_progression_state)
+    ids.sort_custom(_compare_cards)
+    for card_id in ids:
+        var limit := _progression_system.get_card_copy_limit(card_id)
+        var row := _build_card_row(_collection_list, card_id, "%s/%s" % [deck_card_ids.count(card_id), limit])
+        var reason := "Během výpravy nejde." if locked else _progression_system.get_add_block_reason(_progression_state, card_id)
+        var add_button := _make_small_button("+", reason.is_empty(), reason if not reason.is_empty() else "Přidat do balíku")
+        add_button.pressed.connect(_change_deck.bind(card_id, true))
+        row.add_child(add_button)
+
+
+func _compare_cards(a: StringName, b: StringName) -> bool:
+    var da := _card_library.get(a) as CardDefinition
+    var db := _card_library.get(b) as CardDefinition
+    if da == null or db == null:
+        return String(a) < String(b)
+    if da.cost != db.cost:
+        return da.cost < db.cost
+    return da.display_name < db.display_name
+
+
+func _change_deck(card_id: StringName, add: bool) -> void:
+    if _is_deck_locked():
+        return
+    if add:
+        _progression_state = _progression_system.add_card_to_deck(_progression_state, card_id)
+    else:
+        _progression_state = _progression_system.remove_card_from_deck(_progression_state, card_id)
+    _progression_system.save_state(_progression_state)
+    _refresh_ui()
+
+
+func _make_small_button(text: String, enabled: bool, tooltip: String) -> Button:
+    var button := Button.new()
+    button.text = text
+    button.custom_minimum_size = Vector2(44, 40)
+    button.disabled = not enabled
+    button.tooltip_text = tooltip
+    button.add_theme_font_size_override("font_size", 22)
+    button.add_theme_color_override("font_color", Color(0.96, 0.88, 0.73, 1))
+    button.add_theme_color_override("font_disabled_color", Color(0.55, 0.48, 0.38, 0.7))
+    button.add_theme_stylebox_override("normal", _button_normal_style)
+    button.add_theme_stylebox_override("hover", _button_hover_style)
+    button.add_theme_stylebox_override("pressed", _button_pressed_style)
+    button.add_theme_stylebox_override("disabled", _section_style)
+    return button
+
+
+# Řádek karty: náhled artu, jméno s počtem, staty a keyword.
+func _build_card_row(parent: Container, card_id: StringName, count_text: String) -> HBoxContainer:
+    var card_definition: CardDefinition = _card_library.get(card_id) as CardDefinition
+    var card_name := String(card_id) if card_definition == null or card_definition.display_name.is_empty() else card_definition.display_name
+    var row := HBoxContainer.new()
+    row.add_theme_constant_override("separation", 12)
+    parent.add_child(row)
+    var thumb := TextureRect.new()
+    thumb.custom_minimum_size = Vector2(72, 44)
+    thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+    thumb.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+    if card_definition != null:
+        thumb.texture = CardArtCache.get_cropped_aspect(card_definition.art_path, 72.0 / 44.0)
+    row.add_child(thumb)
+    var card_line := Label.new()
+    _style_label(card_line, 17, Color(0.95, 0.88, 0.74, 1), false)
+    card_line.text = "%s %s" % [count_text, card_name]
+    card_line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    card_line.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    card_line.clip_text = true
+    row.add_child(card_line)
+    if card_definition != null:
+        var detail := Label.new()
+        var keyword_text := ""
+        if not card_definition.keywords.is_empty():
+            keyword_text = "%s · " % CardGameConstants.keyword_label(card_definition.keywords[0])
+        detail.text = "%scena %s · %s/%s" % [keyword_text, card_definition.cost, card_definition.attack, card_definition.life]
+        _style_label(detail, 14, Color(0.8, 0.72, 0.58, 1), false)
+        detail.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+        card_line.tooltip_text = card_definition.rules_text
+        card_line.mouse_filter = Control.MOUSE_FILTER_PASS
+        detail.tooltip_text = card_definition.rules_text
+        detail.mouse_filter = Control.MOUSE_FILTER_PASS
+        row.add_child(detail)
+    return row
 
 
 func _refresh_run_label() -> void:
@@ -293,38 +418,15 @@ func _refresh_deck_list(deck_card_ids: Array[StringName]) -> void:
             card_counts[card_id] = 0
         card_counts[card_id] = int(card_counts.get(card_id, 0)) + 1
 
+    var locked := _is_deck_locked()
+    card_order.sort_custom(_compare_cards)
     for card_id in card_order:
-        var card_definition: CardDefinition = _card_library.get(card_id) as CardDefinition
-        var card_name := String(card_id) if card_definition == null or card_definition.display_name.is_empty() else card_definition.display_name
-        # Řádek balíku: náhled artu, počet, jméno, staty a keyword (místo holého textu).
-        var row := HBoxContainer.new()
-        row.add_theme_constant_override("separation", 12)
-        _deck_list.add_child(row)
-        var thumb := TextureRect.new()
-        thumb.custom_minimum_size = Vector2(72, 44)
-        thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-        thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-        thumb.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-        if card_definition != null:
-            thumb.texture = CardArtCache.get_cropped_aspect(card_definition.art_path, 72.0 / 44.0)
-        row.add_child(thumb)
-        var card_line := Label.new()
-        _style_label(card_line, 17, Color(0.95, 0.88, 0.74, 1), false)
-        card_line.text = "%sx %s" % [card_counts.get(card_id, 0), card_name]
-        card_line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-        card_line.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-        row.add_child(card_line)
-        if card_definition != null:
-            var detail := Label.new()
-            var keyword_text := ""
-            if not card_definition.keywords.is_empty():
-                keyword_text = "%s · " % CardGameConstants.keyword_label(card_definition.keywords[0])
-            detail.text = "%scena %s · %s/%s" % [keyword_text, card_definition.cost, card_definition.attack, card_definition.life]
-            _style_label(detail, 14, Color(0.8, 0.72, 0.58, 1), false)
-            detail.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-            detail.tooltip_text = card_definition.rules_text
-            detail.mouse_filter = Control.MOUSE_FILTER_PASS
-            row.add_child(detail)
+        var row := _build_card_row(_deck_list, card_id, "%sx" % card_counts.get(card_id, 0))
+        var can_remove := not locked and _progression_system.can_remove_from_deck(_progression_state, card_id)
+        var tip := "Odebrat z balíku" if can_remove else ("Během výpravy nejde." if locked else "Balík má minimum %s karet." % ProgressionSystem.DECK_MIN_SIZE)
+        var remove_button := _make_small_button("−", can_remove, tip)
+        remove_button.pressed.connect(_change_deck.bind(card_id, false))
+        row.add_child(remove_button)
 
 
 func _on_reset_pressed() -> void:
@@ -393,9 +495,9 @@ func _get_run_session():
     return get_node("/root/RunSession")
 
 
-func _make_stat_label(parent: VBoxContainer, title_text: String) -> Label:
+func _make_stat_label(parent: Container, title_text: String) -> Label:
     var label := Label.new()
-    _style_label(label, 16, Color(0.88, 0.79, 0.64, 0.95), true)
+    _style_label(label, 16, Color(0.88, 0.79, 0.64, 0.95), false)
     label.text = "%s: -" % title_text
     parent.add_child(label)
     return label
