@@ -39,7 +39,8 @@ Animace karet (líznutí, smrt, zásah), sjednocení barev a rámečků, čiteln
 ### Arch 1: postavy 3×3 (pořadí = id)
 1 portrait_lantern_striker, 2 portrait_ragclaw_brawler, 3 portrait_harbor_warden,
 4 stray_token, 5 portrait_fog_seer (budoucí soupeř 5), 6 portrait_bilge_king (budoucí soupeř 6, finální boss),
-7 ship_lookout, 8 smuggler, 9 bell_ringer (nové karty pro D3).
+7 ship_lookout, 8 smuggler (nové karty pro D3), 9 card_back (rub karty).
+Mark generuje jeden obrázek naráz, proto jsou v archu jen věci 2:3. Pozadí ve 4K arch rozbije (políčko by mělo ~340 px). Logo dělám fontem Cinzel ve hře (AI kazí písmena). Ikonu vyříznu z portrétu.
 
 ```
 A 3x3 grid of nine separate fantasy character portraits, each panel in portrait orientation 2:3, separated by thin solid black gutters, no text, no labels, no borders inside panels. Consistent style across all panels: painterly digital fantasy illustration, anthropomorphic cats, dark warm harbor tavern world, candlelight and lantern glow, deep browns and amber with muted red accents, detailed fur, dramatic rim lighting, three-quarter view, head and shoulders in the upper third of each panel, clean dark background near the head for readability.
@@ -51,7 +52,7 @@ Row 2, center: mysterious fog seer cat, white fur, hooded grey cloak, glowing pa
 Row 2, right: grotesque huge sewer king cat on a throne of crates and fish bones, crooked rusted crown, greasy fur, golden rings, sinister grin, green lantern light from below, final boss.
 Row 3, left: young ship's lookout cat climbing a mast rope, spyglass raised, wind in fur, striped shirt, dusk sky with seagulls.
 Row 3, center: sly smuggler cat in a dark long coat half-opened to reveal hidden bottles and fish, wide brimmed hat, side glance, lantern-lit warehouse.
-Row 3, right: hunched old bell ringer cat pulling a thick rope of a bronze harbor bell, motion in the rope, deaf-looking squint, tower window with moonlight.
+Row 3, right: ornate playing card back design instead of a character, perfectly symmetrical, dark burgundy velvet with gold filigree border, large golden cat paw emblem in the center ringed by small fish and anchor motifs, flat front view.
 ```
 
 ### Pozadí souboje (`board_background.png`, 1920×1080)
