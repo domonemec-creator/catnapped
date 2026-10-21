@@ -2335,9 +2335,9 @@ func _refresh_enemy_hand_row(enemy_state: PlayerBattleState) -> void:
 		_enemy_hand_row.get_child(_enemy_hand_row.get_child_count() - 1).free()
 	if _enemy_hand_row.get_child_count() == 0:
 		var deck_label := Label.new()
-		deck_label.add_theme_font_size_override("font_size", 14)
+		deck_label.add_theme_font_size_override("font_size", 16)
 		deck_label.add_theme_color_override("font_color", Color(0.85, 0.78, 0.64))
-		deck_label.custom_minimum_size = Vector2(70, 0)
+		deck_label.custom_minimum_size = Vector2(82, 0)
 		deck_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		_enemy_hand_row.add_child(deck_label)
 	while _enemy_hand_row.get_child_count() < count + 1:

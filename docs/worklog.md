@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - Čitelnost ruky (UI rozbor bod 4/6) (Claude Opus 5.5)
+- Karta v ruce: jméno na vlastním pruhu nad odznaky (dřív useknuté „Svíčkotlap…“), 15/13/12 px podle délky. Nehratelná karta ztlumená jen na 0.8 (dřív 0.62, nešla číst). Ruka/Balík soupeře 16 px.
+- Export: připraven `export_presets.cfg` (Windows, build/Catnapped.exe, v .gitignore); chybí šablony 4.6.2 (jsou jen 4.7.1) → stáhnout v editoru.
+- Ověření: screenshot artifacts/rp_mid.png, 23/23 verifierů.
+
 ### 2026-10-21 (noc) - D3: 13 nových karet (47 sběratelných), kouzla bez cíle (Claude Opus 5.5)
 - Kočky: Kotě na hlídce, Rybářka s návnadou, Lovec potkanů, Lanový akrobat, Kormidelník, Lamač z doků, Přístavní poslíček, Spravovačka sítí, Dělová kočka. Kouzla: Teplé mléko, Přes palubu!, Rybí trh. Předmět: Rezavá kotva. Vše jen ze stávajících mechanik.
 - Odemykání v tréninku 4–6 karet za soupeře; nové kočky v odměnách výprav. Dělová kočka max 1 kopie.

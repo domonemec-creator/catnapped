@@ -128,7 +128,8 @@ func set_playable(is_playable: bool) -> void:
     # Hratelná karta svítí, nehratelná (málo Tuny / cizí tah) ztmavne, ať začátečník hned vidí volby.
     playable_glow.visible = is_playable
     playable_glow.color = Color(0.45, 0.95, 0.55, 0.26)
-    modulate = Color.WHITE if is_playable else Color(0.62, 0.6, 0.58, 1.0)
+    # UI rozbor: 0.62 bylo moc tmavé, karta nešla přečíst.
+    modulate = Color.WHITE if is_playable else Color(0.8, 0.78, 0.76, 1.0)
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -223,7 +224,8 @@ func _build_face() -> void:
     strip.anchor_bottom = 1.0
     strip.offset_left = 3
     strip.offset_right = -3
-    strip.offset_top = -30
+    # Jméno na vlastním pruhu nad odznaky útoku a životů (dřív se mačkalo mezi ně a ořezávalo).
+    strip.offset_top = -54
     strip.offset_bottom = -3
     _face_name = Label.new()
     _face_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -238,10 +240,10 @@ func _build_face() -> void:
     _face_name.anchor_top = 1.0
     _face_name.anchor_right = 1.0
     _face_name.anchor_bottom = 1.0
-    _face_name.offset_left = 34
-    _face_name.offset_right = -34
-    _face_name.offset_top = -30
-    _face_name.offset_bottom = -3
+    _face_name.offset_left = 4
+    _face_name.offset_right = -4
+    _face_name.offset_top = -54
+    _face_name.offset_bottom = -32
     _face_cost = _make_face_badge(Color(0.16, 0.34, 0.62), 0.0, 0.0, 5, 5, 26).get_child(0)
     _face_attack_badge = _make_face_badge(Color(0.7, 0.42, 0.1), 0.0, 1.0, 4, -32, 28)
     _face_attack = _face_attack_badge.get_child(0)
@@ -317,7 +319,7 @@ func _refresh_face(card_definition: CardDefinition, show_stats: bool, badge_text
     _face_name.text = card_definition.display_name
     # Dlouhá jména zmenšit, ať se vejdou mezi odznaky útoku a životů.
     var name_length := card_definition.display_name.length()
-    _face_name.add_theme_font_size_override("font_size", 14 if name_length <= 13 else (12 if name_length <= 17 else 11))
+    _face_name.add_theme_font_size_override("font_size", 15 if name_length <= 15 else (13 if name_length <= 19 else 12))
     _face_cost.text = str(card_definition.cost)
     _face_attack.text = str(card_instance.current_attack)
     _face_life.text = str(card_instance.current_life)
