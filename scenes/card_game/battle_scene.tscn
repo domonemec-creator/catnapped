@@ -482,13 +482,13 @@ theme_override_constants/separation = 6
 [node name="PlayerLife" type="Label" parent="Margin/Layout/BottomBar/PlayerStats/MarginContainer/VBox"]
 size_flags_horizontal = 3
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 34
 text = "Životy 10"
 
 [node name="PlayerTuna" type="Label" parent="Margin/Layout/BottomBar/PlayerStats/MarginContainer/VBox"]
 size_flags_horizontal = 3
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 26
 text = "Tuna 0/0"
 
 [node name="DeckPanel" type="PanelContainer" parent="Margin/Layout/BottomBar"]

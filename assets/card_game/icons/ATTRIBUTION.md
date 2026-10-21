@@ -15,3 +15,5 @@ Zdroj: https://github.com/game-icons/icons (raw: https://raw.githubusercontent.c
 | attack.svg | lorc | https://raw.githubusercontent.com/game-icons/icons/master/lorc/claw-slashes.svg | CC BY 3.0 | Icons by lorc from game-icons.net, CC BY 3.0 |
 | life.svg | lorc | https://raw.githubusercontent.com/game-icons/icons/master/lorc/heart-inside.svg | CC BY 3.0 | Icons by lorc from game-icons.net, CC BY 3.0 |
 | paw.svg | lorc | https://raw.githubusercontent.com/game-icons/icons/master/lorc/paw-print.svg | CC BY 3.0 | Icons by lorc from game-icons.net, CC BY 3.0 |
+
+| life.svg (nahrazeno 2026-10-21) | skoll | https://raw.githubusercontent.com/game-icons/icons/master/skoll/hearts.svg | CC BY 3.0 | Icons by Skoll from game-icons.net, CC BY 3.0 |

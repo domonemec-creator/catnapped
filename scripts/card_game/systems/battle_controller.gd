@@ -148,6 +148,10 @@ var _combat_info_panel_base_style: StyleBoxFlat
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_pace_actions = BattleFx.is_enabled()
+	_attach_stat_icon(player_life_label, &"life", Color(0.95, 0.42, 0.38))
+	_attach_stat_icon(player_tuna_label, &"tuna", Color(0.55, 0.78, 1.0))
+	_attach_stat_icon(enemy_life_label, &"life", Color(0.95, 0.42, 0.38))
+	_attach_stat_icon(enemy_tuna_label, &"tuna", Color(0.55, 0.78, 1.0))
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_postmatch_victory_emblem_texture = _load_texture(POSTMATCH_VICTORY_EMBLEM_PATH)
@@ -2123,6 +2127,28 @@ func _refresh_enemy_hand_row(enemy_state: PlayerBattleState) -> void:
 	var deck_label_node := _enemy_hand_row.get_child(0) as Label
 	deck_label_node.text = "Ruka %s\nBalík %s" % [count, enemy_state.deck.size()]
 	_enemy_hand_row.tooltip_text = "Soupeř drží %s karet, v balíku má %s." % [count, enemy_state.deck.size()]
+
+
+# Ikona (srdce/ryba) vlevo u statistiky; obsah labelu se odsune, aby se nepřekrýval.
+func _attach_stat_icon(label: Label, icon_name: StringName, tint: Color) -> void:
+	if label == null:
+		return
+	var icon := TextureRect.new()
+	icon.texture = CardArtCache.get_keyword_icon(icon_name)
+	if icon.texture == null:
+		return
+	icon.modulate = tint
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	var side := float(label.get_theme_font_size("font_size")) + 4.0
+	icon.anchor_top = 0.5
+	icon.anchor_bottom = 0.5
+	icon.offset_left = 6.0
+	icon.offset_right = 6.0 + side
+	icon.offset_top = -side * 0.5
+	icon.offset_bottom = side * 0.5
+	label.add_child(icon)
 
 
 func _on_card_hovered(card_instance) -> void:

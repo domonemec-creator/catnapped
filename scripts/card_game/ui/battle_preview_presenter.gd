@@ -219,6 +219,13 @@ func refresh_combat_info_panel(state: Dictionary) -> void:
 			status_color = Color(0.99, 0.91, 0.88, 1.0)
 			feed_title_color = Color(0.97, 0.74, 0.66, 1.0)
 
+	# Jednotné tmavé pozadí, stav tahu nese hlavně barva rámečku; vnitřní okraj, ať text nelepí na hranu.
+	panel_style.bg_color = Color(panel_style.bg_color.r * 0.7, panel_style.bg_color.g * 0.7, panel_style.bg_color.b * 0.7, 0.86)
+	panel_style.content_margin_left = 16.0
+	panel_style.content_margin_right = 16.0
+	panel_style.content_margin_top = 8.0
+	panel_style.content_margin_bottom = 8.0
+	panel_style.set_corner_radius_all(12)
 	_combat_info_panel.add_theme_stylebox_override("panel", panel_style)
 	if _status_label != null:
 		_status_label.add_theme_color_override("font_color", status_color)

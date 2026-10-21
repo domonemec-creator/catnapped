@@ -13,7 +13,7 @@ RandomMind – „The Old Tower Inn“, „The Bard's Tale“ (opengameart.org)
 Kenney – Casino Audio, Impact Sounds, Interface Sounds, RPG Audio (kenney.nl)
 
 [b]Ikony klíčových slov[/b] (CC BY 3.0)
-Icons by Lorc and Delapouite from game-icons.net
+Icons by Lorc, Delapouite and Skoll from game-icons.net
 
 [b]Písmo[/b] (SIL Open Font License)
 Alegreya – Juan Pablo del Peral, Huerta Tipográfica
