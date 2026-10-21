@@ -1872,7 +1872,8 @@ func _fit_hand_cards(count: int) -> void:
 	if count <= 0:
 		return
 	var area := hand_row.get_parent_control()
-	var available := area.size.x if area != null and area.size.x > 0.0 else 1000.0
+	# Před prvním layoutem panel ještě nezná šířku; logická šířka ruky je ~1000 px (viewport 1600).
+	var available := area.size.x if area != null and area.size.x >= 600.0 else 1000.0
 	var separation := float(hand_row.get_theme_constant("separation"))
 	var width := clampf((available - separation * float(count - 1)) / float(count), 96.0, 176.0)
 	for child in hand_row.get_children():
