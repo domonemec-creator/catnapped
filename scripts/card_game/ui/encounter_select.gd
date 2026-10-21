@@ -281,7 +281,7 @@ func _build_ui() -> void:
     details_vbox.add_child(_status_label)
 
     _start_button = Button.new()
-    _start_button.text = "Tréninkový souboj"
+    _start_button.text = "Jen jeden souboj (trénink)"
     _start_button.custom_minimum_size = Vector2(0, 56)
     _start_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     _start_button.add_theme_font_size_override("font_size", 21)
@@ -368,13 +368,13 @@ func _refresh_details() -> void:
         return
 
     _selected_title.text = _selected_encounter.display_name
-    _selected_npc.text = "Soupeř: %s" % _selected_encounter.npc_name
+    _selected_npc.text = "Pořadí v runu: %s. soupeř" % (RunSessionScript.DEFAULT_RUN_ROSTER.find(_selected_encounter.id) + 1)
     _selected_summary.text = "%s. S každou prohrou proti němu roste hrozba a jeho balík sílí." % str(ENCOUNTER_STYLES.get(_selected_encounter.id, "Soupeř"))
     _selected_stats.text = "Startovní životy: %s" % _selected_encounter.starting_life
     if _selected_encounter.table_power_id != StringName():
         _selected_stats.text += "\nSíla stolu: %s" % _get_table_power_display_name(_selected_encounter.table_power_id)
     _selected_portrait.texture = _load_texture(_selected_encounter.portrait_path)
-    _status_label.text = "Tahle volba nastaví jen příští tréninkový souboj. Postup zůstává v save."
+    _status_label.text = "Trénink je samostatný souboj mimo run, bez odměn. Na zkoušku ideální."
     _run_note_label.text = "Run má 5 soubojů. První soupeř: %s." % _selected_encounter.display_name
     _run_button.disabled = false
     _start_button.disabled = false

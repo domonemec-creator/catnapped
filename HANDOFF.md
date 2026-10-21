@@ -6,6 +6,7 @@
 - Hotové fáze A a B. Po lidském testu #1 nová pravidla: odveta (D-014), ruka 4 a balanc (D-015), 7 nových koček (D-016).
 - Lidský test #1: „přehlednější“, 1 výhra a 1 prohra, smyčka smrti → řeší D-014 a D-015.
 - Noc 20./21. 10.: Hlad proti patům (D-017), záznamy zápasů, nastavení a titulky, náhled pod myší, odměny s kartami, banner tahů, přechody scén.
+- Ráno 21. 10.: designový průchod všemi obrazovkami (menu, souboj, ruka, balík, tutorial, výsledek), viz worklog.
 - **Záznamy tvých zápasů:** `%APPDATA%\Godotpp_userdata\Catnapped!\match_logs\` (stačí odehrát, AI je pak projde).
 
 ## Lidský test #2 (Mark) – checklist

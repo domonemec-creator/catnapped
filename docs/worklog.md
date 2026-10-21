@@ -14,6 +14,14 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (ráno) - Designový průchod všemi obrazovkami (Claude Opus 5.5, /loop do 16:00)
+- Menu: titul „Catnapped!“ (Cinzel), pozadí krčmy, soupeři s portréty v pořadí runu, srozumitelnější texty (trénink vs. run). Tematické portréty: Lantern = Svíčkotlapý, Ragclaw = Uliční rváč, Harbor = Kapitán.
+- Souboj: karty v ruce ve stylu tokenů, skryté hlavičky lajn, ikony srdce a ryby, odsazení panelu stavu, „Kolo N · Tvůj tah“, pravý panel v klidu jen s průvodcem.
+- Balík a postup: řádky s artem a staty, pozadí, čitelné tlačítko Zpět.
+- Tutorial s ikonami, výsledek zápasu Cinzel + barva, oprava pádu v textu výhry.
+- Nové capture nástroje: `capture_scene.gd` (libovolná scéna), `capture_tutorial.gd`.
+- Ověření: 20/20 verify PASS po každém kroku; screenshoty v `artifacts/`.
+
 ### 2026-10-21 - Oprava: verifiery přepisovaly save hráče
 - Problém (existoval už před 2026-10-20): `verify_run_flow` a další volají `ProgressionSystem.reset_state()`/`save_state()` do `user://catnapped_progress.cfg`. Při testech se tak ztratilo Markovo skóre (1 výhra, 1 prohra) a příznak tutoriálu.
 - Oprava: headless běh používá `user://catnapped_progress_test.cfg` (`ProgressionSystem._save_path()`). Markův save je ručně obnovený (1/1, tutoriál viděn, nový starter podle D-015).
