@@ -28,7 +28,7 @@ func _run() -> void:
 		_fail("Hand row did not create any visible card views.")
 		return
 
-	var hand_panel = battle.get_node("Margin/Layout/BottomBar/HandPanel") as Control
+	var hand_panel = battle.get_node("Margin/Layout/TopRow/BoardColumn/HandPanel") as Control
 	if hand_panel == null:
 		_fail("Could not locate HandPanel.")
 		return

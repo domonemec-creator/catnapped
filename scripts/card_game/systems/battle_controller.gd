@@ -9,6 +9,7 @@ const CardGameConstants = preload("res://scripts/card_game/data/card_game_consta
 const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
 const CardView = preload("res://scripts/card_game/ui/card_view.gd")
 const BattleFx = preload("res://scripts/card_game/ui/battle_fx.gd")
+const BattleLayout = preload("res://scripts/card_game/ui/battle_layout.gd")
 const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
 const BattleOverlayPresenter = preload("res://scripts/card_game/ui/battle_overlay_presenter.gd")
 const BattlePreviewPresenter = preload("res://scripts/card_game/ui/battle_preview_presenter.gd")
@@ -38,6 +39,8 @@ const ENCOUNTER_PATH := "res://data/encounters/smug_tabby.tres"
 const DEFAULT_ENCOUNTER_ID := &"smug_tabby"
 const ENCOUNTER_SELECT_SCENE_PATH := "res://scenes/card_game/encounter_select.tscn"
 const TIER_EXTRA_CARD_FROM := 2
+# Karta v ruce na výšku (layout v2).
+const HAND_CARD_SIZE := Vector2(136, 188)
 const CARD_VIEW_SCENE := preload("res://scenes/card_game/card_view.tscn")
 const POSTMATCH_VICTORY_EMBLEM_PATH := "res://assets/card_game/ui/postmatch_victory_emblem.png"
 const POSTMATCH_DEFEAT_EMBLEM_PATH := "res://assets/card_game/ui/postmatch_defeat_emblem.png"
@@ -101,6 +104,7 @@ var _player_lanes: Array[LaneSlotView] = []
 var _pace_actions := false
 var _enemy_turn_running := false
 var _hover_card: CardInstance
+var _enemy_hand_host: Container
 var _enemy_hand_row: HBoxContainer
 # instance_id karet, které už hráč v ruce viděl (nové dostanou animaci líznutí).
 var _seen_hand_ids: Dictionary = {}
@@ -150,6 +154,7 @@ var _combat_info_panel_base_style: StyleBoxFlat
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_pace_actions = BattleFx.is_enabled()
+	_enemy_hand_host = BattleLayout.apply(self)
 	_attach_stat_icon(player_life_label, &"life", Color(0.95, 0.42, 0.38))
 	_attach_stat_icon(player_tuna_label, &"tuna", Color(0.55, 0.78, 1.0))
 	_attach_stat_icon(enemy_life_label, &"life", Color(0.95, 0.42, 0.38))
@@ -339,7 +344,9 @@ func _record_training_win(state: Dictionary) -> String:
 
 
 func _build_enemy_header_name(display_name: String) -> String:
-	return "%s · Hrozba %s" % [display_name, _get_current_threat()]
+	# Hrozbu v hlavičce nahradil žebříček (UI rozbor 2026-10-21); zůstává v tooltipu.
+	enemy_name_label.tooltip_text = "Hrozba %s" % _get_current_threat()
+	return display_name
 
 
 func _build_opening_status() -> String:
@@ -1064,7 +1071,11 @@ func _setup_battle() -> void:
 	_deck_system.draw_cards(enemy_state, CardGameConstants.starting_hand + (1 if _get_difficulty_tier() >= TIER_EXTRA_CARD_FROM else 0))
 
 	enemy_name_label.text = _build_enemy_header_name(enemy_state.display_name)
-	enemy_portrait_art.texture = _get_post_match_backdrop_texture()
+	# Portrét v levém sloupci: výřez na hlavu podle poměru stran rámu.
+	var portrait_path := _get_encounter_portrait_path()
+	var portrait_full := CardArtCache.get_full(portrait_path)
+	var portrait_top := 0.06 if portrait_full != null and portrait_full.get_height() > portrait_full.get_width() else 0.0
+	enemy_portrait_art.texture = CardArtCache.get_cropped_aspect(portrait_path, BattleLayout.RAIL_WIDTH / BattleLayout.HERO_PORTRAIT_HEIGHT, portrait_top)
 	status_label.text = _build_opening_status()
 
 
@@ -1952,11 +1963,11 @@ func _fit_hand_cards(count: int) -> void:
 	# Před prvním layoutem panel ještě nezná šířku; logická šířka ruky je ~1000 px (viewport 1600).
 	var available := area.size.x if area != null and area.size.x >= 600.0 else 1000.0
 	var separation := float(hand_row.get_theme_constant("separation"))
-	var width := clampf((available - separation * float(count - 1)) / float(count), 96.0, 176.0)
+	var width := clampf((available - separation * float(count - 1)) / float(count), 96.0, HAND_CARD_SIZE.x)
 	for child in hand_row.get_children():
 		var view := child as Control
 		if view != null:
-			view.custom_minimum_size.x = width
+			view.custom_minimum_size = Vector2(width, HAND_CARD_SIZE.y)
 
 
 func _animate_card_draw(card_view: Control, order: int) -> void:
@@ -2177,12 +2188,11 @@ func _refresh_lane_highlights(player_state: PlayerBattleState, enemy_state: Play
 func _update_turn_indicator() -> void:
 	if enemy_portrait_frame == null:
 		return
-	if _battle_state == null or _battle_state.battle_over:
-		enemy_portrait_frame.texture = _portrait_frame_gold_texture
-	elif _battle_state.active_player_id == PLAYER_ID:
-		enemy_portrait_frame.texture = _portrait_frame_green_texture
-	else:
-		enemy_portrait_frame.texture = _portrait_frame_red_texture
+	# Layout v2: místo ozdobného rámu tenký okraj v barvě tahu (zlatá konec, zelená ty, červená soupeř).
+	var color := Color(0.85, 0.68, 0.36)
+	if _battle_state != null and not _battle_state.battle_over:
+		color = Color(0.45, 0.8, 0.45) if _battle_state.active_player_id == PLAYER_ID else Color(0.88, 0.36, 0.3)
+	BattleLayout.set_portrait_border(enemy_portrait_frame, color)
 
 
 # Nadpis panelu stavu: číslo kola a kdo je na tahu (místo obecného „Stav tahu“).
@@ -2202,7 +2212,7 @@ func _refresh_turn_title() -> void:
 # Soupeřova ruka jako ruby karet v hlavičce (kolik karet drží) + zbytek balíku.
 func _refresh_enemy_hand_row(enemy_state: PlayerBattleState) -> void:
 	if _enemy_hand_row == null:
-		var header := enemy_life_label.get_node_or_null("../../../..") as HBoxContainer
+		var header := _enemy_hand_host
 		if header == null:
 			return
 		_enemy_hand_row = HBoxContainer.new()
@@ -2211,7 +2221,6 @@ func _refresh_enemy_hand_row(enemy_state: PlayerBattleState) -> void:
 		_enemy_hand_row.alignment = BoxContainer.ALIGNMENT_END
 		_enemy_hand_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		header.add_child(_enemy_hand_row)
-		header.move_child(_enemy_hand_row, header.get_child_count() - 2)
 	var back := CardArtCache.get_full(CardArtCache.CARD_BACK_PATH)
 	var count := enemy_state.hand.size()
 	while _enemy_hand_row.get_child_count() > count + 1:
