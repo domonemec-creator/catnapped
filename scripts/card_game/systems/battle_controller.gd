@@ -37,6 +37,8 @@ const PLAYER_TABLE_POWER_ID := &"order_round"
 const ENCOUNTER_PATH := "res://data/encounters/smug_tabby.tres"
 const DEFAULT_ENCOUNTER_ID := &"smug_tabby"
 const ENCOUNTER_SELECT_SCENE_PATH := "res://scenes/card_game/encounter_select.tscn"
+const TIER_LIFE_BONUS := ProgressionSystem.TRAINING_TIER_LIFE
+const TIER_EXTRA_CARD_FROM := 2
 const CARD_VIEW_SCENE := preload("res://scenes/card_game/card_view.tscn")
 const POSTMATCH_VICTORY_EMBLEM_PATH := "res://assets/card_game/ui/postmatch_victory_emblem.png"
 const POSTMATCH_DEFEAT_EMBLEM_PATH := "res://assets/card_game/ui/postmatch_defeat_emblem.png"
@@ -301,7 +303,40 @@ func _on_info_panel_gui_input(event: InputEvent, zone_id: StringName) -> void:
 
 
 func _get_current_threat() -> int:
-	return _progression_system.get_threat_level(_progression_state)
+	return _progression_system.get_threat_level(_progression_state) + _get_threat_bonus()
+
+
+# Stupeň obtížnosti soupeře (D-022): v runu krok - 1, v tréninku pořadí v žebříčku.
+# Hrozba sama balík mění jen málo (sim), proto stupeň přidává životy a od 3. stupně kartu do ruky.
+func _get_difficulty_tier() -> int:
+	var run_session = _get_run_session()
+	if run_session != null and run_session.is_active():
+		return clampi(run_session.get_current_step_number() - 1, 0, ProgressionSystem.TRAINING_ORDER.size() - 1)
+	if _encounter != null and CardGameConstants.training_ladder:
+		return maxi(0, ProgressionSystem.TRAINING_ORDER.find(_encounter.id))
+	return 0
+
+
+# Hrozba navíc: v runu +1 za každý další krok (D-021), v tréninku podle pořadí soupeře (D-022).
+func _get_threat_bonus() -> int:
+	var run_session = _get_run_session()
+	if run_session != null and run_session.is_active():
+		return maxi(0, run_session.get_current_step_number() - 1)
+	if _encounter != null and CardGameConstants.training_ladder:
+		return _progression_system.get_training_threat_bonus(_encounter.id)
+	return 0
+
+
+# Výhra mimo run posune žebříček tréninku; vrátí jméno nově odemčeného soupeře.
+func _record_training_win(state: Dictionary) -> String:
+	var run_session = _get_run_session()
+	if _encounter == null or (run_session != null and run_session.is_active()):
+		return ""
+	var unlocked_id := _progression_system.mark_training_win(state, _encounter.id)
+	if unlocked_id == StringName():
+		return ""
+	var unlocked := load("res://data/encounters/%s.tres" % String(unlocked_id)) as EncounterDefinition
+	return unlocked.display_name if unlocked != null else String(unlocked_id)
 
 
 func _build_enemy_header_name(display_name: String) -> String:
@@ -1016,7 +1051,7 @@ func _setup_battle() -> void:
 	var enemy_deck_id := StringName()
 	if _encounter != null:
 		enemy_name = _encounter.npc_name
-		enemy_life = _encounter.starting_life
+		enemy_life = _encounter.starting_life + _get_difficulty_tier() * TIER_LIFE_BONUS
 		enemy_power_id = _encounter.table_power_id
 		enemy_deck_id = _encounter.deck_id
 	enemy_state.initialize(ENEMY_ID, enemy_name, enemy_life, STARTING_TUNA, enemy_power_id, LANE_COUNT)
@@ -1027,7 +1062,7 @@ func _setup_battle() -> void:
 	_battle_state.player_states = [player_state, enemy_state]
 
 	_deck_system.draw_cards(player_state, CardGameConstants.starting_hand)
-	_deck_system.draw_cards(enemy_state, CardGameConstants.starting_hand)
+	_deck_system.draw_cards(enemy_state, CardGameConstants.starting_hand + (1 if _get_difficulty_tier() >= TIER_EXTRA_CARD_FROM else 0))
 
 	enemy_name_label.text = _build_enemy_header_name(enemy_state.display_name)
 	enemy_portrait_art.texture = _get_post_match_backdrop_texture()
@@ -1042,12 +1077,8 @@ func _assign_deck_to_player(player_state: PlayerBattleState, deck_id: StringName
 
 	var result: Dictionary = {}
 	if player_state.player_id == ENEMY_ID:
-		# D-021: v runu sílí každý další soupeř o jeden stupeň hrozby (hráč vyhrál první run 5:0).
-		var run_session_for_threat = _get_run_session()
-		var run_bonus := 0
-		if run_session_for_threat != null and run_session_for_threat.is_active():
-			run_bonus = maxi(0, run_session_for_threat.get_current_step_number() - 1)
-		var threat_deck_cards := _progression_system.build_enemy_deck_card_ids(deck_definition, _get_current_threat() + run_bonus)
+		# Hrozba včetně bonusu runu (D-021) / tréninku (D-022).
+		var threat_deck_cards := _progression_system.build_enemy_deck_card_ids(deck_definition, _get_current_threat())
 		result = _deck_system.build_runtime_deck_from_card_ids(threat_deck_cards, _card_library, player_state.player_id, next_instance_id)
 	else:
 		var run_session = _get_run_session()
@@ -1466,7 +1497,8 @@ func _check_battle_end() -> void:
 		_battle_state.battle_over = true
 		_battle_state.winner_player_id = PLAYER_ID
 		var victory_state := _progression_system.apply_battle_result(_progression_state, PLAYER_ID, PLAYER_ID, ENEMY_ID)
-		var victory_threat := _progression_system.get_threat_level(victory_state)
+		var victory_threat := _progression_system.get_threat_level(victory_state) + _get_threat_bonus()
+		var unlocked_name := _record_training_win(victory_state)
 		var victory_deck_messages := _progression_system.get_threat_transition_messages(_get_enemy_deck_id(), previous_threat, victory_threat)
 		_progression_state = victory_state
 		_progression_system.save_state(_progression_state)
@@ -1479,7 +1511,10 @@ func _check_battle_end() -> void:
 		_play_sfx(&"victory")
 		_save_match_log.call_deferred("vyhra")
 		status_label.text = "Výhra. %s došel o všechny životy. Hrozba klesá na %s." % [enemy_state.display_name, _get_current_threat()]
-		_show_post_match_overlay("win", "Výhra", "Soupeř %s je poražen. Stůl se pro příští odvetu uklidnil." % enemy_state.display_name, previous_threat, victory_threat, victory_deck_messages)
+		var victory_text := "Soupeř %s je poražen. Stůl se pro příští odvetu uklidnil." % enemy_state.display_name
+		if unlocked_name != "":
+			victory_text += "\nV tréninku se odemkl další, silnější soupeř: %s." % unlocked_name
+		_show_post_match_overlay("win", "Výhra", victory_text, previous_threat, victory_threat, victory_deck_messages)
 		return
 
 	if player_state.life <= 0:
@@ -1487,7 +1522,7 @@ func _check_battle_end() -> void:
 		_battle_state.winner_player_id = ENEMY_ID
 		_overlay_presenter.clear_reward_offers()
 		var defeat_state := _progression_system.apply_battle_result(_progression_state, ENEMY_ID, PLAYER_ID, ENEMY_ID)
-		var defeat_threat := _progression_system.get_threat_level(defeat_state)
+		var defeat_threat := _progression_system.get_threat_level(defeat_state) + _get_threat_bonus()
 		var defeat_deck_messages := _progression_system.get_threat_transition_messages(_get_enemy_deck_id(), previous_threat, defeat_threat)
 		_progression_state = defeat_state
 		_progression_system.save_state(_progression_state)

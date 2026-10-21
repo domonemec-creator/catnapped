@@ -224,6 +224,8 @@ func _run() -> void:
     for arg in user_args:
         if String(arg).begins_with("draw"):
             CardGameConstants.draw_per_turn = int(String(arg).substr(4))
+        elif String(arg) == "noladder":
+            CardGameConstants.training_ladder = false
         elif String(arg) == "guardlane":
             CardGameConstants.guard_covers_adjacent = false
         elif String(arg).begins_with("hand"):

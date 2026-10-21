@@ -49,7 +49,11 @@ func _ready() -> void:
     if _encounters.is_empty():
         _set_empty_state()
     else:
-        _select_encounter(_encounters[0].id)
+        # Výchozí výběr: nejvyšší odemčený soupeř tréninku.
+        var cleared := _progression_system.get_training_cleared(_progression_system.load_state())
+        var order := ProgressionSystem.TRAINING_ORDER
+        var default_id: StringName = order[mini(cleared, order.size() - 1)]
+        _select_encounter(default_id if _get_encounter_by_id(default_id) != null else _encounters[0].id)
 
 
 func _build_styles() -> void:
@@ -319,6 +323,7 @@ func _populate_encounter_list() -> void:
         var ib := roster.find(b.id)
         return (ia if ia >= 0 else 99) < (ib if ib >= 0 else 99)
     )
+    var progress_state := _progression_system.load_state()
     for encounter: EncounterDefinition in ordered:
         var encounter_id := encounter.id
         if encounter_id == StringName():
@@ -330,6 +335,9 @@ func _populate_encounter_list() -> void:
         button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         var order := roster.find(encounter.id)
         button.text = ("%s. " % (order + 1) if order >= 0 else "") + _build_encounter_button_text(encounter)
+        if not _progression_system.is_training_unlocked(progress_state, encounter.id):
+            button.text += "  (zamčeno)"
+            button.modulate = Color(0.6, 0.6, 0.6, 1)
         button.tooltip_text = _build_encounter_tooltip(encounter)
         button.icon = CardArtCache.get_cropped_aspect(encounter.portrait_path, 1.45)
         button.expand_icon = true
@@ -370,7 +378,7 @@ func _refresh_details() -> void:
     _selected_title.text = _selected_encounter.display_name
     _selected_npc.text = "Pořadí v runu: %s. soupeř" % (RunSessionScript.DEFAULT_RUN_ROSTER.find(_selected_encounter.id) + 1)
     _selected_summary.text = "%s. S každou prohrou proti němu roste hrozba a jeho balík sílí." % str(ENCOUNTER_STYLES.get(_selected_encounter.id, "Soupeř"))
-    _selected_stats.text = "Startovní životy: %s" % _selected_encounter.starting_life
+    _selected_stats.text = "Startovní životy v tréninku: %s" % _training_life(_selected_encounter)
     if _selected_encounter.table_power_id != StringName():
         _selected_stats.text += "\nSíla stolu: %s" % _get_table_power_display_name(_selected_encounter.table_power_id)
     # Výřez podle poměru stran rámečku (cca 2.7:1): u portrétů na výšku horní pás s hlavou, ne trup.
@@ -378,10 +386,20 @@ func _refresh_details() -> void:
     var portrait_full := CardArtCache.get_full(_selected_encounter.portrait_path)
     var portrait_top := 0.1 if portrait_full != null and portrait_full.get_height() > portrait_full.get_width() else 0.03
     _selected_portrait.texture = CardArtCache.get_cropped_aspect(_selected_encounter.portrait_path, portrait_aspect, portrait_top)
-    _status_label.text = "Trénink je samostatný souboj mimo run, bez odměn. Na zkoušku ideální."
+    var progress_state := _progression_system.load_state()
+    var bonus := _progression_system.get_training_threat_bonus(_selected_encounter.id)
+    var unlocked := _progression_system.is_training_unlocked(progress_state, _selected_encounter.id)
+    var ladder_index := ProgressionSystem.TRAINING_ORDER.find(_selected_encounter.id)
     _run_note_label.text = "Run má 5 soubojů. První soupeř: %s." % _selected_encounter.display_name
     _run_button.disabled = false
-    _start_button.disabled = false
+    _start_button.disabled = not unlocked
+    if not unlocked and ladder_index > 0:
+        var previous := _get_encounter_by_id(ProgressionSystem.TRAINING_ORDER[ladder_index - 1])
+        _status_label.text = "Zamčeno. V tréninku nejdřív poraz: %s." % (previous.display_name if previous != null else "předchozího soupeře")
+    elif bonus > 0:
+        _status_label.text = "Trénink: %s. stupeň, soupeř má hrozbu +%s. Výhra odemkne dalšího." % [ladder_index + 1, bonus]
+    else:
+        _status_label.text = "Trénink: první stupeň. Výhra odemkne dalšího, silnějšího soupeře."
 
 
 func _set_empty_state() -> void:
@@ -414,8 +432,13 @@ const ENCOUNTER_STYLES := {
 
 
 func _build_encounter_button_text(encounter: EncounterDefinition) -> String:
-    var summary := "%s | %s životů" % [str(ENCOUNTER_STYLES.get(encounter.id, "Soupeř")), encounter.starting_life]
+    var summary := "%s | %s životů" % [str(ENCOUNTER_STYLES.get(encounter.id, "Soupeř")), _training_life(encounter)]
     return "%s\n%s" % [encounter.display_name, summary]
+
+
+# Životy soupeře podle stupně tréninku (D-022).
+func _training_life(encounter: EncounterDefinition) -> int:
+    return encounter.starting_life + maxi(0, ProgressionSystem.TRAINING_ORDER.find(encounter.id)) * ProgressionSystem.TRAINING_TIER_LIFE
 
 
 func _build_encounter_tooltip(encounter: EncounterDefinition) -> String:

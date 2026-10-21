@@ -16,6 +16,12 @@ const KEY_WINS := "player_wins"
 const KEY_LOSSES := "player_losses"
 const KEY_PLAYER_DECK := "player_deck_card_ids"
 const KEY_TUTORIAL_SEEN := "battle_tutorial_seen"
+const KEY_TRAINING_CLEARED := "training_cleared"
+# Trénink (D-022): žebříček soupeřů ve stejném pořadí jako run. Každý další má o
+# TRAINING_TIER_STEP vyšší hrozbu a odemkne se až po porážce předchozího.
+const TRAINING_ORDER: Array[StringName] = [&"smug_tabby", &"lantern_striker", &"ragclaw_brawler", &"harbor_warden"]
+const TRAINING_TIER_STEP := 2
+const TRAINING_TIER_LIFE := 2
 const MIN_THREAT := 0
 const MAX_THREAT := 10
 const THREAT_UNLOCK_WIN_COUNT := 1
@@ -220,6 +226,7 @@ func load_state() -> Dictionary:
 	var loaded_deck: Array = config.get_value(SECTION_PROGRESS, KEY_PLAYER_DECK, _load_starter_deck_card_ids())
 	state[KEY_PLAYER_DECK] = _sanitize_deck_card_ids(loaded_deck)
 	state[KEY_TUTORIAL_SEEN] = bool(config.get_value(SECTION_PROGRESS, KEY_TUTORIAL_SEEN, false))
+	state[KEY_TRAINING_CLEARED] = int(config.get_value(SECTION_PROGRESS, KEY_TRAINING_CLEARED, 0))
 	return state
 
 
@@ -231,6 +238,7 @@ func save_state(state: Dictionary) -> void:
 	config.set_value(SECTION_PROGRESS, KEY_LOSSES, sanitized[KEY_LOSSES])
 	config.set_value(SECTION_PROGRESS, KEY_PLAYER_DECK, _to_string_array(sanitized[KEY_PLAYER_DECK]))
 	config.set_value(SECTION_PROGRESS, KEY_TUTORIAL_SEEN, bool(sanitized[KEY_TUTORIAL_SEEN]))
+	config.set_value(SECTION_PROGRESS, KEY_TRAINING_CLEARED, int(sanitized[KEY_TRAINING_CLEARED]))
 	var save_error := config.save(_save_path())
 	if save_error != OK:
 		push_warning("Could not save progression to %s." % _save_path())
@@ -286,6 +294,29 @@ func set_player_deck_card_ids(state: Dictionary, card_ids: Array[StringName]) ->
 	var next_state := _sanitize_state(state)
 	next_state[KEY_PLAYER_DECK] = _sanitize_deck_card_ids(card_ids)
 	return next_state
+
+
+func get_training_cleared(state: Dictionary) -> int:
+	return clampi(int(state.get(KEY_TRAINING_CLEARED, 0)), 0, TRAINING_ORDER.size())
+
+
+func is_training_unlocked(state: Dictionary, encounter_id: StringName) -> bool:
+	var index := TRAINING_ORDER.find(encounter_id)
+	return index < 0 or index <= get_training_cleared(state)
+
+
+func get_training_threat_bonus(encounter_id: StringName) -> int:
+	return maxi(0, TRAINING_ORDER.find(encounter_id)) * TRAINING_TIER_STEP
+
+
+# Zapíše výhru v tréninku; vrátí id nově odemčeného soupeře (nebo prázdné).
+func mark_training_win(state: Dictionary, encounter_id: StringName) -> StringName:
+	var index := TRAINING_ORDER.find(encounter_id)
+	var cleared := get_training_cleared(state)
+	if index < 0 or index > cleared or index + 1 <= cleared:
+		return StringName()
+	state[KEY_TRAINING_CLEARED] = index + 1
+	return TRAINING_ORDER[index + 1] if index + 1 < TRAINING_ORDER.size() else StringName()
 
 
 func has_seen_battle_tutorial(state: Dictionary) -> bool:
@@ -364,6 +395,7 @@ func _make_default_state() -> Dictionary:
 		KEY_LOSSES: 0,
 		KEY_PLAYER_DECK: _load_starter_deck_card_ids(),
 		KEY_TUTORIAL_SEEN: false,
+		KEY_TRAINING_CLEARED: 0,
 	}
 
 
@@ -375,6 +407,7 @@ func _sanitize_state(state: Dictionary) -> Dictionary:
 	next_state[KEY_THREAT] = 0 if next_state[KEY_WINS] < THREAT_UNLOCK_WIN_COUNT else raw_threat
 	next_state[KEY_PLAYER_DECK] = _sanitize_deck_card_ids(state.get(KEY_PLAYER_DECK, next_state[KEY_PLAYER_DECK]))
 	next_state[KEY_TUTORIAL_SEEN] = bool(state.get(KEY_TUTORIAL_SEEN, false))
+	next_state[KEY_TRAINING_CLEARED] = get_training_cleared(state)
 	return next_state
 
 

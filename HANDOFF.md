@@ -1,24 +1,16 @@
-# HANDOFF.md (2026-10-20, Claude Opus 5.5 – hlavní jednatel projektu)
+# HANDOFF.md (2026-10-21 noc, Claude Opus 5.5 – hlavní jednatel projektu)
 
 ## Stav
-- Větev `lead/plan-2026-10` (lokální commity, nepushnuto; `master` beze změny).
-- 20/20 headless `verify_*.gd` PASS (ověřeno 2026-10-20 po všech změnách).
-- Hotové fáze A a B. Po lidském testu #1 nová pravidla: odveta (D-014), ruka 4 a balanc (D-015), 7 nových koček (D-016).
-- Lidský test #1: „přehlednější“, 1 výhra a 1 prohra, smyčka smrti → řeší D-014 a D-015.
-- Noc 20./21. 10.: Hlad proti patům (D-017), záznamy zápasů, nastavení a titulky, náhled pod myší, odměny s kartami, banner tahů, přechody scén.
-- 21. 10. dopoledne: placeholder art pro všechny karty (rub + ikona podle typu: kočka zlatá, Trick červený, Item modrý; generátor `make_placeholder_art.gd`), ukazatel cesty runu po zápase, škálování okna, UI textury funkční v exportu, plná ruka se vejde, vysvětlení hrozby. Smyčka ukončena v ~6:45: další krok vyžaduje lidský test #2.
-- Ráno 21. 10.: designový průchod všemi obrazovkami (menu, souboj, ruka, balík, tutorial, výsledek), viz worklog.
-- **Záznamy tvých zápasů:** `%APPDATA%\Godotpp_userdata\Catnapped!\match_logs\` (stačí odehrát, AI je pak projde).
+- Větev `lead/plan-2026-10` (lokální commity, nepushnuto; `main` beze změny).
+- 21/21 headless `verify_*.gd` PASS (ověřeno 2026-10-21 noc).
+- Lidské testy #1–#3 hotové. #3: celý run vyhrán 5:0, „bavil jsem se, chápal jsem to“, což vedlo k D-021.
+- Směr D-022: singleplayer = trénink (žebříček, každý soupeř těžší), hlavní cíl multiplayer 1v1. Testovat se bude přes **Radmin VPN** (přímá IP, ENet, `scripts/multiplayer_manager.gd` = kostra, k souboji zatím nenapojená).
+- Hotovo: D1 žebříček tréninku, art všech 9 nových karet (`slice_art_sheet.gd`).
+- **Záznamy zápasů:** `%APPDATA%\Godotpp_userdata\Catnapped!\match_logs\`.
 
-## Lidský test #2 (Mark) – checklist
-1. Pořád vzniká smyčka „vyložím, umře, dokola“? Je to lepší, nebo horší?
-2. Chápeš, že napadená kočka vrací úder (plovoucí číslo nad útočníkem)?
-3. Pomáhá panel „Co teď?“ vpravo?
-4. Smug Tabby (první soupeř): hratelný, příliš lehký, nebo těžký?
-5. Nové karty (s tlapkou místo obrázku) se objevují v odměnách po výhře. Dávají smysl?
-6. Art nových karet: HOTOVO (arch 3×3 → `slice_art_sheet.gd -- <arch> id1,...,id9`). Další arch stejně.
-7. Nové: najeď myší na soupeřovu kočku (náhled vpravo), Nastavení v menu (hlasitost), Hlad při prázdném balíku.
-8. Je jasné, které karty můžeš zahrát (svítí) a které kočky můžou útočit (zelený pulzující rámeček)?
+## Další krok
+1. D2 stavění vlastního balíku (z odemčených karet), potom D3 víc karet, D4 multiplayer přes Radmin.
+2. Lidský test #4 (Mark): projít trénink 1→4 (jsou soupeři 3 a 4 znatelně těžší, ale porazitelní?) a jeden run (sílí soupeři?).
 
 ## Co se změnilo (podrobně `docs/worklog.md`)
 - Stůl: token s artem, jménem a odznaky; opraven roztažený StatusBadge; event bannery jsou malé štítky.

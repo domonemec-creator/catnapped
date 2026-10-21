@@ -16,6 +16,8 @@ static var draw_per_turn := 1
 static var starting_hand := 4
 # Ochrana kryje přímý zásah i ze sousedních lajn (D-019). Static var kvůli A/B simulaci.
 static var guard_covers_adjacent := true
+# Žebříček tréninku (D-022): hrozba podle pořadí soupeře. Simulace ho vypne argumentem „noladder“.
+static var training_ladder := true
 
 const KEYWORD_BATTLECRY := &"battlecry"
 const KEYWORD_LAST_BREATH := &"last_breath"

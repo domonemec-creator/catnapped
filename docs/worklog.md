@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - D1 žebříček tréninku (Claude Opus 5.5)
+- Zmena: Soupeři v menu jsou žebříček: další se odemkne až výhrou nad předchozím (`training_cleared` v save). Stupeň N (0–3) = soupeř má +2N životů, od 3. stupně kartu navíc do ruky, hrozbu +2N. Stejný stupeň platí i pro kroky runu. Sim ukázal, že samotná hrozba obtížnost skoro nemění (Harbor s vyšší hrozbou dokonce lehčí), proto páka přes životy a kartu.
+- Soubory: progression_system (TRAINING_ORDER, mark_training_win…), battle_controller (`_get_difficulty_tier`, `_get_threat_bonus`, `_record_training_win`), encounter_select (zamčeno, životy podle stupně), sim arg `noladder`, nový `verify_training_ladder.gd`.
+- Overeni: 21/21 verifierů PASS (nový test odhalil chybu: výhra nad zamčeným soupeřem odemykala), sim p_first Smug 90 → Lantern 42,5 → Ragclaw 27,5 → Harbor 12,5 % (AI hráč, člověk je silnější). Screenshot menu.
+
 ### 2026-10-21 (noc) - Art 9 nových karet od majitele (Claude Opus 5.5)
 - Zmena: Mark dodal arch 3×3; nový nástroj `tools/slice_art_sheet.gd` najde tmavé linky mezi políčky, ořízne na 2:3 a uloží 1024×1536 do `card_art/<id>.png`. Zdroj archu v `assets/card_game/card_art_source/`. Karty: lamplighter, dock_harpooner, pickpocket, stray_mother, galley_cook, harbor_drummer, grey_veteran, carrion_prowler, graveyard_glutton.
 - Overeni: 20/20 verifierů PASS, screenshot `capture_midgame` (ruka: Harpunář, Šedivý veterán, Kapsář).

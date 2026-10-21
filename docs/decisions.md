@@ -166,4 +166,6 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Kontext: Mark: „víc karet a multiplayer, postavy nechat jako singl trénink, každý těžší“.
 - Rozhodnutí: (1) Soupeři z menu tvoří žebříček tréninku. Každý další je těžší a odemkne se až po porážce předchozího. (2) Víc karet, aby bylo z čeho stavět vlastní balík. (3) Multiplayer 1v1. Host je autorita (drží stav i pravidla), klient posílá jen akce. Využije stávající `MultiplayerManager` (ENet).
 - Pořadí: trénink → stavění balíku → víc karet → multiplayer přes LAN / přímou IP → hra přes internet (relay/Steam) až po ověření.
+- Doplněk: Testovat se bude přes Radmin VPN (virtuální LAN), takže stačí D4 (přímá IP přes ENet, port 7000 povolit ve firewallu). D5 (internet/relay) zatím ne.
+- D1 provedení: stupeň = pořadí v žebříčku (i krok runu − 1): +2 životy za stupeň, od 3. stupně +1 karta do ruky, hrozba +2 za stupeň. Samotná hrozba se v simulaci ukázala jako slabá páka.
 - Riziko: Multiplayer je největší kus práce (synchronizace, skryté ruce, odpojení, testování ve dvou). Hra přes internet bez vlastního serveru vyžaduje přesměrování portů nebo relay.

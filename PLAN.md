@@ -41,7 +41,7 @@
 - [ ] C3 Po lidském testu: rozhodnout návrat malé sady čitelných Triků do rewardů (oživí Saved Tuna)
 
 ## Fáze D – Trénink + multiplayer (D-022)
-- [ ] D1 Trénink: žebříček soupeřů, každý těžší, odemykání postupně
+- [x] D1 Trénink: žebříček soupeřů, každý těžší, odemykání postupně
 - [ ] D2 Stavění vlastního balíku (z odemčených karet)
 - [ ] D3 Víc karet (cíl ~50), art arch 3×3 → `slice_art_sheet.gd`
 - [ ] D4 Multiplayer 1v1 LAN/přímá IP (host je autorita, synchronizace akcí)
