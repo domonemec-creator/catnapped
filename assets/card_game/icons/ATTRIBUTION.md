@@ -17,3 +17,6 @@ Zdroj: https://github.com/game-icons/icons (raw: https://raw.githubusercontent.c
 | paw.svg | lorc | https://raw.githubusercontent.com/game-icons/icons/master/lorc/paw-print.svg | CC BY 3.0 | Icons by lorc from game-icons.net, CC BY 3.0 |
 
 | life.svg (nahrazeno 2026-10-21) | skoll | https://raw.githubusercontent.com/game-icons/icons/master/skoll/hearts.svg | CC BY 3.0 | Icons by Skoll from game-icons.net, CC BY 3.0 |
+
+## Ikony placeholder artu (`icons/cards/`, 2026-10-21), vše CC BY 3.0, game-icons.net
+lamplighter: lorc/lantern-flame · dock_harpooner: lorc/harpoon-trident · pickpocket: lorc/swap-bag · stray_mother: lorc/cat · galley_cook: delapouite/cooking-pot · harbor_drummer: delapouite/drum · grey_veteran: lorc/shield-reflect · carrion_prowler: lorc/raven · graveyard_glutton: lorc/tombstone

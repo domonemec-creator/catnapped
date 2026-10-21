@@ -1,6 +1,6 @@
 # Art prompty pro nové karty (2026-10-20)
 
-Karty už jsou ve hře s dočasným artem (rub karty s tlapkou). Hotový obrázek ulož do
+Karty už jsou ve hře s dočasným artem: ztmavený rub karty + zlatá tematická ikona (game-icons.net, CC BY 3.0), generuje `scripts/card_game/tools/make_placeholder_art.gd`. Vlastní obrázek prostě **přepíše** placeholder se stejným názvem. Hotový obrázek ulož do
 `assets/card_game/card_art/<id>.png` (název přesně podle id). Godot ho při dalším spuštění naimportuje
 a karta ho začne používat sama, bez úprav kódu.
 
