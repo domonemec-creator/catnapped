@@ -680,7 +680,8 @@ func _refresh_status_badge() -> void:
 	if _fresh_pill != null:
 		_fresh_pill.visible = owner_id == OWNER_PLAYER and _card_instance.entered_this_turn and not _card_instance.can_attack
 	status_badge.texture = _load_ui_texture(str(STATUS_BADGE_TEXTURES.get(status, "")))
-	status_badge.visible = status_badge.texture != null
+	# UI rozbor bod 7: tmavá „patice“ u vyčerpané kočky vypadala jako rozbitý prvek; ukazuje se jen připravenost.
+	status_badge.visible = status_badge.texture != null and status == STATUS_READY
 	status_badge_label.visible = false
 
 
