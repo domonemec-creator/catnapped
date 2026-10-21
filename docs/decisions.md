@@ -159,3 +159,11 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Zkoušeno a zamítnuto: Ochrana jen na vlastní lajně. Tím Ochrana ztratí smysl, protože do obsazené lajny útok stejně jde na kočku. Smug s menším počtem myšolovců zkrátil zápas jen nepatrně.
 - Rozhodnutí: Hospodský myšolovec 1/4 → 2/3 (obránce, který i kousne, takže výměny končí dřív). V runu sílí každý další soupeř o jeden stupeň hrozby (`run step - 1` k hrozbě při skládání balíku).
 - Dopad (sim, hráč první): Smug 25,7 půltahu (dřív 27), Smug ~90 %, Lantern ~48 %, Ragclaw ~48 %, Harbor ~33 %. Run ramp sim neměří (sim hraje bez runu).
+
+### D-022 - Směr: singleplayer jako trénink, hlavní cíl multiplayer
+- Datum: 2026-10-21
+- Stav: aktivni (směr, detaily multiplayeru čekají na majitele)
+- Kontext: Mark: „víc karet a multiplayer, postavy nechat jako singl trénink, každý těžší“.
+- Rozhodnutí: (1) Soupeři z menu tvoří žebříček tréninku. Každý další je těžší a odemkne se až po porážce předchozího. (2) Víc karet, aby bylo z čeho stavět vlastní balík. (3) Multiplayer 1v1. Host je autorita (drží stav i pravidla), klient posílá jen akce. Využije stávající `MultiplayerManager` (ENet).
+- Pořadí: trénink → stavění balíku → víc karet → multiplayer přes LAN / přímou IP → hra přes internet (relay/Steam) až po ověření.
+- Riziko: Multiplayer je největší kus práce (synchronizace, skryté ruce, odpojení, testování ve dvou). Hra přes internet bez vlastního serveru vyžaduje přesměrování portů nebo relay.
