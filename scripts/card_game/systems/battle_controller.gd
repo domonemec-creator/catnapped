@@ -40,7 +40,7 @@ const ENCOUNTER_PATH := "res://data/encounters/smug_tabby.tres"
 const DEFAULT_ENCOUNTER_ID := &"smug_tabby"
 const ENCOUNTER_SELECT_SCENE_PATH := "res://scenes/card_game/encounter_select.tscn"
 const TIER_EXTRA_CARD_FROM := 2
-const NET_OPPONENT_PORTRAIT_PATH := "res://assets/card_game/card_art/stray_token.png"
+const NET_OPPONENT_PORTRAIT_PATH := "res://assets/card_game/card_art/portrait_rival.png"  # zatím kopie Tuláka (arch C)
 # Karta v ruce na výšku (layout v2).
 const HAND_CARD_SIZE := Vector2(136, 188)
 const CARD_VIEW_SCENE := preload("res://scenes/card_game/card_view.tscn")
@@ -821,7 +821,7 @@ func _build_card_selection_message(card_instance: CardInstance, player_state: Pl
 			return "%s vybraná. Klikni na volnou lajnu." % display_name
 		CardGameConstants.CardType.TRICK, CardGameConstants.CardType.ITEM:
 			if not _card_requires_board_target(card_instance):
-				return "%s vybraná. Efekt se spustí hned." % display_name
+				return "%s vybraná. Klikni na ni znovu (nebo na stůl) a zahraješ ji." % display_name
 
 			var valid_friendly_targets := _get_valid_card_target_lanes(card_instance, player_state, enemy_state, player_state.player_id)
 			var valid_enemy_targets := _get_valid_card_target_lanes(card_instance, player_state, enemy_state, enemy_state.player_id)
@@ -851,9 +851,9 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				_set_lane_feedback_for_card(target_card, _format_signed_stat_delta(typed_effect.value, "ÚTK"), LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE)
 				if typed_effect.value_2 > 0:
 					target_card.temporary_attack_bonus += typed_effect.value
-					summaries.append("%s získa +%s útoku do konce kola." % [target_card.definition.display_name, typed_effect.value])
+					summaries.append("%s získá +%s útoku do konce kola." % [target_card.definition.display_name, typed_effect.value])
 				else:
-					summaries.append("%s získa +%s útoku." % [target_card.definition.display_name, typed_effect.value])
+					summaries.append("%s získá +%s útoku." % [target_card.definition.display_name, typed_effect.value])
 			&"modify_life":
 				if target_card == null:
 					continue
@@ -861,9 +861,9 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				_set_lane_feedback_for_card(target_card, _format_signed_stat_delta(typed_effect.value, "ŽIV"), LaneSlotView.EVENT_SUPPORT if typed_effect.value >= 0 else LaneSlotView.EVENT_DAMAGE)
 				if typed_effect.value_2 > 0:
 					target_card.temporary_life_bonus += typed_effect.value
-					summaries.append("%s získa +%s životů do konce kola." % [target_card.definition.display_name, typed_effect.value])
+					summaries.append("%s získá +%s životů do konce kola." % [target_card.definition.display_name, typed_effect.value])
 				else:
-					summaries.append("%s získa +%s životů." % [target_card.definition.display_name, typed_effect.value])
+					summaries.append("%s získá +%s životů." % [target_card.definition.display_name, typed_effect.value])
 			&"deal_damage":
 				if target_card == null:
 					continue
@@ -983,6 +983,8 @@ func _play_targeted_card(owner_state: PlayerBattleState, opposing_state: PlayerB
 	if owner_state == null or opposing_state == null or card_instance == null:
 		return ""
 	if _net != null and target_card != null and _net.intercept(owner_state, {"type": "play_target", "card": card_instance.instance_id, "own": target_card.owner_id == owner_state.player_id, "lane": target_card.lane_index}):
+		return ""
+	if _net != null and target_card == null and _net.intercept(owner_state, {"type": "play_instant", "card": card_instance.instance_id}):
 		return ""
 
 	_clear_lane_feedback()
@@ -1210,6 +1212,8 @@ func _handle_player_lane_pressed(lane_index: int) -> void:
 	if _selected_card != null:
 		_selected_info_zone = INFO_ZONE_NONE
 		var enemy_state := _battle_state.get_enemy_state(PLAYER_ID)
+		if _try_play_untargeted(player_state, _selected_card):
+			return
 		if _selected_card.definition.card_type == CardGameConstants.CardType.CAT:
 			var valid_play_lanes: Array[int] = _battle_rules.get_valid_play_lanes(_selected_card, player_state)
 			if valid_play_lanes.has(lane_index):
@@ -1270,6 +1274,8 @@ func _handle_enemy_lane_pressed(lane_index: int) -> void:
 		return
 
 	if _selected_card != null:
+		if _try_play_untargeted(player_state, _selected_card):
+			return
 		if _selected_card.definition.card_type == CardGameConstants.CardType.CAT:
 			status_label.text = "Kočky hrají jen na svou stranu."
 			return
@@ -1966,6 +1972,19 @@ func _refresh_ui() -> void:
 		_net.queue_snapshot()
 
 
+# Kouzlo bez cíle (např. Rybí trh): zahraje se rovnou. Vrací true, když se zahrálo.
+func _try_play_untargeted(player_state: PlayerBattleState, card: CardInstance) -> bool:
+	if card == null or card.definition.card_type == CardGameConstants.CardType.CAT or _card_requires_board_target(card):
+		return false
+	var enemy_state := _battle_state.get_enemy_state(PLAYER_ID)
+	if not _can_play_card_from_hand(card, player_state, enemy_state):
+		status_label.text = "%s stojí %s Tuny, máš jen %s." % [card.definition.display_name, card.definition.cost, player_state.tuna_current]
+		return true
+	status_label.text = _play_targeted_card(player_state, enemy_state, card, null)
+	_clear_selection_state()
+	return true
+
+
 func _select_hand_card_by_instance_id(instance_id: int, toggle_selection: bool = true) -> bool:
 	if _battle_state == null or _battle_state.battle_over or _battle_state.active_player_id != PLAYER_ID:
 		return false
@@ -1981,6 +2000,9 @@ func _select_hand_card_by_instance_id(instance_id: int, toggle_selection: bool =
 		_selected_attacker = null
 		_selected_table_power = null
 		_selected_info_zone = INFO_ZONE_NONE
+		if toggle_selection and _selected_card == card and _try_play_untargeted(player_state, card):
+			_refresh_ui()
+			return true
 		if toggle_selection and _selected_card == card:
 			_selected_card = null
 			status_label.text = "Výběr z ruky zrušen."

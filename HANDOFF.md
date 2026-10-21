@@ -13,12 +13,13 @@
   - UI rozbor body 3–6: menu se dvěma režimy, pravý panel s velkým náhledem karty, Hrozba pryč z UI, Balík a postup s „Smazat postup“ (malé, vlevo, potvrzení druhým klikem).
   - Balanc: Stokový král je nejtěžší i s 10 životy (sim 2,5 % vs Harbor 10 %).
   - D2 stavění balíku (D-023): kolekce v Balík a postup (+/−), trénink odemyká 3 karty za soupeře.
+  - D3: 13 nových karet (47 sběratelných), kouzla bez cíle jdou zahrát.
   - D4 multiplayer 1v1 (D-024): menu „Hra ve dvou“, hostovat / připojit přes IP (Radmin). Ověřeno dvěma procesy na jednom PC (net_smoke.gd), mezi dvěma PC ještě ne.
 - Incident: síťový test v okně přepsal skutečný save; obnoven ze screenshotů, prevence v `_save_path()` (viz worklog).
 
 ## Další krok
 1. Lidský test #4 (Mark + kamarád přes Radmin VPN): oba spustí hru → „Hra ve dvou“. Jeden „Hostovat hru“ (Windows firewall: povolit), druhý zadá jeho IP 26.x.x.x → „Připojit se“. Dohrát zápas. Hlásit: připojení, zpoždění, nečitelné tahy soupeře, chyby.
-2. D3 víc karet (prompt na art arch je v `design/art_prompt_2026-10-22.md`, jakmile vznikne).
+2. Art: 3 archy 3×3 podle `design/art_prompt_2026-10-22.md` (13 nových karet má zatím půjčený obrázek, kouzla a předměty jen ikonu). Řezání: `slice_art_sheet.gd -- <arch> id1,...,id9`, pak `--headless --import`.
 3. MP v1 limity: záznam akcí ve 3. osobě, žádná ochrana proti podvádění.
 
 ## Co se změnilo (podrobně `docs/worklog.md`)

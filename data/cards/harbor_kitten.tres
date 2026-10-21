@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"harbor_kitten"
+display_name = "Kotě na hlídce"
+card_type = 0
+cost = 1
+attack = 1
+life = 2
+rules_text = "Ochrana."
+keywords = [&"guard"]
+effects = []
+art_path = "res://assets/card_game/card_art/harbor_kitten.png"
+frame_variant = &"default"

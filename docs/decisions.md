@@ -173,7 +173,7 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 ### D-023 - Stavění balíku (D2) a Hrozba mimo UI
 - Datum: 2026-10-21
 - Stav: aktivni
-- Rozhodnutí: Kolekce = startovní karty + 3 karty za každého poraženého soupeře v tréninku (`TRAINING_CARD_UNLOCKS`) + vše, co kdy bylo v balíku (odměny výprav; ukládá se `collection_card_ids`). Balík 20–30 karet, max 4 kopie, Kapitán Železná tlama a Vyhazovač max 1. Úpravy v obrazovce Balík a postup (+/−), ukládají se hned, takže balík je vždy platný. Během výpravy je úprava zamčená (balík mění odměny).
+- Rozhodnutí: Kolekce = startovní karty + 4–6 karet za každého poraženého soupeře v tréninku (`TRAINING_CARD_UNLOCKS`) + vše, co kdy bylo v balíku (odměny výprav; ukládá se `collection_card_ids`). Balík 20–30 karet, max 4 kopie, Kapitán Železná tlama, Vyhazovač a Dělová kočka max 1. Úpravy v obrazovce Balík a postup (+/−), ukládají se hned, takže balík je vždy platný. Během výpravy je úprava zamčená (balík mění odměny).
 - Hrozba: hráči ji už neukazujeme (obtížnost = žebříček tréninku). Interně dál volí sestavu balíku soupeře; je vidět jen v tooltipu pro ladění.
 - Proč: limit 4 kopií odpovídá startovnímu balíku (4× Uliční rváč); okno 20–30 snese odměny výprav, které balík zvětšují.
 - Otevřené: karty mimo trénink (Mrchožravý slídil, Bubeník, Toulavá máma, kouzla a vybavení navíc) zatím jen z odměn výprav.

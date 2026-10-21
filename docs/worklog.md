@@ -14,6 +14,13 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - D3: 13 nových karet (47 sběratelných), kouzla bez cíle (Claude Opus 5.5)
+- Kočky: Kotě na hlídce, Rybářka s návnadou, Lovec potkanů, Lanový akrobat, Kormidelník, Lamač z doků, Přístavní poslíček, Spravovačka sítí, Dělová kočka. Kouzla: Teplé mléko, Přes palubu!, Rybí trh. Předmět: Rezavá kotva. Vše jen ze stávajících mechanik.
+- Odemykání v tréninku 4–6 karet za soupeře; nové kočky v odměnách výprav. Dělová kočka max 1 kopie.
+- Oprava: kouzlo bez cíle (Rybí trh) hráč dřív zahrát nemohl (hláška „spustí se hned“, ale nic). Teď druhý klik na kartu nebo klik na stůl; v síti akce `play_instant`.
+- Art: zatím kopie podobných obrázků; prompt na 3 archy `design/art_prompt_2026-10-22.md`. Překlep „získa“ → „získá“.
+- Ověření: verify_new_cards rozšířen (všech 13), 23/23 verifierů, net_smoke OK. NPC balíky beze změny (balanc tréninku stejný).
+
 ### 2026-10-21 (noc) - MP: odveta (Claude Opus 5.5)
 - Po zápase „Chci odvetu“ (klient pošle žádost) / „Odveta“ (host znovu načte scénu, nový los, kdo začíná). Klient po prvním snímku nového stolu schová výsledek.
 - Ověření: `NET_REMATCH=1` net_smoke: dva zápasy po sobě, výsledky obou stran sedí; 23/23 verifierů.

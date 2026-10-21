@@ -151,6 +151,10 @@ func _on_remote_action(action: Dictionary) -> void:
 				var target: CardInstance = target_state.board[lane].occupant
 				if target != null and _battle._can_play_card_from_hand(card, me, opponent) and _battle._is_valid_card_target(card, target, target_state.player_id, me, opponent):
 					summary = _battle._play_targeted_card(me, opponent, card, target)
+		"play_instant":
+			var card := _find_in_hand(me, int(action.get("card", -1)))
+			if card != null and not _battle._card_requires_board_target(card) and _battle._can_play_card_from_hand(card, me, opponent):
+				summary = _battle._play_targeted_card(me, opponent, card, null)
 		"attack":
 			var from_lane := int(action.get("from", -1))
 			if from_lane >= 0 and from_lane < me.board.size():

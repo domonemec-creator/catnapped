@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"rope_acrobat"
+display_name = "Lanový akrobat"
+card_type = 0
+cost = 3
+attack = 3
+life = 2
+rules_text = "Rychlé tlapy. Výpad."
+keywords = [&"quick_paws", &"pounce"]
+effects = []
+art_path = "res://assets/card_game/card_art/rope_acrobat.png"
+frame_variant = &"default"

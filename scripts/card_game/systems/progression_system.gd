@@ -26,15 +26,15 @@ const KEY_COLLECTION := "collection_card_ids"
 const DECK_MIN_SIZE := 20
 const DECK_MAX_SIZE := 30
 const MAX_COPIES := 4
-const SINGLE_COPY_IDS: Array[StringName] = [&"captain_ironmaw", &"tavern_bouncer"]
+const SINGLE_COPY_IDS: Array[StringName] = [&"captain_ironmaw", &"tavern_bouncer", &"cannon_cat"]
 # Výhra v tréninku přidá do kolekce karty typické pro poraženého soupeře.
 const TRAINING_CARD_UNLOCKS := {
-	&"smug_tabby": [&"wharf_cutthroat", &"iron_bowl", &"catnip_burst"],
-	&"lantern_striker": [&"lamplighter", &"rafter_pouncer", &"pry_bar"],
-	&"ragclaw_brawler": [&"pickpocket", &"hidden_claws", &"hunters_harness"],
-	&"fog_seer": [&"ship_lookout", &"galley_cook", &"fish_toss"],
-	&"harbor_warden": [&"dock_harpooner", &"grey_veteran", &"war_plate"],
-	&"bilge_king": [&"smuggler", &"graveyard_glutton", &"tavern_bouncer"],
+	&"smug_tabby": [&"wharf_cutthroat", &"harbor_kitten", &"iron_bowl", &"catnip_burst", &"warm_milk"],
+	&"lantern_striker": [&"lamplighter", &"rafter_pouncer", &"rope_acrobat", &"pry_bar", &"fish_market"],
+	&"ragclaw_brawler": [&"pickpocket", &"bait_fisher", &"net_mender", &"hidden_claws", &"hunters_harness"],
+	&"fog_seer": [&"ship_lookout", &"galley_cook", &"rat_hunter", &"fish_toss", &"overboard"],
+	&"harbor_warden": [&"dock_harpooner", &"grey_veteran", &"helmsman", &"war_plate", &"rusty_anchor"],
+	&"bilge_king": [&"smuggler", &"graveyard_glutton", &"dock_breaker", &"cannon_cat", &"harbor_courier", &"tavern_bouncer"],
 }
 # Trénink (D-022): žebříček soupeřů ve stejném pořadí jako run. Každý další má o
 # TRAINING_TIER_STEP vyšší hrozbu a odemkne se až po porážce předchozího.

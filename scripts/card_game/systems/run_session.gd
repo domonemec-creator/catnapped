@@ -28,6 +28,15 @@ const REWARD_ADD_POOL: Array[StringName] = [
     &"grey_veteran",
     &"carrion_prowler",
     &"graveyard_glutton",
+    # D3 2026-10-21
+    &"harbor_kitten",
+    &"bait_fisher",
+    &"rat_hunter",
+    &"rope_acrobat",
+    &"helmsman",
+    &"dock_breaker",
+    &"harbor_courier",
+    &"net_mender",
 ]
 const REWARD_UPGRADE_MAP := {
     &"candlepaw_scout": &"wharf_cutthroat",

@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[sub_resource type="Resource" id="1_effect"]
+script = ExtResource("2_card_effect")
+trigger = &"battlecry"
+action = &"deal_damage"
+target_mode = &"enemy_player"
+value = 1
+
+[sub_resource type="Resource" id="2_effect"]
+script = ExtResource("2_card_effect")
+trigger = &"battlecry"
+action = &"draw_cards"
+target_mode = &"self_owner"
+value = 1
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"harbor_courier"
+display_name = "Přístavní poslíček"
+card_type = 0
+cost = 4
+attack = 2
+life = 3
+rules_text = "Bojový nástup: 1 zranění soupeři a lízni 1 kartu."
+keywords = [&"battlecry"]
+effects = [SubResource("1_effect"), SubResource("2_effect")]
+art_path = "res://assets/card_game/card_art/harbor_courier.png"
+frame_variant = &"default"

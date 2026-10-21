@@ -142,6 +142,98 @@ func _run() -> void:
 		_fail("Second hunger should cost 2 life (expected 17, got %s)." % player_state.life)
 		return
 
+	# --- D3 (2026-10-21): devět dalších karet ---
+	for card_id in [&"harbor_kitten", &"bait_fisher", &"rat_hunter", &"rope_acrobat", &"helmsman", &"dock_breaker", &"warm_milk", &"overboard", &"rusty_anchor", &"harbor_courier", &"net_mender", &"cannon_cat", &"fish_market"]:
+		if battle._create_card_instance(card_id, battle.PLAYER_ID) == null:
+			_fail("Card %s is missing from the library." % card_id)
+			return
+
+	# Rybářka: Poslední dech = 1 zranění soupeři.
+	_reset(battle, player_state, enemy_state)
+	var fisher = battle._create_card_instance(&"bait_fisher", battle.PLAYER_ID)
+	_place(player_state, fisher, 0)
+	var biter = battle._create_card_instance(&"alley_scrapper", battle.ENEMY_ID)
+	_place(enemy_state, biter, 0)
+	battle._perform_attack(enemy_state, player_state, biter, 0)
+	if player_state.board[0].occupant != null or enemy_state.life != 19:
+		_fail("Bait Fisher should die and deal 1 damage to the enemy (enemy life %s)." % enemy_state.life)
+		return
+
+	# Lanový akrobat: Rychlé tlapy = útočí hned po vyložení.
+	_reset(battle, player_state, enemy_state)
+	var acrobat = battle._create_card_instance(&"rope_acrobat", battle.PLAYER_ID)
+	player_state.hand.append(acrobat)
+	battle._play_card_to_lane(player_state, 2, acrobat)
+	if not acrobat.can_attack or not acrobat.has_keyword(&"pounce"):
+		_fail("Rope Acrobat should be able to attack immediately and have Pounce.")
+		return
+
+	# Kormidelník: sousední kočka +1 život.
+	_reset(battle, player_state, enemy_state)
+	var neighbor = battle._create_card_instance(&"tavern_mouser", battle.PLAYER_ID)
+	_place(player_state, neighbor, 0)
+	var neighbor_life: int = neighbor.current_life
+	var helmsman = battle._create_card_instance(&"helmsman", battle.PLAYER_ID)
+	player_state.hand.append(helmsman)
+	battle._play_card_to_lane(player_state, 1, helmsman)
+	if neighbor.current_life != neighbor_life + 1:
+		_fail("Helmsman should give adjacent cats +1 life.")
+		return
+
+	# Teplé mléko: +3 životy vlastní kočce.
+	var milk = battle._create_card_instance(&"warm_milk", battle.PLAYER_ID)
+	player_state.hand.append(milk)
+	battle._play_targeted_card(player_state, enemy_state, milk, neighbor)
+	if neighbor.current_life != neighbor_life + 4:
+		_fail("Warm Milk should give +3 life.")
+		return
+
+	# Rezavá kotva: +1 útok a +2 životy vybavené kočce.
+	var anchor = battle._create_card_instance(&"rusty_anchor", battle.PLAYER_ID)
+	player_state.hand.append(anchor)
+	var attack_before: int = helmsman.current_attack
+	var life_before: int = helmsman.current_life
+	battle._play_targeted_card(player_state, enemy_state, anchor, helmsman)
+	if helmsman.current_attack != attack_before + 1 or helmsman.current_life != life_before + 2 or helmsman.attached_item != anchor:
+		_fail("Rusty Anchor should equip and give +1/+2.")
+		return
+
+	# Přes palubu!: vrátí kočku s cenou do 4, kapitána (5) ne.
+	_reset(battle, player_state, enemy_state)
+	var bruiser = battle._create_card_instance(&"dockside_bruiser", battle.ENEMY_ID)
+	_place(enemy_state, bruiser, 0)
+	var captain = battle._create_card_instance(&"captain_ironmaw", battle.ENEMY_ID)
+	_place(enemy_state, captain, 1)
+	var overboard = battle._create_card_instance(&"overboard", battle.PLAYER_ID)
+	player_state.hand.append(overboard)
+	if battle._is_valid_card_target(overboard, captain, enemy_state.player_id, player_state, enemy_state):
+		_fail("Overboard must not target a 5-cost cat.")
+		return
+	battle._play_targeted_card(player_state, enemy_state, overboard, bruiser)
+	if enemy_state.board[0].occupant != null or not enemy_state.hand.has(bruiser):
+		_fail("Overboard should return a 4-cost cat to its owner's hand.")
+		return
+
+	# Rybí trh: kouzlo bez cíle, zahraje se druhým klikem na kartu, lízne 2.
+	_reset(battle, player_state, enemy_state)
+	var market = battle._create_card_instance(&"fish_market", battle.PLAYER_ID)
+	player_state.hand.append(market)
+	var deck_size: int = player_state.deck.size()
+	battle._select_hand_card_by_instance_id(market.instance_id)
+	battle._select_hand_card_by_instance_id(market.instance_id)
+	if player_state.hand.has(market) or player_state.hand.size() != mini(2, deck_size) or player_state.tuna_current != 7:
+		_fail("Fish Market should be played by a second click and draw 2 (hand %s, tuna %s)." % [player_state.hand.size(), player_state.tuna_current])
+		return
+
+	# Přístavní poslíček: 1 zranění soupeři a líznutí.
+	_reset(battle, player_state, enemy_state)
+	var courier = battle._create_card_instance(&"harbor_courier", battle.PLAYER_ID)
+	player_state.hand.append(courier)
+	battle._play_card_to_lane(player_state, 0, courier)
+	if enemy_state.life != 19 or (player_state.deck.size() > 0 and player_state.hand.size() != 1):
+		_fail("Harbor Courier should deal 1 to the enemy and draw 1.")
+		return
+
 	if not _failed:
 		print("New cards verification passed.")
 		quit()
