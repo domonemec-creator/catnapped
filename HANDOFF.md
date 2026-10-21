@@ -8,13 +8,18 @@
 - Hotovo: D1 žebříček tréninku, art všech 9 nových karet (`slice_art_sheet.gd`).
 - **Záznamy zápasů:** `%APPDATA%\Godotpp_userdata\Catnapped!\match_logs\`.
 
-## Noční smyčka 21.→22. 10. (do 5:00), rozpracováno
-- Hotovo: layout souboje v2 (`ui/battle_layout.gd`), menu se dvěma režimy, texty odměn.
-- Zbývá z `design/ui_review_2026-10-21.md`: screenshot nového menu ověřit, pravý panel souboje (velký náhled, méně textu), obrazovka Balík a postup (reset oddělit), Stokový král těžší než Harbor, D2 stavění balíku.
+## Noční smyčka 21.→22. 10. (do 5:00), Claude Opus 5.5
+- Hotovo a pushnuto (každý blok 23/23 verifierů):
+  - UI rozbor body 3–6: menu se dvěma režimy, pravý panel s velkým náhledem karty, Hrozba pryč z UI, Balík a postup s „Smazat postup“ (malé, vlevo, potvrzení druhým klikem).
+  - Balanc: Stokový král je nejtěžší i s 10 životy (sim 2,5 % vs Harbor 10 %).
+  - D2 stavění balíku (D-023): kolekce v Balík a postup (+/−), trénink odemyká 3 karty za soupeře.
+  - D4 multiplayer 1v1 (D-024): menu „Hra ve dvou“, hostovat / připojit přes IP (Radmin). Ověřeno dvěma procesy na jednom PC (net_smoke.gd), mezi dvěma PC ještě ne.
+- Incident: síťový test v okně přepsal skutečný save; obnoven ze screenshotů, prevence v `_save_path()` (viz worklog).
 
 ## Další krok
-1. D2 stavění vlastního balíku (z odemčených karet), potom D3 víc karet, D4 multiplayer přes Radmin.
-2. Lidský test #4 (Mark): projít trénink 1→4 (jsou soupeři 3 a 4 znatelně těžší, ale porazitelní?) a jeden run (sílí soupeři?).
+1. Lidský test #4 (Mark + kamarád přes Radmin VPN): oba spustí hru → „Hra ve dvou“. Jeden „Hostovat hru“ (Windows firewall: povolit), druhý zadá jeho IP 26.x.x.x → „Připojit se“. Dohrát zápas. Hlásit: připojení, zpoždění, nečitelné tahy soupeře, chyby.
+2. D3 víc karet (prompt na art arch je v `design/art_prompt_2026-10-22.md`, jakmile vznikne).
+3. MP v1 limity: klient nevidí animace soupeřových akcí, žádná odveta.
 
 ## Co se změnilo (podrobně `docs/worklog.md`)
 - Stůl: token s artem, jménem a odznaky; opraven roztažený StatusBadge; event bannery jsou malé štítky.
