@@ -373,7 +373,11 @@ func _refresh_details() -> void:
     _selected_stats.text = "Startovní životy: %s" % _selected_encounter.starting_life
     if _selected_encounter.table_power_id != StringName():
         _selected_stats.text += "\nSíla stolu: %s" % _get_table_power_display_name(_selected_encounter.table_power_id)
-    _selected_portrait.texture = _load_texture(_selected_encounter.portrait_path)
+    # Výřez podle poměru stran rámečku (cca 2.7:1): u portrétů na výšku horní pás s hlavou, ne trup.
+    var portrait_aspect := _selected_portrait.size.x / _selected_portrait.custom_minimum_size.y if _selected_portrait.size.x > 0.0 else 2.7
+    var portrait_full := CardArtCache.get_full(_selected_encounter.portrait_path)
+    var portrait_top := 0.1 if portrait_full != null and portrait_full.get_height() > portrait_full.get_width() else 0.03
+    _selected_portrait.texture = CardArtCache.get_cropped_aspect(_selected_encounter.portrait_path, portrait_aspect, portrait_top)
     _status_label.text = "Trénink je samostatný souboj mimo run, bez odměn. Na zkoušku ideální."
     _run_note_label.text = "Run má 5 soubojů. První soupeř: %s." % _selected_encounter.display_name
     _run_button.disabled = false
