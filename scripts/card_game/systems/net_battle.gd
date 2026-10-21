@@ -11,6 +11,7 @@ const BattleState = preload("res://scripts/card_game/runtime/battle_state.gd")
 const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
 const PlayerBattleState = preload("res://scripts/card_game/runtime/player_battle_state.gd")
 
+const HIDDEN_CARD_ID := &"stray_token"
 const PLAYER_ID := 0
 const ENEMY_ID := 1
 
@@ -88,7 +89,7 @@ func _send_snapshot() -> void:
 	_snapshot_queued = false
 	if _battle == null or _battle._battle_state == null:
 		return
-	var snapshot := serialize_state(_battle._battle_state)
+	var snapshot := serialize_state(_battle._battle_state, PLAYER_ID)
 	snapshot["status"] = _battle.status_label.text
 	var snapshot_hash := snapshot.hash()
 	if snapshot_hash == _last_snapshot_hash and _events.is_empty():
@@ -203,10 +204,11 @@ func _on_snapshot(snapshot: Dictionary) -> void:
 # --- Snímek stavu -------------------------------------------------------------------
 
 # Klient vidí stav otočeně: host je pro něj soupeř (ENEMY_ID), on sám PLAYER_ID.
-static func serialize_state(state: BattleState) -> Dictionary:
+# hidden_player_id: hráč, jehož ruka a balík se pošlou jen jako počet (klient nemá vidět karty hosta).
+static func serialize_state(state: BattleState, hidden_player_id: int = -1) -> Dictionary:
 	var players: Array = []
 	for player_state in state.player_states:
-		players.append(_serialize_player(player_state))
+		players.append(_serialize_player(player_state, player_state.player_id == hidden_player_id))
 	return {
 		"turn": state.turn_number,
 		"active": _swap(state.active_player_id),
@@ -240,7 +242,7 @@ static func _swap(player_id: int) -> int:
 	return player_id
 
 
-static func _serialize_player(player_state: PlayerBattleState) -> Dictionary:
+static func _serialize_player(player_state: PlayerBattleState, hide_cards: bool = false) -> Dictionary:
 	var board: Array = []
 	for slot in player_state.board:
 		board.append(_serialize_card(slot.occupant) if slot.occupant != null else {})
@@ -252,8 +254,8 @@ static func _serialize_player(player_state: PlayerBattleState) -> Dictionary:
 		"tuna": player_state.tuna_current,
 		"tuna_max": player_state.tuna_max,
 		"saved_tuna": player_state.saved_tuna_current,
-		"deck": _serialize_cards(player_state.deck),
-		"hand": _serialize_cards(player_state.hand),
+		"deck": _serialize_cards(player_state.deck, hide_cards),
+		"hand": _serialize_cards(player_state.hand, hide_cards),
 		"discard": _serialize_cards(player_state.discard),
 		"board": board,
 		"power": player_state.table_power_id,
@@ -357,8 +359,12 @@ func _manager() -> Node:
 	return tree.root.get_node_or_null("MultiplayerManager") if tree != null else null
 
 
-static func _serialize_cards(cards: Array[CardInstance]) -> Array:
+static func _serialize_cards(cards: Array[CardInstance], hide_cards: bool = false) -> Array:
 	var result: Array = []
 	for card in cards:
-		result.append(_serialize_card(card))
+		var data := _serialize_card(card)
+		if hide_cards and not data.is_empty():
+			# Skrytá karta: jen rub (Tulák jako zástupná definice), zachová počet.
+			data = {"iid": data["iid"], "cid": HIDDEN_CARD_ID, "owner": data["owner"]}
+		result.append(data)
 	return result

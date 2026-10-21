@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - MP: klient nedostává karty hosta (Claude Opus 5.5)
+- Snímek posílá ruku a balík hosta jen jako počet (zástupná karta), klient tak nemůže nahlížet. verify_net_snapshot to kontroluje.
+- Review síťového kódu (odpojení, dvojitý konec tahu, odveta po odchodu, návrat do menu): bez dalších nálezů.
+- Ověření: net_smoke OK, 23/23 verifierů.
+
 ### 2026-10-21 (noc) - Celá obrazovka a mezerník (Claude Opus 5.5)
 - Nastavení: přepínač „Celá obrazovka (F11)“, F11 funguje všude (Sfx autoload, ukládá se do settings.cfg). Souboj: mezerník = Konec tahu; tlačítka v pravém panelu nedrží focus (mezerník by jinak mačkal naposled kliknuté).
 - Ověření: artifacts/settings.png, 23/23 verifierů. Ruční test kláves jen člověk.

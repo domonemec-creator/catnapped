@@ -54,6 +54,10 @@ func _run() -> void:
 	if lane_card == null or lane_card.instance_id != cat.instance_id or lane_card.owner_id != battle.ENEMY_ID or lane_card.current_life != cat.current_life:
 		_fail("Kočka na stole se nepřenesla správně (id, vlastník, životy).")
 		return
+	var masked = NetBattle.deserialize_state(NetBattle.serialize_state(state, battle.PLAYER_ID), battle._card_library).get_player_state(battle.ENEMY_ID)
+	if masked.hand.size() != me.hand.size() or (not masked.hand.is_empty() and masked.hand[0].definition.id != NetBattle.HIDDEN_CARD_ID):
+		_fail("Ruka hosta má jít klientovi jen jako počet karet.")
+		return
 	if NetBattle.serialize_state(NetBattle.deserialize_state(NetBattle.serialize_state(copy), battle._card_library)).hash() != data.hash():
 		_fail("Dvojí otočení snímku nevrací původní stav.")
 		return
