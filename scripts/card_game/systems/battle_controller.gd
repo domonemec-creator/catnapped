@@ -1436,7 +1436,7 @@ func _check_battle_end() -> void:
 		_play_sfx(&"victory")
 		_save_match_log.call_deferred("vyhra")
 		status_label.text = "Výhra. %s došel o všechny životy. Hrozba klesá na %s." % [enemy_state.display_name, _get_current_threat()]
-		_show_post_match_overlay("win", "Výhra", "Zlomil jsi %s a stůl se pro příští odvetu uklidnil." % enemy_state.display_name, previous_threat, victory_threat, victory_deck_messages)
+		_show_post_match_overlay("win", "Výhra", "Soupeř %s je poražen. Stůl se pro příští odvetu uklidnil." % enemy_state.display_name, previous_threat, victory_threat, victory_deck_messages)
 		return
 
 	if player_state.life <= 0:

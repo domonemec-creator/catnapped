@@ -240,6 +240,18 @@ func show_post_match_overlay(config: Dictionary) -> void:
 		_post_match_threat_badge.texture = config.get("threat_badge_texture") as Texture2D
 	if _post_match_result_title != null:
 		_post_match_result_title.text = _result_title
+		# Titulek výsledku stejným písmem jako menu; barva podle výsledku.
+		var title_font := FontVariation.new()
+		title_font.base_font = load("res://assets/fonts/Cinzel-Variable.ttf")
+		title_font.variation_opentype = {2003265652: 700}
+		_post_match_result_title.add_theme_font_override("font", title_font)
+		_post_match_result_title.add_theme_font_size_override("font_size", 40)
+		var result_color := Color(0.98, 0.84, 0.5)
+		if _result_mode == "loss":
+			result_color = Color(0.95, 0.5, 0.42)
+		_post_match_result_title.add_theme_color_override("font_color", result_color)
+		_post_match_result_title.add_theme_color_override("font_outline_color", Color(0.1, 0.05, 0.02))
+		_post_match_result_title.add_theme_constant_override("outline_size", 6)
 	if _post_match_result_summary != null:
 		_post_match_result_summary.text = str(config.get("result_summary", ""))
 	if _post_match_threat_summary != null:
