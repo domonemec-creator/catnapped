@@ -44,7 +44,9 @@ func _capture() -> void:
 	player_state.tuna_current = 3
 
 	_place_card(player_state, battle._create_card_instance(&"alley_scrapper", battle.PLAYER_ID), 0, true, false)
-	_place_card(player_state, battle._create_card_instance(&"boilerback_guardian", battle.PLAYER_ID), 2, false, false)
+	var fresh_cat = battle._create_card_instance(&"boilerback_guardian", battle.PLAYER_ID)
+	fresh_cat.entered_this_turn = true
+	_place_card(player_state, fresh_cat, 2, false, false)
 	_place_card(enemy_state, battle._create_card_instance(&"dockside_bruiser", battle.ENEMY_ID), 0, false, true)
 	_place_card(enemy_state, battle._create_card_instance(&"rafter_pouncer", battle.ENEMY_ID), 1, false, true)
 

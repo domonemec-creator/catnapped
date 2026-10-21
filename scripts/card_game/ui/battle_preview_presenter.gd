@@ -176,6 +176,10 @@ Přetáhni kartu z ruky na volné místo dole. Máš [b]%s Tuny[/b], cena je v m
 Klikni na svou kočku (zelený rámeček = připravená) a pak na soupeřovu lajnu nad ní. Prázdná lajna = zásah přímo do soupeře. Pozor: napadená kočka vrací úder." % step)
 		lines.append("")
 		step += 1
+	if player_state.tuna_current >= 3 and not player_state.table_power_used_this_turn and not player_state.deck.is_empty() and player_state.table_power_id != StringName():
+		lines.append("[color=#9fc7f0][b]%s. Objednej rundu[/b][/color]\nZbývají ti Tuny? Za 3 si lízneš kartu (tlačítko vpravo dole, jednou za tah)." % step)
+		lines.append("")
+		step += 1
 	if step == 1:
 		lines.append("[color=#e8d8b0][b]Hotovo pro tohle kolo[/b][/color]
 Už nemůžeš nic vyložit ani zaútočit. Klikni na [b]Konec tahu[/b].")

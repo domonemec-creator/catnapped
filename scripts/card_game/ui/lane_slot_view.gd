@@ -62,6 +62,7 @@ var _token_keyword_box: PanelContainer
 var _token_content: Control
 var _token_keyword_icon: TextureRect
 var _ready_frame: Panel
+var _fresh_pill: PanelContainer
 var _ready_tween: Tween
 
 const OWNER_PLAYER := 0
@@ -503,6 +504,28 @@ func _build_token_panel() -> void:
 	_ready_frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_ready_frame.visible = false
 
+	# Štítek pro čerstvě vyloženou kočku: hráči v testu nebylo jasné, proč nemůže útočit.
+	_fresh_pill = PanelContainer.new()
+	_fresh_pill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var fresh_style := _build_style_box(Color(0.05, 0.05, 0.08, 0.8), Color(0.7, 0.75, 0.9, 0.7), 10, 1)
+	fresh_style.content_margin_left = 10.0
+	fresh_style.content_margin_right = 10.0
+	fresh_style.content_margin_top = 2.0
+	fresh_style.content_margin_bottom = 2.0
+	_fresh_pill.add_theme_stylebox_override("panel", fresh_style)
+	content.add_child(_fresh_pill)
+	_fresh_pill.anchor_left = 0.5
+	_fresh_pill.anchor_right = 0.5
+	_fresh_pill.anchor_top = 1.0
+	_fresh_pill.anchor_bottom = 1.0
+	_fresh_pill.offset_top = -78.0
+	_fresh_pill.offset_bottom = -52.0
+	_fresh_pill.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	var fresh_label := _make_token_label("Útočí příští kolo", 14, HORIZONTAL_ALIGNMENT_CENTER, VERTICAL_ALIGNMENT_CENTER)
+	fresh_label.add_theme_color_override("font_color", Color(0.85, 0.88, 1.0))
+	_fresh_pill.add_child(fresh_label)
+	_fresh_pill.visible = false
+
 	_fix_status_badge_layout()
 
 
@@ -644,10 +667,14 @@ func _refresh_status_badge() -> void:
 		status_badge.visible = false
 		status_badge_label.visible = false
 		_set_ready_pulse(false)
+		if _fresh_pill != null:
+			_fresh_pill.visible = false
 		return
 
 	var status := STATUS_READY if _card_instance.can_attack and not _card_instance.has_attacked else STATUS_SPENT
 	_set_ready_pulse(status == STATUS_READY and owner_id == OWNER_PLAYER)
+	if _fresh_pill != null:
+		_fresh_pill.visible = owner_id == OWNER_PLAYER and _card_instance.entered_this_turn and not _card_instance.can_attack
 	status_badge.texture = _load_ui_texture(str(STATUS_BADGE_TEXTURES.get(status, "")))
 	status_badge.visible = status_badge.texture != null
 	status_badge_label.visible = false

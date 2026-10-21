@@ -77,6 +77,9 @@ func choose_table_power(player_state: PlayerBattleState, defender_state: PlayerB
         return {}
     if player_state.table_power_used_this_turn or player_state.tuna_current < power_definition.cost:
         return {}
+    for effect in power_definition.effects:
+        if effect != null and effect.action == &"draw_cards" and player_state.deck.is_empty():
+            return {}
 
     var choice := _build_table_power_choice(player_state, defender_state, power_definition, rules)
     if choice.is_empty():
@@ -745,7 +748,11 @@ func _score_table_power_effect(effect: CardEffect, lane_index: int, player_state
             return _score_heal_life_effect(player_state.life, effect.value)
         &"draw_cards":
             if effect.target_mode == CardGameConstants.TARGET_SELF_OWNER:
-                return float(effect.value) * 4.0
+                # S prázdnou rukou se líznutí vyplatí hodně, s plnou skoro vůbec.
+                # Na konci balíku ne: urychlilo by Hlad (D-017).
+                if player_state.deck.size() <= 9:
+                    return 0.0
+                return float(effect.value) * (4.0 + float(maxi(0, 3 - player_state.hand.size())) * 2.0)
         &"deal_damage":
             if effect.target_mode == CardGameConstants.TARGET_ENEMY_PLAYER:
                 var score := float(effect.value) * 6.0

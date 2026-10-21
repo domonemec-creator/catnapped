@@ -32,7 +32,8 @@ const STARTING_TUNA := 3
 const MAX_TUNA := 7
 const STARTING_HAND := 3
 const PLAYER_DECK_ID := &"starter_player"
-const PLAYER_TABLE_POWER_ID := &""
+# D-020: Tuna na konci zápasu nemá k čemu sloužit → „Objednat rundu“ (3 Tuny: lízni kartu).
+const PLAYER_TABLE_POWER_ID := &"order_round"
 const ENCOUNTER_PATH := "res://data/encounters/smug_tabby.tres"
 const DEFAULT_ENCOUNTER_ID := &"smug_tabby"
 const ENCOUNTER_SELECT_SCENE_PATH := "res://scenes/card_game/encounter_select.tscn"
@@ -579,6 +580,10 @@ func _can_use_table_power(player_state: PlayerBattleState, power_definition: Tab
 		return false
 	if _table_power_requires_lane_selection(power_definition):
 		return not _get_valid_table_power_lanes(power_definition, player_state).is_empty()
+	# Líznutí z prázdného balíku by spustilo Hlad (sebepoškození); takovou sílu nepustit.
+	for effect in power_definition.effects:
+		if effect != null and effect.action == &"draw_cards" and player_state.deck.is_empty():
+			return false
 	return true
 
 
@@ -979,6 +984,11 @@ func _resolve_table_power_effect(user_state: PlayerBattleState, opposing_state: 
 			if effect.target_mode == CardGameConstants.TARGET_SELF_OWNER:
 				_adjust_player_life(user_state, effect.value)
 				return "Vyléčí %s životů." % effect.value
+		&"draw_cards":
+			if effect.target_mode == CardGameConstants.TARGET_SELF_OWNER:
+				_draw_or_starve(user_state, effect.value)
+				_play_sfx(&"card_draw")
+				return "Objednává rundu a líže %s kartu." % effect.value
 
 	return ""
 
@@ -1132,7 +1142,15 @@ func _handle_player_lane_pressed(lane_index: int) -> void:
 
 	if not slot.occupant.can_attack or slot.occupant.has_attacked:
 		_selected_attacker = null
-		status_label.text = "%s teď nemůže útočit." % slot.occupant.definition.display_name
+		# Lidský test: hráč 8× zkoušel útočit čerstvou kočkou. Hláška musí říct proč.
+		var cat_name := slot.occupant.definition.display_name
+		if slot.occupant.has_attacked:
+			status_label.text = "%s už v tomhle kole útočila. Další útok příští kolo." % cat_name
+		elif slot.occupant.entered_this_turn:
+			status_label.text = "%s je na stole nová. Útočí až příští kolo (hned jen kočky s Rychlými tlapami)." % cat_name
+		else:
+			status_label.text = "%s teď nemůže útočit." % cat_name
+		_play_sfx(&"ui_click")
 		return
 
 	_selected_table_power = null

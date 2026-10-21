@@ -144,3 +144,10 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Kontext: Lidský test #2 (krátký): „často jsme se healovali, hra neměla konce“. Léčení měly Dokový rváč (Bojový nástup: vyleč 1, 3× ve starteru a 3–4× u soupeřů) a Kotelní strážce (Poslední dech: vyleč 1). Při 10 životech je to 10 % zdraví za kartu.
 - Rozhodnutí: Léčení z obou karet odstraněno. Dokový rváč je teď 4/5 a „Poslední dech: lízni 1 kartu“, Kotelní strážce 2/6 a „Ochrana“. Ochranu jen pro vlastní lajnu jsem otestoval (`guard_covers_adjacent`, sim arg `guardlane`): zápasy zkrátí jen málo (28 → 26 půltahů) a rychlé soupeře udělá příliš silnými, proto zůstává krytí sousedů. Harbor má 2× Harpunáře, aby zůstal nejtěžší.
 - Dopad (sim, hráč táhne první jako ve hře): Smug ~90 %, Lantern ~55 %, Ragclaw ~55 %, Harbor ~48 %. Simulace neměří pocit z délky hry, ten ověří jen člověk.
+
+### D-020 - „Objednat rundu“ a jasnější útok čerstvých koček
+- Datum: 2026-10-21
+- Stav: aktivni (částečně mění D-011: hráč má Sílu stolu, soupeři zatím ne)
+- Kontext: Záznam lidského testu (Lantern, prohra 0:1, 9 kol): hráč 8× zkoušel útočit čerstvě vyloženou kočkou („teď nemůže útočit“ bez vysvětlení). Od 6. kola měli oba ruku 0–1, ale hráč nechával 5–7 Tun nevyužitých.
+- Rozhodnutí: (1) Čerstvá kočka hráče má štítek „Útočí příští kolo“ a hláška vysvětluje proč. (2) Hráč má Sílu stolu „Objednat rundu“: 3 Tuny = lízni 1 kartu, jednou za tah. Nejde použít s prázdným balíkem (Hlad). AI ji používá jen s malou rukou a s balíkem nad 9 kartami. Průvodce „Co teď?“ ji nabízí.
+- Dopad: Pro AI hráče je síla v simulaci zhruba neutrální (dlouhé simulované hry ji trestají Hladem). Člověk hraje kratší zápasy, kde pomáhá využít zbylou Tunu. Ověří lidský test.
