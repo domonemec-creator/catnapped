@@ -21,5 +21,5 @@ life = 6
 rules_text = "Ochrana.\nBojový nástup: lízni 1 kartu."
 keywords = [&"guard", &"battlecry"]
 effects = [SubResource("1_effect")]
-art_path = ""
+art_path = "res://assets/card_game/card_art/tavern_bouncer.png"
 frame_variant = &"default"

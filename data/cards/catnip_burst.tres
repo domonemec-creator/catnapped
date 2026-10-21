@@ -21,5 +21,5 @@ life = 0
 rules_text = "Dej své kočce +2 k útoku do konce kola."
 keywords = []
 effects = [SubResource("1_effect")]
-art_path = ""
+art_path = "res://assets/card_game/card_art/catnip_burst.png"
 frame_variant = &"trick"

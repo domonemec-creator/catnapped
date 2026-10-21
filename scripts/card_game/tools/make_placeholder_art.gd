@@ -9,6 +9,8 @@ const BACK_PATH := "res://assets/card_game/card_art/_placeholder_back.png"
 const ICON_DIR := "res://assets/card_game/icons/cards/"
 const OUT_DIR := "res://assets/card_game/card_art/"
 const TINT := Color(0.98, 0.82, 0.45)
+# Barva ikony podle typu karty: kočka zlatá, Trick červený, Item ocelově modrý.
+const TYPE_TINTS := [Color(0.98, 0.82, 0.45), Color(0.95, 0.42, 0.36), Color(0.62, 0.8, 0.98)]
 
 
 func _init() -> void:
@@ -30,6 +32,11 @@ func _init() -> void:
 				var c := canvas.get_pixel(x, y)
 				canvas.set_pixel(x, y, Color(c.r * 0.42, c.g * 0.36, c.b * 0.32, 1.0))
 		var svg := FileAccess.get_file_as_string(ProjectSettings.globalize_path(ICON_DIR + file))
+		var tint := TINT
+		var card_res_path := "res://data/cards/%s.tres" % card_id
+		if ResourceLoader.exists(card_res_path):
+			var definition = load(card_res_path)
+			tint = TYPE_TINTS[clampi(definition.card_type, 0, 2)]
 		var icon := Image.new()
 		var icon_size := int(canvas.get_width() * 0.3)
 		icon.load_svg_from_string(svg, float(icon_size) / 512.0)
@@ -37,7 +44,7 @@ func _init() -> void:
 		for y in icon.get_height():
 			for x in icon.get_width():
 				var p := icon.get_pixel(x, y)
-				icon.set_pixel(x, y, Color(TINT.r * p.r, TINT.g * p.g, TINT.b * p.b, p.a))
+				icon.set_pixel(x, y, Color(tint.r * p.r, tint.g * p.g, tint.b * p.b, p.a))
 		var pos := Vector2i((canvas.get_width() - icon.get_width()) / 2, int(canvas.get_height() * 0.25) - icon.get_height() / 2)
 		canvas.blend_rect(icon, Rect2i(Vector2i.ZERO, icon.get_size()), pos)
 		canvas.save_png(out_path)

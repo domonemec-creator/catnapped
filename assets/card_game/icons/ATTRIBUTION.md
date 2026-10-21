@@ -20,3 +20,4 @@ Zdroj: https://github.com/game-icons/icons (raw: https://raw.githubusercontent.c
 
 ## Ikony placeholder artu (`icons/cards/`, 2026-10-21), vše CC BY 3.0, game-icons.net
 lamplighter: lorc/lantern-flame · dock_harpooner: lorc/harpoon-trident · pickpocket: lorc/swap-bag · stray_mother: lorc/cat · galley_cook: delapouite/cooking-pot · harbor_drummer: delapouite/drum · grey_veteran: lorc/shield-reflect · carrion_prowler: lorc/raven · graveyard_glutton: lorc/tombstone
+Tricky/Itemy (2026-10-21, CC BY 3.0, game-icons.net): catnip_burst lorc/leaf-swirl · fish_toss delapouite/fish-escape · gaff_hook lorc/fishing-hook · hidden_claws lorc/claw-slashes · pry_bar delapouite/crowbar · sticky_paws lorc/paw · table_flip delapouite/table · hunters_harness lorc/leather-vest · iron_bowl lorc/cauldron · spiked_collar lorc/spiked-collar · war_plate lorc/breastplate · watchmans_bell lorc/ringing-bell · tavern_bouncer lorc/muscle-up
