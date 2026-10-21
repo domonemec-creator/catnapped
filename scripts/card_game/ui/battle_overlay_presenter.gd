@@ -103,12 +103,45 @@ func ensure_tutorial_overlay(parent: Control) -> void:
 	title.add_theme_color_override("font_color", Color(0.98, 0.92, 0.82, 1.0))
 	content.add_child(title)
 
-	var body := Label.new()
-	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	body.text = "1. Vylož kočku z ruky na volnou lajnu (stojí Tunu, číslo v modrém kolečku).\n2. Další kolo s ní zaútoč na soupeřovu lajnu. Prázdná lajna = zásah přímo do soupeře.\n3. Napadená kočka vrací úder svým útokem, tak si výměny rozmysli.\n4. Sraz soupeři životy na nulu dřív, než to udělá on.\n\nVpravo tě panel „Co teď?“ vždycky navede."
-	body.add_theme_font_size_override("font_size", 18)
-	body.add_theme_color_override("font_color", Color(0.95, 0.9, 0.84, 1.0))
-	content.add_child(body)
+	var title_font := FontVariation.new()
+	title_font.base_font = load("res://assets/fonts/Cinzel-Variable.ttf")
+	title_font.variation_opentype = {2003265652: 700}
+	title.add_theme_font_override("font", title_font)
+	title.add_theme_color_override("font_color", Color(0.98, 0.84, 0.5, 1.0))
+
+	# Kroky s ikonami (game-icons.net, CC BY 3.0): kratší věty, jedna myšlenka na řádek.
+	var steps := [
+		[&"paw", Color(0.98, 0.84, 0.5), "Přetáhni kočku z ruky na volné místo dole. Stojí Tunu (modré kolečko)."],
+		[&"attack", Color(0.95, 0.65, 0.3), "Další kolo s ní klikni na soupeřovu lajnu. Prázdná lajna = zásah přímo do soupeře."],
+		[&"guard", Color(0.6, 0.85, 1.0), "Napadená kočka vrací úder svým útokem. Výměny si rozmysli."],
+		[&"life", Color(0.95, 0.42, 0.38), "Sraz soupeři životy na nulu dřív, než to udělá on."],
+	]
+	for step in steps:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 14)
+		var icon := TextureRect.new()
+		icon.texture = CardArtCache.get_keyword_icon(step[0])
+		icon.modulate = step[1]
+		icon.custom_minimum_size = Vector2(30, 30)
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		row.add_child(icon)
+		var line := Label.new()
+		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		line.text = step[2]
+		line.add_theme_font_size_override("font_size", 18)
+		line.add_theme_color_override("font_color", Color(0.95, 0.9, 0.84, 1.0))
+		row.add_child(line)
+		content.add_child(row)
+
+	var hint := Label.new()
+	hint.text = "Vpravo tě panel „Co teď?“ vždycky navede."
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.add_theme_font_size_override("font_size", 16)
+	hint.add_theme_color_override("font_color", Color(0.85, 0.76, 0.6, 1.0))
+	content.add_child(hint)
 
 	var button := Button.new()
 	button.text = "Rozumím"
