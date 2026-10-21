@@ -285,6 +285,10 @@ func show_post_match_overlay(config: Dictionary) -> void:
 func update_post_match_actions(run_session) -> void:
 	_refresh_route_strip(run_session)
 	var show_reward_draft: bool = _result_mode == "win" and run_session != null and run_session.is_active() and not _reward_offers.is_empty()
+	# Vysoký panel jen pro výběr odměn s kartami; jinak kompaktní, ať dole nezůstává prázdno.
+	var result_panel := _post_match_overlay.get_node_or_null("Center/Panel") as Control if _post_match_overlay != null else null
+	if result_panel != null:
+		result_panel.custom_minimum_size = Vector2(980, 840) if show_reward_draft else Vector2(920, 760)
 	if _post_match_reward_buttons != null:
 		_post_match_reward_buttons.visible = show_reward_draft
 	if _post_match_rematch_button != null:
@@ -369,6 +373,8 @@ func _refresh_route_strip(run_session) -> void:
 		style.set_corner_radius_all(8)
 		style.set_border_width_all(2 if step != current else 3)
 		style.border_color = Color(0.98, 0.82, 0.45) if step == current else Color(0.45, 0.36, 0.24, 0.9)
+		if step == current and _result_mode == "loss":
+			style.border_color = Color(0.92, 0.35, 0.3)
 		style.content_margin_left = 2
 		style.content_margin_right = 2
 		style.content_margin_top = 2
