@@ -3,6 +3,8 @@ extends Control
 
 const ENCOUNTER_SELECT_SCENE_PATH := "res://scenes/card_game/encounter_select.tscn"
 const HEADER_TEXTURE_PATH := "res://assets/card_game/ui/header_panel_drapes.png"
+const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
+const CardGameConstants = preload("res://scripts/card_game/data/card_game_constants.gd")
 
 var _panel_style: StyleBoxFlat
 var _section_style: StyleBoxFlat
@@ -54,6 +56,14 @@ func _build_ui() -> void:
     background.color = Color(0.08, 0.06, 0.04, 1)
     background.mouse_filter = Control.MOUSE_FILTER_IGNORE
     add_child(background)
+    var backdrop := TextureRect.new()
+    backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+    backdrop.texture = load("res://assets/card_game/ui/tavern_backdrop.jpg")
+    backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+    backdrop.modulate = Color(0.38, 0.33, 0.3, 1)
+    backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    add_child(backdrop)
 
     var margin := MarginContainer.new()
     margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -141,7 +151,7 @@ func _build_ui() -> void:
 
     _status_label = Label.new()
     _style_label(_status_label, 15, Color(0.88, 0.79, 0.64, 0.95), true)
-    _status_label.text = "Načítám..."
+    _status_label.text = "Tvůj uložený postup. Odměny z runů mění balík vpravo."
     stats_vbox.add_child(_status_label)
 
     _threat_label = _make_stat_label(stats_vbox, "Hrozba")
@@ -220,9 +230,9 @@ func _build_ui() -> void:
     _back_button.custom_minimum_size = Vector2(0, 52)
     _back_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     _back_button.add_theme_font_size_override("font_size", 18)
-    _back_button.add_theme_color_override("font_color", Color(0.13, 0.09, 0.04, 1))
-    _back_button.add_theme_color_override("font_hover_color", Color(0.1, 0.07, 0.03, 1))
-    _back_button.add_theme_color_override("font_pressed_color", Color(0.13, 0.09, 0.04, 1))
+    _back_button.add_theme_color_override("font_color", Color(0.96, 0.88, 0.73, 1))
+    _back_button.add_theme_color_override("font_hover_color", Color(1, 0.94, 0.82, 1))
+    _back_button.add_theme_color_override("font_pressed_color", Color(0.96, 0.88, 0.73, 1))
     _back_button.add_theme_stylebox_override("normal", _button_normal_style)
     _back_button.add_theme_stylebox_override("hover", _button_hover_style)
     _back_button.add_theme_stylebox_override("pressed", _button_pressed_style)
@@ -287,10 +297,35 @@ func _refresh_deck_list(deck_card_ids: Array[StringName]) -> void:
     for card_id in card_order:
         var card_definition: CardDefinition = _card_library.get(card_id) as CardDefinition
         var card_name := String(card_id) if card_definition == null or card_definition.display_name.is_empty() else card_definition.display_name
+        # Řádek balíku: náhled artu, počet, jméno, staty a keyword (místo holého textu).
+        var row := HBoxContainer.new()
+        row.add_theme_constant_override("separation", 12)
+        _deck_list.add_child(row)
+        var thumb := TextureRect.new()
+        thumb.custom_minimum_size = Vector2(72, 44)
+        thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+        thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+        thumb.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+        if card_definition != null:
+            thumb.texture = CardArtCache.get_cropped_aspect(card_definition.art_path, 72.0 / 44.0)
+        row.add_child(thumb)
         var card_line := Label.new()
-        _style_label(card_line, 16, Color(0.95, 0.88, 0.74, 1), true)
+        _style_label(card_line, 17, Color(0.95, 0.88, 0.74, 1), false)
         card_line.text = "%sx %s" % [card_counts.get(card_id, 0), card_name]
-        _deck_list.add_child(card_line)
+        card_line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        card_line.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+        row.add_child(card_line)
+        if card_definition != null:
+            var detail := Label.new()
+            var keyword_text := ""
+            if not card_definition.keywords.is_empty():
+                keyword_text = "%s · " % CardGameConstants.keyword_label(card_definition.keywords[0])
+            detail.text = "%scena %s · %s/%s" % [keyword_text, card_definition.cost, card_definition.attack, card_definition.life]
+            _style_label(detail, 14, Color(0.8, 0.72, 0.58, 1), false)
+            detail.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+            detail.tooltip_text = card_definition.rules_text
+            detail.mouse_filter = Control.MOUSE_FILTER_PASS
+            row.add_child(detail)
 
 
 func _reset_progress() -> void:
