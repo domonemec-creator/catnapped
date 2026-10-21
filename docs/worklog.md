@@ -14,6 +14,10 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - Art 9 nových karet od majitele (Claude Opus 5.5)
+- Zmena: Mark dodal arch 3×3; nový nástroj `tools/slice_art_sheet.gd` najde tmavé linky mezi políčky, ořízne na 2:3 a uloží 1024×1536 do `card_art/<id>.png`. Zdroj archu v `assets/card_game/card_art_source/`. Karty: lamplighter, dock_harpooner, pickpocket, stray_mother, galley_cook, harbor_drummer, grey_veteran, carrion_prowler, graveyard_glutton.
+- Overeni: 20/20 verifierů PASS, screenshot `capture_midgame` (ruka: Harpunář, Šedivý veterán, Kapsář).
+
 ### 2026-10-21 (večer) - Lidský test #3: celý run vyhrán, ladění (Claude Opus 5.5)
 - Zpětná vazba: „bavil jsem se, chápal jsem to, přemýšlel jsem; nevím úplně, jestli to fungovalo, jak mělo“. Záznamy: 5/5 výher, Smug 13–14 kol (11 kol bez zranění), Lantern 4, Ragclaw 5, Harbor 10.
 - Změna: D-021 (myšolovec 2/3, sílící soupeři v runu). Hlášky: Ochrana ze sousední lajny říká „přiskočí ze sousední lajny N“; místo „Sem X nejde“ důvod (obsazeno / málo Tuny).

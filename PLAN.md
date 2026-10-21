@@ -33,7 +33,7 @@
 ## Fáze C – Obsah a hloubka core
 - [x] C0 Odveta + ruka 4 + balanc starteru a NPC (D-014, D-015)
 - [x] C1 Feast karty + 7 nových koček v reward poolu, placeholder art, prompty (D-016)
-- [ ] C1b Art nových karet (čeká na majitele, `design/art_prompts_2026-10.md`)
+- [x] C1b Art nových karet (arch od Marka rozřezán `slice_art_sheet.gd`)
 - [x] C1c Ikony keywordů (game-icons CC BY) u štítků na stole
 - [ ] **Lidský test #2** (checklist v HANDOFF.md)
 - [x] C2 Balanc podle `sim_ai_matches.gd` (D-015, D-017 Hlad proti patu)

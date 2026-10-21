@@ -16,7 +16,7 @@
 3. Pomáhá panel „Co teď?“ vpravo?
 4. Smug Tabby (první soupeř): hratelný, příliš lehký, nebo těžký?
 5. Nové karty (s tlapkou místo obrázku) se objevují v odměnách po výhře. Dávají smysl?
-6. Art nových karet: prompty v `design/art_prompts_2026-10.md`, obrázky ulož do `assets/card_game/card_art/<id>.png`.
+6. Art nových karet: HOTOVO (arch 3×3 → `slice_art_sheet.gd -- <arch> id1,...,id9`). Další arch stejně.
 7. Nové: najeď myší na soupeřovu kočku (náhled vpravo), Nastavení v menu (hlasitost), Hlad při prázdném balíku.
 8. Je jasné, které karty můžeš zahrát (svítí) a které kočky můžou útočit (zelený pulzující rámeček)?
 
