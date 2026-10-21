@@ -245,6 +245,10 @@ func _ready() -> void:
 	selected_card_view.set_interactive(false)
 	table_power_button.pressed.connect(_on_table_power_button_pressed)
 	end_turn_button.pressed.connect(_on_end_turn_pressed)
+	# Mezerník řeší _unhandled_key_input; tlačítka focus nedrží, jinak by mezerník mačkal naposled kliknuté.
+	table_power_button.focus_mode = Control.FOCUS_NONE
+	end_turn_button.focus_mode = Control.FOCUS_NONE
+	end_turn_button.tooltip_text = "Konec tahu (mezerník)"
 	post_match_reward_add_button.pressed.connect(_on_reward_button_pressed.bind(0))
 	post_match_reward_remove_button.pressed.connect(_on_reward_button_pressed.bind(1))
 	post_match_reward_upgrade_button.pressed.connect(_on_reward_button_pressed.bind(2))
@@ -581,6 +585,19 @@ func _sync_battle_feed() -> void:
 
 
 # Nedohraný zápas (zavření okna, odchod do menu) se uloží taky, ať jde lidský test zpětně projít.
+# Mezerník = Konec tahu (jen když je tlačítko aktivní a nic nepřekrývá stůl).
+func _unhandled_key_input(event: InputEvent) -> void:
+	var key := event as InputEventKey
+	if key == null or not key.pressed or key.echo or key.keycode != KEY_SPACE:
+		return
+	if end_turn_button.disabled or not end_turn_button.is_visible_in_tree() or post_match_overlay.visible:
+		return
+	if _battle_state == null or _battle_state.battle_over or _battle_state.active_player_id != PLAYER_ID:
+		return
+	get_viewport().set_input_as_handled()
+	_on_end_turn_pressed()
+
+
 func _exit_tree() -> void:
 	if _net != null:
 		_net.disconnect_signals()

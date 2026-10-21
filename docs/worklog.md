@@ -14,6 +14,10 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - Celá obrazovka a mezerník (Claude Opus 5.5)
+- Nastavení: přepínač „Celá obrazovka (F11)“, F11 funguje všude (Sfx autoload, ukládá se do settings.cfg). Souboj: mezerník = Konec tahu; tlačítka v pravém panelu nedrží focus (mezerník by jinak mačkal naposled kliknuté).
+- Ověření: artifacts/settings.png, 23/23 verifierů. Ruční test kláves jen člověk.
+
 ### 2026-10-21 (noc) - Výsledek zápasu a stůl: úklid po Hrozbě (Claude Opus 5.5)
 - Výsledek: skrytá prázdná plaketa hrozby, texty vycentrované, výhra „X je poražen. Stůl je tvůj.“, prohra „X si stůl drží. Zkus jiný balík nebo jinou taktiku.“ (místo hrozby).
 - Stůl: indikátor vpravo nahoře jen u připravené kočky (UI rozbor bod 7).

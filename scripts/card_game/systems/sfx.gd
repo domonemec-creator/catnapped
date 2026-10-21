@@ -34,6 +34,8 @@ const SETTINGS_PATH := "user://settings.cfg"
 # Hlasitost 0..1 (ukládá se); dB se počítá z nich. 0 = ztlumeno.
 var sfx_volume: float = 0.8
 var music_volume: float = 0.45
+# Celá obrazovka (Nastavení nebo F11); ukládá se se zvukem.
+var fullscreen := false
 var sfx_volume_db: float = -4.0
 var music_volume_db: float = -16.0
 var _players: Array[AudioStreamPlayer] = []
@@ -46,6 +48,8 @@ var _enabled := true
 func _ready() -> void:
 	_enabled = DisplayServer.get_name() != "headless"
 	_load_settings()
+	if _enabled and fullscreen:
+		_apply_fullscreen.call_deferred()
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	for i in range(PLAYER_POOL_SIZE):
 		var player := AudioStreamPlayer.new()
@@ -129,6 +133,7 @@ func _load_settings() -> void:
 	if config.load(SETTINGS_PATH) == OK:
 		sfx_volume = float(config.get_value("audio", "sfx", sfx_volume))
 		music_volume = float(config.get_value("audio", "music", music_volume))
+		fullscreen = bool(config.get_value("display", "fullscreen", fullscreen))
 	_apply_volumes()
 
 
@@ -138,7 +143,27 @@ func _save_settings() -> void:
 	var config := ConfigFile.new()
 	config.set_value("audio", "sfx", sfx_volume)
 	config.set_value("audio", "music", music_volume)
+	config.set_value("display", "fullscreen", fullscreen)
 	config.save(SETTINGS_PATH)
+
+
+func set_fullscreen(value: bool) -> void:
+	fullscreen = value
+	_apply_fullscreen()
+	_save_settings()
+
+
+func _apply_fullscreen() -> void:
+	if not _enabled:
+		return
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
+
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	var key := event as InputEventKey
+	if key != null and key.pressed and not key.echo and key.keycode == KEY_F11:
+		set_fullscreen(not fullscreen)
+		get_viewport().set_input_as_handled()
 
 
 func stop_music() -> void:

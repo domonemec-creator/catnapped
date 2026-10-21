@@ -71,6 +71,16 @@ func _ready() -> void:
 			sfx.play(&"card_place")
 	))
 
+	var fullscreen_toggle := CheckButton.new()
+	fullscreen_toggle.text = "Celá obrazovka (F11)"
+	fullscreen_toggle.add_theme_font_size_override("font_size", 20)
+	fullscreen_toggle.button_pressed = sfx.fullscreen if sfx != null else false
+	fullscreen_toggle.toggled.connect(func(on: bool) -> void:
+		if sfx != null:
+			sfx.set_fullscreen(on)
+	)
+	vbox.add_child(fullscreen_toggle)
+
 	var credits := RichTextLabel.new()
 	credits.bbcode_enabled = true
 	credits.fit_content = true
