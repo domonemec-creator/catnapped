@@ -10,7 +10,7 @@ extends SceneTree
 const TURN_CAP := 60
 const CardGameConstants = preload("res://scripts/card_game/data/card_game_constants.gd")
 const RNG_SEED := 20260620
-const ENCOUNTERS: Array[StringName] = [&"smug_tabby", &"ragclaw_brawler", &"harbor_warden", &"lantern_striker"]
+const ENCOUNTERS: Array[StringName] = [&"smug_tabby", &"ragclaw_brawler", &"harbor_warden", &"lantern_striker", &"fog_seer", &"bilge_king"]
 
 var _progression_system := ProgressionSystem.new()
 var _packed_scene: PackedScene

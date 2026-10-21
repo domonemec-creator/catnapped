@@ -49,7 +49,7 @@ func _run() -> void:
 	if current_scene == null or not (current_scene is EncounterSelectMenu):
 		_fail("Progression screen did not return to encounter select.")
 		return
-	if current_scene._encounters.size() != 4:
+	if current_scene._encounters.size() != ProgressionSystem.TRAINING_ORDER.size():
 		_fail("Encounter select did not reload its encounter roster after returning from progression.")
 		return
 	if current_scene._selected_encounter == null or current_scene._selected_encounter.id != &"smug_tabby":

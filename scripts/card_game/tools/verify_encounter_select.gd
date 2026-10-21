@@ -21,7 +21,7 @@ func _run() -> void:
     await process_frame
     await process_frame
 
-    if menu._encounters.size() != 4:
+    if menu._encounters.size() != ProgressionSystem.TRAINING_ORDER.size():
         _fail("Encounter select did not load the full encounter roster.")
         return
     if menu._selected_encounter == null or menu._selected_encounter.id != &"smug_tabby":

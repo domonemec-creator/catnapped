@@ -3,7 +3,7 @@ extends Control
 
 const BATTLE_SCENE_PATH := "res://scenes/card_game/battle_scene.tscn"
 const PROGRESSION_SCREEN_PATH := "res://scenes/card_game/progression_screen.tscn"
-const ENCOUNTER_IDS: Array[StringName] = [&"smug_tabby", &"ragclaw_brawler", &"harbor_warden", &"lantern_striker"]
+const ENCOUNTER_IDS: Array[StringName] = [&"smug_tabby", &"ragclaw_brawler", &"harbor_warden", &"lantern_striker", &"fog_seer", &"bilge_king"]
 const HEADER_TEXTURE_PATH := "res://assets/card_game/ui/header_panel_drapes.png"
 const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
 const RunSessionScript = preload("res://scripts/card_game/systems/run_session.gd")
@@ -159,7 +159,7 @@ func _build_ui() -> void:
 
     _run_note_label = Label.new()
     _style_label(_run_note_label, 15, Color(0.88, 0.79, 0.64, 0.95), true)
-    _run_note_label.text = "Run začne od vybraného soupeře a projde 5 soubojů."
+    _run_note_label.text = "Run začne od vybraného soupeře a projde všechny soupeře."
     header_vbox.add_child(_run_note_label)
 
     _progress_button = Button.new()
@@ -390,7 +390,7 @@ func _refresh_details() -> void:
     var bonus := _progression_system.get_training_threat_bonus(_selected_encounter.id)
     var unlocked := _progression_system.is_training_unlocked(progress_state, _selected_encounter.id)
     var ladder_index := ProgressionSystem.TRAINING_ORDER.find(_selected_encounter.id)
-    _run_note_label.text = "Run má 5 soubojů. První soupeř: %s." % _selected_encounter.display_name
+    _run_note_label.text = "Run má %s soubojů. První soupeř: %s." % [RunSessionScript.DEFAULT_RUN_ROSTER.size(), _selected_encounter.display_name]
     _run_button.disabled = false
     _start_button.disabled = not unlocked
     if not unlocked and ladder_index > 0:
@@ -427,7 +427,9 @@ const ENCOUNTER_STYLES := {
     &"smug_tabby": "Učitel · drží obranu, dobrý na začátek",
     &"ragclaw_brawler": "Rváč · rychlé útoky hned od prvního kola, Kapsáři",
     &"lantern_striker": "Útočník · skoky do sousedních lajn, Lampářky",
-    &"harbor_warden": "Boss · tvrdá obrana, velké kočky a Harpunář",
+    &"harbor_warden": "Kapitán · tvrdá obrana, velké kočky a Harpunář",
+    &"fog_seer": "Věštkyně · zranění z mlhy, Lampářky a Lodní hlídky",
+    &"bilge_king": "Finální boss · hodování na padlých, Pašeráci",
 }
 
 
@@ -438,7 +440,7 @@ func _build_encounter_button_text(encounter: EncounterDefinition) -> String:
 
 # Životy soupeře podle stupně tréninku (D-022).
 func _training_life(encounter: EncounterDefinition) -> int:
-    return encounter.starting_life + maxi(0, ProgressionSystem.TRAINING_ORDER.find(encounter.id)) * ProgressionSystem.TRAINING_TIER_LIFE
+    return encounter.starting_life + ProgressionSystem.get_training_life_bonus(maxi(0, ProgressionSystem.TRAINING_ORDER.find(encounter.id)))
 
 
 func _build_encounter_tooltip(encounter: EncounterDefinition) -> String:
@@ -485,7 +487,7 @@ func _start_run() -> void:
 
     var progression_state: Dictionary = _progression_system.load_state()
     var starting_deck_card_ids: Array[StringName] = _progression_system.get_player_deck_card_ids(progression_state)
-    _get_run_session().start_new_run(_selected_encounter.id, 5, starting_deck_card_ids)
+    _get_run_session().start_new_run(_selected_encounter.id, RunSessionScript.DEFAULT_RUN_ROSTER.size(), starting_deck_card_ids)
     _open_battle_scene()
 
 

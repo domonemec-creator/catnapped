@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - Soupeři 5 a 6, karty Lodní hlídka a Pašerák (Claude Opus 5.5)
+- Zmena: Mlžná věštkyně (`fog_seer`, zranění při vyložení, Lampářky, Hlídky) a Stokový král (`bilge_king`, finální boss, Hodování, Pašeráci). Žebříček i run: Smug → Lantern → Ragclaw → Věštkyně → Harbor → Král; run má 6 soubojů. Karty: Lodní hlídka 2 Tuny 1/3 (při vyložení lízni), Pašerák 4 Tuny 3/4 (při vyložení 2 zranění soupeři), obě v poolu odměn. Bonus životů za stupeň je omezen na 3. stupeň (+6), protože soupeř se +8/+10 byl v simu neporazitelný.
+- Overeni: 21/21 PASS (3 verifiery navázány na velikost rosteru), sim p_first Smug 90 / Lantern 42,5 / Ragclaw 27,5 / Věštkyně 32,5 / Harbor 12,5 / Král 12,5 %.
+- Otevřené: Král by měl být nejtěžší, je na úrovni Harboru. Doladit po lidském testu.
+
 ### 2026-10-21 (noc) - Arch portrétů od majitele (Claude Opus 5.5)
 - Zmena: Vlastní portréty soupeřů Lantern/Ragclaw/Harbor (dřív půjčené karty), art Tuláka, rub karty (`card_back.png`, soupeřova ruka), ikona hry `icon.png` vyříznutá z Ragclawa (`make_app_icon.gd`). Připravené pro budoucnost: `portrait_fog_seer`, `portrait_bilge_king`, `ship_lookout`, `smuggler`. `slice_art_sheet.gd` nově odřezává tmavé okraje (arch s vnějším rámem).
 - Overeni: 21/21 PASS, screenshot menu.

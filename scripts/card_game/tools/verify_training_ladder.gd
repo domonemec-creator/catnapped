@@ -40,8 +40,9 @@ func _run() -> void:
 	await process_frame
 	var tier := order.size() - 1
 	var enemy_state = battle._battle_state.get_player_state(battle.ENEMY_ID)
-	if enemy_state.life != encounter.starting_life + tier * battle.TIER_LIFE_BONUS:
-		_fail("Soupeř %s. stupně má mít %s životů, má %s." % [tier + 1, encounter.starting_life + tier * battle.TIER_LIFE_BONUS, enemy_state.life])
+	var expected_life := encounter.starting_life + ProgressionSystem.get_training_life_bonus(tier)
+	if enemy_state.life != expected_life:
+		_fail("Soupeř %s. stupně má mít %s životů, má %s." % [tier + 1, expected_life, enemy_state.life])
 		return
 	if enemy_state.hand.size() != CardGameConstants.starting_hand + 1:
 		_fail("Soupeř vyššího stupně má začínat s kartou navíc.")

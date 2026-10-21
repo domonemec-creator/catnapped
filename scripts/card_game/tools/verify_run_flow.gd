@@ -60,7 +60,7 @@ func _run() -> void:
     if battle.post_match_choose_encounter_button.text != "Další souboj":
         _fail("Run overlay did not switch to Další souboj.")
         return
-    if not battle.post_match_record_label.text.contains("Výprava 1/5"):
+    if not battle.post_match_record_label.text.contains("Výprava 1/%s" % preload("res://scripts/card_game/systems/run_session.gd").DEFAULT_RUN_ROSTER.size()):
         _fail("Run overlay did not show run progress.")
         return
 
@@ -79,10 +79,10 @@ func _run() -> void:
     if run_session.get_current_step_number() != 2:
         _fail("Run did not advance to step 2.")
         return
-    if run_session.get_current_encounter_id() != &"harbor_warden":
-        _fail("Second run battle (after Ragclaw) did not switch to Harbor Warden.")
+    if run_session.get_current_encounter_id() != &"fog_seer":
+        _fail("Second run battle (after Ragclaw) did not switch to Fog Seer.")
         return
-    if next_battle._encounter.id != &"harbor_warden":
+    if next_battle._encounter.id != &"fog_seer":
         _fail("Battle scene did not load the second run encounter.")
         return
 

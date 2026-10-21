@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="DeckDefinition" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/deck_definition.gd" id="1_deck_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/deck_entry.gd" id="2_deck_entry"]
+
+[sub_resource type="Resource" id="1_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"lamplighter"
+count = 3
+
+[sub_resource type="Resource" id="2_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"dock_harpooner"
+count = 2
+
+[sub_resource type="Resource" id="3_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"ship_lookout"
+count = 3
+
+[sub_resource type="Resource" id="4_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"tavern_mouser"
+count = 2
+
+[sub_resource type="Resource" id="5_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"netclaw_raider"
+count = 2
+
+[sub_resource type="Resource" id="6_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"galley_cook"
+count = 2
+
+[sub_resource type="Resource" id="7_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"candlepaw_scout"
+count = 3
+
+[sub_resource type="Resource" id="8_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"alley_scrapper"
+count = 2
+
+[sub_resource type="Resource" id="9_entry"]
+script = ExtResource("2_deck_entry")
+card_id = &"grey_veteran"
+count = 1
+[resource]
+script = ExtResource("1_deck_definition")
+id = &"npc_fog_seer"
+display_name = "Balík Mlžné věštkyně"
+cards = [SubResource("1_entry"), SubResource("2_entry"), SubResource("3_entry"), SubResource("4_entry"), SubResource("5_entry"), SubResource("6_entry"), SubResource("7_entry"), SubResource("8_entry"), SubResource("9_entry")]

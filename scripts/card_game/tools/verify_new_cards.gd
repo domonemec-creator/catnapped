@@ -47,7 +47,7 @@ func _run() -> void:
 	var player_state = battle._battle_state.get_player_state(battle.PLAYER_ID)
 	var enemy_state = battle._battle_state.get_player_state(battle.ENEMY_ID)
 
-	for card_id in [&"lamplighter", &"dock_harpooner", &"pickpocket", &"stray_mother", &"galley_cook", &"harbor_drummer", &"grey_veteran", &"carrion_prowler", &"graveyard_glutton"]:
+	for card_id in [&"lamplighter", &"dock_harpooner", &"pickpocket", &"stray_mother", &"galley_cook", &"harbor_drummer", &"grey_veteran", &"carrion_prowler", &"graveyard_glutton", &"ship_lookout", &"smuggler"]:
 		if battle._create_card_instance(card_id, battle.PLAYER_ID) == null:
 			_fail("Card %s is missing from the library." % card_id)
 			return

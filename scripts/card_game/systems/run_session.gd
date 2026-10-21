@@ -2,11 +2,13 @@ extends Node
 
 const DeckDefinition = preload("res://scripts/card_game/data/deck_definition.gd")
 
-const DEFAULT_RUN_ROSTER: Array[StringName] = [&"smug_tabby", &"lantern_striker", &"ragclaw_brawler", &"harbor_warden"]
+const DEFAULT_RUN_ROSTER: Array[StringName] = [&"smug_tabby", &"lantern_striker", &"ragclaw_brawler", &"fog_seer", &"harbor_warden", &"bilge_king"]
 const DEFAULT_RUN_LENGTH := 5
 const STARTER_DECK_PATH := "res://data/decks/starter_player.tres"
 const REWARD_ADD_POOL: Array[StringName] = [
     &"alley_scrapper",
+    &"ship_lookout",
+    &"smuggler",
     &"candlepaw_scout",
     &"fishbone_skulker",
     &"tavern_mouser",
@@ -190,6 +192,10 @@ func _encounter_display_name(encounter_id: StringName) -> String:
             return "Přístavní strážný"
         &"lantern_striker":
             return "Lucernový útočník"
+        &"fog_seer":
+            return "Mlžná věštkyně"
+        &"bilge_king":
+            return "Stokový král"
     return String(encounter_id)
 
 

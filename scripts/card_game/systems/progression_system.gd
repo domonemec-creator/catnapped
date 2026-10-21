@@ -19,9 +19,15 @@ const KEY_TUTORIAL_SEEN := "battle_tutorial_seen"
 const KEY_TRAINING_CLEARED := "training_cleared"
 # Trénink (D-022): žebříček soupeřů ve stejném pořadí jako run. Každý další má o
 # TRAINING_TIER_STEP vyšší hrozbu a odemkne se až po porážce předchozího.
-const TRAINING_ORDER: Array[StringName] = [&"smug_tabby", &"lantern_striker", &"ragclaw_brawler", &"harbor_warden"]
+const TRAINING_ORDER: Array[StringName] = [&"smug_tabby", &"lantern_striker", &"ragclaw_brawler", &"fog_seer", &"harbor_warden", &"bilge_king"]
 const TRAINING_TIER_STEP := 2
 const TRAINING_TIER_LIFE := 2
+# Životy navíc rostou jen do 3. stupně; soupeři 5 a 6 jsou silní balíkem (sim: s +8/+10 životy neporazitelní).
+const TRAINING_TIER_LIFE_CAP := 3
+
+
+static func get_training_life_bonus(tier: int) -> int:
+	return mini(tier, TRAINING_TIER_LIFE_CAP) * TRAINING_TIER_LIFE
 const MIN_THREAT := 0
 const MAX_THREAT := 10
 const THREAT_UNLOCK_WIN_COUNT := 1

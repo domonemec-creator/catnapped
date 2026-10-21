@@ -37,7 +37,6 @@ const PLAYER_TABLE_POWER_ID := &"order_round"
 const ENCOUNTER_PATH := "res://data/encounters/smug_tabby.tres"
 const DEFAULT_ENCOUNTER_ID := &"smug_tabby"
 const ENCOUNTER_SELECT_SCENE_PATH := "res://scenes/card_game/encounter_select.tscn"
-const TIER_LIFE_BONUS := ProgressionSystem.TRAINING_TIER_LIFE
 const TIER_EXTRA_CARD_FROM := 2
 const CARD_VIEW_SCENE := preload("res://scenes/card_game/card_view.tscn")
 const POSTMATCH_VICTORY_EMBLEM_PATH := "res://assets/card_game/ui/postmatch_victory_emblem.png"
@@ -1051,7 +1050,7 @@ func _setup_battle() -> void:
 	var enemy_deck_id := StringName()
 	if _encounter != null:
 		enemy_name = _encounter.npc_name
-		enemy_life = _encounter.starting_life + _get_difficulty_tier() * TIER_LIFE_BONUS
+		enemy_life = _encounter.starting_life + ProgressionSystem.get_training_life_bonus(_get_difficulty_tier())
 		enemy_power_id = _encounter.table_power_id
 		enemy_deck_id = _encounter.deck_id
 	enemy_state.initialize(ENEMY_ID, enemy_name, enemy_life, STARTING_TUNA, enemy_power_id, LANE_COUNT)
