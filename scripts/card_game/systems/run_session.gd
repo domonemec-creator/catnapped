@@ -83,6 +83,10 @@ func is_active() -> bool:
     return _active
 
 
+func get_route() -> Array[StringName]:
+    return _route.duplicate()
+
+
 func get_route_length() -> int:
     return _route.size()
 

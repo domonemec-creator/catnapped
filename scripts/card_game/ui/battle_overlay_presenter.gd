@@ -283,6 +283,7 @@ func show_post_match_overlay(config: Dictionary) -> void:
 
 
 func update_post_match_actions(run_session) -> void:
+	_refresh_route_strip(run_session)
 	var show_reward_draft: bool = _result_mode == "win" and run_session != null and run_session.is_active() and not _reward_offers.is_empty()
 	if _post_match_reward_buttons != null:
 		_post_match_reward_buttons.visible = show_reward_draft
@@ -338,6 +339,57 @@ func update_post_match_actions(run_session) -> void:
 		_post_match_choose_encounter_button.text = "Vybrat souboj"
 
 
+# Cesta runu: portréty soupeřů v pořadí; poražení ztlumení, aktuální/další zvýrazněný.
+var _route_strip: HBoxContainer
+
+
+func _refresh_route_strip(run_session) -> void:
+	if _post_match_record_label == null:
+		return
+	if _route_strip == null:
+		_route_strip = HBoxContainer.new()
+		_route_strip.add_theme_constant_override("separation", 8)
+		_route_strip.alignment = BoxContainer.ALIGNMENT_CENTER
+		var parent := _post_match_record_label.get_parent()
+		parent.add_child(_route_strip)
+		parent.move_child(_route_strip, _post_match_record_label.get_index() + 1)
+	for child in _route_strip.get_children():
+		child.queue_free()
+	var active: bool = run_session != null and run_session.is_active()
+	_route_strip.visible = active
+	if not active:
+		return
+	var route: Array = run_session.get_route()
+	var current: int = run_session.get_current_step_number()
+	for i in range(route.size()):
+		var step := i + 1
+		var frame := PanelContainer.new()
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color(0.08, 0.06, 0.04, 0.9)
+		style.set_corner_radius_all(8)
+		style.set_border_width_all(2 if step != current else 3)
+		style.border_color = Color(0.98, 0.82, 0.45) if step == current else Color(0.45, 0.36, 0.24, 0.9)
+		style.content_margin_left = 2
+		style.content_margin_right = 2
+		style.content_margin_top = 2
+		style.content_margin_bottom = 2
+		frame.add_theme_stylebox_override("panel", style)
+		var portrait := TextureRect.new()
+		portrait.custom_minimum_size = Vector2(54, 40)
+		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		var encounter_path := "res://data/encounters/%s.tres" % String(route[i])
+		if ResourceLoader.exists(encounter_path):
+			var encounter = load(encounter_path)
+			portrait.texture = CardArtCache.get_cropped_aspect(encounter.portrait_path, 54.0 / 40.0)
+			frame.tooltip_text = "%s. %s" % [step, encounter.display_name]
+		# Poražení (před aktuálním krokem, a aktuální po výhře) ztlumit.
+		if step < current or (step == current and _result_mode == "win"):
+			portrait.modulate = Color(0.45, 0.45, 0.45, 1.0)
+		frame.add_child(portrait)
+		_route_strip.add_child(frame)
+
+
 func refresh_reward_buttons() -> void:
 	if _post_match_reward_add_button == null or _post_match_reward_remove_button == null or _post_match_reward_upgrade_button == null:
 		return
@@ -361,7 +413,7 @@ func _style_reward_button(button: Button, card_id: StringName) -> void:
 	button.expand_icon = true
 	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-	button.add_theme_constant_override("icon_max_width", 210)
+	button.add_theme_constant_override("icon_max_width", 170)
 	button.icon = null
 	var card_path := "res://data/cards/%s.tres" % String(card_id)
 	if card_id != StringName() and ResourceLoader.exists(card_path):
