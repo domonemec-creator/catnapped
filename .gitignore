@@ -6,3 +6,6 @@ artifacts/*
 
 # Externi Codex skill (design reference, neni soucasti hry)
 skills/
+
+# Exportované buildy
+build/
