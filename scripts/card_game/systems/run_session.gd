@@ -243,14 +243,14 @@ func _build_reward_offers(card_library: Dictionary) -> Array[Dictionary]:
         offers.append({
             "kind": "add",
             "card_id": add_card_id,
-            "label": "Přidat %s" % _get_card_display_name(card_library, add_card_id),
+            "label": "Přidat: %s" % _get_card_display_name(card_library, add_card_id),
         })
 
     if remove_card_id != StringName():
         offers.append({
             "kind": "remove",
             "card_id": remove_card_id,
-            "label": "Odebrat %s" % _get_card_display_name(card_library, remove_card_id),
+            "label": "Odebrat: %s" % _get_card_display_name(card_library, remove_card_id),
         })
 
     if not upgrade_offer.is_empty():
@@ -258,7 +258,7 @@ func _build_reward_offers(card_library: Dictionary) -> Array[Dictionary]:
             "kind": "upgrade",
             "from_card_id": upgrade_offer.get("from_card_id", StringName()),
             "to_card_id": upgrade_offer.get("to_card_id", StringName()),
-            "label": "Vylepšit %s -> %s" % [
+            "label": "Vylepšit: %s → %s" % [
                 _get_card_display_name(card_library, StringName(upgrade_offer.get("from_card_id", StringName()))),
                 _get_card_display_name(card_library, StringName(upgrade_offer.get("to_card_id", StringName()))),
             ],
@@ -269,7 +269,7 @@ func _build_reward_offers(card_library: Dictionary) -> Array[Dictionary]:
             offers.append({
                 "kind": "add",
                 "card_id": fallback_add_card_id,
-                "label": "Přidat %s" % _get_card_display_name(card_library, fallback_add_card_id),
+                "label": "Přidat: %s" % _get_card_display_name(card_library, fallback_add_card_id),
             })
 
     while offers.size() < 3:
@@ -279,7 +279,7 @@ func _build_reward_offers(card_library: Dictionary) -> Array[Dictionary]:
         offers.append({
             "kind": "add",
             "card_id": fallback_offer_card_id,
-            "label": "Přidat %s" % _get_card_display_name(card_library, fallback_offer_card_id),
+            "label": "Přidat: %s" % _get_card_display_name(card_library, fallback_offer_card_id),
         })
 
     return offers

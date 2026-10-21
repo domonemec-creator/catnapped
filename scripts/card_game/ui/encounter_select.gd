@@ -100,18 +100,12 @@ func _build_ui() -> void:
     margin.add_child(layout)
 
     var header := PanelContainer.new()
-    header.custom_minimum_size = Vector2(0, 180)
+    header.custom_minimum_size = Vector2(0, 0)
     header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     header.add_theme_stylebox_override("panel", _panel_style)
     layout.add_child(header)
 
-    var header_art := TextureRect.new()
-    header_art.set_anchors_preset(Control.PRESET_FULL_RECT)
-    header_art.texture = _load_texture(HEADER_TEXTURE_PATH)
-    header_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-    header_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-    header_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    header.add_child(header_art)
+    # Hlavička bez textury závěsů (uprostřed měla černý obdélník, UI rozbor 2026-10-21).
 
     var header_margin := MarginContainer.new()
     header_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -121,11 +115,14 @@ func _build_ui() -> void:
     header_margin.add_theme_constant_override("margin_bottom", 22)
     header.add_child(header_margin)
 
+    var header_row := HBoxContainer.new()
+    header_row.add_theme_constant_override("separation", 24)
+    header_margin.add_child(header_row)
     var header_vbox := VBoxContainer.new()
     header_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    header_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-    header_vbox.add_theme_constant_override("separation", 6)
-    header_margin.add_child(header_vbox)
+    header_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+    header_vbox.add_theme_constant_override("separation", 2)
+    header_row.add_child(header_vbox)
 
     var title := Label.new()
     title.text = "Catnapped!"
@@ -139,7 +136,7 @@ func _build_ui() -> void:
     header_vbox.add_child(title)
 
     var subtitle := Label.new()
-    subtitle.text = "Kočičí karetní souboje v přístavní krčmě. Vyber prvního soupeře a spusť run."
+    subtitle.text = "Kočičí karetní souboje v přístavní krčmě. Poraz soupeře v tréninku, nebo projdi celou výpravu."
     _style_label(subtitle, 18, Color(0.9, 0.82, 0.67, 0.95), true)
     header_vbox.add_child(subtitle)
 
@@ -155,12 +152,10 @@ func _build_ui() -> void:
     _run_button.add_theme_stylebox_override("hover", _start_button_hover_style)
     _run_button.add_theme_stylebox_override("pressed", _start_button_pressed_style)
     _run_button.pressed.connect(_start_run)
-    header_vbox.add_child(_run_button)
 
     _run_note_label = Label.new()
     _style_label(_run_note_label, 15, Color(0.88, 0.79, 0.64, 0.95), true)
-    _run_note_label.text = "Run začne od vybraného soupeře a projde všechny soupeře."
-    header_vbox.add_child(_run_note_label)
+    _run_note_label.text = "Výprava začne od vybraného soupeře a projde všechny soupeře."
 
     _progress_button = Button.new()
     _progress_button.text = "Balík a postup"
@@ -174,16 +169,18 @@ func _build_ui() -> void:
     _progress_button.add_theme_stylebox_override("hover", _progress_button_hover_style)
     _progress_button.add_theme_stylebox_override("pressed", _progress_button_pressed_style)
     _progress_button.pressed.connect(_open_progression_screen)
-    var secondary_row := HBoxContainer.new()
-    secondary_row.add_theme_constant_override("separation", 12)
-    header_vbox.add_child(secondary_row)
+    _progress_button.custom_minimum_size = Vector2(230, 48)
+    _progress_button.size_flags_horizontal = Control.SIZE_FILL
+    var secondary_row := VBoxContainer.new()
+    secondary_row.add_theme_constant_override("separation", 8)
+    header_row.add_child(secondary_row)
     secondary_row.add_child(_progress_button)
 
     # Nastavení hlasitosti + titulky (licence CC BY vyžaduje uvedení autorů).
     var settings_button := _progress_button.duplicate() as Button
     settings_button.text = "Nastavení a titulky"
     settings_button.size_flags_horizontal = Control.SIZE_FILL
-    settings_button.custom_minimum_size = Vector2(260, 48)
+    settings_button.custom_minimum_size = Vector2(230, 48)
     settings_button.pressed.connect(_open_settings)
     secondary_row.add_child(settings_button)
 
@@ -285,7 +282,7 @@ func _build_ui() -> void:
     details_vbox.add_child(_status_label)
 
     _start_button = Button.new()
-    _start_button.text = "Jen jeden souboj (trénink)"
+    _start_button.text = "Trénink: jeden souboj"
     _start_button.custom_minimum_size = Vector2(0, 56)
     _start_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     _start_button.add_theme_font_size_override("font_size", 21)
@@ -296,7 +293,19 @@ func _build_ui() -> void:
     _start_button.add_theme_stylebox_override("hover", _start_button_hover_style)
     _start_button.add_theme_stylebox_override("pressed", _start_button_pressed_style)
     _start_button.pressed.connect(_start_battle)
-    details_vbox.add_child(_start_button)
+    # Dva režimy vedle sebe (UI rozbor 2026-10-21): trénink a výprava.
+    var mode_row := HBoxContainer.new()
+    mode_row.add_theme_constant_override("separation", 12)
+    details_vbox.add_child(mode_row)
+    mode_row.add_child(_start_button)
+    _run_button.text = "Výprava: všichni soupeři"
+    _run_button.add_theme_stylebox_override("normal", _progress_button_normal_style)
+    _run_button.add_theme_stylebox_override("hover", _progress_button_hover_style)
+    _run_button.add_theme_stylebox_override("pressed", _progress_button_pressed_style)
+    _run_button.add_theme_color_override("font_color", Color(0.95, 0.86, 0.7, 1))
+    _run_button.add_theme_color_override("font_hover_color", Color(0.98, 0.9, 0.75, 1))
+    mode_row.add_child(_run_button)
+    details_vbox.add_child(_run_note_label)
 
 
 func _load_encounters() -> void:
@@ -390,7 +399,7 @@ func _refresh_details() -> void:
     var bonus := _progression_system.get_training_threat_bonus(_selected_encounter.id)
     var unlocked := _progression_system.is_training_unlocked(progress_state, _selected_encounter.id)
     var ladder_index := ProgressionSystem.TRAINING_ORDER.find(_selected_encounter.id)
-    _run_note_label.text = "Run má %s soubojů. První soupeř: %s." % [RunSessionScript.DEFAULT_RUN_ROSTER.size(), _selected_encounter.display_name]
+    _run_note_label.text = "Výprava má %s soubojů s odměnami. První soupeř: %s." % [RunSessionScript.DEFAULT_RUN_ROSTER.size(), _selected_encounter.display_name]
     _run_button.disabled = false
     _start_button.disabled = not unlocked
     if not unlocked and ladder_index > 0:
