@@ -52,5 +52,3 @@
 - Alegreya má minuskové číslice („0“ je nízká); `lnum` ve variabilní verzi nefunguje.
 - `_load_ui_texture` už načítá přes `load()` (funguje v exportu), `Image.load_from_file` zůstává jen jako záloha. Okno se škáluje (`canvas_items`, `keep`).
 
-## Další krok
-Viz `PLAN.md`: fáze C (obsah: Feast karty, víc odměn), přechody scén, úklid pravého panelu bez výběru, export build.
