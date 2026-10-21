@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - Layout souboje v2 (UI rozbor body 1–3) (Claude Opus 5.5)
+- Zmena: `ui/battle_layout.gd` přeskládá scénu za běhu: levý sloupec (portrét soupeře s okrajem v barvě tahu, jméno Cinzel, životy, ruby karet / hlášení a záznam / tvoje životy, balík, odhazování), stůl uprostřed, ruka pod stolem s kartami na výšku (136×188), pravý panel beze změny. Art na stole i v ruce výřezem na postavu (`get_cropped_aspect`), prázdné lajny tichý obrys místo mosazného medailonu, „Přímý zásah“ jen při útoku. Hrozba z hlavičky pryč (zůstala v tooltipu). Inspirace: Marvel Snap (3 lokace, karty na výšku), Hearthstone (portrét soupeře).
+- Overeni: 21/21 PASS (verifiery přepnuty na `is_empty_target_highlighted()` a nové cesty), screenshoty `artifacts/v2_*.png`.
+- Další: pravý panel (velký náhled, méně textu), menu se dvěma režimy, odměny (skloňování, šipka).
+
 ### 2026-10-21 (noc) - Soupeři 5 a 6, karty Lodní hlídka a Pašerák (Claude Opus 5.5)
 - Zmena: Mlžná věštkyně (`fog_seer`, zranění při vyložení, Lampářky, Hlídky) a Stokový král (`bilge_king`, finální boss, Hodování, Pašeráci). Žebříček i run: Smug → Lantern → Ragclaw → Věštkyně → Harbor → Král; run má 6 soubojů. Karty: Lodní hlídka 2 Tuny 1/3 (při vyložení lízni), Pašerák 4 Tuny 3/4 (při vyložení 2 zranění soupeři), obě v poolu odměn. Bonus životů za stupeň je omezen na 3. stupeň (+6), protože soupeř se +8/+10 byl v simu neporazitelný.
 - Overeni: 21/21 PASS (3 verifiery navázány na velikost rosteru), sim p_first Smug 90 / Lantern 42,5 / Ragclaw 27,5 / Věštkyně 32,5 / Harbor 12,5 / Král 12,5 %.

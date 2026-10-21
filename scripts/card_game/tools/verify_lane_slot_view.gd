@@ -58,12 +58,12 @@ func _run() -> void:
 	if slot.card_preview.visible:
 		_fail("Empty lane should not show a card preview.")
 		return
-	if slot.empty_label.text.find("VYLO") != 0:
+	if slot.empty_label.text.find("Vylo") != 0:
 		_fail("Player lane did not expose the expected empty slot label.")
 		return
 
 	slot.set_highlight_mode(slot.HIGHLIGHT_PLAY)
-	if not slot.target_ring_center.visible:
+	if not slot.is_empty_target_highlighted():
 		_fail("Empty playable lane should show the target ring.")
 		return
 
@@ -97,7 +97,7 @@ func _run() -> void:
 		return
 
 	slot.set_highlight_mode(slot.HIGHLIGHT_PLAY)
-	if slot.target_ring_center.visible:
+	if slot.is_empty_target_highlighted():
 		_fail("Occupied lane should not keep the empty-slot target ring behind the card.")
 		return
 	if slot.highlight.visible or slot.slot_glow.visible:

@@ -313,7 +313,7 @@ func _make_face_badge(color: Color, ax: float, ay: float, ox: float, oy: float, 
 func _refresh_face(card_definition: CardDefinition, show_stats: bool, badge_text: String) -> void:
     if _face == null:
         return
-    _face_art.texture = CardArtCache.get_cropped(card_definition.art_path, 0.04, 0.42)
+    _face_art.texture = CardArtCache.get_cropped_aspect(card_definition.art_path, 0.85, 0.02)  # karta na výšku: hlava + trup
     _face_name.text = card_definition.display_name
     # Dlouhá jména zmenšit, ať se vejdou mezi odznaky útoku a životů.
     var name_length := card_definition.display_name.length()

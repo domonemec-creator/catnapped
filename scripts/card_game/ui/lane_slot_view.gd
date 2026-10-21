@@ -401,7 +401,7 @@ func _apply_side_accent() -> void:
 	add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	slot_shell.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	side_badge.add_theme_stylebox_override("panel", _build_style_box(side_theme["badge_bg"], side_theme["badge_border"], 10, 1))
-	empty_frame.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	empty_frame.add_theme_stylebox_override("panel", _build_empty_slot_style(side_theme))
 	name_ribbon.add_theme_stylebox_override("panel", _build_style_box(ribbon_bg, ribbon_border, 12, 1))
 
 	side_label.text = str(side_theme["side_text"])
@@ -410,9 +410,13 @@ func _apply_side_accent() -> void:
 	empty_label.add_theme_color_override("font_color", side_theme["empty_text"])
 	empty_hint_label.add_theme_color_override("font_color", side_theme["hint_text"])
 	occupant_label.add_theme_color_override("font_color", side_theme["ribbon_text"])
-	empty_frame_texture.texture = _load_ui_texture(_empty_frame_texture_path())
-	empty_frame_texture.modulate = _empty_frame_modulate()
-	target_ring_center.visible = target_ring.texture != null and _should_show_target_ring()
+	# Layout v2: místo mosazného medailonu tichý obrys karty; zvýraznění nese okraj a text.
+	empty_frame_texture.visible = false
+	target_ring_center.visible = false
+	empty_label.text = _build_empty_art_label()
+	empty_label.add_theme_font_size_override("font_size", 17)
+	if _current_highlight_mode != HIGHLIGHT_NONE:
+		empty_label.add_theme_color_override("font_color", HIGHLIGHT_BORDER_COLORS.get(_current_highlight_mode, side_theme["empty_text"]))
 	slot_glow.visible = false
 	if _card_instance != null and _card_instance.definition != null:
 		_style_token()
@@ -618,7 +622,7 @@ func _populate_token() -> void:
 	var def = _card_instance.definition
 	_token_cost.text = str(def.cost)
 	_token_name.text = def.display_name
-	_token_art.texture = CardArtCache.get_cropped(def.art_path)
+	_token_art.texture = CardArtCache.get_cropped_aspect(def.art_path, 1.0, 0.02)  # layout v2: slot skoro čtvercový
 	_token_attack.text = str(_card_instance.current_attack)
 	_token_life.text = str(_card_instance.current_life)
 
@@ -744,14 +748,37 @@ func _is_card_wounded(card_instance: CardInstance) -> bool:
 
 func _build_empty_art_label() -> String:
 	if owner_id == OWNER_ENEMY:
-		return "PŘÍMÝ ZÁSAH"
-	return "VYLOŽ KOČKU"
+		# Jen když jde opravdu zaútočit (rozbor: svítilo i mimo útok).
+		return "Přímý zásah" if _current_highlight_mode != HIGHLIGHT_NONE else ""
+	return "Vylož kočku"
+
+
+# Prázdné místo na stole: obrys karty v barvě strany, při zvýraznění silnější okraj.
+func _build_empty_slot_style(side_theme: Dictionary) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.05, 0.035, 0.025, 0.35)
+	style.border_color = Color(side_theme["ribbon_border"]).darkened(0.25)
+	style.border_color.a = 0.55
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(12)
+	style.content_margin_left = 6.0
+	style.content_margin_right = 6.0
+	if _current_highlight_mode != HIGHLIGHT_NONE:
+		style.border_color = HIGHLIGHT_BORDER_COLORS.get(_current_highlight_mode, style.border_color)
+		style.set_border_width_all(4)
+		style.bg_color = Color(style.border_color.r, style.border_color.g, style.border_color.b, 0.12)
+	return style
 
 
 func _empty_frame_texture_path() -> String:
 	if owner_id == OWNER_ENEMY:
 		return SPENT_BADGE_PATH
 	return READY_BADGE_PATH
+
+
+# Prázdné místo je zvýrazněné jako cíl (layout v2 místo kruhu kreslí okraj).
+func is_empty_target_highlighted() -> bool:
+	return _should_show_target_ring()
 
 
 func _should_show_target_ring() -> bool:

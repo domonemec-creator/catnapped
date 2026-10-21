@@ -141,10 +141,10 @@ func _run() -> void:
 	if battle._enemy_lanes[0].event_panel.visible:
 		_fail("Occupied enemy threat lane should not paint another preview banner over the card.")
 		return
-	if battle._enemy_lanes[0].target_ring_center.visible:
+	if battle._enemy_lanes[0].is_empty_target_highlighted():
 		_fail("Occupied enemy threat lane should not keep the empty-slot ring behind the card.")
 		return
-	if not battle._player_lanes[0].target_ring_center.visible:
+	if not battle._player_lanes[0].is_empty_target_highlighted():
 		_fail("Lethal threat did not mark the open player lane with the ring highlight.")
 		return
 
