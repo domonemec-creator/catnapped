@@ -26,7 +26,8 @@ func _run() -> void:
 	_role = args[0] if args.size() > 0 else "host"
 	var port := int(args[1]) if args.size() > 1 else 7031
 	var mm := root.get_node("MultiplayerManager")
-	var deck := ProgressionSystem.new().get_player_deck_card_ids(ProgressionSystem.new().reset_state())
+	# Jen čtení: v okně by reset_state() přepsal skutečný save hráče.
+	var deck := ProgressionSystem.new().get_player_deck_card_ids(ProgressionSystem.new().load_state())
 	var result: Error
 	if _role == "host":
 		result = mm.host_session(port, "Host", deck)

@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - Incident: síťový test v okně přepsal skutečný save (Claude Opus 5.5)
+- Co: `net_smoke.gd` spuštěný v okně (kvůli screenshotu) volal `reset_state()`; testovací save se volil jen podle headless, takže se smazal Markův postup (6 výher, 2 prohry, balík 23 karet).
+- Náprava: save obnoven ze screenshotů artifacts/c_prog.png a deckbuild.png (záloha artifacts/save_backup_2026-10-21.cfg; hrozba 0, trénink 0, tutoriál viděn). Hrozba ani pořadí nemusí sedět na 100 %.
+- Prevence: `ProgressionSystem._save_path()` vrací testovací save i pro každý běh s `--script` (i v okně); net_smoke save jen čte.
+
 ### 2026-10-21 (noc) - D4 multiplayer 1v1 přes IP / Radmin (Claude Opus 5.5)
 - Oblast: síťová hra, D-024. Menu má tlačítko „Hra ve dvou“ (hostovat / připojit přes IP, ukáže IP adresy PC, Radmin 26.x první).
 - Soubory: multiplayer_manager.gd (přepsán: lobby, RPC hello/start/snapshot/action/leave), nový net_battle.gd (snímek stavu, host přijímá akce, klient je zachytává), battle_controller.gd (_net háčky, _run_opponent_turn místo AI části v konci tahu, konec zápasu bez postupu), nový ui/net_lobby_overlay.gd, encounter_select.gd (tlačítko), capture_scene.gd (volitelná metoda před snímkem).

@@ -4,12 +4,15 @@ extends RefCounted
 const DeckDefinition = preload("res://scripts/card_game/data/deck_definition.gd")
 
 const SAVE_PATH := "user://catnapped_progress.cfg"
-# Headless běhy (verifiery, simulace) mají vlastní save, aby nikdy nepřepsaly postup hráče.
+# Testovací běhy mají vlastní save, aby nikdy nepřepsaly postup hráče: headless i nástroje
+# spuštěné přes --script v okně (2026-10-21 síťový test v okně přepsal skutečný save).
 const TEST_SAVE_PATH := "user://catnapped_progress_test.cfg"
 
 
 static func _save_path() -> String:
-	return TEST_SAVE_PATH if DisplayServer.get_name() == "headless" else SAVE_PATH
+	if DisplayServer.get_name() == "headless" or OS.get_cmdline_args().has("--script"):
+		return TEST_SAVE_PATH
+	return SAVE_PATH
 const SECTION_PROGRESS := "progress"
 const KEY_THREAT := "tavern_threat"
 const KEY_WINS := "player_wins"
