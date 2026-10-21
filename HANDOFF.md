@@ -8,6 +8,10 @@
 - Hotovo: D1 žebříček tréninku, art všech 9 nových karet (`slice_art_sheet.gd`).
 - **Záznamy zápasů:** `%APPDATA%\Godotpp_userdata\Catnapped!\match_logs\`.
 
+## Noční smyčka 21.→22. 10. (do 5:00), rozpracováno
+- Hotovo: layout souboje v2 (`ui/battle_layout.gd`), menu se dvěma režimy, texty odměn.
+- Zbývá z `design/ui_review_2026-10-21.md`: screenshot nového menu ověřit, pravý panel souboje (velký náhled, méně textu), obrazovka Balík a postup (reset oddělit), Stokový král těžší než Harbor, D2 stavění balíku.
+
 ## Další krok
 1. D2 stavění vlastního balíku (z odemčených karet), potom D3 víc karet, D4 multiplayer přes Radmin.
 2. Lidský test #4 (Mark): projít trénink 1→4 (jsou soupeři 3 a 4 znatelně těžší, ale porazitelní?) a jeden run (sílí soupeři?).
