@@ -502,7 +502,7 @@ func _sync_battle_feed() -> void:
 
 	_battle_feed_lines.append(status_text)
 	_log_match_line(status_text)
-	while _battle_feed_lines.size() > 6:
+	while _battle_feed_lines.size() > 4:
 		_battle_feed_lines.remove_at(0)
 	battle_feed_label.text = "\n".join(_battle_feed_lines)
 
@@ -1747,6 +1747,7 @@ func _refresh_ui() -> void:
 		return
 
 	enemy_life_label.text = "Životy %s" % enemy_state.life
+	_refresh_turn_title()
 	_refresh_enemy_hand_row(enemy_state)
 	enemy_tuna_label.text = _format_tuna_label(enemy_state)
 	player_life_label.text = "Životy %s" % player_state.life
@@ -2088,6 +2089,20 @@ func _update_turn_indicator() -> void:
 		enemy_portrait_frame.texture = _portrait_frame_green_texture
 	else:
 		enemy_portrait_frame.texture = _portrait_frame_red_texture
+
+
+# Nadpis panelu stavu: číslo kola a kdo je na tahu (místo obecného „Stav tahu“).
+func _refresh_turn_title() -> void:
+	var title := get_node_or_null("Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox/StatusTitle") as Label
+	if title == null or _battle_state == null:
+		return
+	if _battle_state.battle_over:
+		title.text = "Konec zápasu"
+	elif _battle_state.active_player_id == PLAYER_ID:
+		title.text = "Kolo %s · Tvůj tah" % _battle_state.turn_number
+	else:
+		title.text = "Kolo %s · Tah soupeře" % _battle_state.turn_number
+	title.add_theme_font_size_override("font_size", 14)
 
 
 # Soupeřova ruka jako ruby karet v hlavičce (kolik karet drží) + zbytek balíku.
