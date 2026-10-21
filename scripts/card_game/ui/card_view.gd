@@ -97,6 +97,7 @@ var _face_life_badge: Panel
 var _face_keyword_box: PanelContainer
 var _face_keyword: Label
 var _face_keyword_icon: TextureRect
+var _face_badge_text := ""
 static var _frame_texture_cache: Dictionary = {}
 
 
@@ -198,6 +199,7 @@ func _build_face() -> void:
     $Margin.visible = false
     _face = Control.new()
     _face.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    resized.connect(_update_face_keyword_visibility)
     _face.clip_contents = true
     add_child(_face)
     move_child(_face, $Margin.get_index())
@@ -275,6 +277,12 @@ func _build_face() -> void:
     row.add_child(_face_keyword)
 
 
+# Na úzké kartě (plná ruka) by štítek překryl cenu; detail je pak v náhledu pod myší.
+func _update_face_keyword_visibility() -> void:
+    if _face_keyword_box != null:
+        _face_keyword_box.visible = not _face_badge_text.is_empty() and size.x >= 140.0
+
+
 func _make_face_badge(color: Color, ax: float, ay: float, ox: float, oy: float, diameter: float) -> Panel:
     var badge := Panel.new()
     badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -315,8 +323,9 @@ func _refresh_face(card_definition: CardDefinition, show_stats: bool, badge_text
     _face_life.text = str(card_instance.current_life)
     _face_attack_badge.visible = show_stats
     _face_life_badge.visible = show_stats
-    _face_keyword_box.visible = not badge_text.is_empty()
+    _face_badge_text = badge_text
     _face_keyword.text = badge_text
+    _update_face_keyword_visibility()
     var icon: Texture2D = null
     if show_stats and not card_definition.keywords.is_empty():
         icon = CardArtCache.get_keyword_icon(card_definition.keywords[0])

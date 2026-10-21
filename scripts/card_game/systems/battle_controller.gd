@@ -1864,6 +1864,22 @@ func _refresh_hand(player_state: PlayerBattleState) -> void:
 			card_view.card_pressed.connect(_on_hand_card_pressed)
 			card_view.card_hovered.connect(_on_card_hovered)
 
+	_fit_hand_cards(player_state.hand.size())
+
+
+# Při mnoha kartách je zúží, aby se všechny vešly do panelu ruky (jinak ujížděly mimo obrazovku).
+func _fit_hand_cards(count: int) -> void:
+	if count <= 0:
+		return
+	var area := hand_row.get_parent_control()
+	var available := area.size.x if area != null and area.size.x > 0.0 else 1000.0
+	var separation := float(hand_row.get_theme_constant("separation"))
+	var width := clampf((available - separation * float(count - 1)) / float(count), 96.0, 176.0)
+	for child in hand_row.get_children():
+		var view := child as Control
+		if view != null:
+			view.custom_minimum_size.x = width
+
 
 func _animate_card_draw(card_view: Control, order: int) -> void:
 	card_view.pivot_offset = card_view.custom_minimum_size * 0.5
