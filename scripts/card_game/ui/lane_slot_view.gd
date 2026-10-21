@@ -783,11 +783,13 @@ func _load_ui_texture(resource_path: String) -> Texture2D:
 	if _ui_texture_cache.has(resource_path):
 		return _ui_texture_cache[resource_path]
 
-	var texture: Texture2D = null
-	var image_path := ProjectSettings.globalize_path(resource_path)
-	var image := Image.load_from_file(image_path)
-	if image != null and not image.is_empty():
-		texture = ImageTexture.create_from_image(image)
+	# Importovaný resource funguje i v exportu; Image.load_from_file jen jako záloha při vývoji
+	# (soubor bez .import).
+	var texture: Texture2D = load(resource_path) as Texture2D if ResourceLoader.exists(resource_path) else null
+	if texture == null:
+		var image := Image.load_from_file(ProjectSettings.globalize_path(resource_path))
+		if image != null and not image.is_empty():
+			texture = ImageTexture.create_from_image(image)
 	if texture == null:
 		push_warning("Could not load UI texture %s." % resource_path)
 		return null

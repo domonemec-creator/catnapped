@@ -48,7 +48,7 @@
 - `_run_enemy_stub_turn` je coroutine; v okně ho volej přes `await`. Verifiery ho volají synchronně (headless), proto pacing hlídá `_pace_actions`.
 - `SlotShell` je PanelContainer, takže děti s anchory je potřeba dát do volného `Control` overlaye (viz `_fix_status_badge_layout`).
 - Alegreya má minuskové číslice („0“ je nízká); `lnum` ve variabilní verzi nefunguje.
-- `_load_ui_texture` v `lane_slot_view.gd` používá `Image.load_from_file` (v exportu nefunguje); art už jde přes `CardArtCache`.
+- `_load_ui_texture` už načítá přes `load()` (funguje v exportu), `Image.load_from_file` zůstává jen jako záloha. Okno se škáluje (`canvas_items`, `keep`).
 
 ## Další krok
 Viz `PLAN.md`: fáze C (obsah: Feast karty, víc odměn), přechody scén, úklid pravého panelu bez výběru, export build.
