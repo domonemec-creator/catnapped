@@ -2,7 +2,7 @@ class_name ProgressionScreenMenu
 extends Control
 
 const ENCOUNTER_SELECT_SCENE_PATH := "res://scenes/card_game/encounter_select.tscn"
-const HEADER_TEXTURE_PATH := "res://assets/card_game/ui/header_panel_drapes.png"
+const RESET_TEXT := "Smazat postup"
 const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
 const CardGameConstants = preload("res://scripts/card_game/data/card_game_constants.gd")
 
@@ -26,6 +26,7 @@ var _loss_label: Label
 var _run_label: Label
 var _status_label: Label
 var _reset_button: Button
+var _reset_armed := false
 var _back_button: Button
 
 
@@ -80,18 +81,11 @@ func _build_ui() -> void:
     margin.add_child(layout)
 
     var header := PanelContainer.new()
-    header.custom_minimum_size = Vector2(0, 170)
+    header.custom_minimum_size = Vector2(0, 0)
     header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     header.add_theme_stylebox_override("panel", _panel_style)
     layout.add_child(header)
 
-    var header_art := TextureRect.new()
-    header_art.set_anchors_preset(Control.PRESET_FULL_RECT)
-    header_art.texture = _load_texture(HEADER_TEXTURE_PATH)
-    header_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-    header_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-    header_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    header.add_child(header_art)
 
     var header_margin := MarginContainer.new()
     header_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -113,7 +107,7 @@ func _build_ui() -> void:
     header_vbox.add_child(title)
 
     var subtitle := Label.new()
-    subtitle.text = "Tady žije uložená hrozba, výhry, prohry i balík. Odměny tenhle save mění."
+    subtitle.text = "Tvůj balík, výhry a postup tréninkem. Odměny z výprav balík mění."
     _style_label(subtitle, 18, Color(0.9, 0.82, 0.67, 0.95), true)
     header_vbox.add_child(subtitle)
 
@@ -151,17 +145,17 @@ func _build_ui() -> void:
 
     _status_label = Label.new()
     _style_label(_status_label, 15, Color(0.88, 0.79, 0.64, 0.95), true)
-    _status_label.text = "Tvůj uložený postup. Odměny z runů mění balík vpravo."
+    _status_label.text = "Poraz soupeře v tréninku a odemkneš dalšího."
     stats_vbox.add_child(_status_label)
 
-    _threat_label = _make_stat_label(stats_vbox, "Hrozba")
+    _threat_label = _make_stat_label(stats_vbox, "Trénink")
     _win_label = _make_stat_label(stats_vbox, "Výhry")
     _loss_label = _make_stat_label(stats_vbox, "Prohry")
     _deck_total_label = _make_stat_label(stats_vbox, "Velikost balíku")
     _run_label = _make_stat_label(stats_vbox, "Výprava")
 
     var reset_tip := Label.new()
-    reset_tip.text = "Reset vrátí startovní balík a smaže hrozbu, výhry i prohry."
+    reset_tip.text = "Smazání postupu vrátí startovní balík a zamkne trénink. Nejde vrátit zpět."
     _style_label(reset_tip, 14, Color(0.82, 0.73, 0.58, 0.92), true)
     stats_vbox.add_child(reset_tip)
 
@@ -212,24 +206,27 @@ func _build_ui() -> void:
     layout.add_child(button_row)
 
     _reset_button = Button.new()
-    _reset_button.text = "Reset postupu"
-    _reset_button.custom_minimum_size = Vector2(0, 52)
-    _reset_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    _reset_button.add_theme_font_size_override("font_size", 18)
+    # Nevratná akce: malá, vlevo, daleko od Zpět a s potvrzením druhým klikem.
+    _reset_button.text = RESET_TEXT
+    _reset_button.custom_minimum_size = Vector2(220, 44)
+    _reset_button.add_theme_font_size_override("font_size", 15)
     _reset_button.add_theme_color_override("font_color", Color(0.98, 0.9, 0.87, 1))
     _reset_button.add_theme_color_override("font_hover_color", Color(1, 0.94, 0.9, 1))
     _reset_button.add_theme_color_override("font_pressed_color", Color(0.98, 0.9, 0.87, 1))
     _reset_button.add_theme_stylebox_override("normal", _reset_button_normal_style)
     _reset_button.add_theme_stylebox_override("hover", _reset_button_hover_style)
     _reset_button.add_theme_stylebox_override("pressed", _reset_button_pressed_style)
-    _reset_button.pressed.connect(_reset_progress)
+    _reset_button.pressed.connect(_on_reset_pressed)
     button_row.add_child(_reset_button)
+
+    var spacer := Control.new()
+    spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    button_row.add_child(spacer)
 
     _back_button = Button.new()
     _back_button.text = "Zpět na výběr"
-    _back_button.custom_minimum_size = Vector2(0, 52)
-    _back_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-    _back_button.add_theme_font_size_override("font_size", 18)
+    _back_button.custom_minimum_size = Vector2(320, 56)
+    _back_button.add_theme_font_size_override("font_size", 20)
     _back_button.add_theme_color_override("font_color", Color(0.96, 0.88, 0.73, 1))
     _back_button.add_theme_color_override("font_hover_color", Color(1, 0.94, 0.82, 1))
     _back_button.add_theme_color_override("font_pressed_color", Color(0.96, 0.88, 0.73, 1))
@@ -246,10 +243,12 @@ func _load_state() -> void:
 
 
 func _refresh_ui() -> void:
-    _threat_label.text = "Hrozba: %s (%s)" % [
-        _progression_system.get_threat_level(_progression_state),
-        _progression_system.get_threat_label(_progression_system.get_threat_level(_progression_state)),
+    # Hrozbu v UI nahradil žebříček tréninku (D-022); zůstává v tooltipu pro ladění.
+    _threat_label.text = "Trénink: %s/%s poražených" % [
+        _progression_system.get_training_cleared(_progression_state),
+        ProgressionSystem.TRAINING_ORDER.size(),
     ]
+    _threat_label.tooltip_text = "Hrozba %s" % _progression_system.get_threat_level(_progression_state)
     _win_label.text = "Výhry: %s" % _progression_system.get_win_count(_progression_state)
     _loss_label.text = "Prohry: %s" % _progression_system.get_loss_count(_progression_state)
 
@@ -328,7 +327,18 @@ func _refresh_deck_list(deck_card_ids: Array[StringName]) -> void:
             row.add_child(detail)
 
 
+func _on_reset_pressed() -> void:
+    if not _reset_armed:
+        _reset_armed = true
+        _reset_button.text = "Opravdu? Klikni znovu"
+        return
+    _reset_progress()
+
+
 func _reset_progress() -> void:
+    _reset_armed = false
+    if _reset_button != null:
+        _reset_button.text = RESET_TEXT
     var run_session = _get_run_session()
     if run_session != null and run_session.is_active():
         run_session.end_run()

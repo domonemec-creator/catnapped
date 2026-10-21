@@ -255,10 +255,9 @@ func show_post_match_overlay(config: Dictionary) -> void:
 	if _post_match_result_summary != null:
 		_post_match_result_summary.text = str(config.get("result_summary", ""))
 	if _post_match_threat_summary != null:
+		# Hrozbu v UI nahradil žebříček tréninku (D-022); text zůstává jen pro ladění.
 		_post_match_threat_summary.text = build_post_match_threat_text(progression_system, previous_threat, next_threat)
-		# Hrozba je pro začátečníka neznámý pojem: krátké vysvětlení v tooltipu i pod textem.
-		_post_match_threat_summary.tooltip_text = "Hrozba = jak silný balík soupeři dostanou. Prohra ji zvedá, výhra ji drží nebo snižuje."
-		_post_match_threat_summary.mouse_filter = Control.MOUSE_FILTER_PASS
+		_post_match_threat_summary.visible = false
 	if _post_match_deck_shift_detail != null:
 		_post_match_deck_shift_detail.text = build_post_match_deck_shift_text(deck_messages, previous_threat, next_threat)
 	if _post_match_record_label != null and progression_system != null:
@@ -449,7 +448,7 @@ func build_post_match_deck_shift_text(deck_messages: Array[String], previous_thr
 		return "\n".join(deck_messages)
 	if previous_threat == next_threat:
 		return "Balík beze změn. Příští odveta použije stejnou sestavu."
-	return "Hrozba se změnila, ale tahle úroveň drží stejný balík."
+	return "Balík soupeře zůstává stejný."
 
 
 func _build_style_box(background_color: Color, border_color: Color, corner_radius: int, border_width: int) -> StyleBoxFlat:

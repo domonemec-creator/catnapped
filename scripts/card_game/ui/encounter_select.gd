@@ -385,8 +385,8 @@ func _refresh_details() -> void:
         return
 
     _selected_title.text = _selected_encounter.display_name
-    _selected_npc.text = "Pořadí v runu: %s. soupeř" % (RunSessionScript.DEFAULT_RUN_ROSTER.find(_selected_encounter.id) + 1)
-    _selected_summary.text = "%s. S každou prohrou proti němu roste hrozba a jeho balík sílí." % str(ENCOUNTER_STYLES.get(_selected_encounter.id, "Soupeř"))
+    _selected_npc.text = "Pořadí ve výpravě: %s. soupeř" % (RunSessionScript.DEFAULT_RUN_ROSTER.find(_selected_encounter.id) + 1)
+    _selected_summary.text = "%s." % str(ENCOUNTER_STYLES.get(_selected_encounter.id, "Soupeř"))
     _selected_stats.text = "Startovní životy v tréninku: %s" % _training_life(_selected_encounter)
     if _selected_encounter.table_power_id != StringName():
         _selected_stats.text += "\nSíla stolu: %s" % _get_table_power_display_name(_selected_encounter.table_power_id)
@@ -406,7 +406,7 @@ func _refresh_details() -> void:
         var previous := _get_encounter_by_id(ProgressionSystem.TRAINING_ORDER[ladder_index - 1])
         _status_label.text = "Zamčeno. V tréninku nejdřív poraz: %s." % (previous.display_name if previous != null else "předchozího soupeře")
     elif bonus > 0:
-        _status_label.text = "Trénink: %s. stupeň, soupeř má hrozbu +%s. Výhra odemkne dalšího." % [ladder_index + 1, bonus]
+        _status_label.text = "Trénink: %s. stupeň, soupeř má víc životů a silnější balík. Výhra odemkne dalšího." % (ladder_index + 1)
     else:
         _status_label.text = "Trénink: první stupeň. Výhra odemkne dalšího, silnějšího soupeře."
 
@@ -419,7 +419,7 @@ func _set_empty_state() -> void:
     _selected_stats.text = ""
     _selected_portrait.texture = null
     _status_label.text = "Výběr je prázdný, souboj nejde spustit."
-    _run_note_label.text = "Dokud se soupeři nenačtou, run nejde spustit."
+    _run_note_label.text = "Dokud se soupeři nenačtou, výprava nejde spustit."
     _run_button.disabled = true
     _start_button.disabled = true
 
@@ -453,7 +453,7 @@ func _training_life(encounter: EncounterDefinition) -> int:
 
 
 func _build_encounter_tooltip(encounter: EncounterDefinition) -> String:
-    return "Síla stolu: %s\nStartovní životy: %s\nBalík soupeře se mění podle hrozby." % [
+    return "Síla stolu: %s\nStartovní životy: %s" % [
         _get_table_power_display_name(encounter.table_power_id),
         encounter.starting_life,
     ]

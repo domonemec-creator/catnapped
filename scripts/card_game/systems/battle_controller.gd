@@ -350,10 +350,8 @@ func _build_enemy_header_name(display_name: String) -> String:
 
 
 func _build_opening_status() -> String:
-	return "Hrozba %s (%s). Vylož kartu na lajnu." % [
-		_get_current_threat(),
-		_progression_system.get_threat_label(_get_current_threat()),
-	]
+	# Hrozbu v UI nahradil žebříček tréninku (D-022), interně dál volí sestavu balíku.
+	return "Tvůj tah. Vylož kartu na lajnu."
 
 
 func _get_enemy_deck_id() -> StringName:
@@ -1499,7 +1497,7 @@ func _check_battle_end() -> void:
 		_battle_state.battle_over = true
 		_battle_state.winner_player_id = -1
 		_overlay_presenter.clear_reward_offers()
-		status_label.text = "Remíza. Obě strany došly o všechny životy. Hrozba zůstává na %s." % _get_current_threat()
+		status_label.text = "Remíza. Obě strany došly o všechny životy."
 		_show_post_match_overlay("draw", "Remíza", "Obě strany se zhroutily zároveň. Dnes večer si stůl nevezme nikdo.", previous_threat, previous_threat, [])
 		return
 
@@ -1520,7 +1518,7 @@ func _check_battle_end() -> void:
 		enemy_name_label.text = _build_enemy_header_name(enemy_state.display_name)
 		_play_sfx(&"victory")
 		_save_match_log.call_deferred("vyhra")
-		status_label.text = "Výhra. %s došel o všechny životy. Hrozba klesá na %s." % [enemy_state.display_name, _get_current_threat()]
+		status_label.text = "Výhra. %s došel o všechny životy." % enemy_state.display_name
 		var victory_text := "Soupeř %s je poražen. Stůl se pro příští odvetu uklidnil." % enemy_state.display_name
 		if unlocked_name != "":
 			victory_text += "\nV tréninku se odemkl další, silnější soupeř: %s." % unlocked_name
@@ -1539,7 +1537,7 @@ func _check_battle_end() -> void:
 		enemy_name_label.text = _build_enemy_header_name(enemy_state.display_name)
 		_play_sfx(&"defeat")
 		_save_match_log.call_deferred("prohra")
-		status_label.text = "Prohra. Tvoje strana došla o všechny životy. Hrozba roste na %s." % _get_current_threat()
+		status_label.text = "Prohra. Tvoje strana došla o všechny životy."
 		_show_post_match_overlay("loss", "Prohra", "%s si stůl drží a příště se vrátí ještě horší." % enemy_state.display_name, previous_threat, defeat_threat, defeat_deck_messages)
 
 

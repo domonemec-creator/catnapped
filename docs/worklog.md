@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - Hrozba pryč z UI, Balík a postup bez nebezpečného resetu (Claude Opus 5.5)
+- Oblast: UI rozbor body 5–6. Obtížnost hráči ukazuje jen žebříček tréninku; hrozba dál interně volí sestavu balíku soupeře (tooltip pro ladění).
+- Soubory: battle_controller.gd (úvodní a koncové hlášky), battle_overlay_presenter.gd (řádek hrozby ve výsledku skrytý), encounter_select.gd („výprava“ místo „run“), progression_screen.gd (Trénink X/6, „Smazat postup“ malé vlevo s potvrzením druhým klikem, hlavička bez černého pruhu).
+- Oprava: verify_reward_flow čekal staré texty „Přidat X“; minulý push proběhl jen se dvěma verifiery (chyba procesu, teď zase všech 21).
+- Ověření: 21/21 verifierů, screenshoty artifacts/menu_v2.png a prog_v2.png.
+
 ### 2026-10-21 (noc) - Layout souboje v2 (UI rozbor body 1–3) (Claude Opus 5.5)
 - Zmena: `ui/battle_layout.gd` přeskládá scénu za běhu: levý sloupec (portrét soupeře s okrajem v barvě tahu, jméno Cinzel, životy, ruby karet / hlášení a záznam / tvoje životy, balík, odhazování), stůl uprostřed, ruka pod stolem s kartami na výšku (136×188), pravý panel beze změny. Art na stole i v ruce výřezem na postavu (`get_cropped_aspect`), prázdné lajny tichý obrys místo mosazného medailonu, „Přímý zásah“ jen při útoku. Hrozba z hlavičky pryč (zůstala v tooltipu). Inspirace: Marvel Snap (3 lokace, karty na výšku), Hearthstone (portrét soupeře).
 - Overeni: 21/21 PASS (verifiery přepnuty na `is_empty_target_highlighted()` a nové cesty), screenshoty `artifacts/v2_*.png`.

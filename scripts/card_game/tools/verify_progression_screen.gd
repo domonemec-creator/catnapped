@@ -34,8 +34,8 @@ func _run() -> void:
     if screen._deck_total_label == null or not screen._deck_total_label.text.contains("20"):
         _fail("Progression screen did not show the starter deck size.")
         return
-    if screen._threat_label == null or not screen._threat_label.text.contains("Hrozba: 0"):
-        _fail("Progression screen did not show threat 0.")
+    if screen._threat_label == null or not screen._threat_label.text.contains("Trénink: 0/"):
+        _fail("Progression screen did not show training progress 0.")
         return
 
     var mutated_state: Dictionary = _progression_system.load_state()
@@ -46,8 +46,8 @@ func _run() -> void:
     screen._load_state()
     screen._refresh_ui()
 
-    if not screen._threat_label.text.contains("Hrozba: 0"):
-        _fail("Progression screen should hide stored threat before the first player win.")
+    if not screen._threat_label.text.contains("Trénink: 0/"):
+        _fail("Progression screen should show no cleared training before a win.")
         return
 
     mutated_state = _progression_system.load_state()
@@ -56,13 +56,14 @@ func _run() -> void:
     mutated_state = _progression_system.set_player_deck_card_ids(mutated_state, mutated_deck)
     mutated_state["tavern_threat"] = 3
     mutated_state["player_wins"] = 4
+    mutated_state["training_cleared"] = 3
     _progression_system.save_state(mutated_state)
 
     screen._load_state()
     screen._refresh_ui()
 
-    if not screen._threat_label.text.contains("Hrozba: 3"):
-        _fail("Progression screen did not refresh the modified threat.")
+    if not screen._threat_label.text.contains("Trénink: 3/"):
+        _fail("Progression screen did not refresh the training progress.")
         return
     if not screen._deck_total_label.text.contains("21"):
         _fail("Progression screen did not refresh the modified deck size.")
