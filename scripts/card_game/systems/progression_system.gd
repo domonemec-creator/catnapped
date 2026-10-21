@@ -4,6 +4,12 @@ extends RefCounted
 const DeckDefinition = preload("res://scripts/card_game/data/deck_definition.gd")
 
 const SAVE_PATH := "user://catnapped_progress.cfg"
+# Headless běhy (verifiery, simulace) mají vlastní save, aby nikdy nepřepsaly postup hráče.
+const TEST_SAVE_PATH := "user://catnapped_progress_test.cfg"
+
+
+static func _save_path() -> String:
+	return TEST_SAVE_PATH if DisplayServer.get_name() == "headless" else SAVE_PATH
 const SECTION_PROGRESS := "progress"
 const KEY_THREAT := "tavern_threat"
 const KEY_WINS := "player_wins"
@@ -205,7 +211,7 @@ const LANTERN_STRIKER_UPGRADE_LINES := {
 func load_state() -> Dictionary:
 	var config := ConfigFile.new()
 	var state := _make_default_state()
-	if config.load(SAVE_PATH) != OK:
+	if config.load(_save_path()) != OK:
 		return state
 
 	state[KEY_THREAT] = clampi(int(config.get_value(SECTION_PROGRESS, KEY_THREAT, 0)), MIN_THREAT, MAX_THREAT)
@@ -225,9 +231,9 @@ func save_state(state: Dictionary) -> void:
 	config.set_value(SECTION_PROGRESS, KEY_LOSSES, sanitized[KEY_LOSSES])
 	config.set_value(SECTION_PROGRESS, KEY_PLAYER_DECK, _to_string_array(sanitized[KEY_PLAYER_DECK]))
 	config.set_value(SECTION_PROGRESS, KEY_TUTORIAL_SEEN, bool(sanitized[KEY_TUTORIAL_SEEN]))
-	var save_error := config.save(SAVE_PATH)
+	var save_error := config.save(_save_path())
 	if save_error != OK:
-		push_warning("Could not save progression to %s." % SAVE_PATH)
+		push_warning("Could not save progression to %s." % _save_path())
 
 
 func reset_state() -> Dictionary:

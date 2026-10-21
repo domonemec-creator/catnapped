@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 - Oprava: verifiery přepisovaly save hráče
+- Problém (existoval už před 2026-10-20): `verify_run_flow` a další volají `ProgressionSystem.reset_state()`/`save_state()` do `user://catnapped_progress.cfg`. Při testech se tak ztratilo Markovo skóre (1 výhra, 1 prohra) a příznak tutoriálu.
+- Oprava: headless běh používá `user://catnapped_progress_test.cfg` (`ProgressionSystem._save_path()`). Markův save je ručně obnovený (1/1, tutoriál viděn, nový starter podle D-015).
+- Ověření: 20/20 verify PASS, save po běhu beze změny (wins=1, losses=1).
+
 ### 2026-10-21 (noc, 2. blok) - Čitelnost voleb pro začátečníka (Claude Opus 5.5, /loop)
 - Změna: hratelné karty v ruce svítí, nehratelné jsou ztmavené. Připravené kočky mají pulzující zelený rámeček (průvodce na něj odkazuje). Soupeřova ruka se ukazuje jako ruby karet + počet v balíku. Animace líznutí karty.
 - Ověření: 20/20 verify PASS; `capture_midgame.gd`, `capture_enemy_turn.gd` (snímky v `artifacts/`)
