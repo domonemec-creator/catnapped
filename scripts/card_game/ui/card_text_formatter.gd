@@ -35,6 +35,17 @@ static func _emphasize_rule_text(rules_text: String) -> String:
             formatted_lines.append("")
             continue
 
+        # Samotné klíčové slovo („Výpad.“, „Rychlé tlapy. …“) rovnou vysvětlit, ať hráč nemusí hledat jinde.
+        var expanded := false
+        for keyword in CardGameConstants.KEYWORD_LABELS.keys():
+            var label := str(CardGameConstants.KEYWORD_LABELS[keyword])
+            if line == label + "." or line.begins_with(label + ". "):
+                formatted_lines.append("[b]%s:[/b] %s" % [label, CardGameConstants.keyword_summary(keyword)])
+                expanded = true
+                break
+        if expanded:
+            continue
+
         var colon_index := line.find(":")
         if colon_index > 0:
             var prefix := line.substr(0, colon_index)

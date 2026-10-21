@@ -87,7 +87,7 @@ func refresh_selected_panel(state: Dictionary) -> void:
 		set_selected_panel_copy(
 			selected_card.definition.display_name,
 			build_card_meta(selected_card),
-			build_card_detail(selected_card.definition),
+			"",  # pravidla jsou na kartě nahoře, box už je neopakuje
 			build_card_preview_hint(selected_card, player_state, enemy_state)
 		)
 		return
@@ -98,7 +98,7 @@ func refresh_selected_panel(state: Dictionary) -> void:
 		set_selected_panel_copy(
 			"Útočník: %s" % selected_attacker.definition.display_name,
 			build_attacker_meta(selected_attacker),
-			build_card_detail(selected_attacker.definition),
+			"",  # pravidla jsou na kartě nahoře, box už je neopakuje
 			build_attack_preview_hint(selected_attacker, enemy_state)
 		)
 		return
@@ -121,7 +121,7 @@ func refresh_selected_panel(state: Dictionary) -> void:
 		set_selected_panel_copy(
 			hover_card.definition.display_name,
 			build_card_meta(hover_card),
-			build_card_detail(hover_card.definition),
+			"",  # pravidla jsou na kartě nahoře, box už je neopakuje
 			"%s. Klikni pro výběr." % owner_text if hover_card.owner_id == _player_id else "%s. Útočí %s, vydrží %s zranění." % [owner_text, hover_card.current_attack, hover_card.current_life]
 		)
 		return
@@ -756,7 +756,8 @@ func set_selected_panel_copy(title: String, meta: String, detail: String, hint: 
 	if _selected_card_meta != null:
 		_selected_card_meta.text = meta
 	if _selected_card_detail != null:
-		_selected_card_detail.text = detail
+		# U karet jsou pravidla na kartě; box pak ukáže, co dělat dál (SelectedHint je malý a často skrytý).
+		_selected_card_detail.text = detail if not detail.is_empty() else hint
 	if _selected_card_hint != null:
 		_selected_card_hint.text = hint
 	_set_info_panel_visible(true)
