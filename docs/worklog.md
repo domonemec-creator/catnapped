@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (večer) - Lidský test #3: celý run vyhrán, ladění (Claude Opus 5.5)
+- Zpětná vazba: „bavil jsem se, chápal jsem to, přemýšlel jsem; nevím úplně, jestli to fungovalo, jak mělo“. Záznamy: 5/5 výher, Smug 13–14 kol (11 kol bez zranění), Lantern 4, Ragclaw 5, Harbor 10.
+- Změna: D-021 (myšolovec 2/3, sílící soupeři v runu). Hlášky: Ochrana ze sousední lajny říká „přiskočí ze sousední lajny N“; místo „Sem X nejde“ důvod (obsazeno / málo Tuny).
+- Ověření: 20/20 verify PASS, sim (D-021).
+
 ### 2026-10-21 (dopoledne) - Dotažení designu, robustnost (Claude Opus 5.5)
 - Změna: ukazatel cesty runu (portréty 5 soupeřů) na výsledkové obrazovce, výška panelu podle obsahu, červené označení prohry. Placeholder art pro všech 23 karet bez obrázku (`make_placeholder_art.gd`, ikony game-icons CC BY). Škálování okna `canvas_items/keep`. `_load_ui_texture` přes `load()` (export). Plná ruka (7+ karet) se zúží a vejde. Karta vysvětluje keyword v textu. Vysvětlení hrozby.
 - Ověření: 20/20 verify PASS; `smoke_full_flow.gd` v okně; `capture_postmatch_modes.gd`; test v rozlišení 1280×720.

@@ -1127,7 +1127,13 @@ func _handle_player_lane_pressed(lane_index: int) -> void:
 				_selected_card = null
 				_selected_attacker = null
 				return
-			status_label.text = "Sem %s nejde." % _selected_card.definition.display_name
+			# Důvod, ne jen „nejde“ (lidský test).
+			if player_state.board[lane_index].occupant != null:
+				status_label.text = "Lajna %s je obsazená. Vylož %s na volné místo." % [lane_index + 1, _selected_card.definition.display_name]
+			elif _selected_card.definition.cost > player_state.tuna_current:
+				status_label.text = "%s stojí %s Tuny, máš jen %s." % [_selected_card.definition.display_name, _selected_card.definition.cost, player_state.tuna_current]
+			else:
+				status_label.text = "Sem %s nejde." % _selected_card.definition.display_name
 			return
 
 		var slot: LaneSlotState = player_state.board[lane_index]
@@ -1261,9 +1267,9 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 			_play_sfx(&"ko" if guard_target.current_life <= 0 else &"guard")
 			_set_lane_feedback_for_card(guard_target, "OCHRANA -%s" % attacker.current_attack, LaneSlotView.EVENT_BLOCK)
 			if guard_target.current_life <= 0:
-				summary = "%s útočí do lajny %s, ale %s zásah zachytí a padne." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name]
+				summary = "%s útočí do lajny %s, ale %s s Ochranou%s zásah zachytí a padne." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name, _guard_origin_text(guard_target, target_lane)]
 			else:
-				summary = "%s útočí do lajny %s, ale %s zásah zachytí. Zbývá %s životů." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name, guard_target.current_life]
+				summary = "%s útočí do lajny %s, ale %s s Ochranou%s zásah zachytí. Zbývá %s životů." % [attacker.definition.display_name, target_lane + 1, guard_target.definition.display_name, _guard_origin_text(guard_target, target_lane), guard_target.current_life]
 		else:
 			_adjust_player_life(defender_state, -attacker.current_attack)
 			_queue_lane_fx(defender_state.player_id, target_lane, &"fx_direct", [attacker.current_attack])
@@ -1281,6 +1287,13 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 	_resolve_deaths(attacker_owner_state)
 	_check_battle_end()
 	return summary
+
+
+# Ochrana kryje i sousední lajny; bez upozornění to v testu vypadalo jako chyba.
+func _guard_origin_text(guard: CardInstance, target_lane: int) -> String:
+	if guard == null or guard.lane_index == target_lane:
+		return ""
+	return " (přiskočí ze sousední lajny %s)" % (guard.lane_index + 1)
 
 
 func _apply_retaliation(attacker: CardInstance, defender_card: CardInstance) -> String:
