@@ -256,6 +256,9 @@ func show_post_match_overlay(config: Dictionary) -> void:
 		_post_match_result_summary.text = str(config.get("result_summary", ""))
 	if _post_match_threat_summary != null:
 		_post_match_threat_summary.text = build_post_match_threat_text(progression_system, previous_threat, next_threat)
+		# Hrozba je pro začátečníka neznámý pojem: krátké vysvětlení v tooltipu i pod textem.
+		_post_match_threat_summary.tooltip_text = "Hrozba = jak silný balík soupeři dostanou. Prohra ji zvedá, výhra ji drží nebo snižuje."
+		_post_match_threat_summary.mouse_filter = Control.MOUSE_FILTER_PASS
 	if _post_match_deck_shift_detail != null:
 		_post_match_deck_shift_detail.text = build_post_match_deck_shift_text(deck_messages, previous_threat, next_threat)
 	if _post_match_record_label != null and progression_system != null:
@@ -435,8 +438,10 @@ func build_post_match_threat_text(progression_system, previous_threat: int, next
 	var previous_label: String = progression_system.get_threat_label(previous_threat)
 	var next_label: String = progression_system.get_threat_label(next_threat)
 	if previous_threat == next_threat:
-		return "Hrozba zůstává na %s (%s)." % [next_threat, next_label]
-	return "Hrozba %s (%s) -> %s (%s)." % [previous_threat, previous_label, next_threat, next_label]
+		return "Hrozba zůstává na %s (%s). Soupeři zůstanou stejně silní." % [next_threat, next_label]
+	if next_threat > previous_threat:
+		return "Hrozba %s (%s) → %s (%s). Soupeři příště dostanou silnější karty." % [previous_threat, previous_label, next_threat, next_label]
+	return "Hrozba %s (%s) → %s (%s). Soupeři příště zeslábnou." % [previous_threat, previous_label, next_threat, next_label]
 
 
 func build_post_match_deck_shift_text(deck_messages: Array[String], previous_threat: int, next_threat: int) -> String:
