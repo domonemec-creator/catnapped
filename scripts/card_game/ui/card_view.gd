@@ -85,6 +85,18 @@ const VISUAL_PRESETS := {
 
 var card_instance: CardInstance
 var _interactive: bool = true
+# Líc karty ve stejném jazyce jako token na stole (art přes celou kartu, odznaky v rozích).
+var _face: Control
+var _face_art: TextureRect
+var _face_name: Label
+var _face_cost: Label
+var _face_attack: Label
+var _face_life: Label
+var _face_attack_badge: Panel
+var _face_life_badge: Panel
+var _face_keyword_box: PanelContainer
+var _face_keyword: Label
+var _face_keyword_icon: TextureRect
 static var _frame_texture_cache: Dictionary = {}
 
 
@@ -92,6 +104,7 @@ func _ready() -> void:
     selection_glow.visible = false
     playable_glow.visible = false
     frame_texture.visible = false
+    _build_face()
     mouse_entered.connect(func() -> void: card_hovered.emit(card_instance))
     mouse_exited.connect(func() -> void: card_hovered.emit(null))
     _make_children_click_through(self)
@@ -178,6 +191,137 @@ func _refresh() -> void:
         keyword_text = str(CardGameConstants.keyword_label(card_definition.keywords[0]))
     type_badge.visible = not show_stats or not keyword_text.is_empty()
     type_label.text = keyword_text if show_stats else str(visual["type_text"])
+    _refresh_face(card_definition, show_stats, keyword_text if show_stats else str(visual["type_text"]))
+
+
+func _build_face() -> void:
+    $Margin.visible = false
+    _face = Control.new()
+    _face.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    _face.clip_contents = true
+    add_child(_face)
+    move_child(_face, $Margin.get_index())
+    _face_art = TextureRect.new()
+    _face_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    _face_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    _face_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+    _face_art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+    _face.add_child(_face_art)
+    _face_art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    _face_art.offset_left = 3
+    _face_art.offset_top = 3
+    _face_art.offset_right = -3
+    _face_art.offset_bottom = -3
+    var strip := Panel.new()
+    strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    strip.add_theme_stylebox_override("panel", _build_style_box(Color(0.06, 0.04, 0.03, 0.85), Color(0, 0, 0, 0), 0, 0))
+    _face.add_child(strip)
+    strip.anchor_top = 1.0
+    strip.anchor_right = 1.0
+    strip.anchor_bottom = 1.0
+    strip.offset_left = 3
+    strip.offset_right = -3
+    strip.offset_top = -30
+    strip.offset_bottom = -3
+    _face_name = Label.new()
+    _face_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    _face_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    _face_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    _face_name.clip_text = true
+    _face_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+    _face_name.add_theme_font_size_override("font_size", 14)
+    _face_name.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+    _face_name.add_theme_constant_override("outline_size", 3)
+    _face.add_child(_face_name)
+    _face_name.anchor_top = 1.0
+    _face_name.anchor_right = 1.0
+    _face_name.anchor_bottom = 1.0
+    _face_name.offset_left = 34
+    _face_name.offset_right = -34
+    _face_name.offset_top = -30
+    _face_name.offset_bottom = -3
+    _face_cost = _make_face_badge(Color(0.16, 0.34, 0.62), 0.0, 0.0, 5, 5, 26).get_child(0)
+    _face_attack_badge = _make_face_badge(Color(0.7, 0.42, 0.1), 0.0, 1.0, 4, -32, 28)
+    _face_attack = _face_attack_badge.get_child(0)
+    _face_life_badge = _make_face_badge(Color(0.62, 0.16, 0.14), 1.0, 1.0, -32, -32, 28)
+    _face_life = _face_life_badge.get_child(0)
+    _face_keyword_box = PanelContainer.new()
+    _face_keyword_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    var pill := _build_style_box(Color(0.08, 0.06, 0.04, 0.88), Color(0.9, 0.78, 0.45, 0.7), 8, 0)
+    pill.set_border_width_all(1)
+    pill.content_margin_left = 5
+    pill.content_margin_right = 6
+    _face_keyword_box.add_theme_stylebox_override("panel", pill)
+    _face.add_child(_face_keyword_box)
+    _face_keyword_box.anchor_left = 1.0
+    _face_keyword_box.anchor_right = 1.0
+    _face_keyword_box.offset_top = 5
+    _face_keyword_box.offset_right = -5
+    _face_keyword_box.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+    var row := HBoxContainer.new()
+    row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    row.add_theme_constant_override("separation", 3)
+    _face_keyword_box.add_child(row)
+    _face_keyword_icon = TextureRect.new()
+    _face_keyword_icon.custom_minimum_size = Vector2(13, 13)
+    _face_keyword_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    _face_keyword_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+    _face_keyword_icon.modulate = Color(0.98, 0.84, 0.5)
+    _face_keyword_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    row.add_child(_face_keyword_icon)
+    _face_keyword = Label.new()
+    _face_keyword.add_theme_font_size_override("font_size", 11)
+    _face_keyword.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    row.add_child(_face_keyword)
+
+
+func _make_face_badge(color: Color, ax: float, ay: float, ox: float, oy: float, diameter: float) -> Panel:
+    var badge := Panel.new()
+    badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    var style := _build_style_box(color, Color(0.98, 0.88, 0.62, 0.95), int(diameter / 2.0), 3)
+    style.set_border_width_all(2)
+    badge.add_theme_stylebox_override("panel", style)
+    _face.add_child(badge)
+    badge.anchor_left = ax
+    badge.anchor_right = ax
+    badge.anchor_top = ay
+    badge.anchor_bottom = ay
+    badge.offset_left = ox
+    badge.offset_top = oy
+    badge.offset_right = ox + diameter
+    badge.offset_bottom = oy + diameter
+    var label := Label.new()
+    label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    label.add_theme_font_size_override("font_size", int(diameter * 0.62))
+    label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+    label.add_theme_constant_override("outline_size", 3)
+    badge.add_child(label)
+    label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    return badge
+
+
+func _refresh_face(card_definition: CardDefinition, show_stats: bool, badge_text: String) -> void:
+    if _face == null:
+        return
+    _face_art.texture = CardArtCache.get_cropped(card_definition.art_path, 0.04, 0.42)
+    _face_name.text = card_definition.display_name
+    # Dlouhá jména zmenšit, ať se vejdou mezi odznaky útoku a životů.
+    var name_length := card_definition.display_name.length()
+    _face_name.add_theme_font_size_override("font_size", 14 if name_length <= 13 else (12 if name_length <= 17 else 11))
+    _face_cost.text = str(card_definition.cost)
+    _face_attack.text = str(card_instance.current_attack)
+    _face_life.text = str(card_instance.current_life)
+    _face_attack_badge.visible = show_stats
+    _face_life_badge.visible = show_stats
+    _face_keyword_box.visible = not badge_text.is_empty()
+    _face_keyword.text = badge_text
+    var icon: Texture2D = null
+    if show_stats and not card_definition.keywords.is_empty():
+        icon = CardArtCache.get_keyword_icon(card_definition.keywords[0])
+    _face_keyword_icon.texture = icon
+    _face_keyword_icon.visible = icon != null
 
 
 func _refresh_art(card_definition: CardDefinition, visual: Dictionary) -> void:

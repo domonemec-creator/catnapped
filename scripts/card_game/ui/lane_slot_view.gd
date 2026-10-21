@@ -282,6 +282,8 @@ func _ready() -> void:
 	event_background.visible = false
 	event_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	_build_token_panel()
+	# Řádek „SOUPEŘ · Soupeř 1“ nad slotem byl šum (D-007); strany odlišuje barva rámečku a poloha.
+	side_badge.get_parent().visible = false
 	mouse_entered.connect(func() -> void: card_hovered.emit(_card_instance))
 	mouse_exited.connect(func() -> void: card_hovered.emit(null))
 	_make_children_click_through(self)
