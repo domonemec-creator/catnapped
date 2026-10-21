@@ -30,4 +30,4 @@ Výstup do `artifacts/`.
 
 ## Pravidla práce
 - Změny pravidel/UI zapisuj do `docs/worklog.md`, rozhodnutí do `docs/decisions.md`, stav do master notes.
-- Nikdy nepushuj bez výslovného pokynu.
+- Push: Mark 2026-10-21 dal hlavnímu jednateli (Claude) volnou ruku pushovat. Ostatní AI bez pokynu nepushují. Před pushem musí projít všechny verifiery.

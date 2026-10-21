@@ -1,7 +1,7 @@
 # HANDOFF.md (2026-10-21 noc, Claude Opus 5.5 – hlavní jednatel projektu)
 
 ## Stav
-- Větev `lead/plan-2026-10` (lokální commity, nepushnuto; `main` beze změny).
+- Pracovní větev `lead/plan-2026-10`, sloučená fast-forwardem do `main` a pushnutá na GitHub (domonemec-creator/catnapped) 2026-10-21.
 - 21/21 headless `verify_*.gd` PASS (ověřeno 2026-10-21 noc).
 - Lidské testy #1–#3 hotové. #3: celý run vyhrán 5:0, „bavil jsem se, chápal jsem to“, což vedlo k D-021.
 - Směr D-022: singleplayer = trénink (žebříček, každý soupeř těžší), hlavní cíl multiplayer 1v1. Testovat se bude přes **Radmin VPN** (přímá IP, ENet, `scripts/multiplayer_manager.gd` = kostra, k souboji zatím nenapojená).
