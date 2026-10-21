@@ -6,6 +6,7 @@
 - Hotové fáze A a B. Po lidském testu #1 nová pravidla: odveta (D-014), ruka 4 a balanc (D-015), 7 nových koček (D-016).
 - Lidský test #1: „přehlednější“, 1 výhra a 1 prohra, smyčka smrti → řeší D-014 a D-015.
 - Noc 20./21. 10.: Hlad proti patům (D-017), záznamy zápasů, nastavení a titulky, náhled pod myší, odměny s kartami, banner tahů, přechody scén.
+- 21. 10. dopoledne: placeholder art pro všechny karty (rub + ikona podle typu: kočka zlatá, Trick červený, Item modrý; generátor `make_placeholder_art.gd`), ukazatel cesty runu po zápase, škálování okna, UI textury funkční v exportu, plná ruka se vejde, vysvětlení hrozby. Smyčka ukončena v ~6:45: další krok vyžaduje lidský test #2.
 - Ráno 21. 10.: designový průchod všemi obrazovkami (menu, souboj, ruka, balík, tutorial, výsledek), viz worklog.
 - **Záznamy tvých zápasů:** `%APPDATA%\Godotpp_userdata\Catnapped!\match_logs\` (stačí odehrát, AI je pak projde).
 

@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (dopoledne) - Dotažení designu, robustnost (Claude Opus 5.5)
+- Změna: ukazatel cesty runu (portréty 5 soupeřů) na výsledkové obrazovce, výška panelu podle obsahu, červené označení prohry. Placeholder art pro všech 23 karet bez obrázku (`make_placeholder_art.gd`, ikony game-icons CC BY). Škálování okna `canvas_items/keep`. `_load_ui_texture` přes `load()` (export). Plná ruka (7+ karet) se zúží a vejde. Karta vysvětluje keyword v textu. Vysvětlení hrozby.
+- Ověření: 20/20 verify PASS; `smoke_full_flow.gd` v okně; `capture_postmatch_modes.gd`; test v rozlišení 1280×720.
+- Neověřeno: export do .exe (chybí exportní šablony Godotu).
+- Další krok: lidský test #2; podle něj návrat malé sady Triků (C3) a art od majitele.
+
 ### 2026-10-21 (ráno) - Designový průchod všemi obrazovkami (Claude Opus 5.5, /loop do 16:00)
 - Menu: titul „Catnapped!“ (Cinzel), pozadí krčmy, soupeři s portréty v pořadí runu, srozumitelnější texty (trénink vs. run). Tematické portréty: Lantern = Svíčkotlapý, Ragclaw = Uliční rváč, Harbor = Kapitán.
 - Souboj: karty v ruce ve stylu tokenů, skryté hlavičky lajn, ikony srdce a ryby, odsazení panelu stavu, „Kolo N · Tvůj tah“, pravý panel v klidu jen s průvodcem.
