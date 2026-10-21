@@ -151,3 +151,11 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Kontext: Záznam lidského testu (Lantern, prohra 0:1, 9 kol): hráč 8× zkoušel útočit čerstvě vyloženou kočkou („teď nemůže útočit“ bez vysvětlení). Od 6. kola měli oba ruku 0–1, ale hráč nechával 5–7 Tun nevyužitých.
 - Rozhodnutí: (1) Čerstvá kočka hráče má štítek „Útočí příští kolo“ a hláška vysvětluje proč. (2) Hráč má Sílu stolu „Objednat rundu“: 3 Tuny = lízni 1 kartu, jednou za tah. Nejde použít s prázdným balíkem (Hlad). AI ji používá jen s malou rukou a s balíkem nad 9 kartami. Průvodce „Co teď?“ ji nabízí.
 - Dopad: Pro AI hráče je síla v simulaci zhruba neutrální (dlouhé simulované hry ji trestají Hladem). Člověk hraje kratší zápasy, kde pomáhá využít zbylou Tunu. Ověří lidský test.
+
+### D-021 - Myšolovec 2/3 a sílící soupeři v runu
+- Datum: 2026-10-21
+- Stav: aktivni
+- Kontext: Lidský test #3: celý run vyhrán 5:0, „bavil jsem se, chápal jsem to, přemýšlel jsem“. Záznamy: Lantern 4 kola a Ragclaw 5 kol (moc lehcí), Smug 13–14 kol, přičemž 11 kol nikdo nedostal zranění (plné lajny, myšolovci 1/4 s Ochranou).
+- Zkoušeno a zamítnuto: Ochrana jen na vlastní lajně. Tím Ochrana ztratí smysl, protože do obsazené lajny útok stejně jde na kočku. Smug s menším počtem myšolovců zkrátil zápas jen nepatrně.
+- Rozhodnutí: Hospodský myšolovec 1/4 → 2/3 (obránce, který i kousne, takže výměny končí dřív). V runu sílí každý další soupeř o jeden stupeň hrozby (`run step - 1` k hrozbě při skládání balíku).
+- Dopad (sim, hráč první): Smug 25,7 půltahu (dřív 27), Smug ~90 %, Lantern ~48 %, Ragclaw ~48 %, Harbor ~33 %. Run ramp sim neměří (sim hraje bez runu).

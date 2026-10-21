@@ -70,8 +70,8 @@ func _run() -> void:
 	var lamp = battle._create_card_instance(&"lamplighter", battle.PLAYER_ID)
 	player_state.hand.append(lamp)
 	battle._play_card_to_lane(player_state, 0, lamp)
-	if sturdy.current_life != 3:
-		_fail("Lamplighter should deal 1 damage to the opposite cat (expected 3 life, got %s)." % sturdy.current_life)
+	if sturdy.current_life != sturdy.definition.life - 1:
+		_fail("Lamplighter should deal 1 damage to the opposite cat (expected %s life, got %s)." % [sturdy.definition.life - 1, sturdy.current_life])
 		return
 
 	# Bubeník a kuchař: sousedé +1 útok / +1 život, vzdálená lajna nic.
@@ -97,7 +97,7 @@ func _run() -> void:
 	var cook = battle._create_card_instance(&"galley_cook", battle.PLAYER_ID)
 	player_state.hand.append(cook)
 	battle._play_card_to_lane(player_state, 0, cook)
-	if buddy.current_life != 5 or far_cat.current_life != 4:
+	if buddy.current_life != buddy.definition.life + 1 or far_cat.current_life != far_cat.definition.life:
 		_fail("Galley Cook should give only the adjacent cat +1 life.")
 		return
 

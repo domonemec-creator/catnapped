@@ -1042,7 +1042,12 @@ func _assign_deck_to_player(player_state: PlayerBattleState, deck_id: StringName
 
 	var result: Dictionary = {}
 	if player_state.player_id == ENEMY_ID:
-		var threat_deck_cards := _progression_system.build_enemy_deck_card_ids(deck_definition, _get_current_threat())
+		# D-021: v runu sílí každý další soupeř o jeden stupeň hrozby (hráč vyhrál první run 5:0).
+		var run_session_for_threat = _get_run_session()
+		var run_bonus := 0
+		if run_session_for_threat != null and run_session_for_threat.is_active():
+			run_bonus = maxi(0, run_session_for_threat.get_current_step_number() - 1)
+		var threat_deck_cards := _progression_system.build_enemy_deck_card_ids(deck_definition, _get_current_threat() + run_bonus)
 		result = _deck_system.build_runtime_deck_from_card_ids(threat_deck_cards, _card_library, player_state.player_id, next_instance_id)
 	else:
 		var run_session = _get_run_session()
