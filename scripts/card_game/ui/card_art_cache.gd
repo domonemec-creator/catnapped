@@ -4,6 +4,7 @@ extends RefCounted
 # Portrétní art (2:3) se pro malé náhledy ořízne na horní pás kolem hlavy.
 
 const PLACEHOLDER_PATH := "res://assets/card_game/card_art/_placeholder_back.png"
+const CARD_BACK_PATH := "res://assets/card_game/card_art/card_back.png"
 
 static var _full_cache: Dictionary = {}
 static var _crop_cache: Dictionary = {}

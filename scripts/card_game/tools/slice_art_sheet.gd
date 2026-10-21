@@ -36,7 +36,7 @@ func _init() -> void:
 		var cx := i % cols
 		var cy := i / cols
 		var rect := Rect2i(xs[cx] + INSET, ys[cy] + INSET, xs[cx + 1] - xs[cx] - INSET * 2, ys[cy + 1] - ys[cy] - INSET * 2)
-		var tile := sheet.get_region(_fit_aspect(rect))
+		var tile := sheet.get_region(_fit_aspect(_trim_dark_edges(sheet, rect)))
 		tile.resize(OUT_SIZE.x, OUT_SIZE.y, Image.INTERPOLATE_LANCZOS)
 		var out_path := ProjectSettings.globalize_path(OUT_DIR + ids[i].strip_edges() + ".png")
 		if tile.save_png(out_path) != OK:
@@ -73,6 +73,32 @@ func _line_brightness(img: Image, pos: int, vertical: bool) -> float:
 		var c := img.get_pixel(pos, i) if vertical else img.get_pixel(i, pos)
 		total += c.get_luminance()
 	return total
+
+
+# Odřízne tmavý rámeček / širší linky po okrajích políčka (arch může mít vnější rám).
+func _trim_dark_edges(img: Image, rect: Rect2i) -> Rect2i:
+	var r := rect
+	var limit := int(mini(rect.size.x, rect.size.y) * 0.06)
+	for _i in limit:
+		if _edge_dark(img, Rect2i(r.position.x, r.position.y, 1, r.size.y)):
+			r = Rect2i(r.position.x + 1, r.position.y, r.size.x - 1, r.size.y)
+		if _edge_dark(img, Rect2i(r.end.x - 1, r.position.y, 1, r.size.y)):
+			r.size.x -= 1
+		if _edge_dark(img, Rect2i(r.position.x, r.position.y, r.size.x, 1)):
+			r = Rect2i(r.position.x, r.position.y + 1, r.size.x, r.size.y - 1)
+		if _edge_dark(img, Rect2i(r.position.x, r.end.y - 1, r.size.x, 1)):
+			r.size.y -= 1
+	return r
+
+
+func _edge_dark(img: Image, line: Rect2i) -> bool:
+	var total := 0.0
+	var count := 0
+	for y in range(line.position.y, line.end.y, 3):
+		for x in range(line.position.x, line.end.x, 3):
+			total += img.get_pixel(x, y).get_luminance()
+			count += 1
+	return count > 0 and total / count < 0.06
 
 
 # Ořízne políčko na poměr 2:3 (na střed), ať se karta nedeformuje.

@@ -14,6 +14,10 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - Arch portrétů od majitele (Claude Opus 5.5)
+- Zmena: Vlastní portréty soupeřů Lantern/Ragclaw/Harbor (dřív půjčené karty), art Tuláka, rub karty (`card_back.png`, soupeřova ruka), ikona hry `icon.png` vyříznutá z Ragclawa (`make_app_icon.gd`). Připravené pro budoucnost: `portrait_fog_seer`, `portrait_bilge_king`, `ship_lookout`, `smuggler`. `slice_art_sheet.gd` nově odřezává tmavé okraje (arch s vnějším rámem).
+- Overeni: 21/21 PASS, screenshot menu.
+
 ### 2026-10-21 (noc) - D1 žebříček tréninku (Claude Opus 5.5)
 - Zmena: Soupeři v menu jsou žebříček: další se odemkne až výhrou nad předchozím (`training_cleared` v save). Stupeň N (0–3) = soupeř má +2N životů, od 3. stupně kartu navíc do ruky, hrozbu +2N. Stejný stupeň platí i pro kroky runu. Sim ukázal, že samotná hrozba obtížnost skoro nemění (Harbor s vyšší hrozbou dokonce lehčí), proto páka přes životy a kartu.
 - Soubory: progression_system (TRAINING_ORDER, mark_training_win…), battle_controller (`_get_difficulty_tier`, `_get_threat_bonus`, `_record_training_win`), encounter_select (zamčeno, životy podle stupně), sim arg `noladder`, nový `verify_training_ladder.gd`.

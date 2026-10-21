@@ -2213,7 +2213,7 @@ func _refresh_enemy_hand_row(enemy_state: PlayerBattleState) -> void:
 		_enemy_hand_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		header.add_child(_enemy_hand_row)
 		header.move_child(_enemy_hand_row, header.get_child_count() - 2)
-	var back := CardArtCache.get_full(CardArtCache.PLACEHOLDER_PATH)
+	var back := CardArtCache.get_full(CardArtCache.CARD_BACK_PATH)
 	var count := enemy_state.hand.size()
 	while _enemy_hand_row.get_child_count() > count + 1:
 		_enemy_hand_row.get_child(_enemy_hand_row.get_child_count() - 1).free()
