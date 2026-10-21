@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - Výsledek zápasu a stůl: úklid po Hrozbě (Claude Opus 5.5)
+- Výsledek: skrytá prázdná plaketa hrozby, texty vycentrované, výhra „X je poražen. Stůl je tvůj.“, prohra „X si stůl drží. Zkus jiný balík nebo jinou taktiku.“ (místo hrozby).
+- Stůl: indikátor vpravo nahoře jen u připravené kočky (UI rozbor bod 7).
+- Ověření: artifacts/reward_v2.png, rp_mid.png, 23/23 verifierů.
+
 ### 2026-10-21 (noc) - Čitelnost ruky (UI rozbor bod 4/6) (Claude Opus 5.5)
 - Karta v ruce: jméno na vlastním pruhu nad odznaky (dřív useknuté „Svíčkotlap…“), 15/13/12 px podle délky. Nehratelná karta ztlumená jen na 0.8 (dřív 0.62, nešla číst). Ruka/Balík soupeře 16 px.
 - Export: připraven `export_presets.cfg` (Windows, build/Catnapped.exe, v .gitignore); chybí šablony 4.6.2 (jsou jen 4.7.1) → stáhnout v editoru.

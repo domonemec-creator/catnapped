@@ -1583,7 +1583,7 @@ func _check_battle_end() -> void:
 		_play_sfx(&"victory")
 		_save_match_log.call_deferred("vyhra")
 		status_label.text = "Výhra. %s došel o všechny životy." % enemy_state.display_name
-		var victory_text := "Soupeř %s je poražen. Stůl se pro příští odvetu uklidnil." % enemy_state.display_name
+		var victory_text := "%s je poražen. Stůl je tvůj." % enemy_state.display_name
 		if training_text != "":
 			victory_text += "\n" + training_text
 		_show_post_match_overlay("win", "Výhra", victory_text, previous_threat, victory_threat, victory_deck_messages)
@@ -1602,7 +1602,7 @@ func _check_battle_end() -> void:
 		_play_sfx(&"defeat")
 		_save_match_log.call_deferred("prohra")
 		status_label.text = "Prohra. Tvoje strana došla o všechny životy."
-		_show_post_match_overlay("loss", "Prohra", "%s si stůl drží a příště se vrátí ještě horší." % enemy_state.display_name, previous_threat, defeat_threat, defeat_deck_messages)
+		_show_post_match_overlay("loss", "Prohra", "%s si stůl drží. Zkus jiný balík nebo jinou taktiku." % enemy_state.display_name, previous_threat, defeat_threat, defeat_deck_messages)
 
 
 func _on_end_turn_pressed() -> void:

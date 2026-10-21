@@ -238,6 +238,8 @@ func show_post_match_overlay(config: Dictionary) -> void:
 		_post_match_backdrop_art.texture = config.get("backdrop_texture") as Texture2D
 	if _post_match_threat_badge != null:
 		_post_match_threat_badge.texture = config.get("threat_badge_texture") as Texture2D
+		# Hrozba je mimo UI (D-023): prázdná plaketa jen mátla.
+		_post_match_threat_badge.visible = false
 	if _post_match_result_title != null:
 		_post_match_result_title.text = _result_title
 		# Titulek výsledku stejným písmem jako menu; barva podle výsledku.
@@ -254,6 +256,10 @@ func show_post_match_overlay(config: Dictionary) -> void:
 		_post_match_result_title.add_theme_constant_override("outline_size", 6)
 	if _post_match_result_summary != null:
 		_post_match_result_summary.text = str(config.get("result_summary", ""))
+		_post_match_result_summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	for centered in [_post_match_deck_shift_title, _post_match_deck_shift_detail, _post_match_record_label]:
+		if centered != null:
+			centered.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	if _post_match_threat_summary != null:
 		# Hrozbu v UI nahradil žebříček tréninku (D-022); text zůstává jen pro ladění.
 		_post_match_threat_summary.text = build_post_match_threat_text(progression_system, previous_threat, next_threat)
