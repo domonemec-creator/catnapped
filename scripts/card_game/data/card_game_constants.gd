@@ -14,6 +14,8 @@ static var combat_retaliation := true
 # Ekonomika karet (D-015): líznutí za tah a startovní ruka. Static var kvůli A/B simulaci.
 static var draw_per_turn := 1
 static var starting_hand := 4
+# Ochrana kryje přímý zásah i ze sousedních lajn (D-019). Static var kvůli A/B simulaci.
+static var guard_covers_adjacent := true
 
 const KEYWORD_BATTLECRY := &"battlecry"
 const KEYWORD_LAST_BREATH := &"last_breath"

@@ -507,6 +507,13 @@ func _sync_battle_feed() -> void:
 	battle_feed_label.text = "\n".join(_battle_feed_lines)
 
 
+# Nedohraný zápas (zavření okna, odchod do menu) se uloží taky, ať jde lidský test zpětně projít.
+func _exit_tree() -> void:
+	if not _match_log.is_empty() and not _match_log_saved:
+		_log_board_snapshot("Zápas přerušen")
+		_save_match_log("nedohrano")
+
+
 func _log_match_line(text: String) -> void:
 	if not _pace_actions or _battle_state == null:
 		return

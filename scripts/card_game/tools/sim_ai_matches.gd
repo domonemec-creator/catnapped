@@ -224,6 +224,8 @@ func _run() -> void:
     for arg in user_args:
         if String(arg).begins_with("draw"):
             CardGameConstants.draw_per_turn = int(String(arg).substr(4))
+        elif String(arg) == "guardlane":
+            CardGameConstants.guard_covers_adjacent = false
         elif String(arg).begins_with("hand"):
             CardGameConstants.starting_hand = int(String(arg).substr(4))
     print("# combat_retaliation=%s draw_per_turn=%s starting_hand=%s" % [CardGameConstants.combat_retaliation, CardGameConstants.draw_per_turn, CardGameConstants.starting_hand])

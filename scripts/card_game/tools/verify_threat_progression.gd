@@ -101,8 +101,8 @@ func _run() -> void:
     if _count_card_ids(harbor_threat_ten_cards, &"boilerback_guardian") != 6:
         _fail("Harbor threat 10 deck should contain 6 Boilerback Guardians.")
         return
-    if _count_card_ids(harbor_threat_ten_cards, &"captain_ironmaw") != 4:
-        _fail("Harbor threat 10 deck should contain 4 Captain Ironmaws.")
+    if _count_card_ids(harbor_threat_ten_cards, &"captain_ironmaw") != 3:
+        _fail("Harbor threat 10 deck should contain 3 Captain Ironmaws.")
         return
     if _count_card_ids(harbor_threat_ten_cards, &"hidden_claws") != 0:
         _fail("Simple-core Harbor deck should not contain Hidden Claws.")

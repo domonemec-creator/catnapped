@@ -16,12 +16,12 @@ count = 4
 [sub_resource type="Resource" id="3_entry"]
 script = ExtResource("2_deck_entry")
 card_id = &"fishbone_skulker"
-count = 2
+count = 1
 
 [sub_resource type="Resource" id="4_entry"]
 script = ExtResource("2_deck_entry")
 card_id = &"dock_harpooner"
-count = 1
+count = 2
 
 [sub_resource type="Resource" id="5_entry"]
 script = ExtResource("2_deck_entry")

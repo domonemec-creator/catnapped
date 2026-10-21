@@ -137,3 +137,10 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Datum: 2026-10-20
 - Stav: aktivni
 - Rozhodnutí: Lucernový útočník má 2× Lampářku, Ragclaw 2× Kapsáře, Harbor 1× Harpunáře (zůstávají i při eskalaci hrozby). Pořadí runu je Smug → Lantern → Ragclaw → Harbor. Simulace (AI starter, výhra hráče): ~82 / ~59 / ~50 / ~29 %, tedy stoupající obtížnost. Menu u soupeře zmiňuje jeho podpisovou kartu.
+
+### D-019 - Bez léčení hráče; Ochrana dál kryje sousední lajny
+- Datum: 2026-10-21
+- Stav: aktivni
+- Kontext: Lidský test #2 (krátký): „často jsme se healovali, hra neměla konce“. Léčení měly Dokový rváč (Bojový nástup: vyleč 1, 3× ve starteru a 3–4× u soupeřů) a Kotelní strážce (Poslední dech: vyleč 1). Při 10 životech je to 10 % zdraví za kartu.
+- Rozhodnutí: Léčení z obou karet odstraněno. Dokový rváč je teď 4/5 a „Poslední dech: lízni 1 kartu“, Kotelní strážce 2/6 a „Ochrana“. Ochranu jen pro vlastní lajnu jsem otestoval (`guard_covers_adjacent`, sim arg `guardlane`): zápasy zkrátí jen málo (28 → 26 půltahů) a rychlé soupeře udělá příliš silnými, proto zůstává krytí sousedů. Harbor má 2× Harpunáře, aby zůstal nejtěžší.
+- Dopad (sim, hráč táhne první jako ve hře): Smug ~90 %, Lantern ~55 %, Ragclaw ~55 %, Harbor ~48 %. Simulace neměří pocit z délky hry, ten ověří jen člověk.

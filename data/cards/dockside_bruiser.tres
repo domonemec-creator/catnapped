@@ -3,13 +3,6 @@
 [ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
 [ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
 
-[sub_resource type="Resource" id="1_battlecry"]
-script = ExtResource("2_card_effect")
-trigger = &"battlecry"
-action = &"heal_life"
-target_mode = &"self_owner"
-value = 1
-
 [sub_resource type="Resource" id="2_last_breath"]
 script = ExtResource("2_card_effect")
 trigger = &"last_breath"
@@ -23,10 +16,10 @@ id = &"dockside_bruiser"
 display_name = "Dokový rváč"
 card_type = 0
 cost = 4
-attack = 3
+attack = 4
 life = 5
-rules_text = "Bojový nástup: vyleč 1 život.\nPoslední dech: lízni 1 kartu."
-keywords = []
-effects = [SubResource("1_battlecry"), SubResource("2_last_breath")]
+rules_text = "Poslední dech: lízni 1 kartu."
+keywords = [&"last_breath"]
+effects = [SubResource("2_last_breath")]
 art_path = "res://assets/card_game/card_art/dockside_bruiser.png"
 frame_variant = &"default"

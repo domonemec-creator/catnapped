@@ -150,10 +150,12 @@ func get_valid_attack_lanes(attacker: CardInstance, defender_state: PlayerBattle
 
 func find_guard_for_direct_damage(defender_state: PlayerBattleState, lane_index: int) -> CardInstance:
     var candidate_indexes := [lane_index]
-    if lane_index > 0:
-        candidate_indexes.append(lane_index - 1)
-    if lane_index < defender_state.board.size() - 1:
-        candidate_indexes.append(lane_index + 1)
+    # D-019: Ochrana může krýt i sousední lajny (přepínač kvůli A/B simulaci).
+    if CardGameConstants.guard_covers_adjacent:
+        if lane_index > 0:
+            candidate_indexes.append(lane_index - 1)
+        if lane_index < defender_state.board.size() - 1:
+            candidate_indexes.append(lane_index + 1)
 
     for candidate_index in candidate_indexes:
         var slot: LaneSlotState = defender_state.board[candidate_index]

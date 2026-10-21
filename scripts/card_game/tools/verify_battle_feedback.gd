@@ -96,9 +96,9 @@ func _run() -> void:
 	if _lane_event_text(battle._player_lanes[1]) != "ÚTOK 3":
 		_fail("Attacker lane did not show UTOK 3.")
 		return
-	# Odveta (D-014): bruiser vrací 3 zranění útočníkovi.
-	if attacker.current_life != 2:
-		_fail("Retaliation should leave the attacker at 2 life, got %s." % attacker.current_life)
+	# Odveta (D-014): bruiser (4 útok od 2026-10-21) vrací 4 zranění útočníkovi s 5 životy.
+	if attacker.current_life != 1:
+		_fail("Retaliation should leave the attacker at 1 life, got %s." % attacker.current_life)
 		return
 	if _lane_event_text(battle._enemy_lanes[1]) != "-3 ŽIV":
 		_fail("Defender lane did not show -3 ŽIV.")
