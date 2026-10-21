@@ -135,6 +135,8 @@ func refresh_selected_panel(state: Dictionary) -> void:
 		"Klikni na kartu v ruce nebo na svou kočku na stole a uvidíš, co umí.",
 		build_simple_idle_hint(player_state, enemy_state)
 	)
+	# Varování před smrtícím útokem soupeře zůstává vidět; jinak stačí průvodce.
+	_set_info_panel_visible(not build_enemy_lethal_warning(player_state, enemy_state).is_empty())
 
 
 # Průvodce pro hráče, který karetní hry nezná: podle stavu řekne konkrétní další krok.
@@ -757,6 +759,18 @@ func set_selected_panel_copy(title: String, meta: String, detail: String, hint: 
 		_selected_card_detail.text = detail
 	if _selected_card_hint != null:
 		_selected_card_hint.text = hint
+	_set_info_panel_visible(true)
+
+
+# Info box pod kartou (meta/detail/hint). V klidu ho schová průvodce „Co teď?“, aby se texty neopakovaly.
+func _set_info_panel_visible(visible: bool) -> void:
+	if _selected_card_meta == null:
+		return
+	var info_panel := _selected_card_meta.get_parent().get_parent().get_parent() as Control
+	if info_panel != null:
+		info_panel.visible = visible
+	if _selected_card_title != null:
+		_selected_card_title.visible = visible
 
 
 

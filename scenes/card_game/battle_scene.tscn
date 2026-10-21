@@ -393,6 +393,7 @@ offset_top = 0.0
 offset_right = 0.0
 offset_bottom = 0.0
 theme_override_constants/separation = 8
+alignment = 2
 mouse_filter = 2
 
 [node name="InfoPanel" type="PanelContainer" parent="Margin/Layout/TopRow/SelectedPanel/Content/BottomZone"]
