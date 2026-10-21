@@ -14,6 +14,10 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - MP: odveta (Claude Opus 5.5)
+- Po zápase „Chci odvetu“ (klient pošle žádost) / „Odveta“ (host znovu načte scénu, nový los, kdo začíná). Klient po prvním snímku nového stolu schová výsledek.
+- Ověření: `NET_REMATCH=1` net_smoke: dva zápasy po sobě, výsledky obou stran sedí; 23/23 verifierů.
+
 ### 2026-10-21 (noc) - MP: klient vidí efekty a slyší zvuky soupeřových akcí (Claude Opus 5.5)
 - Host si zapisuje `_queue_lane_fx` a `_play_sfx` (net_battle.gd `record_fx/record_sfx`), pošle je se snímkem, klient je přehraje (`_replay_net_events`). Výhra/prohra se nesdílí (každý má svou).
 - Ověření: net_smoke v okně (host i klient), bez chyb; 23/23 verifierů.

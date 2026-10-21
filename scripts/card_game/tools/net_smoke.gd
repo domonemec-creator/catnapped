@@ -47,13 +47,43 @@ func _run() -> void:
 	var battle = (load(BATTLE_SCENE) as PackedScene).instantiate()
 	root.add_child(battle)
 	current_scene = battle
-	while Time.get_ticks_msec() - start < TIMEOUT_MSEC:
+	# NET_REMATCH=1: po prvním zápase odveta (klient požádá, host spustí) a hraje se znovu.
+	var games_left := 2 if OS.get_environment("NET_REMATCH") != "" else 1
+	while Time.get_ticks_msec() - start < TIMEOUT_MSEC * games_left:
 		await process_frame
 		var state = battle._battle_state
 		if state == null:
 			continue
 		if state.battle_over:
-			break
+			if games_left <= 1:
+				break
+			if not _busy:
+				_busy = true
+				print("NET GAME1 role=%s vítěz=%s" % [_role, state.winner_player_id])
+				await create_timer(0.5).timeout
+				if _role == "client":
+					battle._on_rematch_button_pressed()
+					var waited_client := 0
+					while battle._battle_state.battle_over and waited_client < 600:
+						await process_frame
+						waited_client += 1
+					print("NET REMATCH klient nový stůl=%s" % (not battle._battle_state.battle_over))
+				else:
+					var waited := 0
+					while battle.post_match_rematch_button.text != "Odveta (soupeř chce)" and waited < 300:
+						await process_frame
+						waited += 1
+					var old_battle = battle
+					battle._on_rematch_button_pressed()
+					while current_scene == old_battle or current_scene == null or not is_instance_valid(current_scene):
+						await process_frame
+					battle = current_scene
+					while battle._battle_state == null:
+						await process_frame
+					print("NET REMATCH host nová scéna=%s konec=%s kolo=%s" % [battle != old_battle, battle._battle_state.battle_over, battle._battle_state.turn_number])
+				games_left -= 1
+				_busy = false
+			continue
 		if _busy or state.active_player_id != battle.PLAYER_ID or battle._enemy_turn_running:
 			continue
 		_busy = true

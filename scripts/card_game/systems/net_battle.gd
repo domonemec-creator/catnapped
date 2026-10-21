@@ -5,6 +5,7 @@ extends RefCounted
 # a místo provedení akce ji pošle hostovi. Viz D-024.
 
 signal remote_turn_finished
+signal rematch_requested
 
 const BattleState = preload("res://scripts/card_game/runtime/battle_state.gd")
 const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
@@ -122,6 +123,9 @@ func run_remote_turn() -> void:
 
 
 func _on_remote_action(action: Dictionary) -> void:
+	if str(action.get("type", "")) == "rematch":
+		rematch_requested.emit()
+		return
 	if not _remote_turn_active or _battle == null or _battle._battle_state == null:
 		push_warning("Síť: akce mimo tah soupeře zahozena: %s" % action)
 		return

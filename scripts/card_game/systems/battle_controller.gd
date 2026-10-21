@@ -262,6 +262,7 @@ func _ready() -> void:
 		_net = NetBattle.new()
 		_net.setup(self, manager.net_match)
 		manager.session_disconnected.connect(_on_net_disconnected)
+		_net.rematch_requested.connect(_on_net_rematch_requested)
 	if _net != null and _net.is_client():
 		_start_net_client(manager)
 		return
@@ -1674,7 +1675,7 @@ func _run_opponent_turn() -> void:
 
 func _on_rematch_button_pressed() -> void:
 	if _net != null:
-		_leave_net_match()
+		_request_net_rematch()
 		return
 	get_tree().reload_current_scene()
 
@@ -2484,6 +2485,12 @@ func _apply_net_snapshot(state: BattleState, host_status: String) -> void:
 	var enemy_state: PlayerBattleState = state.get_player_state(ENEMY_ID)
 	if player_state == null or enemy_state == null:
 		return
+	if _net_result_shown and not state.battle_over:
+		# Host spustil odvetu: nový stůl, pryč s výsledkem.
+		_net_result_shown = false
+		was_my_turn = false
+		_hide_post_match_overlay()
+		_reset_battle_feed()
 	var my_turn := state.active_player_id == PLAYER_ID and not state.battle_over
 	if my_turn:
 		for card in player_state.hand:
@@ -2543,7 +2550,9 @@ func _check_net_battle_end(player_state: PlayerBattleState, enemy_state: PlayerB
 		_play_sfx(&"defeat")
 	status_label.text = "%s. %s" % [title, summary]
 	_show_post_match_overlay(mode, title, summary, 0, 0, [])
-	post_match_rematch_button.visible = false
+	post_match_rematch_button.visible = true
+	post_match_rematch_button.disabled = false
+	post_match_rematch_button.text = "Odveta" if _net.is_host() else "Chci odvetu"
 	post_match_choose_encounter_button.text = "Zpět do menu"
 	if _net.is_host():
 		_net.queue_snapshot()
@@ -2585,3 +2594,22 @@ func _replay_net_events(events: Array) -> void:
 				if str(event.get("m", "")) == "fx_death":
 					args = [CardArtCache.get_cropped(str(event.get("art", "")))]
 				_queue_lane_fx(int(event.get("owner", 0)), int(event.get("lane", -1)), StringName(event.get("m", "")), args)
+
+
+# Odveta: host ji rovnou spustí (nový los, kdo začíná), klient o ni požádá hostitele.
+func _request_net_rematch() -> void:
+	if _net.is_client():
+		_net.intercept(_battle_state.get_player_state(PLAYER_ID), {"type": "rematch"})
+		post_match_rematch_button.disabled = true
+		post_match_rematch_button.text = "Čekám na hostitele…"
+		return
+	var manager := get_node_or_null("/root/MultiplayerManager")
+	if manager == null or not manager.is_in_match():
+		return
+	manager.net_match["host_first"] = randi() % 2 == 0
+	get_tree().reload_current_scene()
+
+
+func _on_net_rematch_requested() -> void:
+	if _net_result_shown:
+		post_match_rematch_button.text = "Odveta (soupeř chce)"

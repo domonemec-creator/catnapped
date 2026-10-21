@@ -19,7 +19,7 @@
 ## Další krok
 1. Lidský test #4 (Mark + kamarád přes Radmin VPN): oba spustí hru → „Hra ve dvou“. Jeden „Hostovat hru“ (Windows firewall: povolit), druhý zadá jeho IP 26.x.x.x → „Připojit se“. Dohrát zápas. Hlásit: připojení, zpoždění, nečitelné tahy soupeře, chyby.
 2. D3 víc karet (prompt na art arch je v `design/art_prompt_2026-10-22.md`, jakmile vznikne).
-3. MP v1 limity: žádná odveta (zpět do menu), záznam ve 3. osobě.
+3. MP v1 limity: záznam akcí ve 3. osobě, žádná ochrana proti podvádění.
 
 ## Co se změnilo (podrobně `docs/worklog.md`)
 - Stůl: token s artem, jménem a odznaky; opraven roztažený StatusBadge; event bannery jsou malé štítky.
