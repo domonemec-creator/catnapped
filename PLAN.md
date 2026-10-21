@@ -44,7 +44,7 @@
 - [x] D1 Trénink: žebříček soupeřů, každý těžší, odemykání postupně
 - [x] D2 Stavění vlastního balíku (z odemčených karet), D-023
 - [ ] D3 Víc karet (cíl ~50), art arch 3×3 → `slice_art_sheet.gd`
-- [ ] D4 Multiplayer 1v1 LAN/přímá IP (host je autorita, synchronizace akcí)
+- [x] D4 Multiplayer 1v1 LAN/přímá IP (host je autorita, snímky stavu), D-024; čeká na test ve dvou přes Radmin
 - [ ] D5 Hra přes internet (relay/Steam), až po D4
 
 ## Odloženo (vědomé rozhodnutí, D-013)

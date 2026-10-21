@@ -10,6 +10,7 @@ const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
 const CardView = preload("res://scripts/card_game/ui/card_view.gd")
 const BattleFx = preload("res://scripts/card_game/ui/battle_fx.gd")
 const BattleLayout = preload("res://scripts/card_game/ui/battle_layout.gd")
+const NetBattle = preload("res://scripts/card_game/systems/net_battle.gd")
 const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
 const BattleOverlayPresenter = preload("res://scripts/card_game/ui/battle_overlay_presenter.gd")
 const BattlePreviewPresenter = preload("res://scripts/card_game/ui/battle_preview_presenter.gd")
@@ -39,6 +40,7 @@ const ENCOUNTER_PATH := "res://data/encounters/smug_tabby.tres"
 const DEFAULT_ENCOUNTER_ID := &"smug_tabby"
 const ENCOUNTER_SELECT_SCENE_PATH := "res://scenes/card_game/encounter_select.tscn"
 const TIER_EXTRA_CARD_FROM := 2
+const NET_OPPONENT_PORTRAIT_PATH := "res://assets/card_game/card_art/stray_token.png"
 # Karta v ruce na výšku (layout v2).
 const HAND_CARD_SIZE := Vector2(136, 188)
 const CARD_VIEW_SCENE := preload("res://scenes/card_game/card_view.tscn")
@@ -105,6 +107,8 @@ var _pace_actions := false
 var _enemy_turn_running := false
 var _hover_card: CardInstance
 var _enemy_hand_host: Container
+var _net: NetBattle  # null = hra proti počítači (D4)
+var _net_result_shown := false
 var _enemy_hand_row: HBoxContainer
 # instance_id karet, které už hráč v ruce viděl (nové dostanou animaci líznutí).
 var _seen_hand_ids: Dictionary = {}
@@ -253,9 +257,20 @@ func _ready() -> void:
 	_overlay_presenter.ensure_tutorial_overlay(self)
 
 	_load_libraries()
+	var manager := get_node_or_null("/root/MultiplayerManager")
+	if manager != null and manager.is_in_match():
+		_net = NetBattle.new()
+		_net.setup(self, manager.net_match)
+		manager.session_disconnected.connect(_on_net_disconnected)
+	if _net != null and _net.is_client():
+		_start_net_client(manager)
+		return
 	_setup_battle()
 	_refresh_ui()
-	_maybe_show_tutorial_overlay()
+	if _net == null:
+		_maybe_show_tutorial_overlay()
+	elif not _net.host_goes_first():
+		_run_opponent_turn.call_deferred()
 
 
 func _load_libraries() -> void:
@@ -313,6 +328,8 @@ func _get_current_threat() -> int:
 # Stupeň obtížnosti soupeře (D-022): v runu krok - 1, v tréninku pořadí v žebříčku.
 # Hrozba sama balík mění jen málo (sim), proto stupeň přidává životy a od 3. stupně kartu do ruky.
 func _get_difficulty_tier() -> int:
+	if _net != null:
+		return 0
 	var run_session = _get_run_session()
 	if run_session != null and run_session.is_active():
 		return clampi(run_session.get_current_step_number() - 1, 0, ProgressionSystem.TRAINING_ORDER.size() - 1)
@@ -323,6 +340,8 @@ func _get_difficulty_tier() -> int:
 
 # Hrozba navíc: v runu +1 za každý další krok (D-021), v tréninku podle pořadí soupeře (D-022).
 func _get_threat_bonus() -> int:
+	if _net != null:
+		return 0
 	var run_session = _get_run_session()
 	if run_session != null and run_session.is_active():
 		return maxi(0, run_session.get_current_step_number() - 1)
@@ -440,6 +459,8 @@ func _show_run_completion_overlay(reward_offer: Dictionary) -> void:
 
 
 func _get_encounter_portrait_path() -> String:
+	if _net != null:
+		return NET_OPPONENT_PORTRAIT_PATH
 	if _encounter != null and not _encounter.portrait_path.is_empty():
 		return _encounter.portrait_path
 	return DEFAULT_POSTMATCH_BACKDROP_PATH
@@ -560,6 +581,8 @@ func _sync_battle_feed() -> void:
 
 # Nedohraný zápas (zavření okna, odchod do menu) se uloží taky, ať jde lidský test zpětně projít.
 func _exit_tree() -> void:
+	if _net != null:
+		_net.disconnect_signals()
 	if not _match_log.is_empty() and not _match_log_saved:
 		_log_board_snapshot("Zápas přerušen")
 		_save_match_log("nedohrano")
@@ -958,6 +981,8 @@ func _return_card_to_hand(owner_state: PlayerBattleState, target_card: CardInsta
 func _play_targeted_card(owner_state: PlayerBattleState, opposing_state: PlayerBattleState, card_instance: CardInstance, target_card: CardInstance) -> String:
 	if owner_state == null or opposing_state == null or card_instance == null:
 		return ""
+	if _net != null and target_card != null and _net.intercept(owner_state, {"type": "play_target", "card": card_instance.instance_id, "own": target_card.owner_id == owner_state.player_id, "lane": target_card.lane_index}):
+		return ""
 
 	_clear_lane_feedback()
 	_spend_card_cost(card_instance, owner_state)
@@ -986,6 +1011,8 @@ func _activate_table_power(user_state: PlayerBattleState, opposing_state: Player
 		return "%s teď nejde použít." % power_definition.display_name
 	if _table_power_requires_lane_selection(power_definition) and not _get_valid_table_power_lanes(power_definition, user_state).has(lane_index):
 		return "Sem %s nejde." % power_definition.display_name
+	if _net != null and _net.intercept(user_state, {"type": "power", "lane": lane_index}):
+		return ""
 
 	_clear_lane_feedback()
 	user_state.tuna_current -= power_definition.cost
@@ -1053,7 +1080,7 @@ func _setup_battle() -> void:
 	_battle_state.priority_player_id = PLAYER_ID
 
 	var player_state := PlayerBattleState.new()
-	player_state.initialize(PLAYER_ID, "Hráč", STARTING_LIFE, STARTING_TUNA, PLAYER_TABLE_POWER_ID, LANE_COUNT)
+	player_state.initialize(PLAYER_ID, _net.get_my_name() if _net != null else "Hráč", STARTING_LIFE, STARTING_TUNA, PLAYER_TABLE_POWER_ID, LANE_COUNT)
 	# The player's first turn is the opening setup (no _start_turn call), so their next
 	# _start_turn (turn 2) should ramp normally. The enemy keeps has_started_turn = false
 	# so its first turn opens on STARTING_TUNA instead of an unfair +1.
@@ -1069,12 +1096,22 @@ func _setup_battle() -> void:
 		enemy_life = _encounter.starting_life + ProgressionSystem.get_training_life_bonus(_get_difficulty_tier())
 		enemy_power_id = _encounter.table_power_id
 		enemy_deck_id = _encounter.deck_id
+	if _net != null:
+		# Soupeř je člověk: stejné životy i Síla stolu jako ty, jeho vlastní balík.
+		enemy_name = _net.get_opponent_name()
+		enemy_life = STARTING_LIFE
+		enemy_power_id = PLAYER_TABLE_POWER_ID
 	enemy_state.initialize(ENEMY_ID, enemy_name, enemy_life, STARTING_TUNA, enemy_power_id, LANE_COUNT)
 
 	_next_instance_id = _assign_deck_to_player(player_state, PLAYER_DECK_ID, _next_instance_id)
 	_next_instance_id = _assign_deck_to_player(enemy_state, enemy_deck_id, _next_instance_id)
 
 	_battle_state.player_states = [player_state, enemy_state]
+	if _net != null and not _net.host_goes_first():
+		# Začíná klient: jeho první tah je úvodní (bez líznutí), ty si lízneš na začátku svého.
+		_battle_state.active_player_id = ENEMY_ID
+		player_state.has_started_turn = false
+		enemy_state.has_started_turn = true
 
 	_deck_system.draw_cards(player_state, CardGameConstants.starting_hand)
 	_deck_system.draw_cards(enemy_state, CardGameConstants.starting_hand + (1 if _get_difficulty_tier() >= TIER_EXTRA_CARD_FROM else 0))
@@ -1095,7 +1132,9 @@ func _assign_deck_to_player(player_state: PlayerBattleState, deck_id: StringName
 		return next_instance_id
 
 	var result: Dictionary = {}
-	if player_state.player_id == ENEMY_ID:
+	if player_state.player_id == ENEMY_ID and _net != null:
+		result = _deck_system.build_runtime_deck_from_card_ids(_net.get_opponent_deck(), _card_library, player_state.player_id, next_instance_id)
+	elif player_state.player_id == ENEMY_ID:
 		# Hrozba včetně bonusu runu (D-021) / tréninku (D-022).
 		var threat_deck_cards := _progression_system.build_enemy_deck_card_ids(deck_definition, _get_current_threat())
 		result = _deck_system.build_runtime_deck_from_card_ids(threat_deck_cards, _card_library, player_state.player_id, next_instance_id)
@@ -1253,6 +1292,8 @@ func _handle_enemy_lane_pressed(lane_index: int) -> void:
 
 
 func _play_card_to_lane(player_state: PlayerBattleState, lane_index: int, card_instance: CardInstance) -> void:
+	if _net != null and _net.intercept(player_state, {"type": "play_lane", "card": card_instance.instance_id, "lane": lane_index}):
+		return
 	var slot: LaneSlotState = player_state.board[lane_index]
 	if slot == null or not slot.is_empty():
 		return
@@ -1282,6 +1323,8 @@ func _play_card_to_lane(player_state: PlayerBattleState, lane_index: int, card_i
 
 func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: PlayerBattleState, attacker: CardInstance, target_lane: int) -> String:
 	if attacker == null or _battle_state == null or _battle_state.battle_over:
+		return ""
+	if _net != null and _net.intercept(attacker_owner_state, {"type": "attack", "from": attacker.lane_index, "lane": target_lane}):
 		return ""
 
 	var valid_attack_lanes: Array[int] = _battle_rules.get_valid_attack_lanes(attacker, defender_state)
@@ -1503,6 +1546,9 @@ func _check_battle_end() -> void:
 	var previous_threat := _get_current_threat()
 	if player_state == null or enemy_state == null:
 		return
+	if _net != null:
+		_check_net_battle_end(player_state, enemy_state)
+		return
 
 	if player_state.life <= 0 and enemy_state.life <= 0:
 		_battle_state.battle_over = true
@@ -1557,9 +1603,19 @@ func _on_end_turn_pressed() -> void:
 		return
 
 	if _battle_state.battle_over:
+		if _net != null:
+			_leave_net_match()
+			return
 		get_tree().reload_current_scene()
 		return
 	if _enemy_turn_running:
+		return
+	if _net != null and _net.is_client():
+		if _battle_state.active_player_id == PLAYER_ID:
+			_clear_selection_state()
+			_play_sfx(&"end_turn")
+			end_turn_button.disabled = true
+			_net.intercept(_battle_state.get_player_state(PLAYER_ID), {"type": "end_turn"})
 		return
 
 	_clear_selection_state()
@@ -1578,10 +1634,22 @@ func _on_end_turn_pressed() -> void:
 
 	_battle_state.active_player_id = ENEMY_ID
 	_start_turn(enemy_state)
+	await _run_opponent_turn()
+
+
+# Tah soupeře (AI, nebo v síťové hře člověk na druhém PC) a začátek tvého tahu.
+func _run_opponent_turn() -> void:
+	var player_state: PlayerBattleState = _battle_state.get_player_state(PLAYER_ID)
+	var enemy_state: PlayerBattleState = _battle_state.get_player_state(ENEMY_ID)
 	_enemy_turn_running = true
 	end_turn_button.disabled = true
 	BattleFx.banner(self, "Tah soupeře", Color(0.95, 0.55, 0.45))
-	await _run_enemy_stub_turn()
+	if _net != null:
+		status_label.text = "%s je na tahu…" % enemy_state.display_name
+		_refresh_ui()
+		await _net.run_remote_turn()
+	else:
+		await _run_enemy_stub_turn()
 	_enemy_turn_running = false
 	end_turn_button.disabled = false
 	if _battle_state.battle_over:
@@ -1605,10 +1673,16 @@ func _on_end_turn_pressed() -> void:
 
 
 func _on_rematch_button_pressed() -> void:
+	if _net != null:
+		_leave_net_match()
+		return
 	get_tree().reload_current_scene()
 
 
 func _on_choose_encounter_button_pressed() -> void:
+	if _net != null:
+		_leave_net_match()
+		return
 	var run_session = _get_run_session()
 	if run_session != null and run_session.is_active():
 		if _should_end_run_from_postmatch():
@@ -1887,6 +1961,8 @@ func _refresh_ui() -> void:
 			table_power_button.disabled = _battle_state.active_player_id != PLAYER_ID or not _can_use_table_power(player_state, player_power)
 		end_turn_button.text = "Konec tahu"
 		end_turn_button.disabled = _battle_state.active_player_id != PLAYER_ID
+	if _net != null:
+		_net.queue_snapshot()
 
 
 func _select_hand_card_by_instance_id(instance_id: int, toggle_selection: bool = true) -> bool:
@@ -2378,3 +2454,117 @@ func _make_children_click_through(node: Node) -> void:
 		if child is Control:
 			(child as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_make_children_click_through(child)
+
+
+# --- Síťová hra 1v1 (D4, D-024) ---------------------------------------------------------
+
+func _start_net_client(manager: Node) -> void:
+	enemy_name_label.text = _net.get_opponent_name()
+	enemy_portrait_art.texture = CardArtCache.get_cropped_aspect(NET_OPPONENT_PORTRAIT_PATH, BattleLayout.RAIL_WIDTH / BattleLayout.HERO_PORTRAIT_HEIGHT, 0.0)
+	status_label.text = "Čekám na stůl od hostitele…"
+	end_turn_button.disabled = true
+	table_power_button.disabled = true
+	if not manager.last_snapshot.is_empty():
+		_net._on_snapshot(manager.last_snapshot)
+
+
+# Klient: nový stav od hosta. Výběr karty / útočníka se přenese podle instance_id.
+func _apply_net_snapshot(state: BattleState, host_status: String) -> void:
+	var was_my_turn := _battle_state != null and _battle_state.active_player_id == PLAYER_ID
+	var selected_card_id := _selected_card.instance_id if _selected_card != null else -1
+	var selected_attacker_id := _selected_attacker.instance_id if _selected_attacker != null else -1
+	_battle_state = state
+	_selected_card = null
+	_selected_attacker = null
+	var player_state: PlayerBattleState = state.get_player_state(PLAYER_ID)
+	var enemy_state: PlayerBattleState = state.get_player_state(ENEMY_ID)
+	if player_state == null or enemy_state == null:
+		return
+	var my_turn := state.active_player_id == PLAYER_ID and not state.battle_over
+	if my_turn:
+		for card in player_state.hand:
+			if card.instance_id == selected_card_id:
+				_selected_card = card
+		for slot in player_state.board:
+			if slot.occupant != null and slot.occupant.instance_id == selected_attacker_id:
+				_selected_attacker = slot.occupant
+	else:
+		_selected_table_power = null
+	_enemy_turn_running = not my_turn
+	enemy_name_label.text = enemy_state.display_name
+	# Hlášky hosta mluví z jeho pohledu; obecné věty o tahu nahradí vlastní.
+	var text := host_status
+	for prefix in ["Jsi na tahu", "Tvůj tah", "Výhra", "Prohra", "Remíza", "Hlad! Máš"]:
+		if text.begins_with(prefix):
+			text = ""
+	if my_turn and not was_my_turn:
+		BattleFx.banner(self, "Tvůj tah")
+		_play_sfx(&"card_draw")
+		text = "Jsi na tahu. Vylož kartu, použij Sílu stolu nebo zaútoč."
+	elif not my_turn and was_my_turn and not state.battle_over:
+		BattleFx.banner(self, "Tah soupeře", Color(0.95, 0.55, 0.45))
+	if text.is_empty():
+		text = "Jsi na tahu." if my_turn else "%s je na tahu…" % enemy_state.display_name
+	status_label.text = text
+	_refresh_ui()
+	if state.battle_over:
+		_check_net_battle_end(player_state, enemy_state)
+
+
+func _check_net_battle_end(player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> void:
+	if _net_result_shown:
+		return
+	if not _battle_state.battle_over:
+		if player_state.life > 0 and enemy_state.life > 0:
+			return
+		_battle_state.battle_over = true
+		if player_state.life <= 0 and enemy_state.life <= 0:
+			_battle_state.winner_player_id = -1
+		else:
+			_battle_state.winner_player_id = PLAYER_ID if enemy_state.life <= 0 else ENEMY_ID
+	_net_result_shown = true
+	_overlay_presenter.clear_reward_offers()
+	var mode := "draw"
+	var title := "Remíza"
+	var summary := "Oba jste padli zároveň."
+	if _battle_state.winner_player_id == PLAYER_ID:
+		mode = "win"
+		title = "Výhra"
+		summary = "Porazil(a) jsi hráče %s." % enemy_state.display_name
+		_play_sfx(&"victory")
+	elif _battle_state.winner_player_id == ENEMY_ID:
+		mode = "loss"
+		title = "Prohra"
+		summary = "%s tě tentokrát porazil(a)." % enemy_state.display_name
+		_play_sfx(&"defeat")
+	status_label.text = "%s. %s" % [title, summary]
+	_show_post_match_overlay(mode, title, summary, 0, 0, [])
+	post_match_rematch_button.visible = false
+	post_match_choose_encounter_button.text = "Zpět do menu"
+	if _net.is_host():
+		_net.queue_snapshot()
+
+
+func _on_net_disconnected(message: String) -> void:
+	if _net == null:
+		return
+	if _battle_state != null and _battle_state.battle_over:
+		return
+	_net_result_shown = true
+	if _battle_state == null:
+		_battle_state = BattleState.new()
+	_battle_state.battle_over = true
+	_show_post_match_overlay("draw", "Konec hry", message, 0, 0, [])
+	post_match_rematch_button.visible = false
+	post_match_choose_encounter_button.text = "Zpět do menu"
+	# Host může čekat na tah soupeře, který už nepřijde.
+	_net.remote_turn_finished.emit()
+
+
+func _leave_net_match() -> void:
+	var manager := get_node_or_null("/root/MultiplayerManager")
+	if manager != null:
+		if manager.session_disconnected.is_connected(_on_net_disconnected):
+			manager.session_disconnected.disconnect(_on_net_disconnected)
+		manager.leave_match()
+	_return_to_encounter_select()

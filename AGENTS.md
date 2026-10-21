@@ -19,7 +19,14 @@ Godot: `C:\Users\voone\Desktop\Godot_v4.6.2-stable_win64_console.exe`
 
     Godot --headless --path . --script res://scripts/card_game/tools/verify_saved_tuna.gd
 
-Spusť všechny `scripts/card_game/tools/verify_*.gd` (22 skriptů); každý končí hláškou „... verification passed.“. Po změně pravidel/UI vždy pusť relevantní verifiery. Tempo a animace ověř v okně přes `capture_midgame.gd` a `capture_enemy_turn.gd`. Celý tok hry (menu → run → zápas do konce) v okně: `smoke_full_flow.gd` (obnoví save). Balanc: `sim_ai_matches.gd -- 40` (headless).
+Spusť všechny `scripts/card_game/tools/verify_*.gd` (23 skriptů); každý končí hláškou „... verification passed.“. Po změně pravidel/UI vždy pusť relevantní verifiery. Tempo a animace ověř v okně přes `capture_midgame.gd` a `capture_enemy_turn.gd`. Celý tok hry (menu → run → zápas do konce) v okně: `smoke_full_flow.gd` (obnoví save). Balanc: `sim_ai_matches.gd -- 40` (headless).
+
+Síťová hra (D4, D-024): logika `scripts/card_game/systems/net_battle.gd` + RPC v autoloadu `MultiplayerManager` (`scripts/multiplayer_manager.gd`), lobby `ui/net_lobby_overlay.gd`. Celý zápas přes síť otestuješ dvěma procesy:
+
+    Godot --headless --path . --script res://scripts/card_game/tools/net_smoke.gd -- host 7031
+    Godot --headless --path . --script res://scripts/card_game/tools/net_smoke.gd -- client 7031
+
+Oba vypíší `NET RESULT ...` a musí se shodnout (strany otočené).
 
 ## Screenshot
 `scripts/card_game/tools/capture_battle_scene.gd` se spouští **S oknem, NE `--headless`**:

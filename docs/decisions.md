@@ -177,3 +177,12 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Hrozba: hráči ji už neukazujeme (obtížnost = žebříček tréninku). Interně dál volí sestavu balíku soupeře; je vidět jen v tooltipu pro ladění.
 - Proč: limit 4 kopií odpovídá startovnímu balíku (4× Uliční rváč); okno 20–30 snese odměny výprav, které balík zvětšují.
 - Otevřené: karty mimo trénink (Mrchožravý slídil, Bubeník, Toulavá máma, kouzla a vybavení navíc) zatím jen z odměn výprav.
+
+### D-024 - Multiplayer 1v1: host autorita + snímky stavu (D4)
+- Datum: 2026-10-21
+- Stav: aktivni (ověřeno automaticky na jednom PC; čeká na test ve dvou přes Radmin)
+- Rozhodnutí: Host simuluje celý souboj stávajícím `battle_controller.gd` (on = PLAYER_ID, klient = ENEMY_ID; místo AI tahu čeká na akce klienta). Po každé změně pošle klientovi snímek stavu (`net_battle.gd`, prohozené strany). Klient nic nesimuluje: akce (vylož, cílená karta, útok, Síla stolu, konec tahu) zachytí a pošle hostovi, který je ověří stejnými pravidly. RPC jsou v autoloadu `MultiplayerManager` (ENet, port 7000, 1 klient).
+- Proč ne lockstep: controller je provázaný s UI a náhodou; dvě simulace by se rozjely. Snímek je malý (desítky karet) a pro tahovou hru stačí.
+- Pravidla zápasu: oba 10 životů, Síla stolu Objednat rundu, vlastní balík z Balík a postup; kdo začne, se losuje (začínající si v 1. tahu nelízne). Bez postupu, hrozby a odměn.
+- Známé limity v1: klient nevidí animace soupeřových akcí (stůl se jen překreslí), hlášky v záznamu jsou ve 3. osobě, žádné odvety (zpět do menu), žádná ochrana proti podvádění (klient dostává i ruku hosta).
+- Test: `verify_net_snapshot.gd` (headless) + `net_smoke.gd` (dva procesy, za oba hraje AI, výsledek musí sedět otočeně).

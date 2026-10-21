@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-21 (noc) - D4 multiplayer 1v1 přes IP / Radmin (Claude Opus 5.5)
+- Oblast: síťová hra, D-024. Menu má tlačítko „Hra ve dvou“ (hostovat / připojit přes IP, ukáže IP adresy PC, Radmin 26.x první).
+- Soubory: multiplayer_manager.gd (přepsán: lobby, RPC hello/start/snapshot/action/leave), nový net_battle.gd (snímek stavu, host přijímá akce, klient je zachytává), battle_controller.gd (_net háčky, _run_opponent_turn místo AI části v konci tahu, konec zápasu bez postupu), nový ui/net_lobby_overlay.gd, encounter_select.gd (tlačítko), capture_scene.gd (volitelná metoda před snímkem).
+- Testy: verify_net_snapshot.gd (nový), net_smoke.gd: 10 zápasů host+klient na 127.0.0.1 dohráno, výsledky obou stran se shodují; screenshot klienta artifacts/net_client.png. 23/23 verifierů.
+- Neověřeno: dva různé PC přes Radmin VPN (firewall, latence) → test s Markem.
+
 ### 2026-10-21 (noc) - D2 stavění balíku (Claude Opus 5.5)
 - Oblast: kolekce a úprava balíku, D-023.
 - Soubory: progression_system.gd (KEY_COLLECTION, TRAINING_CARD_UNLOCKS, limity, add/remove), progression_screen.gd (levý panel Kolekce s +, balík s −, řazení podle ceny, statistiky v jednom řádku), battle_controller.gd (výhra v tréninku vypíše nové karty v kolekci), nový verify_deck_building.gd.

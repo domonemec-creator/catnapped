@@ -184,6 +184,14 @@ func _build_ui() -> void:
     settings_button.pressed.connect(_open_settings)
     secondary_row.add_child(settings_button)
 
+    # Hra ve dvou po síti (D4): hostování / připojení přes IP.
+    var versus_button := _progress_button.duplicate() as Button
+    versus_button.text = "Hra ve dvou"
+    versus_button.size_flags_horizontal = Control.SIZE_FILL
+    versus_button.custom_minimum_size = Vector2(230, 48)
+    versus_button.pressed.connect(_open_net_lobby)
+    secondary_row.add_child(versus_button)
+
     var body := HBoxContainer.new()
     body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     body.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -485,6 +493,14 @@ func _open_settings() -> void:
         return
     var overlay: Control = load("res://scripts/card_game/ui/settings_overlay.gd").new()
     overlay.name = "SettingsOverlay"
+    add_child(overlay)
+
+
+func _open_net_lobby() -> void:
+    if get_node_or_null("NetLobbyOverlay") != null:
+        return
+    var overlay: Control = load("res://scripts/card_game/ui/net_lobby_overlay.gd").new()
+    overlay.name = "NetLobbyOverlay"
     add_child(overlay)
 
 
