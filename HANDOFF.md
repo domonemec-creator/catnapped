@@ -19,6 +19,8 @@
 
 ## Další krok
 1. Lidský test #4 (Mark + kamarád přes Radmin VPN): oba spustí hru → „Hra ve dvou“. Jeden „Hostovat hru“ (Windows firewall: povolit), druhý zadá jeho IP 26.x.x.x → „Připojit se“. Dohrát zápas. Hlásit: připojení, zpoždění, nečitelné tahy soupeře, chyby.
+   - Kamarád potřebuje hru: buď `.exe` (Mark v editoru: Editor → Manage Export Templates → Download 4.6.2, pak Project → Export → Windows Desktop; preset `build/Catnapped.exe` je připravený), nebo Godot 4.6.2 + `git clone https://github.com/domonemec-creator/catnapped.git`.
+   - Sólo checklist (5 min): Balík a postup → přidat/odebrat kartu (+/−), zkusit „Smazat postup“ (chce 2 kliky; NEdokončovat, pokud chceš save). Trénink: porazit 1. soupeře → hláška o odemčeném soupeři a nových kartách v kolekci. V souboji: mezerník = konec tahu, F11 = celá obrazovka, Rybí trh se hraje druhým klikem.
 2. Art: 3 archy 3×3 podle `design/art_prompt_2026-10-22.md` (13 nových karet má zatím půjčený obrázek, kouzla a předměty jen ikonu). Řezání: `slice_art_sheet.gd -- <arch> id1,...,id9`, pak `--headless --import`.
 3. MP v1 limity: záznam akcí ve 3. osobě.
 
