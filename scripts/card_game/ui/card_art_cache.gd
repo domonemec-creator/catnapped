@@ -43,3 +43,28 @@ static func get_cropped(resource_path: String, top: float = 0.04, height: float 
 # Ikona keywordu (bílá SVG, obarvuje se přes modulate). Null, když ikona neexistuje.
 static func get_keyword_icon(keyword: StringName) -> Texture2D:
 	return get_full("res://assets/card_game/icons/%s.svg" % keyword)
+
+
+# Výřez s daným poměrem stran (šířka/výška). Na výšku: horní pás od `top`.
+# Na šířku (scéna s postavou vpravo, např. portrét Smug Tabbyho): výřez kolem focus_x.
+static func get_cropped_aspect(resource_path: String, aspect: float, top: float = 0.05) -> Texture2D:
+	var key := "aspect|%s|%s|%s" % [resource_path, aspect, top]
+	if _crop_cache.has(key):
+		return _crop_cache[key]
+	var full := get_full(resource_path)
+	if full == null:
+		return get_cropped(resource_path)
+	var w := float(full.get_width())
+	var h := float(full.get_height())
+	var focus_x := 0.78 if w > h else 0.5
+	var region_w := w
+	var region_h := region_w / aspect
+	if region_h > h * (1.0 - top):
+		region_h = h * (1.0 - top)
+		region_w = region_h * aspect
+	var x := clampf(focus_x * w - region_w * 0.5, 0.0, w - region_w)
+	var atlas := AtlasTexture.new()
+	atlas.atlas = full
+	atlas.region = Rect2(x, h * top, region_w, region_h)
+	_crop_cache[key] = atlas
+	return atlas

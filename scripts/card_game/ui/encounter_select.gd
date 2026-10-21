@@ -5,6 +5,8 @@ const BATTLE_SCENE_PATH := "res://scenes/card_game/battle_scene.tscn"
 const PROGRESSION_SCREEN_PATH := "res://scenes/card_game/progression_screen.tscn"
 const ENCOUNTER_IDS: Array[StringName] = [&"smug_tabby", &"ragclaw_brawler", &"harbor_warden", &"lantern_striker"]
 const HEADER_TEXTURE_PATH := "res://assets/card_game/ui/header_panel_drapes.png"
+const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
+const RunSessionScript = preload("res://scripts/card_game/systems/run_session.gd")
 
 var _panel_style: StyleBoxFlat
 var _button_normal_style: StyleBoxFlat
@@ -69,6 +71,15 @@ func _build_ui() -> void:
     background.color = Color(0.08, 0.06, 0.04, 1)
     background.mouse_filter = Control.MOUSE_FILTER_IGNORE
     add_child(background)
+    # Interiér krčmy (art majitele) ztlumený pod celým menu.
+    var backdrop := TextureRect.new()
+    backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+    backdrop.texture = load("res://assets/card_game/ui/tavern_backdrop.jpg")
+    backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+    backdrop.modulate = Color(0.38, 0.33, 0.3, 1)
+    backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    add_child(backdrop)
 
     var margin := MarginContainer.new()
     margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -113,12 +124,18 @@ func _build_ui() -> void:
     header_margin.add_child(header_vbox)
 
     var title := Label.new()
-    title.text = "Vyber souboj"
-    _style_label(title, 34, Color(0.96, 0.88, 0.73, 1))
+    title.text = "Catnapped!"
+    _style_label(title, 48, Color(0.98, 0.84, 0.5, 1))
+    var title_font := FontVariation.new()
+    title_font.base_font = load("res://assets/fonts/Cinzel-Variable.ttf")
+    title_font.variation_opentype = {2003265652: 700}
+    title.add_theme_font_override("font", title_font)
+    title.add_theme_color_override("font_outline_color", Color(0.12, 0.06, 0.02, 1))
+    title.add_theme_constant_override("outline_size", 6)
     header_vbox.add_child(title)
 
     var subtitle := Label.new()
-    subtitle.text = "Vyber soupeře před startem. Save i hrozba zůstávají zachované."
+    subtitle.text = "Kočičí karetní souboje v přístavní krčmě. Vyber prvního soupeře a spusť run."
     _style_label(subtitle, 18, Color(0.9, 0.82, 0.67, 0.95), true)
     header_vbox.add_child(subtitle)
 
@@ -294,17 +311,31 @@ func _populate_encounter_list() -> void:
         child.queue_free()
 
     _encounter_buttons.clear()
-    for encounter in _encounters:
+    # Seznam v pořadí runu (od nejlehčího), s číslem a portrétem.
+    var roster: Array = RunSessionScript.DEFAULT_RUN_ROSTER
+    var ordered := _encounters.duplicate()
+    ordered.sort_custom(func(a, b) -> bool:
+        var ia := roster.find(a.id)
+        var ib := roster.find(b.id)
+        return (ia if ia >= 0 else 99) < (ib if ib >= 0 else 99)
+    )
+    for encounter: EncounterDefinition in ordered:
         var encounter_id := encounter.id
         if encounter_id == StringName():
             encounter_id = StringName(encounter.display_name.to_lower().replace(" ", "_"))
         var button := Button.new()
         button.name = "%sButton" % String(encounter_id)
         button.toggle_mode = true
-        button.custom_minimum_size = Vector2(0, 104)
+        button.custom_minimum_size = Vector2(0, 96)
         button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-        button.text = _build_encounter_button_text(encounter)
+        var order := roster.find(encounter.id)
+        button.text = ("%s. " % (order + 1) if order >= 0 else "") + _build_encounter_button_text(encounter)
         button.tooltip_text = _build_encounter_tooltip(encounter)
+        button.icon = CardArtCache.get_cropped_aspect(encounter.portrait_path, 1.45)
+        button.expand_icon = true
+        button.add_theme_constant_override("icon_max_width", 150)
+        button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+        button.add_theme_constant_override("h_separation", 16)
         button.add_theme_font_size_override("font_size", 18)
         button.add_theme_color_override("font_color", Color(0.96, 0.88, 0.73, 1))
         button.add_theme_color_override("font_hover_color", Color(0.99, 0.92, 0.8, 1))
