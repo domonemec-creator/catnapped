@@ -5,6 +5,8 @@ const ENCOUNTER_SELECT_SCENE_PATH := "res://scenes/card_game/encounter_select.ts
 const RESET_TEXT := "Smazat postup"
 const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
 const CardGameConstants = preload("res://scripts/card_game/data/card_game_constants.gd")
+const PREVIEW_SCENE := preload("res://scenes/card_game/selected_card_preview.tscn")
+const PREVIEW_SIZE := Vector2(258, 404)
 
 var _panel_style: StyleBoxFlat
 var _section_style: StyleBoxFlat
@@ -30,6 +32,7 @@ var _status_label: Label
 var _reset_button: Button
 var _reset_armed := false
 var _back_button: Button
+var _hover_preview: Control  # velká karta u myši při najetí na řádek
 
 
 func _ready() -> void:
@@ -38,6 +41,7 @@ func _ready() -> void:
     Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
     _build_styles()
     _build_ui()
+    _build_hover_preview()
     _load_state()
     _refresh_ui()
 
@@ -372,7 +376,11 @@ func _build_card_row(parent: Container, card_id: StringName, count_text: String)
         var keyword_text := ""
         if not card_definition.keywords.is_empty():
             keyword_text = "%s · " % CardGameConstants.keyword_label(card_definition.keywords[0])
-        detail.text = "%scena %s · %s/%s" % [keyword_text, card_definition.cost, card_definition.attack, card_definition.life]
+        if card_definition.card_type == CardGameConstants.CardType.CAT:
+            detail.text = "%scena %s · %s/%s" % [keyword_text, card_definition.cost, card_definition.attack, card_definition.life]
+        else:
+            var type_text := "Trik" if card_definition.card_type == CardGameConstants.CardType.TRICK else "Předmět"
+            detail.text = "%s · cena %s" % [type_text, card_definition.cost]
         _style_label(detail, 14, Color(0.8, 0.72, 0.58, 1), false)
         detail.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
         card_line.tooltip_text = card_definition.rules_text
@@ -380,7 +388,44 @@ func _build_card_row(parent: Container, card_id: StringName, count_text: String)
         detail.tooltip_text = card_definition.rules_text
         detail.mouse_filter = Control.MOUSE_FILTER_PASS
         row.add_child(detail)
+        row.mouse_filter = Control.MOUSE_FILTER_PASS
+        row.mouse_entered.connect(_show_hover_preview.bind(card_definition))
+        row.mouse_exited.connect(_hide_hover_preview)
     return row
+
+
+func _build_hover_preview() -> void:
+    _hover_preview = PREVIEW_SCENE.instantiate()
+    _hover_preview.top_level = true
+    _hover_preview.visible = false
+    _hover_preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    add_child(_hover_preview)
+    if _hover_preview.has_method("set_display_mode"):
+        _hover_preview.set_display_mode(&"full")
+    _hover_preview.size = PREVIEW_SIZE
+
+
+# Náhled karty nad protějším panelem, ať nezakrývá řádek, na který hráč míří.
+func _show_hover_preview(card_definition: CardDefinition) -> void:
+    if _hover_preview == null or card_definition == null:
+        return
+    var instance := CardInstance.new()
+    instance.definition = card_definition
+    instance.current_attack = card_definition.attack
+    instance.current_life = card_definition.life
+    _hover_preview.set_card_instance(instance)
+    var viewport_size := get_viewport_rect().size
+    var mouse := get_global_mouse_position()
+    var half := viewport_size.x * 0.5
+    var x := half + 40.0 if mouse.x < half else half - PREVIEW_SIZE.x - 40.0
+    var y := clampf(mouse.y - PREVIEW_SIZE.y * 0.5, 16.0, viewport_size.y - PREVIEW_SIZE.y - 16.0)
+    _hover_preview.global_position = Vector2(x, y)
+    _hover_preview.visible = true
+
+
+func _hide_hover_preview() -> void:
+    if _hover_preview != null:
+        _hover_preview.visible = false
 
 
 func _refresh_run_label() -> void:

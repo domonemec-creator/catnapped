@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Balík a postup: náhled karty při najetí myší (Claude Opus 5.5)
+- Oblast: UI stavění balíku (D2)
+- Soubory: `ui/progression_screen.gd`, nový `tools/capture_progression_hover.gd`
+- Změna: najetí na řádek kolekce/balíku ukáže velkou kartu (`selected_card_preview.tscn`, full) nad protějším panelem, takže je vidět art i pravidla. Kouzla a předměty v řádku ukazují „Trik/Předmět · cena X“ místo nesmyslného „0/0“.
+- Ověření: `capture_progression_hover.gd -- <png> [card_id]` (okno), všech 23 verifierů.
+
 ### 2026-10-22 - Balanc: Věštkyně těžší než Ragclaw (Claude Opus 5.5)
 - Oblast: balanc tréninku (D-022: každý další soupeř těžší)
 - Soubory: `data/decks/npc_fog_seer.tres`
