@@ -49,7 +49,7 @@
 
 ## Fáze E – Hloubka a sbírka (D-025, Markovy nápady 2026-10-22)
 - [x] E1 Méně výměn 1:1 (Mark: „pořád se to jen mlátilo dokola“): přeladit statistiky koček, víc koček s životy nad útokem stejné ceny; měřit `smrt obou` v `sim_ai_matches.gd` (teď 26–48 %, cíl pod 30 %)
-- [ ] E2 Tuna karty: trik „Sardinková konzerva“ (+2 Tuna jen v tomto kole) a podobné; umožní dřív větší kočky = méně zrcadlových výměn
+- [x] E2 Tuna karty: trik „Sardinková konzerva“ (+2 Tuna jen v tomto kole) a podobné; umožní dřív větší kočky = méně zrcadlových výměn
 - [ ] E3 Obchod: měna za výhry (trénink i hra ve dvou), 3 nabídky po každém zápase; nahradí část automatického odemykání
 - [ ] E4 Sbírka v1 kolem 60 karet: ~40 koček, ~12 triků (vč. Tuna karet), ~8 předmětů. Teď 47
 - [ ] E5 Hra ve dvou: každý má všechny karty (balík z celé sbírky); obchod a odemykání jen v tréninku

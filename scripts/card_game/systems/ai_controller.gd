@@ -454,8 +454,32 @@ func _score_instant_support(card: CardInstance, player_state: PlayerBattleState,
             &"deal_damage":
                 if effect.target_mode == CardGameConstants.TARGET_ENEMY_PLAYER:
                     score += _score_direct_attack_value(effect.value, defender_state.life)
+            &"gain_tuna":
+                # Tunu navíc jen když hned odemkne dražší kartu z ruky, jinak kartu držet.
+                if not _gain_tuna_unlocks_card(card, effect.value, player_state):
+                    return NEGATIVE_SCORE
+                score += 50.0
 
     return score
+
+
+func _gain_tuna_unlocks_card(source: CardInstance, gain: int, player_state: PlayerBattleState) -> bool:
+    var has_free_lane := false
+    for slot in player_state.board:
+        if slot != null and slot.is_empty():
+            has_free_lane = true
+    for other in player_state.hand:
+        if other == null or other == source or other.definition == null:
+            continue
+        if other.definition.card_type == CardGameConstants.CardType.CAT and not has_free_lane:
+            continue
+        var available := player_state.tuna_current
+        if other.definition.card_type == CardGameConstants.CardType.TRICK:
+            available += player_state.saved_tuna_current
+        var cost := other.definition.cost
+        if cost > available and cost <= available - source.definition.cost + gain:
+            return true
+    return false
 
 
 func _score_damage_support_target(damage: int, target: CardInstance, player_state: PlayerBattleState, defender_state: PlayerBattleState, rules: BattleRules) -> float:

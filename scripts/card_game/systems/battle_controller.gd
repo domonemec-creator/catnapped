@@ -912,6 +912,11 @@ func _resolve_instant_card_effects(card_instance: CardInstance, owner_state: Pla
 				if typed_effect.target_mode == CardGameConstants.TARGET_SELF_OWNER:
 					_deck_system.draw_cards(owner_state, typed_effect.value)
 					summaries.append("%s táhne %s kart%s." % [owner_state.display_name, typed_effect.value, "u" if typed_effect.value == 1 else "y"])
+			&"gain_tuna":
+				# Tuna navíc jen na tento tah; nevyužitá jde jako každá jiná do rezervy.
+				if typed_effect.target_mode == CardGameConstants.TARGET_SELF_OWNER:
+					owner_state.tuna_current += typed_effect.value
+					summaries.append("%s získá %s Tuny navíc." % [owner_state.display_name, typed_effect.value])
 			&"heal_life":
 				if typed_effect.target_mode == CardGameConstants.TARGET_SELF_OWNER:
 					_adjust_player_life(owner_state, typed_effect.value)

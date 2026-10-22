@@ -94,6 +94,16 @@ Starý stůl je v perspektivě, karty jsou rovné → nelícovaly. Potřeba pře
 Top-down orthographic view of a wooden tavern game table surface, perfectly flat, no perspective, no tilt, seen straight from above, filling the whole 16:9 frame. Dark worn oak planks with brass corner fittings. Six shallow rectangular card spots carved into the wood in a 3 columns x 2 rows grid, each spot portrait 2:3, evenly spaced, centered, all exactly the same size, with a thin brass inlay border. A thin carved divider line between the top row and the bottom row. Subtle paw print engraved in the center of each spot, very faint. Warm candlelight from above, soft vignette at the edges. Painterly digital fantasy style, deep browns and amber, muted red accents. No cards, no objects, no text, no characters.
 ```
 
+## Jednotlivé karty (jeden obrázek na výšku 2:3, uložit jako `assets/card_game/card_art/<id>.png`)
+
+| id | karta | co je na obrázku |
+|---|---|---|
+| `sardine_can` | Sardinková konzerva (trik za 0: +2 Tuny v tomto tahu) | otevřená plechová konzerva sardinek na hospodském stole, stříbrné rybky se lesknou v oleji, kočičí tlapka s drápkem odklápí víčko, teplé světlo svíčky |
+
+```
+Single fantasy card illustration, portrait orientation 2:3, no text, no border. Painterly digital fantasy illustration, dark warm harbor tavern, candlelight glow, deep browns and amber with muted red accents. An opened tin of sardines on a worn wooden tavern table, silver fish glistening in oil, a cat paw with one claw peeling back the lid, the object large and centered, dramatic rim lighting.
+```
+
 ## Co dál (není nutné hned)
 - Pozadí souboje a menu (1920×1080) a logo: prompty v `design/polish_assets_2026-10.md`, platí dál.
 - Vlastní hudba do krčmy (2–3 smyčky).

@@ -32,7 +32,7 @@ const TRAINING_CARD_UNLOCKS := {
 	&"smug_tabby": [&"wharf_cutthroat", &"harbor_kitten", &"iron_bowl", &"catnip_burst", &"warm_milk"],
 	&"lantern_striker": [&"lamplighter", &"rafter_pouncer", &"rope_acrobat", &"pry_bar", &"fish_market"],
 	&"ragclaw_brawler": [&"pickpocket", &"bait_fisher", &"net_mender", &"hidden_claws", &"hunters_harness"],
-	&"fog_seer": [&"ship_lookout", &"galley_cook", &"rat_hunter", &"fish_toss", &"overboard"],
+	&"fog_seer": [&"ship_lookout", &"galley_cook", &"rat_hunter", &"fish_toss", &"overboard", &"sardine_can"],
 	&"harbor_warden": [&"dock_harpooner", &"grey_veteran", &"helmsman", &"war_plate", &"rusty_anchor"],
 	&"bilge_king": [&"smuggler", &"graveyard_glutton", &"dock_breaker", &"cannon_cat", &"harbor_courier", &"tavern_bouncer"],
 }
