@@ -212,6 +212,7 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Sim: žebříček tréninku 68,3 / 32,1 / 23,3 / 13,3 / 8,8 / 1,3 % (Věštkyně 17,5 → 13,3 %, pořadí sedí); balík proti balíku první na tahu 50,5 %. `PROTOCOL_VERSION` 3.
 
 ### D-028 - Hra ve dvou: 30 životů, strop 10 Tun
+- Datum: 2026-10-22
 - Stav: aktivni
 - Kontext: Mark po tréninku: ve hře ve dvou chce delší zápas, 30 životů a nejvýš 10 Tun. Trénink zůstává 10 životů / 7 Tun.
 - Rozhodnutí: `NET_STARTING_LIFE = 30`, `NET_MAX_TUNA = 10` (`battle_controller.gd`, `get_starting_life()` / `get_max_tuna()`, `pvp_rules` pro sim). Kompenzace druhého (D-026) beze změny: +2 životy a konzerva, sim 20 her na pořadí: první vyhrává 50,7 % (life4 48,1 %, life6 45,1 %).
