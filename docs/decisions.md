@@ -204,3 +204,10 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Rozhodnutí: ve hře ve dvou dostane druhý na tahu +2 životy (12 místo 10) a Sardinkovou konzervu do ruky (jako mince). Konstanty `NET_SECOND_LIFE_BONUS`, `NET_SECOND_COIN_ID` v `battle_controller.gd`. Trénink beze změny (má vlastní žebříček, D-022).
 - Další zjištění ze simulace: Stokový král (79,6 %) a Lucernová útočnice (77,1 %) jsou nejsilnější balíky, Namyšlený kocour nejslabší (16,3 %); startovní balík 30,2 %. Pro hru ve dvou to nevadí (hráči si skládají vlastní), pro tréninkový žebříček je to záměr.
 
+### D-027 - Bojový nástup se zraněním: bez kočky naproti jde zranění soupeři
+- Datum: 2026-10-22
+- Stav: aktivni
+- Kontext: Mark: Bojový nástup Harpunáře (a Lampářky, Lovce potkanů, Dělové kočky) do prázdné lajny propadl naprázdno.
+- Rozhodnutí: když naproti není kočka, zranění jde přímo soupeři. Vzniká volba: vyložit proti kočce (zabít / oslabit), nebo do prázdné lajny (tlak na životy). AI to boduje (`_score_lane_effect_value`, 3 body za zranění, smrtící zásah přednostně).
+- Sim: žebříček tréninku 68,3 / 32,1 / 23,3 / 13,3 / 8,8 / 1,3 % (Věštkyně 17,5 → 13,3 %, pořadí sedí); balík proti balíku první na tahu 50,5 %. `PROTOCOL_VERSION` 3.
+

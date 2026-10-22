@@ -121,6 +121,11 @@ func _score_lane_effect_value(card: CardInstance, lane_index: int, player_state:
                 score += float(mini(effect.value, target.current_life)) * 2.5
                 if effect.value >= target.current_life:
                     score += _card_board_value(target)
+            else:
+                # Prázdná lajna naproti: zranění jde soupeři.
+                score += float(effect.value) * 3.0
+                if effect.value >= defender_state.life:
+                    score += 1000.0
         elif effect.trigger == CardGameConstants.TRIGGER_BATTLECRY and effect.target_mode == CardGameConstants.TARGET_ADJACENT_LANE:
             for neighbor in [lane_index - 1, lane_index + 1]:
                 if neighbor >= 0 and neighbor < player_state.board.size() and player_state.board[neighbor].occupant != null:

@@ -63,6 +63,15 @@ func _run() -> void:
 		_fail("Dock Harpooner battlecry should kill the 2-life cat opposite.")
 		return
 
+	# Harpunář do prázdné lajny: zranění jde přímo soupeři.
+	_reset(battle, player_state, enemy_state)
+	var face_harpooner = battle._create_card_instance(&"dock_harpooner", battle.PLAYER_ID)
+	player_state.hand.append(face_harpooner)
+	battle._play_card_to_lane(player_state, 2, face_harpooner)
+	if enemy_state.life != 18:
+		_fail("Bojový nástup bez kočky naproti má zranit soupeře (životy %s)." % enemy_state.life)
+		return
+
 	# Lampářka: 1 zranění, kočka naproti přežije se sníženými životy.
 	_reset(battle, player_state, enemy_state)
 	var sturdy = battle._create_card_instance(&"tavern_mouser", battle.ENEMY_ID)

@@ -1554,6 +1554,10 @@ func _resolve_triggered_effects(card_instance: CardInstance, owner_state: Player
 						_set_lane_feedback(opposing_state.player_id, lane_index, "-%s ŽIV" % typed_effect.value, LaneSlotView.EVENT_DAMAGE)
 						_queue_lane_fx(opposing_state.player_id, lane_index, &"fx_hit", [typed_effect.value])
 						damaged_opponent = true
+					else:
+						# Naproti nikdo: zranění jde přímo soupeři (Mark 22. 10.).
+						_adjust_player_life(opposing_state, -typed_effect.value)
+						_queue_lane_fx(opposing_state.player_id, lane_index, &"fx_direct", [typed_effect.value])
 				elif typed_effect.target_mode == CardGameConstants.TARGET_ENEMY_PLAYER:
 					_adjust_player_life(opposing_state, -typed_effect.value)
 					if lane_index >= 0:

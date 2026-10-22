@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Bojový nástup do prázdné lajny zraní soupeře (D-027, Claude Opus 5.5)
+- Oblast: pravidla, AI, karty
+- Soubory: `battle_controller._resolve_triggered_effects` (deal_damage opposite_lane bez cíle → soupeř), `ai_controller._score_lane_effect_value`, texty 4 karet („…kočce naproti, když tam žádná není, soupeři.“), `verify_new_cards.gd`, `PROTOCOL_VERSION` 3.
+- Proč: Markův návrh, efekt nepropadá naprázdno.
+- Ověření: 25/25 verifierů, sim 120 a sim balík proti balíku (D-027).
+
 ### 2026-10-22 - Velký náhled karty: obrázek přes celou kartu (Claude Opus 5.5)
 - Oblast: UI karty
 - Soubory: `ui/selected_card_preview.gd` (`FULL_ART_OVERRIDES`, `_text_shade`): v režimu full (Balík a postup) a large (pravý panel souboje) je art přes celou kartu, jméno, štítek a pravidla leží dole přes tmavý přechod. Žeton na stole (board) beze změny. Kouzla a předměty (bez odznaků útoku/životů) mají text níž (`FULL_ART_OVERRIDES_NO_STATS`), nejdelší text (Lepkavé tlapky, 3 řádky) se vejde.
