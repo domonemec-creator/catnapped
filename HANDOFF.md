@@ -1,10 +1,10 @@
-# HANDOFF.md (2026-10-21 noc, Claude Opus 5.5 – hlavní jednatel projektu)
+# HANDOFF.md (2026-10-22 poledne, Claude Opus 5.5 – hlavní jednatel projektu)
 
 ## Stav
-- Pracovní větev `lead/plan-2026-10`, sloučená fast-forwardem do `main` a pushnutá na GitHub (domonemec-creator/catnapped) 2026-10-21.
-- 21/21 headless `verify_*.gd` PASS (ověřeno 2026-10-21 noc).
+- Pracovní větev `lead/plan-2026-10` = `main`, pushnuto na GitHub (domonemec-creator/catnapped) 2026-10-22.
+- 23/23 headless `verify_*.gd` PASS (ověřeno 2026-10-22 poledne).
 - Lidské testy #1–#3 hotové. #3: celý run vyhrán 5:0, „bavil jsem se, chápal jsem to“, což vedlo k D-021.
-- Směr D-022: singleplayer = trénink (žebříček, každý soupeř těžší), hlavní cíl multiplayer 1v1. Testovat se bude přes **Radmin VPN** (přímá IP, ENet, `scripts/multiplayer_manager.gd` = kostra, k souboji zatím nenapojená).
+- Směr D-022: singleplayer = trénink (žebříček, každý soupeř těžší), hlavní cíl multiplayer 1v1 přes **Radmin VPN** (přímá IP, ENet). Hra ve dvou je hotová (D-024), mezi dvěma PC ještě netestovaná.
 - Hotovo: D1 žebříček tréninku, art všech 9 nových karet (`slice_art_sheet.gd`).
 - **Záznamy zápasů:** `%APPDATA%\Godotpp_userdata\Catnapped!\match_logs\`.
 
@@ -18,7 +18,14 @@
 - Incident: síťový test v okně přepsal skutečný save; obnoven ze screenshotů, prevence v `_save_path()` (viz worklog).
 
 ## Dopolední smyčka 22. 10. (do 14:00), Claude Opus 5.5
-- Hotovo a pushnuto (23/23 verifierů u každého bloku): art archů A+B ve hře; štítek TRIK/PŘEDMĚT v ruce; Věštkyně a Stokový král hrají nové karty; pravý panel v tahu soupeře ukazuje jeho zahranou kartu (i u klienta ve hře ve dvou); výsledkové obrazovky s neutrálními texty a čitelnou trasou.
+- Hotovo a pushnuto (23/23 verifierů u každého bloku):
+  - Art archů A+B ve hře; štítek TRIK/PŘEDMĚT v ruce; tutoriál zmiňuje kouzla a předměty.
+  - Pravý panel v tahu soupeře ukazuje jeho zahranou kartu (i u klienta ve hře ve dvou).
+  - Výsledkové obrazovky: rodově neutrální texty, čitelná trasa; odměny ukazují cenu a první větu pravidel.
+  - Balík a postup: velký náhled karty při najetí myší.
+  - Balanc (sim 120): Věštkyně +1 Šedý veterán; žebříček teď stoupá plynule 73 → 34 → 15 → 10 → 8 → 2,5 % výher AI hráče.
+  - MP: opravy z code review, `PROTOCOL_VERSION` + kontrola balíku klienta (jiná verze = odmítnutí s hláškou), test pádu klienta i hostitele (`NET_DROP`, `NET_DROP_ROLE`).
+  - Windowed `smoke_full_flow` OK.
 - Čeká na Marka: arch C (odpoledne), export templates 4.6.2, test dvou PC přes Radmin.
 
 ## Další krok
