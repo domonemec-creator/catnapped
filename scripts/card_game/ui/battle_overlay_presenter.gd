@@ -427,14 +427,26 @@ func _style_reward_button(button: Button, card_id: StringName) -> void:
 	button.expand_icon = true
 	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-	button.add_theme_constant_override("icon_max_width", 170)
+	button.add_theme_constant_override("icon_max_width", 150)
+	# Menší písmo: tlačítko nese jméno, cenu i pravidla karty.
+	button.add_theme_font_size_override("font_size", 15)
 	button.icon = null
 	var card_path := "res://data/cards/%s.tres" % String(card_id)
 	if card_id != StringName() and ResourceLoader.exists(card_path):
 		var definition = load(card_path)
 		button.icon = CardArtCache.get_cropped(definition.art_path)
 		button.tooltip_text = "%s (%s/%s): %s" % [definition.display_name, definition.attack, definition.life, definition.rules_text]
-		button.text += "\n%s útok · %s životy" % [definition.attack, definition.life]
+		if definition.card_type == CardGameConstants.CardType.CAT:
+			button.text += "\ncena %s · %s útok · %s životy" % [definition.cost, definition.attack, definition.life]
+		else:
+			button.text += "\n%s · cena %s" % ["Trik" if definition.card_type == CardGameConstants.CardType.TRICK else "Předmět", definition.cost]
+		# Co karta dělá: začátečník nemusí najíždět na tooltip.
+		# Jen první věta (vysvětlivka klíčového slova je v tooltipu), tlačítko má pevnou výšku.
+		if not definition.rules_text.is_empty():
+			var first_sentence: String = definition.rules_text.get_slice(". ", 0)
+			if not first_sentence.ends_with("."):
+				first_sentence += "."
+			button.text += "\n%s" % first_sentence
 
 
 func build_post_match_threat_text(progression_system, previous_threat: int, next_threat: int) -> String:

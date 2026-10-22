@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Odměny: cena a co karta dělá přímo na tlačítku (Claude Opus 5.5)
+- Oblast: UI odměny po výhře ve výpravě
+- Soubory: `ui/battle_overlay_presenter.gd` (`_style_reward_button`)
+- Změna: tlačítko odměny ukazuje cenu, statistiky (u kouzel/předmětů typ) a první větu pravidel; celé pravidlo zůstává v tooltipu. Písmo 15 a obrázek 150 px, aby se text vešel do pevné výšky tlačítka.
+- Ověření: `capture_reward.gd` (okno), všech 23 verifierů.
+
 ### 2026-10-22 - Balík a postup: náhled karty při najetí myší (Claude Opus 5.5)
 - Oblast: UI stavění balíku (D2)
 - Soubory: `ui/progression_screen.gd`, nový `tools/capture_progression_hover.gd`
