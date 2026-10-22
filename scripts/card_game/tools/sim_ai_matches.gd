@@ -228,8 +228,11 @@ func _run() -> void:
             CardGameConstants.training_ladder = false
         elif String(arg) == "guardlane":
             CardGameConstants.guard_covers_adjacent = false
+        elif String(arg) == "firststrike":
+            CardGameConstants.attacker_first_strike = true
         elif String(arg).begins_with("hand"):
             CardGameConstants.starting_hand = int(String(arg).substr(4))
+    print("# first_strike=%s" % CardGameConstants.attacker_first_strike)
     print("# combat_retaliation=%s draw_per_turn=%s starting_hand=%s" % [CardGameConstants.combat_retaliation, CardGameConstants.draw_per_turn, CardGameConstants.starting_hand])
     seed(RNG_SEED)
 
@@ -245,6 +248,8 @@ func _run() -> void:
     print("matchup,p_first_wr,p_second_wr,overall_wr,avg_turns,deck_stable,wasted_pct,lead_changes,comeback_pct,starved_pct,timeout_pct")
 
     for encounter_id in ENCOUNTERS:
+        CardGameConstants.stat_cat_attacks = 0
+        CardGameConstants.stat_mutual_kills = 0
         var pf_wins := 0
         var ps_wins := 0
         var total_turns := 0
@@ -284,6 +289,7 @@ func _run() -> void:
         var wasted_pct := 100.0 * float(wasted_sum) / float(maxi(1, played_sum))
         var games := float(games_per * 2)
         print("%s,%.1f,%.1f,%.1f,%.1f,%s,%.1f,%.2f,%.1f,%.1f,%.1f" % [encounter_id, pf_wr, ps_wr, overall, avg_turns, deck_stable, wasted_pct, float(lead_sum) / games, 100.0 * float(comebacks) / games, 100.0 * float(_starved_turns) / float(maxi(1, _turn_starts)), 100.0 * float(timeouts) / games])
+        print("  %s: útoky na kočku %s, smrt obou %.1f %%" % [encounter_id, CardGameConstants.stat_cat_attacks, 100.0 * float(CardGameConstants.stat_mutual_kills) / float(maxi(1, CardGameConstants.stat_cat_attacks))])
 
     _progression_system.save_state(original_state)
     print("=== SIM DONE (progress save restored) ===")

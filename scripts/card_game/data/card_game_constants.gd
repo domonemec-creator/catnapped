@@ -18,6 +18,11 @@ static var starting_hand := 4
 static var guard_covers_adjacent := true
 # Žebříček tréninku (D-022): hrozba podle pořadí soupeře. Simulace ho vypne argumentem „noladder“.
 static var training_ladder := true
+# Experiment (výměny): útočník udeří první, odveta jen od přeživší kočky. Ve hře vypnuto.
+static var attacker_first_strike := false
+# Počítadla pro simulaci: útoky na kočku a kolik z nich skončilo smrtí obou.
+static var stat_cat_attacks := 0
+static var stat_mutual_kills := 0
 
 const KEYWORD_BATTLECRY := &"battlecry"
 const KEYWORD_LAST_BREATH := &"last_breath"

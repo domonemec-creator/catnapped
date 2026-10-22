@@ -1416,7 +1416,12 @@ func _guard_origin_text(guard: CardInstance, target_lane: int) -> String:
 
 
 func _apply_retaliation(attacker: CardInstance, defender_card: CardInstance) -> String:
-	if not CardGameConstants.combat_retaliation or attacker == null or defender_card == null:
+	if attacker == null or defender_card == null:
+		return ""
+	CardGameConstants.stat_cat_attacks += 1
+	if not CardGameConstants.combat_retaliation:
+		return ""
+	if CardGameConstants.attacker_first_strike and defender_card.current_life <= 0:
 		return ""
 	var strike := defender_card.current_attack
 	if strike <= 0:
@@ -1425,6 +1430,8 @@ func _apply_retaliation(attacker: CardInstance, defender_card: CardInstance) -> 
 	# Feedback útočníka zůstává „ÚTOK N“ (co udělal); odvetu ukáže plovoucí číslo a souhrn.
 	_queue_lane_fx(attacker.owner_id, attacker.lane_index, &"fx_hit", [strike])
 	if attacker.current_life <= 0:
+		if defender_card.current_life <= 0:
+			CardGameConstants.stat_mutual_kills += 1
 		return "%s vrací úder za %s a útočník padne." % [defender_card.definition.display_name, strike]
 	return "%s vrací úder za %s." % [defender_card.definition.display_name, strike]
 

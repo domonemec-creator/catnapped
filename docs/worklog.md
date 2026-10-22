@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Sim: měření výměn 1:1, pokus „útočník první“ (Claude Opus 5.5)
+- Oblast: balanc, pravidla (D-025)
+- Soubory: `card_game_constants.gd` (`attacker_first_strike`, počítadla), `battle_controller.gd` (`_apply_retaliation` počítá útoky a smrt obou), `tools/sim_ai_matches.gd` (argument `firststrike`, řádek „smrt obou“)
+- Výsledek: základ 26–48 % smrt obou; útočník první 0 %, ale zbytečné kočky 55 % a rozbitý žebříček → zamítnuto. Ve hře se nic nemění (přepínač vypnutý).
+- Ověření: sim 120 her obě varianty, 23/23 verifierů.
+
 ### 2026-10-22 - UI: hrací stůl shora pod lajnami (Claude Opus 5.5)
 - Oblast: UI souboje, art
 - Soubory: `assets/card_game/ui/board_topdown.png` (generovaný), zdroj `design/art_src/board_topdown_source.webp` (.gdignore), nástroj `tools/build_board_texture.gd`, `battle_scene.tscn` (okraje lajn přes theme konstanty, mezery 40/36), `lane_slot_view.gd` (prázdné místo bez výplně, rámeček jen při zvýraznění)

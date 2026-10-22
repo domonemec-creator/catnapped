@@ -186,3 +186,10 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Pravidla zápasu: oba 10 životů, Síla stolu Objednat rundu, vlastní balík z Balík a postup; kdo začne, se losuje (začínající si v 1. tahu nelízne). Bez postupu, hrozby a odměn.
 - Známé limity v1: hlášky v záznamu jsou ve 3. osobě. Klient karty hosta nedostává (jen počet); host jako autorita vidí vše.
 - Test: `verify_net_snapshot.gd` (headless) + `net_smoke.gd` (dva procesy, za oba hraje AI, výsledek musí sedět otočeně).
+
+### D-025 - Výměny 1:1: „útočník první“ zamítnut, směr = statistiky karet + Tuna karty + obchod
+- Datum: 2026-10-22
+- Stav: aktivni
+- Kontext: Mark po hře proti Ragclawovi: „pořád se to jen mlátilo dokola“. V jeho 46 záznamech skončilo 43 % útoků na kočku smrtí obou. Levné kočky mají útok ≈ životy (2/2, 2/3, 3/2, 3/3), takže útok = výměna.
+- Zkoušeno a zamítnuto: útočník udeří první, odveta jen od přeživší (`attacker_first_strike`, sim 120 her). Smrt obou 0 %, ale zbytečně padlé kočky 31 → 55 % (návrat problému z D-014) a rozbitý žebříček (Ragclaw 15 → 58 %, Věštkyně 10 → 50 % výher AI hráče).
+- Rozhodnutí: pravidla souboje zůstávají (D-014). Výměny snížit obsahem: E1 přeladění statistik, E2 Tuna karty, E3 obchod, E4 sbírka ~60 karet (PLAN fáze E). Měřítko: řádek `smrt obou` v `sim_ai_matches.gd`.
