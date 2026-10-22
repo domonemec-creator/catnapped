@@ -14,6 +14,18 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - MP: opravy z code review (Claude Opus 5.5, review Sonnet)
+- Oblast: síťová hra (D-024)
+- Soubory: `multiplayer_manager.gd`, `net_battle.gd`, `battle_controller.gd`
+- Změna:
+  - Odpojení soupeře: host zavře server (cizí klient se nepřipojí do mrtvé hry); po konci zápasu zmizí tlačítko Odveta a ukáže se hláška.
+  - Klient pošle konec tahu jen jednou za tah (`_net_end_turn_sent`), refresh UI mohl tlačítko znovu povolit.
+  - Odložený snímek po reloadu (odveta) kontroluje `is_instance_valid`.
+  - Po odvetě se zahodí starý výběr karty (instance_id začínají znovu).
+  - Pravý panel klienta pozná soupeřovu kartu podle id ze skryté ruky (dřív mohl ukázat spadlý předmět).
+- Odloženo (hra mezi kamarády): validace balíku z `_rpc_hello` a typů v akcích proti upravenému klientovi.
+- Ověření: `net_smoke` host+klient s `NET_REMATCH=1` (2 zápasy, shodný výsledek), všech 23 verifierů. Odpojení uprostřed hry netestováno automaticky.
+
 ### 2026-10-22 - Tutoriál: řádek o kouzlech a předmětech; smoke celé hry (Claude Opus 5.5)
 - Oblast: onboarding
 - Soubory: `ui/battle_overlay_presenter.gd`

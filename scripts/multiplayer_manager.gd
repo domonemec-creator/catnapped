@@ -239,6 +239,7 @@ func _on_peer_disconnected(_peer_id: int) -> void:
     peers_changed.emit()
     if is_host() and is_in_match():
         net_match = {}
+        disconnect_session(true)
         session_disconnected.emit("Soupeř se odpojil.")
 
 

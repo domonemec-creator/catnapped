@@ -87,7 +87,7 @@ func queue_snapshot() -> void:
 
 func _send_snapshot() -> void:
 	_snapshot_queued = false
-	if _battle == null or _battle._battle_state == null:
+	if not is_instance_valid(_battle) or _battle._battle_state == null:
 		return
 	var snapshot := serialize_state(_battle._battle_state, PLAYER_ID)
 	snapshot["status"] = _battle.status_label.text

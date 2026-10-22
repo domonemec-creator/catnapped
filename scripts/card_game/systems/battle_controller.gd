@@ -106,6 +106,7 @@ var _player_lanes: Array[LaneSlotView] = []
 var _pace_actions := false
 var _enemy_turn_running := false
 var _hover_card: CardInstance
+var _net_end_turn_sent := false  # klient: konec tahu už odešel, čeká se na snímek
 var _enemy_last_played: CardInstance  # karta, kterou soupeř zahrál v tomto tahu (pravý panel)
 var _enemy_hand_host: Container
 var _net: NetBattle  # null = hra proti počítači (D4)
@@ -1640,7 +1641,8 @@ func _on_end_turn_pressed() -> void:
 	if _enemy_turn_running:
 		return
 	if _net != null and _net.is_client():
-		if _battle_state.active_player_id == PLAYER_ID:
+		if _battle_state.active_player_id == PLAYER_ID and not _net_end_turn_sent:
+			_net_end_turn_sent = true
 			_clear_selection_state()
 			_play_sfx(&"end_turn")
 			end_turn_button.disabled = true
@@ -2526,6 +2528,7 @@ func _apply_net_snapshot(state: BattleState, host_status: String) -> void:
 	var selected_attacker_id := _selected_attacker.instance_id if _selected_attacker != null else -1
 	var old_enemy: PlayerBattleState = _battle_state.get_player_state(ENEMY_ID) if _battle_state != null else null
 	_battle_state = state
+	_net_end_turn_sent = false
 	_selected_card = null
 	_selected_attacker = null
 	var player_state: PlayerBattleState = state.get_player_state(PLAYER_ID)
@@ -2536,6 +2539,9 @@ func _apply_net_snapshot(state: BattleState, host_status: String) -> void:
 		# Host spustil odvetu: nový stůl, pryč s výsledkem.
 		_net_result_shown = false
 		was_my_turn = false
+		selected_card_id = -1
+		selected_attacker_id = -1
+		old_enemy = null
 		_hide_post_match_overlay()
 		_reset_battle_feed()
 	var my_turn := state.active_player_id == PLAYER_ID and not state.battle_over
@@ -2577,20 +2583,24 @@ func _apply_net_snapshot(state: BattleState, host_status: String) -> void:
 
 # Klient nevidí soupeřovy tahy jako volání, jen nový snímek: najdi kartu, která mezitím přibyla.
 func _find_net_enemy_play(old_state: PlayerBattleState, new_state: PlayerBattleState) -> CardInstance:
-	if new_state.hand.size() >= old_state.hand.size():
-		return null
+	var old_hand_ids := {}
+	for card in old_state.hand:
+		old_hand_ids[card.instance_id] = true
 	var old_ids := {}
 	for slot in old_state.board:
 		if slot.occupant != null:
 			old_ids[slot.occupant.instance_id] = true
 	for slot in new_state.board:
-		if slot.occupant != null and not old_ids.has(slot.occupant.instance_id):
+		if slot.occupant != null and not old_ids.has(slot.occupant.instance_id) and old_hand_ids.has(slot.occupant.instance_id):
 			return slot.occupant
-	# Kouzlo skončí v odhazování (kočky tam padají také, ty přeskoč).
-	for i in range(new_state.discard.size() - 1, old_state.discard.size() - 1, -1):
+	# Kouzlo skončí v odhazování; předmět na kočce se pozná podle nového attached_item.
+	for i in range(new_state.discard.size() - 1, -1, -1):
 		var card: CardInstance = new_state.discard[i]
-		if card != null and card.definition != null and card.definition.card_type != CardGameConstants.CardType.CAT:
+		if card != null and old_hand_ids.has(card.instance_id):
 			return card
+	for slot in new_state.board:
+		if slot.occupant != null and slot.occupant.attached_item != null and old_hand_ids.has(slot.occupant.attached_item.instance_id):
+			return slot.occupant.attached_item
 	return null
 
 
@@ -2634,6 +2644,9 @@ func _on_net_disconnected(message: String) -> void:
 	if _net == null:
 		return
 	if _battle_state != null and _battle_state.battle_over:
+		if _net_result_shown:
+			post_match_rematch_button.visible = false
+			status_label.text = message
 		return
 	_net_result_shown = true
 	if _battle_state == null:
