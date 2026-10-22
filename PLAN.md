@@ -52,6 +52,8 @@
 - [ ] E2 Tuna karty: trik „Sardinková konzerva“ (+2 Tuna jen v tomto kole) a podobné; umožní dřív větší kočky = méně zrcadlových výměn
 - [ ] E3 Obchod: měna za výhry (trénink i hra ve dvou), 3 nabídky po každém zápase; nahradí část automatického odemykání
 - [ ] E4 Sbírka v1 kolem 60 karet: ~40 koček, ~12 triků (vč. Tuna karet), ~8 předmětů. Teď 47
+- [ ] E5 Hra ve dvou: každý má všechny karty (balík z celé sbírky); obchod a odemykání jen v tréninku
+- [ ] E6 Sim balík proti balíku (hráčské balíky, ne NPC): hlídat, že žádná karta ani balík nedominuje. Nové karty po sadách 15–20, každá sada projde simulací
 
 ## Odloženo (vědomé rozhodnutí, D-013)
 - Combat Trick window: až budou Tricky zpátky ve hře a core projde lidským testem
