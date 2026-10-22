@@ -17,6 +17,10 @@
   - D4 multiplayer 1v1 (D-024): menu „Hra ve dvou“, hostovat / připojit přes IP (Radmin). Ověřeno dvěma procesy na jednom PC (net_smoke.gd), mezi dvěma PC ještě ne.
 - Incident: síťový test v okně přepsal skutečný save; obnoven ze screenshotů, prevence v `_save_path()` (viz worklog).
 
+## Dopolední smyčka 22. 10. (do 14:00), Claude Opus 5.5
+- Hotovo a pushnuto (23/23 verifierů u každého bloku): art archů A+B ve hře; štítek TRIK/PŘEDMĚT v ruce; Věštkyně a Stokový král hrají nové karty; pravý panel v tahu soupeře ukazuje jeho zahranou kartu (i u klienta ve hře ve dvou); výsledkové obrazovky s neutrálními texty a čitelnou trasou.
+- Čeká na Marka: arch C (odpoledne), export templates 4.6.2, test dvou PC přes Radmin.
+
 ## Další krok
 1. Lidský test #4 (Mark + kamarád přes Radmin VPN): oba spustí hru → „Hra ve dvou“. Jeden „Hostovat hru“ (Windows firewall: povolit), druhý zadá jeho IP 26.x.x.x → „Připojit se“. Dohrát zápas. Hlásit: připojení, zpoždění, nečitelné tahy soupeře, chyby.
    - Kamarád potřebuje hru: buď `.exe` (Mark v editoru: Editor → Manage Export Templates → Download 4.6.2, pak Project → Export → Windows Desktop; preset `build/Catnapped.exe` je připravený), nebo Godot 4.6.2 + `git clone https://github.com/domonemec-creator/catnapped.git`.

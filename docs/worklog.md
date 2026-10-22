@@ -14,6 +14,13 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Balanc: Věštkyně těžší než Ragclaw (Claude Opus 5.5)
+- Oblast: balanc tréninku (D-022: každý další soupeř těžší)
+- Soubory: `data/decks/npc_fog_seer.tres`
+- Změna: sim 120 her ukázal, že Věštkyně (4.) je lehčí než Ragclaw (3.): 25,8 % vs 14,6 % výher AI hráče. Svíčkotlapý zvěd 3→2, Šedý veterán 1→2. Zkoušeno a zamítnuto: Přístavní poslíček místo Myšolovce (38 %) i místo Rváče (32 %), Věštkyni chybí obrana, ne zranění.
+- Výsledek sim 120 (výhry AI hráče): Smug 73,3, Lantern 34,2, Ragclaw 14,6, Fog 9,6, Harbor 7,9, Bilge 2,5 %. Pořadí sedí.
+- Ověření: `sim_ai_matches.gd -- 120`, všech 23 verifierů.
+
 ### 2026-10-22 - Výsledková obrazovka: rodově neutrální texty, větší trasa (Claude Opus 5.5)
 - Oblast: UI po zápase
 - Soubory: `battle_controller.gd`, `battle_overlay_presenter.gd`
