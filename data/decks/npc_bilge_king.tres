@@ -40,7 +40,7 @@ count = 2
 
 [sub_resource type="Resource" id="8_entry"]
 script = ExtResource("2_deck_entry")
-card_id = &"rafter_pouncer"
+card_id = &"dock_breaker"
 count = 2
 
 [sub_resource type="Resource" id="9_entry"]

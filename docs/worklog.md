@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Soupeři s novými kartami (Claude Opus 5.5)
+- Mlžná věštkyně: 2× Lovec potkanů místo 2× Síťodrápý nájezdník. Stokový král: 2× Lamač z doků místo 2× Trámový skokan. (Tito dva nemají profil hrozby, ostatní balíky beze změny.)
+- Sim 60 her/pořadí (AI hráč, startovní balík): Smug 70.8, Lantern 35.8, Ragclaw 20.0, Fog 23.3 (dřív 19.2), Harbor 10.0, Bilge 4.2 (dřív 2.5) %. Boss dál nejtěžší.
+- Ověření: 23/23 verifierů.
+
 ### 2026-10-22 - Ruka: štítek TRIK / PŘEDMĚT (Claude Opus 5.5)
 - Kouzla a předměty v ruce mají místo odznaků útoku a životů barevný štítek typu (trik červeně, předmět modře); keyword pilulka se v úzké ruce nezobrazuje, takže typ nebyl vidět.
 - capture_midgame.gd: volitelný 2. argument = karty do ruky (kontrola nového artu). Screenshot artifacts/newart.png.

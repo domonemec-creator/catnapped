@@ -25,7 +25,7 @@ count = 2
 
 [sub_resource type="Resource" id="5_entry"]
 script = ExtResource("2_deck_entry")
-card_id = &"netclaw_raider"
+card_id = &"rat_hunter"
 count = 2
 
 [sub_resource type="Resource" id="6_entry"]
