@@ -87,6 +87,13 @@ Row 3, center: cat gunner beside a ship cannon, lit fuse, smoke and sparks, dete
 Row 3, right: busy fish market at night, stalls with fish on ice, cats haggling, lanterns.
 ```
 
+## Hrací plocha shora (`board_topdown.png`, 1600×900, nahradí `board_frame_transparent.png`)
+Starý stůl je v perspektivě, karty jsou rovné → nelícovaly. Potřeba přesně shora, bez perspektivy. Šest míst = 3 sloupce × 2 řady (horní řada soupeř, dolní hráč), mezi řadami tenký pruh.
+
+```
+Top-down orthographic view of a wooden tavern game table surface, perfectly flat, no perspective, no tilt, seen straight from above, filling the whole 16:9 frame. Dark worn oak planks with brass corner fittings. Six shallow rectangular card spots carved into the wood in a 3 columns x 2 rows grid, each spot portrait 2:3, evenly spaced, centered, all exactly the same size, with a thin brass inlay border. A thin carved divider line between the top row and the bottom row. Subtle paw print engraved in the center of each spot, very faint. Warm candlelight from above, soft vignette at the edges. Painterly digital fantasy style, deep browns and amber, muted red accents. No cards, no objects, no text, no characters.
+```
+
 ## Co dál (není nutné hned)
 - Pozadí souboje a menu (1920×1080) a logo: prompty v `design/polish_assets_2026-10.md`, platí dál.
 - Vlastní hudba do krčmy (2–3 smyčky).

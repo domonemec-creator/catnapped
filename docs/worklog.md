@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - UI: pryč perspektivní stůl pod lajnami (Claude Opus 5.5)
+- Oblast: UI souboje
+- Soubory: `scenes/card_game/battle_scene.tscn` (BoardPanel/FrameArt skryt, okraje 84→12 px)
+- Proč: Mark: stůl na pozadí a rámečky lajn přes něj = dvě plochy přes sebe. Stůl je kreslený v perspektivě, s rovnými kartami lícovat nejde. Nový stůl shora: prompt v `design/art_prompt_2026-10-22.md`.
+- Ověření: `capture_midgame.gd` (screenshot), 23/23 verifierů.
+
 ### 2026-10-22 - Oprava: v exportu prázdné balíky (Claude Opus 5.5)
 - Oblast: export / načítání dat
 - Soubory: `battle_controller.gd`, `progression_screen.gd` (`_load_resources_by_id`)

@@ -281,6 +281,7 @@ size_flags_vertical = 3
 theme_override_styles/panel = SubResource("2_board_empty")
 
 [node name="FrameArt" type="TextureRect" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel"]
+visible = false
 texture = ExtResource("5_board_frame")
 expand_mode = 1
 stretch_mode = 0
@@ -289,10 +290,10 @@ mouse_filter = 2
 [node name="MarginContainer" type="MarginContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 84.0
-offset_top = 28.0
-offset_right = -84.0
-offset_bottom = -18.0
+offset_left = 12.0
+offset_top = 8.0
+offset_right = -12.0
+offset_bottom = -8.0
 mouse_filter = 2
 
 [node name="VBox" type="VBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer"]
