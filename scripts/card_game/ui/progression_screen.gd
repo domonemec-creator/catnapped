@@ -516,12 +516,8 @@ func _deferred_return_to_selector() -> void:
 
 func _load_resources_by_id(directory_path: String) -> Dictionary:
     var library: Dictionary = {}
-    var directory := DirAccess.open(directory_path)
-    if directory == null:
-        push_warning("Could not open %s." % directory_path)
-        return library
-
-    for file_name in directory.get_files():
+    # ResourceLoader.list_directory vidí i exportované soubory (*.tres.remap), DirAccess ne.
+    for file_name in ResourceLoader.list_directory(directory_path):
         if not file_name.ends_with(".tres") and not file_name.ends_with(".res"):
             continue
         var resource_path := "%s/%s" % [directory_path, file_name]

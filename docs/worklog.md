@@ -14,6 +14,13 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Oprava: v exportu prázdné balíky (Claude Opus 5.5)
+- Oblast: export / načítání dat
+- Soubory: `battle_controller.gd`, `progression_screen.gd` (`_load_resources_by_id`)
+- Příčina: knihovna karet se skládala z `DirAccess.get_files()` + filtr `.tres`. V exportu jsou soubory `*.tres.remap`, takže knihovna byla prázdná a oba hráči začali bez karet (Mark, první hra v .exe).
+- Změna: `ResourceLoader.list_directory()` (vidí exportované názvy).
+- Ověření: `verify_net_snapshot.gd` spuštěný proti exportovanému .pck (`--main-pack`): starý kód FAIL, nový PASS; 23/23 verifierů.
+
 ### 2026-10-22 - Export: Windows build (Claude Opus 5.5)
 - Oblast: distribuce (test hry ve dvou)
 - Změna: s Markovým souhlasem staženy oficiální export templates 4.6.2 (SHA512 ověřen), nainstalovány jen Windows x86_64. `build/Catnapped.exe` (v .gitignore) vyexportován headless.

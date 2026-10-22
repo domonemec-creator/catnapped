@@ -28,6 +28,8 @@ Síťová hra (D4, D-024): logika `scripts/card_game/systems/net_battle.gd` + RP
 
 Oba vypíší `NET RESULT ...` a musí se shodnout (strany otočené). Env `NET_REMATCH=1` = dva zápasy s odvetou, `NET_DROP=N` = klient v N. kole spadne (host musí zápas ukončit sám), s `NET_DROP_ROLE=host` spadne host.
 
+Export (Windows): `Godot --headless --path . --export-release "Windows Desktop" build/Catnapped.exe`. Exportovaná data ověříš: `--export-pack "Windows Desktop" build/test.pck`, pak `Godot --headless --main-pack build/test.pck --script res://scripts/card_game/tools/verify_net_snapshot.gd` (spouštět mimo složku projektu). Složky v `res://` nevypisuj přes `DirAccess` (v exportu jsou `*.remap`), ale `ResourceLoader.list_directory()`.
+
 ## Screenshot
 `scripts/card_game/tools/capture_battle_scene.gd` se spouští **S oknem, NE `--headless`**:
 
