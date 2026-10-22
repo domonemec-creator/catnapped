@@ -124,6 +124,11 @@ func run_remote_turn() -> void:
 
 
 func _on_remote_action(action: Dictionary) -> void:
+	# Čísla v akci musí být čísla (upravený nebo jiný klient by jinak shodil handler).
+	for key in ["card", "lane", "from", "to", "own"]:
+		if action.has(key) and not typeof(action[key]) in [TYPE_INT, TYPE_FLOAT, TYPE_BOOL]:
+			push_warning("Síť: neplatná akce zahozena: %s" % action)
+			return
 	if str(action.get("type", "")) == "rematch":
 		rematch_requested.emit()
 		return

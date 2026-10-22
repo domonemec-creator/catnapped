@@ -16,6 +16,10 @@ const DEFAULT_PORT := 7000
 const DEFAULT_ADDRESS := "127.0.0.1"
 const MAX_CLIENTS := 1
 const BATTLE_SCENE_PATH := "res://scenes/card_game/battle_scene.tscn"
+# Zvyš při každé změně RPC nebo formátu snímku: různé verze hry spolu nehrají.
+const PROTOCOL_VERSION := 1
+const NET_DECK_MIN := 20
+const NET_DECK_MAX := 30
 
 var session_mode: StringName = &"singleplayer"
 var current_address: String = DEFAULT_ADDRESS
@@ -174,10 +178,46 @@ func _start_match_as_host(opponent_name: String, opponent_deck: Array) -> void:
 
 
 @rpc("any_peer", "reliable")
-func _rpc_hello(player_name: String, deck_ids: Array) -> void:
+func _rpc_hello(player_name: String, deck_ids: Array, protocol_version: int) -> void:
     if not is_host() or is_in_match():
         return
-    _start_match_as_host(player_name, deck_ids)
+    var sender := multiplayer.get_remote_sender_id()
+    if protocol_version != PROTOCOL_VERSION:
+        _reject_peer(sender, "Hostitel má jinou verzi hry (%s, ty %s). Aktualizujte oba na stejnou." % [PROTOCOL_VERSION, protocol_version])
+        return
+    var deck := _validated_deck(deck_ids)
+    if deck.is_empty():
+        _reject_peer(sender, "Tvůj balík hostitel nezná nebo nemá %s až %s karet. Máte stejnou verzi hry?" % [NET_DECK_MIN, NET_DECK_MAX])
+        return
+    _start_match_as_host(player_name.left(24), deck)
+
+
+@rpc("authority", "reliable")
+func _rpc_reject(message: String) -> void:
+    disconnect_session(true)
+    join_failed.emit(message)
+
+
+func _reject_peer(peer_id: int, message: String) -> void:
+    _rpc_reject.rpc_id(peer_id, message)
+    # Odpojení až po doručení zprávy.
+    get_tree().create_timer(0.5).timeout.connect(func():
+        if multiplayer.multiplayer_peer is ENetMultiplayerPeer and is_host():
+            (multiplayer.multiplayer_peer as ENetMultiplayerPeer).disconnect_peer(peer_id))
+
+
+# Balík od klienta: jen známé karty a povolená velikost, jinak prázdné pole.
+func _validated_deck(values: Array) -> Array[StringName]:
+    var ids: Array[StringName] = []
+    for value in values:
+        if typeof(value) != TYPE_STRING and typeof(value) != TYPE_STRING_NAME:
+            return []
+        if not ResourceLoader.exists("res://data/cards/%s.tres" % String(value)):
+            return []
+        ids.append(StringName(value))
+    if ids.size() < NET_DECK_MIN or ids.size() > NET_DECK_MAX:
+        return []
+    return ids
 
 
 @rpc("authority", "reliable")
@@ -246,7 +286,7 @@ func _on_peer_disconnected(_peer_id: int) -> void:
 func _on_connected_to_server() -> void:
     peers_changed.emit()
     join_succeeded.emit()
-    _rpc_hello.rpc_id(1, local_name, local_deck.map(func(id): return String(id)))
+    _rpc_hello.rpc_id(1, local_name, local_deck.map(func(id): return String(id)), PROTOCOL_VERSION)
 
 
 func _on_connection_failed() -> void:

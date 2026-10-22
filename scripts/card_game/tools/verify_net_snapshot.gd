@@ -61,5 +61,19 @@ func _run() -> void:
 	if NetBattle.serialize_state(NetBattle.deserialize_state(NetBattle.serialize_state(copy), battle._card_library)).hash() != data.hash():
 		_fail("Dvojí otočení snímku nevrací původní stav.")
 		return
+	# Balík od klienta: neznámé karty, jiný typ nebo špatná velikost hostitel odmítne.
+	var manager = root.get_node_or_null("MultiplayerManager")
+	if manager == null:
+		_fail("Chybí autoload MultiplayerManager.")
+		return
+	var good: Array = []
+	for i in range(20):
+		good.append("alley_scrapper")
+	if manager._validated_deck(good).size() != 20:
+		_fail("Platný balík 20 karet byl odmítnut.")
+		return
+	if not manager._validated_deck(good.slice(0, 19)).is_empty() or not manager._validated_deck(good + ["neexistujici_karta"]).is_empty() or not manager._validated_deck(good.slice(0, 19) + [42]).is_empty():
+		_fail("Neplatný balík (málo karet / neznámá karta / číslo) prošel.")
+		return
 	print("Net snapshot verification passed.")
 	quit()

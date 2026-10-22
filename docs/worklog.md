@@ -14,6 +14,13 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - MP: verze protokolu a kontrola balíku klienta (Claude Opus 5.5)
+- Oblast: síťová hra (D-024)
+- Soubory: `multiplayer_manager.gd`, `net_battle.gd`, `tools/verify_net_snapshot.gd`
+- Změna: `_rpc_hello` nese `PROTOCOL_VERSION` (=1, zvyšovat při změně RPC/snímku). Jiná verze nebo balík s neznámými kartami / mimo 20–30 karet → host pošle `_rpc_reject` s českou hláškou (klient ji dostane jako `join_failed`) a odpojí ho. Jméno ořezané na 24 znaků. Akce s ne-číselnými poli host zahodí.
+- Proč: kamarád se starší verzí hry by poslal karty, které host nezná, a hra by spadla.
+- Ověření: `verify_net_snapshot` testuje `_validated_deck`; `net_smoke` host+klient shodný výsledek; všech 23 verifierů. Odmítnutí jiné verze end-to-end netestováno (chce dva buildy).
+
 ### 2026-10-22 - MP: opravy z code review (Claude Opus 5.5, review Sonnet)
 - Oblast: síťová hra (D-024)
 - Soubory: `multiplayer_manager.gd`, `net_battle.gd`, `battle_controller.gd`
