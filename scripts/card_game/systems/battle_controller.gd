@@ -40,7 +40,7 @@ const ENCOUNTER_PATH := "res://data/encounters/smug_tabby.tres"
 const DEFAULT_ENCOUNTER_ID := &"smug_tabby"
 const ENCOUNTER_SELECT_SCENE_PATH := "res://scenes/card_game/encounter_select.tscn"
 const TIER_EXTRA_CARD_FROM := 2
-const NET_OPPONENT_PORTRAIT_PATH := "res://assets/card_game/card_art/portrait_rival.png"  # zatím kopie Tuláka (arch C)
+const NET_OPPONENT_PORTRAIT_PATH := "res://assets/card_game/card_art/portrait_rival.png"
 # Karta v ruce na výšku (layout v2).
 const HAND_CARD_SIZE := Vector2(136, 188)
 const CARD_VIEW_SCENE := preload("res://scenes/card_game/card_view.tscn")

@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Art: arch C ve hře (Claude Opus 5.5)
+- Oblast: art
+- Soubory: `assets/card_game/card_art/` (spiked_collar, war_plate, watchmans_bell, tavern_bouncer, portrait_rival, harbor_courier, net_mender, cannon_cat, fish_market)
+- Změna: Markův arch C rozřezán `slice_art_sheet.gd`; soupeř ve hře ve dvou má vlastní portrét místo kopie Tuláka. Druhý zaslaný arch (4 kočky + rubové strany) zatím nepoužit.
+- Ověření: řezy na tmavých linkách (x 343/680, y 475/1017), 23/23 verifierů.
+
 ### 2026-10-22 - MP: test pádu klienta uprostřed zápasu (Claude Opus 5.5)
 - Oblast: síťová hra (D-024)
 - Soubory: `tools/net_smoke.gd` (env `NET_DROP=N`), `battle_controller.gd` (`_on_net_disconnected` přepíše i stavový řádek)
