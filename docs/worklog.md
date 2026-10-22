@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Obchod v Balík a postup (E3 část 2, Claude Opus 5.5)
+- Oblast: UI postupu
+- Soubory: `progression_screen.gd` (`_build_shop`, `_buy_card`: nad tréninkovou kolekcí „Obchod · rybí šupiny: X“ a 3 nabídky s tlačítkem „Koupit N“; nabídky se mění po každém zápase, seed = výhry + prohry), `verify_shop.gd` (koupě přes UI).
+- Ověření: 25/25 verifierů, screenshot `artifacts/progression_shop.png`.
+- Zbývá: šupiny ve hře ve dvou, zkrátit automatické odemykání (`TRAINING_CARD_UNLOCKS`) na 2 karty za soupeře. Necháno na Markův test, ať je vidět, jestli obchod baví.
+
 ### 2026-10-22 - Obchod: logika bez UI (E3 část 1, Claude Opus 5.5)
 - Oblast: postup
 - Soubory: `progression_system.gd` (`KEY_SCALES`, `get_scales`, `add_match_scales(state, won, tier, pvp)`, `get_card_price` = 5 + 5 × cena, `roll_shop_offers(state, seed)` = 3 karty mimo tréninkovou kolekci, `buy_card`), `tools/verify_shop.gd`.

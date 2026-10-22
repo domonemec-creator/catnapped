@@ -37,11 +37,12 @@
   - E2: Tuna karta **Sardinková konzerva** (trik za 0, +2 Tuny v tomto tahu). Odemyká ji výhra nad Věštkyní. AI ji hraje, jen když tím odemkne dražší kartu. Art chybí, prompt je v `design/art_prompt_2026-10-22.md`.
   - E5: Balík a postup má přepínač „Přepnout na hru ve dvou“. Je to vlastní balík ze všech 48 karet a lobby posílá ten.
   - E6 + D-026: `sim_deck_vs_deck.gd`. Ve hře ve dvou vyhrával první na tahu 62 %; teď druhý dostane +2 životy a konzervu do ruky, výsledek 50,1 %.
+  - E3 obchod: rybí šupiny za zápas proti AI (výhra 10 + 5 × stupeň, prohra 3), v Balík a postup 3 nabídky karet mimo kolekci (cena 5 + 5 × cena karty).
   - `PROTOCOL_VERSION` 2: starý .exe se s novým nespojí.
 - `build/Catnapped.exe` vyexportován znovu 17:36 (obsahuje vše výše); export ověřen přes pck (konzerva, balík pro hru ve dvou).
 
 ## Další krok
-0. Fáze E zbývá: E3 obchod – logika hotová (`progression_system.gd`: šupiny, `roll_shop_offers`, `buy_card`; `verify_shop.gd`), šupiny se po zápase proti AI už připisují (`_award_scales`); chybí UI nabídky na výsledkové obrazovce + stav šupin v Balík a postup, E4 sbírka ~60 karet (sady 15–20, každá přes `sim_deck_vs_deck.gd`). Art pro konzervu od Marka.
+0. Fáze E zbývá: E3 obchod je hotový v základu (šupiny po zápase proti AI, 3 nabídky nad kolekcí v Balík a postup, `verify_shop.gd`); chybí šupiny ve hře ve dvou a zkrácení automatického odemykání, E4 sbírka ~60 karet (sady 15–20, každá přes `sim_deck_vs_deck.gd`). Art pro konzervu od Marka.
 1. Lidský test #4 (Mark + kamarád přes Radmin VPN): oba spustí hru → „Hra ve dvou“. Jeden „Hostovat hru“ (Windows firewall: povolit), druhý zadá jeho IP 26.x.x.x → „Připojit se“. Dohrát zápas. Hlásit: připojení, zpoždění, nečitelné tahy soupeře, chyby.
    - Kamarád potřebuje hru: buď `build/Catnapped.exe` (stačí poslat ten jeden soubor; oba hrají stejný .exe), nebo Godot 4.6.2 + `git clone https://github.com/domonemec-creator/catnapped.git`. Oba musí mít **stejnou verzi** (stejný commit / stejný .exe); jinak hostitel připojení odmítne s hláškou o verzi.
    - Sólo checklist (5 min): Balík a postup → přidat/odebrat kartu (+/−), zkusit „Smazat postup“ (chce 2 kliky; NEdokončovat, pokud chceš save). Trénink: porazit 1. soupeře → hláška o odemčeném soupeři a nových kartách v kolekci. V souboji: mezerník = konec tahu, F11 = celá obrazovka, Rybí trh se hraje druhým klikem.

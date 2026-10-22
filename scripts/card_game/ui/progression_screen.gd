@@ -325,6 +325,8 @@ func _is_deck_locked() -> bool:
 func _refresh_collection_list(deck_card_ids: Array[StringName], locked: bool) -> void:
     for child in _collection_list.get_children():
         child.queue_free()
+    if not _pvp_mode:
+        _build_shop(_collection_list)
     var ids := _progression_system.get_collection_card_ids(_progression_state, _pvp_mode)
     ids.sort_custom(_compare_cards)
     for card_id in ids:
@@ -334,6 +336,39 @@ func _refresh_collection_list(deck_card_ids: Array[StringName], locked: bool) ->
         var add_button := _make_small_button("+", reason.is_empty(), reason if not reason.is_empty() else "Přidat do balíku")
         add_button.pressed.connect(_change_deck.bind(card_id, true))
         row.add_child(add_button)
+
+
+# Obchod (E3): nabídky nad kolekcí, nové po každém zápase (seed = počet odehraných).
+func _build_shop(parent: Container) -> void:
+    var box := VBoxContainer.new()
+    box.name = "ShopBox"
+    box.add_theme_constant_override("separation", 8)
+    parent.add_child(box)
+    var scales := _progression_system.get_scales(_progression_state)
+    var head := Label.new()
+    _style_label(head, 17, Color(0.96, 0.82, 0.52, 1), true)
+    head.text = "Obchod · rybí šupiny: %s · nové nabídky po každém zápase" % scales
+    box.add_child(head)
+    var played := _progression_system.get_win_count(_progression_state) + _progression_system.get_loss_count(_progression_state)
+    var offers := _progression_system.roll_shop_offers(_progression_state, played)
+    if offers.is_empty():
+        head.text += " · máš všechny karty"
+    for card_id in offers:
+        var price := _progression_system.get_card_price(card_id)
+        var row := _build_card_row(box, card_id, "")
+        var enough := scales >= price
+        var button := _make_small_button("Koupit %s" % price, enough, "Koupit do kolekce" if enough else "Chybí šupiny (%s/%s)." % [scales, price])
+        button.custom_minimum_size = Vector2(120, 40)
+        button.add_theme_font_size_override("font_size", 16)
+        button.pressed.connect(_buy_card.bind(card_id))
+        row.add_child(button)
+
+
+func _buy_card(card_id: StringName) -> void:
+    var reason := _progression_system.buy_card(_progression_state, card_id)
+    if reason.is_empty():
+        _progression_system.save_state(_progression_state)
+    _refresh_ui()
 
 
 func _compare_cards(a: StringName, b: StringName) -> bool:

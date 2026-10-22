@@ -77,6 +77,31 @@ func _run() -> void:
 	battle.queue_free()
 	await process_frame
 
+	# UI: v Balík a postup je obchod nad kolekcí a koupě přidá kartu.
+	var rich := progression.load_state()
+	rich[ProgressionSystem.KEY_SCALES] = 500
+	progression.save_state(rich)
+	var screen = (load("res://scenes/card_game/progression_screen.tscn") as PackedScene).instantiate()
+	root.add_child(screen)
+	await process_frame
+	await process_frame
+	var shop = screen._collection_list.get_node_or_null("ShopBox")
+	if shop == null or shop.get_child_count() != 1 + ProgressionSystem.SHOP_OFFER_COUNT:
+		_fail("V Balík a postup chybí obchod se 3 nabídkami.")
+		return
+	var buy_button := shop.get_child(1).get_child(shop.get_child(1).get_child_count() - 1) as Button
+	if buy_button == null or buy_button.disabled:
+		_fail("Tlačítko Koupit chybí nebo je neaktivní.")
+		return
+	var before := progression.get_collection_card_ids(progression.load_state()).size()
+	buy_button.pressed.emit()
+	var bought := progression.load_state()
+	if progression.get_collection_card_ids(bought).size() != before + 1 or progression.get_scales(bought) >= 500:
+		_fail("Koupě přes UI nepřidala kartu nebo neodečetla šupiny.")
+		return
+	screen.queue_free()
+	await process_frame
+
 	progression.reset_state()
 	print("Shop verification passed.")
 	quit()
