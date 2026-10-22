@@ -14,6 +14,14 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - UI: hrací stůl shora pod lajnami (Claude Opus 5.5)
+- Oblast: UI souboje, art
+- Soubory: `assets/card_game/ui/board_topdown.png` (generovaný), zdroj `design/art_src/board_topdown_source.webp` (.gdignore), nástroj `tools/build_board_texture.gd`, `battle_scene.tscn` (okraje lajn přes theme konstanty, mezery 40/36), `lane_slot_view.gd` (prázdné místo bez výplně, rámeček jen při zvýraznění)
+- Proč: Mark dodal stůl shora se 6 vyrytými místy. Místa v obrázku mají jiné mezery než lajny, proto nástroj změří lajny ve scéně a obrázek po pásech přeškáluje (vodorovná prkna to snesou). Karty jsou o ~13 % užší, deformace místa 14 %.
+- Pozn.: `offset_*` na MarginContaineru uvnitř PanelContaineru nic nedělaly (PanelContainer přepíše rect dětí), proto theme konstanty.
+- Po změně rozložení lajn znovu: `build_board_texture.gd -- design/art_src/board_topdown_source.webp`.
+- Ověření: `capture_midgame.gd` (screenshot: karty sedí ve vyrytých místech), 23/23 verifierů.
+
 ### 2026-10-22 - UI: pryč perspektivní stůl pod lajnami (Claude Opus 5.5)
 - Oblast: UI souboje
 - Soubory: `scenes/card_game/battle_scene.tscn` (BoardPanel/FrameArt skryt, okraje 84→12 px)

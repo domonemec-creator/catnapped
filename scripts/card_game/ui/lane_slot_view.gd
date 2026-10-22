@@ -757,9 +757,9 @@ func _build_empty_art_label() -> String:
 # Prázdné místo na stole: obrys karty v barvě strany, při zvýraznění silnější okraj.
 func _build_empty_slot_style(side_theme: Dictionary) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.05, 0.035, 0.025, 0.35)
-	style.border_color = Color(side_theme["ribbon_border"]).darkened(0.25)
-	style.border_color.a = 0.55
+	# Prázdné místo je vyryté ve stole (board_topdown.png), rámeček kreslí jen zvýraznění.
+	style.bg_color = Color(0, 0, 0, 0)
+	style.border_color = Color(0, 0, 0, 0)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(12)
 	style.content_margin_left = 6.0

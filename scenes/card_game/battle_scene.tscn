@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" path="res://scenes/card_game/lane_slot_view.tscn" id="2_lane_slot"]
 [ext_resource type="PackedScene" path="res://scenes/card_game/card_view.tscn" id="3_card_view"]
 [ext_resource type="PackedScene" path="res://scenes/card_game/selected_card_preview.tscn" id="4_selected_preview"]
-[ext_resource type="Texture2D" path="res://assets/card_game/ui/board_frame_transparent.png" id="5_board_frame"]
+[ext_resource type="Texture2D" path="res://assets/card_game/ui/board_topdown.png" id="5_board_frame"]
 [ext_resource type="Texture2D" path="res://assets/card_game/ui/selected_card_panel_frame.png" id="6_selected_frame"]
 [ext_resource type="Texture2D" path="res://assets/card_game/ui/name_banner_small.png" id="7_name_banner"]
 [ext_resource type="Texture2D" path="res://assets/card_game/ui/label_frame_brass.png" id="8_label_frame"]
@@ -281,19 +281,16 @@ size_flags_vertical = 3
 theme_override_styles/panel = SubResource("2_board_empty")
 
 [node name="FrameArt" type="TextureRect" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel"]
-visible = false
 texture = ExtResource("5_board_frame")
 expand_mode = 1
 stretch_mode = 0
 mouse_filter = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 12.0
-offset_top = 8.0
-offset_right = -12.0
-offset_bottom = -8.0
+theme_override_constants/margin_left = 31
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 31
+theme_override_constants/margin_bottom = 8
 mouse_filter = 2
 
 [node name="VBox" type="VBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer"]
@@ -301,12 +298,12 @@ theme_override_constants/separation = 14
 
 [node name="Lanes" type="HBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox"]
 size_flags_vertical = 3
-theme_override_constants/separation = 18
+theme_override_constants/separation = 40
 
 [node name="Lane0" type="VBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes"]
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 36
 
 [node name="EnemyLane" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes/Lane0" instance=ExtResource("2_lane_slot")]
 size_flags_vertical = 3
@@ -317,7 +314,7 @@ size_flags_vertical = 3
 [node name="Lane1" type="VBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes"]
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 36
 
 [node name="EnemyLane" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes/Lane1" instance=ExtResource("2_lane_slot")]
 size_flags_vertical = 3
@@ -328,7 +325,7 @@ size_flags_vertical = 3
 [node name="Lane2" type="VBoxContainer" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes"]
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 36
 
 [node name="EnemyLane" parent="Margin/Layout/TopRow/BoardColumn/BoardPanel/MarginContainer/VBox/Lanes/Lane2" instance=ExtResource("2_lane_slot")]
 size_flags_vertical = 3
