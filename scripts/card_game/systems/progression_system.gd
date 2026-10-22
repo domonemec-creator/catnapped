@@ -24,6 +24,13 @@ const KEY_COLLECTION := "collection_card_ids"
 # Hra ve dvou (E5, D-025): vlastní balík ze všech karet; prázdný = zatím kopie tréninkového.
 const KEY_PVP_DECK := "pvp_deck_card_ids"
 const CARDS_DIR := "res://data/cards"
+# Obchod (E3): měna „rybí šupiny“ za zápasy, po zápase pár nabídek karet mimo kolekci.
+const KEY_SCALES := "fish_scales"
+const SHOP_OFFER_COUNT := 3
+const SCALES_WIN_BASE := 10
+const SCALES_WIN_PER_TIER := 5
+const SCALES_LOSS := 3
+const SCALES_PVP := 5
 
 # Stavění balíku (D2): kolekce = startovní karty + odemčené tréninkem + vše, co kdy bylo v balíku.
 const DECK_MIN_SIZE := 20
@@ -257,6 +264,7 @@ func load_state() -> Dictionary:
 	state[KEY_TRAINING_CLEARED] = int(config.get_value(SECTION_PROGRESS, KEY_TRAINING_CLEARED, 0))
 	state[KEY_COLLECTION] = _copy_card_id_array(config.get_value(SECTION_PROGRESS, KEY_COLLECTION, []))
 	state[KEY_PVP_DECK] = _copy_card_id_array(config.get_value(SECTION_PROGRESS, KEY_PVP_DECK, []))
+	state[KEY_SCALES] = maxi(0, int(config.get_value(SECTION_PROGRESS, KEY_SCALES, 0)))
 	return state
 
 
@@ -276,6 +284,7 @@ func save_state(state: Dictionary) -> void:
 			collection.append(card_id)
 	config.set_value(SECTION_PROGRESS, KEY_COLLECTION, _to_string_array(collection))
 	config.set_value(SECTION_PROGRESS, KEY_PVP_DECK, _to_string_array(sanitized[KEY_PVP_DECK]))
+	config.set_value(SECTION_PROGRESS, KEY_SCALES, int(sanitized[KEY_SCALES]))
 	var save_error := config.save(_save_path())
 	if save_error != OK:
 		push_warning("Could not save progression to %s." % _save_path())
@@ -402,6 +411,54 @@ func get_collection_card_ids(state: Dictionary, pvp: bool = false) -> Array[Stri
 	return ids
 
 
+func get_scales(state: Dictionary) -> int:
+	return maxi(0, int(state.get(KEY_SCALES, 0)))
+
+
+# Připíše šupiny za zápas (tier = stupeň soupeře v tréninku); vrací kolik přibylo.
+func add_match_scales(state: Dictionary, won: bool, tier: int = 0, pvp: bool = false) -> int:
+	var gained := SCALES_PVP if pvp else (SCALES_WIN_BASE + SCALES_WIN_PER_TIER * maxi(0, tier) if won else SCALES_LOSS)
+	state[KEY_SCALES] = get_scales(state) + gained
+	return gained
+
+
+func get_card_price(card_id: StringName) -> int:
+	var card := load("%s/%s.tres" % [CARDS_DIR, card_id]) as CardDefinition
+	return 5 + 5 * (card.cost if card != null else 0)
+
+
+# Nabídka obchodu: karty, které hráč v tréninkové kolekci ještě nemá (stejný seed = stejná nabídka).
+func roll_shop_offers(state: Dictionary, rng_seed: int) -> Array[StringName]:
+	var owned := get_collection_card_ids(state)
+	var candidates: Array[StringName] = []
+	for card_id in get_all_collectible_card_ids():
+		if not owned.has(card_id):
+			candidates.append(card_id)
+	candidates.sort()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = rng_seed
+	var offers: Array[StringName] = []
+	while not candidates.is_empty() and offers.size() < SHOP_OFFER_COUNT:
+		offers.append(candidates.pop_at(rng.randi_range(0, candidates.size() - 1)))
+	return offers
+
+
+# Prázdný řetězec = koupeno (karta je v kolekci, šupiny odečtené); jinak důvod pro hráče.
+func buy_card(state: Dictionary, card_id: StringName) -> String:
+	if get_collection_card_ids(state).has(card_id):
+		return "Kartu už máš."
+	if not get_all_collectible_card_ids().has(card_id):
+		return "Tahle karta se neprodává."
+	var price := get_card_price(card_id)
+	if get_scales(state) < price:
+		return "Chybí šupiny (%s/%s)." % [get_scales(state), price]
+	state[KEY_SCALES] = get_scales(state) - price
+	var collection := _copy_card_id_array(state.get(KEY_COLLECTION, []))
+	collection.append(card_id)
+	state[KEY_COLLECTION] = collection
+	return ""
+
+
 func get_training_unlock_card_ids(encounter_id: StringName) -> Array[StringName]:
 	var ids: Array[StringName] = []
 	for card_id in TRAINING_CARD_UNLOCKS.get(encounter_id, []):
@@ -525,6 +582,7 @@ func _make_default_state() -> Dictionary:
 		KEY_TRAINING_CLEARED: 0,
 		KEY_COLLECTION: [],
 		KEY_PVP_DECK: [],
+		KEY_SCALES: 0,
 	}
 
 
@@ -539,6 +597,7 @@ func _sanitize_state(state: Dictionary) -> Dictionary:
 	next_state[KEY_TRAINING_CLEARED] = get_training_cleared(state)
 	next_state[KEY_COLLECTION] = _copy_card_id_array(state.get(KEY_COLLECTION, []))
 	next_state[KEY_PVP_DECK] = _copy_card_id_array(state.get(KEY_PVP_DECK, []))
+	next_state[KEY_SCALES] = maxi(0, int(state.get(KEY_SCALES, 0)))
 	return next_state
 
 
