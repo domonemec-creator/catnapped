@@ -42,7 +42,7 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 - Oblast: karty, pravidla, AI
 - Soubory: `data/cards/sardine_can.tres` (trik za 0: „Získáš 2 Tuny navíc v tomto tahu“), nová akce `gain_tuna` v `battle_controller._resolve_instant_card_effects`, AI `_gain_tuna_unlocks_card` (hraje ji jen když hned odemkne dražší kartu z ruky, jinak drží), odemyká ji výhra nad Věštkyní, `PROTOCOL_VERSION` 2 (jiná sada karet = starý build se nepřipojí), `tools/verify_sardine_can.gd`.
 - Proč: Markův nápad na karty, které doplní Tunu během kola; dává skok na dražší kartu dřív.
-- Art zatím chybí (karta má rub s tlapkou), prompt v `design/art_prompt_2026-10-22.md`.
+- Art od Marka (22. 10. večer): `card_art/sardine_can.png`, výřez x 110, y 220, šířka 880 a zpět na 1024×1536, aby plechovka padla do horní části karty.
 - Ověření: 24/24 verifierů. Balanc v balících soupeřů zatím není (žádný ji nemá); měřit v simu balík proti balíku (E6).
 
 ### 2026-10-22 - Balanc: méně výměn 1:1 (E1, Claude Opus 5.5)
