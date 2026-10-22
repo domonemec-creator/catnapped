@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Export: Windows build (Claude Opus 5.5)
+- Oblast: distribuce (test hry ve dvou)
+- Změna: s Markovým souhlasem staženy oficiální export templates 4.6.2 (SHA512 ověřen), nainstalovány jen Windows x86_64. `build/Catnapped.exe` (v .gitignore) vyexportován headless.
+- Ověření: exe naběhne (`--headless --quit-after 180`, exit 0, bez chyb).
+
 ### 2026-10-22 - Art: arch C ve hře (Claude Opus 5.5)
 - Oblast: art
 - Soubory: `assets/card_game/card_art/` (spiked_collar, war_plate, watchmans_bell, tavern_bouncer, portrait_rival, harbor_courier, net_mender, cannon_cat, fish_market)

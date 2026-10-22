@@ -27,11 +27,12 @@
   - MP: opravy z code review, `PROTOCOL_VERSION` + kontrola balíku klienta (jiná verze = odmítnutí s hláškou), test pádu klienta i hostitele (`NET_DROP`, `NET_DROP_ROLE`).
   - Windowed `smoke_full_flow` OK.
 - Odpoledne: arch C ve hře (všech 9 obrázků, i portrét soupeře ve hře ve dvou).
-- Čeká na Marka: export templates 4.6.2, test dvou PC přes Radmin.
+- Export: šablony 4.6.2 (jen Windows x86_64) v `%APPDATA%\Godot\export_templates.6.2.stable\`; `build/Catnapped.exe` (218 MB, pck uvnitř) vyexportovaný a spustitelný. Nový build: `Godot --headless --path . --export-release "Windows Desktop" build/Catnapped.exe`.
+- Čeká na Marka: test dvou PC přes Radmin.
 
 ## Další krok
 1. Lidský test #4 (Mark + kamarád přes Radmin VPN): oba spustí hru → „Hra ve dvou“. Jeden „Hostovat hru“ (Windows firewall: povolit), druhý zadá jeho IP 26.x.x.x → „Připojit se“. Dohrát zápas. Hlásit: připojení, zpoždění, nečitelné tahy soupeře, chyby.
-   - Kamarád potřebuje hru: buď `.exe` (Mark v editoru: Editor → Manage Export Templates → Download 4.6.2, pak Project → Export → Windows Desktop; preset `build/Catnapped.exe` je připravený), nebo Godot 4.6.2 + `git clone https://github.com/domonemec-creator/catnapped.git`. Oba musí mít **stejnou verzi** (stejný commit / stejný .exe); jinak hostitel připojení odmítne s hláškou o verzi.
+   - Kamarád potřebuje hru: buď `build/Catnapped.exe` (stačí poslat ten jeden soubor; oba hrají stejný .exe), nebo Godot 4.6.2 + `git clone https://github.com/domonemec-creator/catnapped.git`. Oba musí mít **stejnou verzi** (stejný commit / stejný .exe); jinak hostitel připojení odmítne s hláškou o verzi.
    - Sólo checklist (5 min): Balík a postup → přidat/odebrat kartu (+/−), zkusit „Smazat postup“ (chce 2 kliky; NEdokončovat, pokud chceš save). Trénink: porazit 1. soupeře → hláška o odemčeném soupeři a nových kartách v kolekci. V souboji: mezerník = konec tahu, F11 = celá obrazovka, Rybí trh se hraje druhým klikem.
 2. Art: archy A, B, C jsou ve hře (2026-10-22). Další art jen pozadí/logo (`design/polish_assets_2026-10.md`). Řezání: `slice_art_sheet.gd -- <arch> id1,...,id9`, pak `--headless --import`.
 3. MP v1 limity: záznam akcí ve 3. osobě.
