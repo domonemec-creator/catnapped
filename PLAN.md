@@ -51,6 +51,8 @@
 - [x] E1 Méně výměn 1:1 (Mark: „pořád se to jen mlátilo dokola“): přeladit statistiky koček, víc koček s životy nad útokem stejné ceny; měřit `smrt obou` v `sim_ai_matches.gd` (teď 26–48 %, cíl pod 30 %)
 - [x] E2 Tuna karty: trik „Sardinková konzerva“ (+2 Tuna jen v tomto kole) a podobné; umožní dřív větší kočky = méně zrcadlových výměn
 - [ ] E3 Obchod: měna za výhry (trénink i hra ve dvou), 3 nabídky po každém zápase; nahradí část automatického odemykání
+  - Návrh (Claude 22. 10., zatím neimplementováno): měna „rybí šupiny“ v save (`KEY_SCALES`). Výhra v tréninku 10 + 5 × stupeň soupeře, prohra 3, hra ve dvou 5 za zápas. Po zápase 3 náhodné karty mimo tréninkovou kolekci, cena 5 + 5 × cena karty, nákup = karta do `KEY_COLLECTION`. Automatické odemykání (`TRAINING_CARD_UNLOCKS`) zkrátit na 2 karty za soupeře, zbytek jen obchodem.
+  - Kde: logika v `progression_system.gd` (get/add šupin, `roll_shop_offers(state, seed)`, `buy_card`), UI na výsledkové obrazovce (`battle_overlay_presenter`) a stav šupin v Balík a postup. Verifier `verify_shop.gd` jen na testovacím save.
 - [ ] E4 Sbírka v1 kolem 60 karet: ~40 koček, ~12 triků (vč. Tuna karet), ~8 předmětů. Teď 47
 - [x] E5 Hra ve dvou: každý má všechny karty (balík z celé sbírky); obchod a odemykání jen v tréninku
 - [x] E6 Sim balík proti balíku (hráčské balíky, ne NPC): hlídat, že žádná karta ani balík nedominuje. Nové karty po sadách 15–20, každá sada projde simulací
