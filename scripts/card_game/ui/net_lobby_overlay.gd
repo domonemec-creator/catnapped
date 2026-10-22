@@ -166,7 +166,7 @@ func _player_name() -> String:
 
 func _player_deck() -> Array[StringName]:
 	var progression := ProgressionSystem.new()
-	return progression.get_player_deck_card_ids(progression.load_state())
+	return progression.get_deck_card_ids(progression.load_state(), true)
 
 
 func _default_name() -> String:

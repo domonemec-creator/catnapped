@@ -1,6 +1,6 @@
 extends SceneTree
 
-# Screenshot Balík a postup s náhledem karty u myši (S oknem): -- "<abs cesta>.png" [card_id]
+# Screenshot Balík a postup s náhledem karty u myši (S oknem): -- "<abs cesta>.png" [card_id] [pvp]
 
 func _init() -> void:
 	call_deferred("_run")
@@ -14,6 +14,9 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 	var card_id := StringName(args[1]) if args.size() > 1 else &"dockside_bruiser"
+	if args.size() > 2 and args[2] == "pvp":
+		screen._toggle_pvp_mode()
+		await process_frame
 	Input.warp_mouse(Vector2(400, 500))
 	await process_frame
 	screen._show_hover_preview(screen._card_library.get(card_id))

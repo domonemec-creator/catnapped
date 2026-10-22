@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Hra ve dvou: vlastní balík ze všech karet (E5, Claude Opus 5.5)
+- Oblast: postup, Balík a postup, lobby
+- Soubory: `progression_system.gd` (`KEY_PVP_DECK`, `get_deck_card_ids/set_deck_card_ids(…, pvp)`, `get_all_collectible_card_ids()` přes `ResourceLoader.list_directory`, add/remove s parametrem `pvp`), `progression_screen.gd` (tlačítko „Přepnout na hru ve dvou / na trénink“, v režimu hry ve dvou kolekce = všechny karty bez žetonů a balík nejde zamknout výpravou), `net_lobby_overlay.gd` (posílá balík pro hru ve dvou), `capture_progression_hover.gd` (3. argument `pvp`), `verify_deck_building.gd`.
+- Proč: D-025, ve hře ve dvou má každý všechny karty; trénink a jeho odemykání zůstávají beze změny. Dokud hráč balík pro hru ve dvou neupraví, je to kopie tréninkového.
+- Ověření: 24/24 verifierů, `net_smoke` host+klient shodný výsledek, screenshot `artifacts/progression_pvp.png`.
+
 ### 2026-10-22 - Tuna karta: Sardinková konzerva (E2, Claude Opus 5.5)
 - Oblast: karty, pravidla, AI
 - Soubory: `data/cards/sardine_can.tres` (trik za 0: „Získáš 2 Tuny navíc v tomto tahu“), nová akce `gain_tuna` v `battle_controller._resolve_instant_card_effects`, AI `_gain_tuna_unlocks_card` (hraje ji jen když hned odemkne dražší kartu z ruky, jinak drží), odemyká ji výhra nad Věštkyní, `PROTOCOL_VERSION` 2 (jiná sada karet = starý build se nepřipojí), `tools/verify_sardine_can.gd`.

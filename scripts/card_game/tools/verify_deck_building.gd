@@ -84,6 +84,29 @@ func _run() -> void:
 		_fail("Tlačítko + v kolekci neuložilo kartu do balíku.")
 		return
 
+	# Hra ve dvou (E5): vlastní balík ze všech karet, tréninkový se nemění.
+	var all_ids := progression.get_all_collectible_card_ids()
+	if not all_ids.has(&"cannon_cat") or not all_ids.has(&"sardine_can") or all_ids.has(&"stray_token"):
+		_fail("Všechny karty pro hru ve dvou nesedí (chybí karta, nebo je tam žeton).")
+		return
+	var training_before := progression.get_player_deck_card_ids(progression.load_state())
+	screen._toggle_pvp_mode()
+	await process_frame  # staré řádky mizí přes queue_free
+	if screen._collection_list.get_child_count() != all_ids.size():
+		_fail("Kolekce ve hře ve dvou neukazuje všechny karty (%s/%s)." % [screen._collection_list.get_child_count(), all_ids.size()])
+		return
+	screen._change_deck(&"cannon_cat", true)
+	var after_state := progression.load_state()
+	if not progression.get_deck_card_ids(after_state, true).has(&"cannon_cat"):
+		_fail("Karta se nepřidala do balíku pro hru ve dvou.")
+		return
+	if progression.get_player_deck_card_ids(after_state) != training_before:
+		_fail("Úprava balíku pro hru ve dvou změnila tréninkový balík.")
+		return
+	if progression.get_collection_card_ids(after_state).has(&"cannon_cat") and not training_before.has(&"cannon_cat"):
+		_fail("Karta z balíku pro hru ve dvou prosákla do tréninkové kolekce.")
+		return
+
 	screen.queue_free()
 	progression.reset_state()
 	print("Deck building verification passed.")

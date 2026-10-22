@@ -21,6 +21,9 @@ const KEY_PLAYER_DECK := "player_deck_card_ids"
 const KEY_TUTORIAL_SEEN := "battle_tutorial_seen"
 const KEY_TRAINING_CLEARED := "training_cleared"
 const KEY_COLLECTION := "collection_card_ids"
+# Hra ve dvou (E5, D-025): vlastní balík ze všech karet; prázdný = zatím kopie tréninkového.
+const KEY_PVP_DECK := "pvp_deck_card_ids"
+const CARDS_DIR := "res://data/cards"
 
 # Stavění balíku (D2): kolekce = startovní karty + odemčené tréninkem + vše, co kdy bylo v balíku.
 const DECK_MIN_SIZE := 20
@@ -253,6 +256,7 @@ func load_state() -> Dictionary:
 	state[KEY_TUTORIAL_SEEN] = bool(config.get_value(SECTION_PROGRESS, KEY_TUTORIAL_SEEN, false))
 	state[KEY_TRAINING_CLEARED] = int(config.get_value(SECTION_PROGRESS, KEY_TRAINING_CLEARED, 0))
 	state[KEY_COLLECTION] = _copy_card_id_array(config.get_value(SECTION_PROGRESS, KEY_COLLECTION, []))
+	state[KEY_PVP_DECK] = _copy_card_id_array(config.get_value(SECTION_PROGRESS, KEY_PVP_DECK, []))
 	return state
 
 
@@ -271,6 +275,7 @@ func save_state(state: Dictionary) -> void:
 		if not collection.has(card_id):
 			collection.append(card_id)
 	config.set_value(SECTION_PROGRESS, KEY_COLLECTION, _to_string_array(collection))
+	config.set_value(SECTION_PROGRESS, KEY_PVP_DECK, _to_string_array(sanitized[KEY_PVP_DECK]))
 	var save_error := config.save(_save_path())
 	if save_error != OK:
 		push_warning("Could not save progression to %s." % _save_path())
@@ -351,8 +356,40 @@ func mark_training_win(state: Dictionary, encounter_id: StringName) -> StringNam
 	return TRAINING_ORDER[index + 1] if index + 1 < TRAINING_ORDER.size() else StringName()
 
 
+# Balík pro trénink, nebo (pvp) pro hru ve dvou.
+func get_deck_card_ids(state: Dictionary, pvp: bool = false) -> Array[StringName]:
+	if pvp:
+		var pvp_ids := _copy_card_id_array(_sanitize_state(state).get(KEY_PVP_DECK, []))
+		if not pvp_ids.is_empty():
+			return pvp_ids
+	return get_player_deck_card_ids(state)
+
+
+func set_deck_card_ids(state: Dictionary, card_ids: Array[StringName], pvp: bool = false) -> Dictionary:
+	if not pvp:
+		return set_player_deck_card_ids(state, card_ids)
+	var next_state := _sanitize_state(state)
+	next_state[KEY_PVP_DECK] = _copy_card_id_array(card_ids)
+	return next_state
+
+
+# Všechny sběratelné karty (hra ve dvou): vše v data/cards kromě žetonů.
+func get_all_collectible_card_ids() -> Array[StringName]:
+	var ids: Array[StringName] = []
+	for file_name in ResourceLoader.list_directory(CARDS_DIR):
+		if not file_name.ends_with(".tres"):
+			continue
+		var card_id := StringName(file_name.get_basename())
+		if String(card_id).ends_with("_token"):
+			continue
+		ids.append(card_id)
+	return ids
+
+
 # Unikátní id karet, které hráč smí dát do balíku.
-func get_collection_card_ids(state: Dictionary) -> Array[StringName]:
+func get_collection_card_ids(state: Dictionary, pvp: bool = false) -> Array[StringName]:
+	if pvp:
+		return get_all_collectible_card_ids()
 	var ids: Array[StringName] = []
 	var sources: Array = [_load_starter_deck_card_ids(), _copy_card_id_array(state.get(KEY_COLLECTION, [])), get_player_deck_card_ids(state)]
 	var cleared := get_training_cleared(state)
@@ -377,9 +414,9 @@ func get_card_copy_limit(card_id: StringName) -> int:
 
 
 # Prázdný řetězec = karta jde přidat; jinak důvod pro hráče.
-func get_add_block_reason(state: Dictionary, card_id: StringName) -> String:
-	var deck := get_player_deck_card_ids(state)
-	if not get_collection_card_ids(state).has(card_id):
+func get_add_block_reason(state: Dictionary, card_id: StringName, pvp: bool = false) -> String:
+	var deck := get_deck_card_ids(state, pvp)
+	if not get_collection_card_ids(state, pvp).has(card_id):
 		return "Kartu ještě nemáš v kolekci."
 	if deck.size() >= DECK_MAX_SIZE:
 		return "Balík je plný (%s karet)." % DECK_MAX_SIZE
@@ -388,25 +425,25 @@ func get_add_block_reason(state: Dictionary, card_id: StringName) -> String:
 	return ""
 
 
-func add_card_to_deck(state: Dictionary, card_id: StringName) -> Dictionary:
-	if not get_add_block_reason(state, card_id).is_empty():
+func add_card_to_deck(state: Dictionary, card_id: StringName, pvp: bool = false) -> Dictionary:
+	if not get_add_block_reason(state, card_id, pvp).is_empty():
 		return state
-	var deck := get_player_deck_card_ids(state)
+	var deck := get_deck_card_ids(state, pvp)
 	deck.append(card_id)
-	return set_player_deck_card_ids(state, deck)
+	return set_deck_card_ids(state, deck, pvp)
 
 
-func can_remove_from_deck(state: Dictionary, card_id: StringName) -> bool:
-	var deck := get_player_deck_card_ids(state)
+func can_remove_from_deck(state: Dictionary, card_id: StringName, pvp: bool = false) -> bool:
+	var deck := get_deck_card_ids(state, pvp)
 	return deck.has(card_id) and deck.size() > DECK_MIN_SIZE
 
 
-func remove_card_from_deck(state: Dictionary, card_id: StringName) -> Dictionary:
-	if not can_remove_from_deck(state, card_id):
+func remove_card_from_deck(state: Dictionary, card_id: StringName, pvp: bool = false) -> Dictionary:
+	if not can_remove_from_deck(state, card_id, pvp):
 		return state
-	var deck := get_player_deck_card_ids(state)
+	var deck := get_deck_card_ids(state, pvp)
 	deck.erase(card_id)
-	return set_player_deck_card_ids(state, deck)
+	return set_deck_card_ids(state, deck, pvp)
 
 
 func has_seen_battle_tutorial(state: Dictionary) -> bool:
@@ -487,6 +524,7 @@ func _make_default_state() -> Dictionary:
 		KEY_TUTORIAL_SEEN: false,
 		KEY_TRAINING_CLEARED: 0,
 		KEY_COLLECTION: [],
+		KEY_PVP_DECK: [],
 	}
 
 
@@ -500,6 +538,7 @@ func _sanitize_state(state: Dictionary) -> Dictionary:
 	next_state[KEY_TUTORIAL_SEEN] = bool(state.get(KEY_TUTORIAL_SEEN, false))
 	next_state[KEY_TRAINING_CLEARED] = get_training_cleared(state)
 	next_state[KEY_COLLECTION] = _copy_card_id_array(state.get(KEY_COLLECTION, []))
+	next_state[KEY_PVP_DECK] = _copy_card_id_array(state.get(KEY_PVP_DECK, []))
 	return next_state
 
 

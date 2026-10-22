@@ -33,6 +33,9 @@ var _reset_button: Button
 var _reset_armed := false
 var _back_button: Button
 var _hover_preview: Control  # velká karta u myši při najetí na řádek
+var _pvp_mode := false  # true = balík pro hru ve dvou ze všech karet (E5)
+var _deck_title: Label
+var _mode_button: Button
 
 
 func _ready() -> void:
@@ -206,10 +209,18 @@ func _build_ui() -> void:
     deck_vbox.add_theme_constant_override("separation", 10)
     deck_margin.add_child(deck_vbox)
 
-    var deck_title := Label.new()
-    deck_title.text = "Balík"
-    _style_label(deck_title, 24, Color(0.96, 0.88, 0.73, 1))
-    deck_vbox.add_child(deck_title)
+    var title_row := HBoxContainer.new()
+    title_row.add_theme_constant_override("separation", 12)
+    deck_vbox.add_child(title_row)
+    _deck_title = Label.new()
+    _deck_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    _style_label(_deck_title, 24, Color(0.96, 0.88, 0.73, 1))
+    title_row.add_child(_deck_title)
+    _mode_button = _make_small_button("", true, "Trénink a hra ve dvou mají každý svůj balík.")
+    _mode_button.add_theme_font_size_override("font_size", 16)
+    _mode_button.custom_minimum_size = Vector2(230, 40)
+    _mode_button.pressed.connect(_toggle_pvp_mode)
+    title_row.add_child(_mode_button)
 
     _deck_note = Label.new()
     _style_label(_deck_note, 15, Color(0.88, 0.79, 0.64, 0.95), true)
@@ -279,12 +290,18 @@ func _refresh_ui() -> void:
     _win_label.text = "Výhry: %s" % _progression_system.get_win_count(_progression_state)
     _loss_label.text = "Prohry: %s" % _progression_system.get_loss_count(_progression_state)
 
-    var deck_card_ids: Array[StringName] = _progression_system.get_player_deck_card_ids(_progression_state)
+    var deck_card_ids: Array[StringName] = _progression_system.get_deck_card_ids(_progression_state, _pvp_mode)
     _deck_total_label.text = "Velikost balíku: %s" % deck_card_ids.size()
+    _deck_title.text = "Balík pro hru ve dvou" if _pvp_mode else "Balík pro trénink"
+    _mode_button.text = "Přepnout na trénink" if _pvp_mode else "Přepnout na hru ve dvou"
     _refresh_run_label()
     var locked := _is_deck_locked()
     if locked:
         _deck_note.text = "Během výpravy balík upravit nejde (mění ho odměny)."
+    elif _pvp_mode:
+        _deck_note.text = "Ve hře ve dvou máš všechny karty. %s až %s karet, nejvýš %s kopie. Změny se ukládají hned." % [
+            ProgressionSystem.DECK_MIN_SIZE, ProgressionSystem.DECK_MAX_SIZE, ProgressionSystem.MAX_COPIES,
+        ]
     else:
         _deck_note.text = "%s až %s karet, nejvýš %s kopie stejné karty. Změny se ukládají hned." % [
             ProgressionSystem.DECK_MIN_SIZE, ProgressionSystem.DECK_MAX_SIZE, ProgressionSystem.MAX_COPIES,
@@ -293,7 +310,14 @@ func _refresh_ui() -> void:
     _refresh_collection_list(deck_card_ids, locked)
 
 
+func _toggle_pvp_mode() -> void:
+    _pvp_mode = not _pvp_mode
+    _refresh_ui()
+
+
 func _is_deck_locked() -> bool:
+    if _pvp_mode:
+        return false  # výprava mění jen tréninkový balík
     var run_session = _get_run_session()
     return run_session != null and run_session.is_active()
 
@@ -301,12 +325,12 @@ func _is_deck_locked() -> bool:
 func _refresh_collection_list(deck_card_ids: Array[StringName], locked: bool) -> void:
     for child in _collection_list.get_children():
         child.queue_free()
-    var ids := _progression_system.get_collection_card_ids(_progression_state)
+    var ids := _progression_system.get_collection_card_ids(_progression_state, _pvp_mode)
     ids.sort_custom(_compare_cards)
     for card_id in ids:
         var limit := _progression_system.get_card_copy_limit(card_id)
         var row := _build_card_row(_collection_list, card_id, "%s/%s" % [deck_card_ids.count(card_id), limit])
-        var reason := "Během výpravy nejde." if locked else _progression_system.get_add_block_reason(_progression_state, card_id)
+        var reason := "Během výpravy nejde." if locked else _progression_system.get_add_block_reason(_progression_state, card_id, _pvp_mode)
         var add_button := _make_small_button("+", reason.is_empty(), reason if not reason.is_empty() else "Přidat do balíku")
         add_button.pressed.connect(_change_deck.bind(card_id, true))
         row.add_child(add_button)
@@ -326,9 +350,9 @@ func _change_deck(card_id: StringName, add: bool) -> void:
     if _is_deck_locked():
         return
     if add:
-        _progression_state = _progression_system.add_card_to_deck(_progression_state, card_id)
+        _progression_state = _progression_system.add_card_to_deck(_progression_state, card_id, _pvp_mode)
     else:
-        _progression_state = _progression_system.remove_card_from_deck(_progression_state, card_id)
+        _progression_state = _progression_system.remove_card_from_deck(_progression_state, card_id, _pvp_mode)
     _progression_system.save_state(_progression_state)
     _refresh_ui()
 
@@ -467,7 +491,7 @@ func _refresh_deck_list(deck_card_ids: Array[StringName]) -> void:
     card_order.sort_custom(_compare_cards)
     for card_id in card_order:
         var row := _build_card_row(_deck_list, card_id, "%sx" % card_counts.get(card_id, 0))
-        var can_remove := not locked and _progression_system.can_remove_from_deck(_progression_state, card_id)
+        var can_remove := not locked and _progression_system.can_remove_from_deck(_progression_state, card_id, _pvp_mode)
         var tip := "Odebrat z balíku" if can_remove else ("Během výpravy nejde." if locked else "Balík má minimum %s karet." % ProgressionSystem.DECK_MIN_SIZE)
         var remove_button := _make_small_button("−", can_remove, tip)
         remove_button.pressed.connect(_change_deck.bind(card_id, false))
