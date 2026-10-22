@@ -36,6 +36,9 @@ const STARTING_HAND := 3
 const PLAYER_DECK_ID := &"starter_player"
 # D-020: Tuna na konci zápasu nemá k čemu sloužit → „Objednat rundu“ (3 Tuny: lízni kartu).
 const PLAYER_TABLE_POWER_ID := &"order_round"
+# Hra ve dvou (D-026): druhý na tahu dostane životy navíc a „minci“ do ruky (sim: první 62 → 50 % výher).
+const NET_SECOND_LIFE_BONUS := 2
+const NET_SECOND_COIN_ID := &"sardine_can"
 const ENCOUNTER_PATH := "res://data/encounters/smug_tabby.tres"
 const DEFAULT_ENCOUNTER_ID := &"smug_tabby"
 const ENCOUNTER_SELECT_SCENE_PATH := "res://scenes/card_game/encounter_select.tscn"
@@ -1144,6 +1147,13 @@ func _setup_battle() -> void:
 
 	_deck_system.draw_cards(player_state, CardGameConstants.starting_hand)
 	_deck_system.draw_cards(enemy_state, CardGameConstants.starting_hand + (1 if _get_difficulty_tier() >= TIER_EXTRA_CARD_FROM else 0))
+	if _net != null:
+		var second_state := player_state if _battle_state.active_player_id == ENEMY_ID else enemy_state
+		second_state.life += NET_SECOND_LIFE_BONUS
+		second_state.max_life += NET_SECOND_LIFE_BONUS
+		var coin := _create_card_instance(NET_SECOND_COIN_ID, second_state.player_id)
+		if coin != null:
+			second_state.hand.append(coin)
 
 	enemy_name_label.text = _build_enemy_header_name(enemy_state.display_name)
 	# Portrét v levém sloupci: výřez na hlavu podle poměru stran rámu.

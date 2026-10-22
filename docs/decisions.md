@@ -195,3 +195,12 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Rozhodnutí: pravidla souboje zůstávají (D-014). Výměny snížit obsahem: E1 přeladění statistik, E2 Tuna karty, E3 obchod, E4 sbírka ~60 karet (PLAN fáze E). Měřítko: řádek `smrt obou` v `sim_ai_matches.gd`.
 - Doplněno (Mark: „ve PvP budou silní protivníci“): ve hře ve dvou má každý všechny karty (férovost mezi kamarády), obchod a odemykání jsou postup jen v tréninku. Nové karty po sadách 15–20, balanc ověřený simulací balík proti balíku (E6).
 - E1 hotovo (2026-10-22): levné kočky mají víc životů než útok (pravidlo: kočka nezabije stejně drahou kočku jednou ranou, výjimkou jsou „skleněná děla“ Akrobat 3/3/2 a Trámový skokan 3/4/2). Změny: Uliční rváč 3/2 → 2/3, Hospodský myšilov 2/3 → 1/4, Rybokostěný plíživec a Lampář 2/2 → 1/3, Síťový nájezdník a Přístavní hrdlořez 3/3 → 2/4, Harpunář 3/3 → 3/4, Lamač doků 5/4 → 4/6. Sim 120: smrt obou 15–29 % (dřív 26–48 %), zápasy o 1–6 kol delší, bez timeoutů.
+
+### D-026 - Hra ve dvou: druhý na tahu dostane +2 životy a Sardinkovou konzervu
+- Datum: 2026-10-22
+- Stav: aktivni
+- Kontext: nová simulace balík proti balíku (`tools/sim_deck_vs_deck.gd -- 40 all`, všech 7 balíků každý s každým, obě pořadí) ukázala, že kdo začíná, vyhraje 62 % zápasů. Ve hře ve dvou mezi kamarády je to nefér.
+- Zkoušeno (stejná simulace, 1680 her): jen konzerva do ruky 58,2 %, konzerva + karta navíc 63,6 % (dřív se vyčerpá balík), **konzerva + 2 životy 50,1 %**.
+- Rozhodnutí: ve hře ve dvou dostane druhý na tahu +2 životy (12 místo 10) a Sardinkovou konzervu do ruky (jako mince). Konstanty `NET_SECOND_LIFE_BONUS`, `NET_SECOND_COIN_ID` v `battle_controller.gd`. Trénink beze změny (má vlastní žebříček, D-022).
+- Další zjištění ze simulace: Stokový král (79,6 %) a Lucernová útočnice (77,1 %) jsou nejsilnější balíky, Namyšlený kocour nejslabší (16,3 %); startovní balík 30,2 %. Pro hru ve dvou to nevadí (hráči si skládají vlastní), pro tréninkový žebříček je to záměr.
+

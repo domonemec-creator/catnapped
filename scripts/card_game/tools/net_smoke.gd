@@ -56,6 +56,16 @@ func _run() -> void:
 	var battle = (load(BATTLE_SCENE) as PackedScene).instantiate()
 	root.add_child(battle)
 	current_scene = battle
+	# D-026: druhý na tahu má +2 životy a Sardinkovou konzervu (host stůl staví, klient ho dostane snímkem).
+	if _role == "host":
+		await process_frame
+		var opening = battle._battle_state
+		var second = opening.get_player_state(battle.ENEMY_ID if battle._net.host_goes_first() else battle.PLAYER_ID)
+		var has_coin: bool = second.hand.any(func(c): return c.definition.id == battle.NET_SECOND_COIN_ID)
+		print("NET START druhý na tahu: životy=%s mince=%s" % [second.life, has_coin])
+		if second.life != battle.STARTING_LIFE + battle.NET_SECOND_LIFE_BONUS or not has_coin:
+			_finish("NET FAIL druhý na tahu nedostal kompenzaci", 1)
+			return
 	# NET_REMATCH=1: po prvním zápase odveta (klient požádá, host spustí) a hraje se znovu.
 	var games_left := 2 if OS.get_environment("NET_REMATCH") != "" else 1
 	while Time.get_ticks_msec() - start < TIMEOUT_MSEC * games_left:

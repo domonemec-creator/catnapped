@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Sim balík proti balíku, kompenzace druhého na tahu (E6, D-026, Claude Opus 5.5)
+- Oblast: nástroje, hra ve dvou
+- Soubory: `tools/sim_deck_vs_deck.gd` (nový: `-- <hry> <A> <B>` nebo `-- <hry> all`; volby `coin[=id]`, `extraN`, `lifeN` pro druhého na tahu), `battle_controller._setup_battle` (ve hře ve dvou druhý na tahu +2 životy a konzerva do ruky), `tools/net_smoke.gd` (host kontroluje kompenzaci, `NET START`).
+- Proč: první na tahu vyhrával 62 %; s kompenzací 50,1 % (D-026).
+- Ověření: 24/24 verifierů, `net_smoke` host+klient (`NET START druhý na tahu: životy=12 mince=true`, shodný výsledek).
+
 ### 2026-10-22 - Hra ve dvou: vlastní balík ze všech karet (E5, Claude Opus 5.5)
 - Oblast: postup, Balík a postup, lobby
 - Soubory: `progression_system.gd` (`KEY_PVP_DECK`, `get_deck_card_ids/set_deck_card_ids(…, pvp)`, `get_all_collectible_card_ids()` přes `ResourceLoader.list_directory`, add/remove s parametrem `pvp`), `progression_screen.gd` (tlačítko „Přepnout na hru ve dvou / na trénink“, v režimu hry ve dvou kolekce = všechny karty bez žetonů a balík nejde zamknout výpravou), `net_lobby_overlay.gd` (posílá balík pro hru ve dvou), `capture_progression_hover.gd` (3. argument `pvp`), `verify_deck_building.gd`.
