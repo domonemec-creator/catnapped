@@ -28,6 +28,7 @@
   - Windowed `smoke_full_flow` OK.
 - Odpoledne: arch C ve hře (všech 9 obrázků, i portrét soupeře ve hře ve dvou).
 - Export: šablony 4.6.2 (jen Windows x86_64) v `%APPDATA%\Godot\export_templates.6.2.stable\`; `build/Catnapped.exe` (218 MB, pck uvnitř) vyexportovaný a spustitelný. Nový build: `Godot --headless --path . --export-release "Windows Desktop" build/Catnapped.exe`.
+- Mark 22. 10. odpoledne hrál `.exe` (stůl shora): Namyšlený kocour výhra, Lucernová útočnice výhra, Ragclaw rváč prohra v 5. kole (10 vs 14 životů, 3 kočky soupeře naráz). Odpovídá žebříčku, bez hlášených chyb.
 - Čeká na Marka: test dvou PC přes Radmin.
 
 ## Další krok
