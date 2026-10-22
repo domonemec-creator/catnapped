@@ -17,6 +17,9 @@ var _busy := false
 var _shot_taken := false
 
 
+var _seen_enemy_plays := {}  # karty soupeře ukázané v pravém panelu
+
+
 func _init() -> void:
 	call_deferred("_run")
 
@@ -54,6 +57,8 @@ func _run() -> void:
 		var state = battle._battle_state
 		if state == null:
 			continue
+		if battle._enemy_last_played != null:
+			_seen_enemy_plays[battle._enemy_last_played.instance_id] = true
 		if state.battle_over:
 			if games_left <= 1:
 				break
@@ -112,7 +117,7 @@ func _run() -> void:
 	var opponent = final_state.get_player_state(battle.ENEMY_ID)
 	var winner: String = "remíza" if final_state.winner_player_id < 0 else (me.display_name if final_state.winner_player_id == battle.PLAYER_ID else opponent.display_name)
 	await create_timer(0.5).timeout
-	_finish("NET RESULT role=%s vítěz=%s %s=%s %s=%s kolo=%s" % [_role, winner, me.display_name, me.life, opponent.display_name, opponent.life, final_state.turn_number], 0)
+	_finish("NET RESULT role=%s vítěz=%s %s=%s %s=%s kolo=%s panel_soupeře=%s" % [_role, winner, me.display_name, me.life, opponent.display_name, opponent.life, final_state.turn_number, _seen_enemy_plays.size()], 0)
 
 
 # Jeden tah za hráče dole (stejná AI jako soupeř v tréninku). Na klientovi akce odcházejí

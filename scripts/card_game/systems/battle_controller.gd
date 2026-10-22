@@ -2524,6 +2524,7 @@ func _apply_net_snapshot(state: BattleState, host_status: String) -> void:
 	var was_my_turn := _battle_state != null and _battle_state.active_player_id == PLAYER_ID
 	var selected_card_id := _selected_card.instance_id if _selected_card != null else -1
 	var selected_attacker_id := _selected_attacker.instance_id if _selected_attacker != null else -1
+	var old_enemy: PlayerBattleState = _battle_state.get_player_state(ENEMY_ID) if _battle_state != null else null
 	_battle_state = state
 	_selected_card = null
 	_selected_attacker = null
@@ -2547,6 +2548,12 @@ func _apply_net_snapshot(state: BattleState, host_status: String) -> void:
 				_selected_attacker = slot.occupant
 	else:
 		_selected_table_power = null
+	if was_my_turn and not my_turn:
+		_enemy_last_played = null
+	if not my_turn and old_enemy != null:
+		var played := _find_net_enemy_play(old_enemy, enemy_state)
+		if played != null:
+			_enemy_last_played = played
 	_enemy_turn_running = not my_turn
 	enemy_name_label.text = enemy_state.display_name
 	# Hlášky hosta mluví z jeho pohledu; obecné věty o tahu nahradí vlastní.
@@ -2566,6 +2573,25 @@ func _apply_net_snapshot(state: BattleState, host_status: String) -> void:
 	_refresh_ui()
 	if state.battle_over:
 		_check_net_battle_end(player_state, enemy_state)
+
+
+# Klient nevidí soupeřovy tahy jako volání, jen nový snímek: najdi kartu, která mezitím přibyla.
+func _find_net_enemy_play(old_state: PlayerBattleState, new_state: PlayerBattleState) -> CardInstance:
+	if new_state.hand.size() >= old_state.hand.size():
+		return null
+	var old_ids := {}
+	for slot in old_state.board:
+		if slot.occupant != null:
+			old_ids[slot.occupant.instance_id] = true
+	for slot in new_state.board:
+		if slot.occupant != null and not old_ids.has(slot.occupant.instance_id):
+			return slot.occupant
+	# Kouzlo skončí v odhazování (kočky tam padají také, ty přeskoč).
+	for i in range(new_state.discard.size() - 1, old_state.discard.size() - 1, -1):
+		var card: CardInstance = new_state.discard[i]
+		if card != null and card.definition != null and card.definition.card_type != CardGameConstants.CardType.CAT:
+			return card
+	return null
 
 
 func _check_net_battle_end(player_state: PlayerBattleState, enemy_state: PlayerBattleState) -> void:
