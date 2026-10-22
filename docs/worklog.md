@@ -19,6 +19,7 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 - Soubory: `tools/net_smoke.gd` (env `NET_DROP=N`), `battle_controller.gd` (`_on_net_disconnected` přepíše i stavový řádek)
 - Změna: `NET_DROP=N` nechá klienta v N. kole tvrdě skončit (OS.kill, bez rozloučení). Host to pozná přes ENet timeout, ukončí zápas, ukáže „Konec hry / Soupeř se odpojil.“ a nečeká donekonečna na tah.
 - Ověření: dvakrát (kolo 3 a 4) host vypsal `NET DROP host stav="Soupeř se odpojil." overlay=true`; všech 23 verifierů.
+- Doplněno: `NET_DROP_ROLE=host` = spadne host; klient ukáže „Spojení s hostitelem se ztratilo.“ a výsledkovou obrazovku (ověřeno).
 
 ### 2026-10-22 - MP: verze protokolu a kontrola balíku klienta (Claude Opus 5.5)
 - Oblast: síťová hra (D-024)

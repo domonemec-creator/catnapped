@@ -20,6 +20,12 @@ var _shot_taken := false
 var _seen_enemy_plays := {}  # karty soupeře ukázané v pravém panelu
 
 
+# Kdo spadne při NET_DROP (env NET_DROP_ROLE, výchozí klient).
+func _drop_role() -> String:
+	var role := OS.get_environment("NET_DROP_ROLE")
+	return role if role != "" else "client"
+
+
 func _init() -> void:
 	call_deferred("_run")
 
@@ -57,9 +63,9 @@ func _run() -> void:
 		var state = battle._battle_state
 		if state == null:
 			continue
-		# NET_DROP=N: klient v N. kole tvrdě skončí (jako pád hry), host musí zápas ukončit sám.
-		if _role == "client" and OS.get_environment("NET_DROP") != "" and state.turn_number >= int(OS.get_environment("NET_DROP")):
-			print("NET DROP klient spadl v kole %s" % state.turn_number)
+		# NET_DROP=N: hráč (NET_DROP_ROLE, výchozí klient) v N. kole tvrdě skončí (jako pád hry), druhý musí zápas ukončit sám.
+		if _role == _drop_role() and OS.get_environment("NET_DROP") != "" and state.turn_number >= int(OS.get_environment("NET_DROP")):
+			print("NET DROP %s spadl v kole %s" % [_role, state.turn_number])
 			OS.kill(OS.get_process_id())
 		if battle._enemy_last_played != null:
 			_seen_enemy_plays[battle._enemy_last_played.instance_id] = true
@@ -118,7 +124,7 @@ func _run() -> void:
 		_finish("NET FAIL souboj neskončil včas (%s)" % _role, 1)
 		return
 	if OS.get_environment("NET_DROP") != "":
-		print("NET DROP host stav=\"%s\" overlay=%s" % [battle.status_label.text, battle.post_match_overlay.visible])
+		print("NET DROP %s stav=\"%s\" overlay=%s" % [_role, battle.status_label.text, battle.post_match_overlay.visible])
 	var me = final_state.get_player_state(battle.PLAYER_ID)
 	var opponent = final_state.get_player_state(battle.ENEMY_ID)
 	var winner: String = "remíza" if final_state.winner_player_id < 0 else (me.display_name if final_state.winner_player_id == battle.PLAYER_ID else opponent.display_name)
