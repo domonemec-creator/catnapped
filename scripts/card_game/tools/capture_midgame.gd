@@ -50,7 +50,12 @@ func _capture() -> void:
 	_place_card(enemy_state, battle._create_card_instance(&"dockside_bruiser", battle.ENEMY_ID), 0, false, true)
 	_place_card(enemy_state, battle._create_card_instance(&"rafter_pouncer", battle.ENEMY_ID), 1, false, true)
 
-	for card_id in [&"candlepaw_scout", &"dock_harpooner", &"netclaw_raider", &"grey_veteran", &"pickpocket"]:
+	# Volitelně 2. argument: karty do ruky oddělené čárkou (kontrola nového artu).
+	var hand_ids: Array = [&"candlepaw_scout", &"dock_harpooner", &"netclaw_raider", &"grey_veteran", &"pickpocket"]
+	var hand_args := OS.get_cmdline_user_args()
+	if hand_args.size() > 1:
+		hand_ids = Array(hand_args[1].split(",", false)).map(func(id): return StringName(id))
+	for card_id in hand_ids:
 		player_state.hand.append(battle._create_card_instance(card_id, battle.PLAYER_ID))
 
 	battle._battle_state.active_player_id = battle.PLAYER_ID

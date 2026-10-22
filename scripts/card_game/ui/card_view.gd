@@ -98,6 +98,7 @@ var _face_keyword_box: PanelContainer
 var _face_keyword: Label
 var _face_keyword_icon: TextureRect
 var _face_badge_text := ""
+var _face_type: Label  # „KOUZLO“ / „PŘEDMĚT“ místo odznaků útoku a životů
 static var _frame_texture_cache: Dictionary = {}
 
 
@@ -244,6 +245,21 @@ func _build_face() -> void:
     _face_name.offset_right = -4
     _face_name.offset_top = -54
     _face_name.offset_bottom = -32
+    _face_type = Label.new()
+    _face_type.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    _face_type.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    _face_type.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    _face_type.add_theme_font_size_override("font_size", 12)
+    _face_type.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+    _face_type.add_theme_constant_override("outline_size", 3)
+    _face.add_child(_face_type)
+    _face_type.anchor_top = 1.0
+    _face_type.anchor_right = 1.0
+    _face_type.anchor_bottom = 1.0
+    _face_type.offset_left = 4
+    _face_type.offset_right = -4
+    _face_type.offset_top = -30
+    _face_type.offset_bottom = -6
     _face_cost = _make_face_badge(Color(0.16, 0.34, 0.62), 0.0, 0.0, 5, 5, 26).get_child(0)
     _face_attack_badge = _make_face_badge(Color(0.7, 0.42, 0.1), 0.0, 1.0, 4, -32, 28)
     _face_attack = _face_attack_badge.get_child(0)
@@ -325,6 +341,9 @@ func _refresh_face(card_definition: CardDefinition, show_stats: bool, badge_text
     _face_life.text = str(card_instance.current_life)
     _face_attack_badge.visible = show_stats
     _face_life_badge.visible = show_stats
+    _face_type.visible = not show_stats
+    _face_type.text = badge_text.to_upper()
+    _face_type.add_theme_color_override("font_color", Color(1.0, 0.62, 0.5) if card_definition.card_type == CardGameConstants.CardType.TRICK else Color(0.6, 0.8, 1.0))
     _face_badge_text = badge_text
     _face_keyword.text = badge_text
     _update_face_keyword_visibility()
