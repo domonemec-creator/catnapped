@@ -114,6 +114,7 @@ func ensure_tutorial_overlay(parent: Control) -> void:
 		[&"paw", Color(0.98, 0.84, 0.5), "Přetáhni kočku z ruky na volné místo dole. Stojí Tunu (modré kolečko)."],
 		[&"attack", Color(0.95, 0.65, 0.3), "Další kolo s ní klikni na soupeřovu lajnu. Prázdná lajna = zásah přímo do soupeře."],
 		[&"guard", Color(0.6, 0.85, 1.0), "Napadená kočka vrací úder svým útokem. Výměny si rozmysli."],
+		[&"battlecry", Color(0.85, 0.75, 0.95), "TRIK a PŘEDMĚT: klikni na kartu a pak na kočku, které má pomoct nebo uškodit."],
 		[&"life", Color(0.95, 0.42, 0.38), "Sraz soupeři životy na nulu dřív, než to udělá on."],
 	]
 	for step in steps:

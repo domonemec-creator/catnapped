@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Tutoriál: řádek o kouzlech a předmětech; smoke celé hry (Claude Opus 5.5)
+- Oblast: onboarding
+- Soubory: `ui/battle_overlay_presenter.gd`
+- Změna: „Jak to hrát“ má 5. krok „TRIK a PŘEDMĚT: klikni na kartu a pak na kočku…“ (ikona battlecry). Dřív tutoriál kouzla vůbec nezmiňoval.
+- Ověření: `capture_tutorial.gd` (okno), `smoke_full_flow.gd` v okně (výprava, zápas 15 kol, bez script errorů), lobby „Hra ve dvou“ screenshotem, všech 23 verifierů.
+
 ### 2026-10-22 - Odměny: cena a co karta dělá přímo na tlačítku (Claude Opus 5.5)
 - Oblast: UI odměny po výhře ve výpravě
 - Soubory: `ui/battle_overlay_presenter.gd` (`_style_reward_button`)
