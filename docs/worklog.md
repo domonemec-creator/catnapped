@@ -14,6 +14,13 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Balanc: méně výměn 1:1 (E1, Claude Opus 5.5)
+- Oblast: karty, balíky soupeřů, verifiery
+- Soubory: 8 karet v `data/cards/` (viz D-025), `data/decks/npc_lantern_striker.tres` (méně Síťových nájezdníků, Rybokostěný → 3× Akrobat), `npc_fog_seer.tres` (Šedý veterán 2 → 1, +1 Svíčkotlapka), `npc_bilge_king.tres` (Lamač doků 2 → 1, +1 Mršinový slídil); 5 verifierů bralo Uličního rváče jako kočku se 2 životy, teď Trámový skokan nebo výpočet z `definition.attack`.
+- Proč: Mark „pořád se to jen mlátilo dokola“; 26–48 % útoků na kočku končilo smrtí obou.
+- Výsledek (sim 120): smrt obou 19,6 / 28,7 / 20,3 / 27,0 / 16,9 / 14,8 %. Žebříček výher AI hráče 68 → 32 → 23 → 17,5 → 9 → 1,3 % (pořadí sedí). Bez úprav balíků byla Lucernová útočnice moc lehká (61 %).
+- Ověření: 23/23 verifierů.
+
 ### 2026-10-22 - Sim: měření výměn 1:1, pokus „útočník první“ (Claude Opus 5.5)
 - Oblast: balanc, pravidla (D-025)
 - Soubory: `card_game_constants.gd` (`attacker_first_strike`, počítadla), `battle_controller.gd` (`_apply_retaliation` počítá útoky a smrt obou), `tools/sim_ai_matches.gd` (argument `firststrike`, řádek „smrt obou“)

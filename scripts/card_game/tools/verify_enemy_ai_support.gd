@@ -100,7 +100,7 @@ func _run() -> void:
     if enemy_wharf_cutthroat_lane_a < 0 or enemy_wharf_cutthroat_lane_b < 0:
         _fail("Enemy Quick Paws cats were not both played to the board.")
         return
-    if player_state.life != 27:
+    if player_state.life != 30 - enemy_wharf_cutthroat_a.definition.attack:
         _fail("Only one newly played Quick Paws cat should attack immediately per turn.")
         return
     var immediate_attack_count := 0
@@ -112,7 +112,7 @@ func _run() -> void:
 
     _reset_battle_state(battle, player_state, enemy_state)
 
-    var player_scrapper = battle._create_card_instance(&"alley_scrapper", battle.PLAYER_ID)
+    var player_scrapper = battle._create_card_instance(&"rafter_pouncer", battle.PLAYER_ID)
     var enemy_hidden_claws = battle._create_card_instance(&"hidden_claws", battle.ENEMY_ID)
     _place_card(player_state, player_scrapper, 1)
     enemy_state.hand.append(enemy_hidden_claws)
@@ -141,7 +141,7 @@ func _run() -> void:
     if not enemy_state.discard.has(enemy_fish_toss):
         _fail("Enemy Fish Toss was not discarded.")
         return
-    if player_state.life != 27:
+    if player_state.life != 30 - enemy_attacker.definition.attack:
         _fail("Enemy Fish Toss did not lead to the expected follow-up attack.")
         return
     if not enemy_attacker.has_attacked:

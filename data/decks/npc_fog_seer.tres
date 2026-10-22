@@ -36,7 +36,7 @@ count = 2
 [sub_resource type="Resource" id="7_entry"]
 script = ExtResource("2_deck_entry")
 card_id = &"candlepaw_scout"
-count = 2
+count = 3
 
 [sub_resource type="Resource" id="8_entry"]
 script = ExtResource("2_deck_entry")
@@ -46,7 +46,7 @@ count = 2
 [sub_resource type="Resource" id="9_entry"]
 script = ExtResource("2_deck_entry")
 card_id = &"grey_veteran"
-count = 2
+count = 1
 [resource]
 script = ExtResource("1_deck_definition")
 id = &"npc_fog_seer"

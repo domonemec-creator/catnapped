@@ -86,7 +86,7 @@ func _run() -> void:
         _fail("Item attachment tracking failed.")
         return
 
-    var enemy_alley = battle._create_card_instance(&"alley_scrapper", battle.ENEMY_ID)
+    var enemy_alley = battle._create_card_instance(&"rafter_pouncer", battle.ENEMY_ID)
     enemy_state.board[1].occupant = enemy_alley
     enemy_alley.lane_index = 1
 

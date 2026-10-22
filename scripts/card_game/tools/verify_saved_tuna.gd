@@ -73,7 +73,7 @@ func _run() -> void:
     _reset_battle_state(battle, player_state, enemy_state)
 
     var player_target = battle._create_card_instance(&"alley_scrapper", battle.PLAYER_ID)
-    var enemy_target = battle._create_card_instance(&"alley_scrapper", battle.ENEMY_ID)
+    var enemy_target = battle._create_card_instance(&"rafter_pouncer", battle.ENEMY_ID)
     if player_target == null or enemy_target == null:
         _fail("Could not create test targets.")
         return
@@ -111,7 +111,7 @@ func _run() -> void:
     _reset_battle_state(battle, player_state, enemy_state)
 
     var enemy_hidden = battle._create_card_instance(&"hidden_claws", battle.ENEMY_ID)
-    var player_cat = battle._create_card_instance(&"alley_scrapper", battle.PLAYER_ID)
+    var player_cat = battle._create_card_instance(&"rafter_pouncer", battle.PLAYER_ID)
     if enemy_hidden == null or player_cat == null:
         _fail("Could not create AI Saved Tuna test cards.")
         return

@@ -54,7 +54,7 @@ func _run() -> void:
 
 	# Harpunář: 2 zranění kočce naproti, zabije 2-životovou kočku.
 	_reset(battle, player_state, enemy_state)
-	var victim = battle._create_card_instance(&"alley_scrapper", battle.ENEMY_ID)
+	var victim = battle._create_card_instance(&"rafter_pouncer", battle.ENEMY_ID)
 	_place(enemy_state, victim, 1)
 	var harpooner = battle._create_card_instance(&"dock_harpooner", battle.PLAYER_ID)
 	player_state.hand.append(harpooner)
@@ -83,7 +83,7 @@ func _run() -> void:
 	var drummer = battle._create_card_instance(&"harbor_drummer", battle.PLAYER_ID)
 	player_state.hand.append(drummer)
 	battle._play_card_to_lane(player_state, 1, drummer)
-	if left.current_attack != 4 or right.current_attack != 4:
+	if left.current_attack != left.definition.attack + 1 or right.current_attack != right.definition.attack + 1:
 		_fail("Harbor Drummer should give adjacent cats +1 attack.")
 		return
 	if drummer.current_attack != 3:
