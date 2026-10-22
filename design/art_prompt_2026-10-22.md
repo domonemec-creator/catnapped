@@ -4,7 +4,7 @@ Jak minule: **jeden obrázek = arch 3×3**, políčka na výšku 2:3, tenké če
 Pořadí políček = po řádcích zleva doprava = pořadí id v tabulce. Arch rozřežu `slice_art_sheet.gd`.
 Všechny karty z archů A–C už ve hře jsou, zatím s půjčeným obrázkem. Po nahrání se jen vymění art.
 
-Priorita: **A** (nové karty) → **B** (kouzla a předměty mají teď jen ikonu na rubu) → **C**.
+Stav 2026-10-22: **A a B hotové a ve hře**, zbývá **C**.
 
 ## Arch A: 9 nových karet (D3)
 

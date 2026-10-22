@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Archy ilustrací A a B od majitele (Claude Opus 5.5)
+- Arch A (9 nových karet D3) a arch B (9 kouzel a předmětů, dřív jen ikona) rozřezány `slice_art_sheet.gd`, zdroje v `assets/card_game/card_art_source/sheet_A/B_2026-10-22.webp`.
+- Zbývá arch C (spiked_collar, war_plate, watchmans_bell, tavern_bouncer, portrait_rival, harbor_courier, net_mender, cannon_cat, fish_market) – Mark odpoledne.
+- Ověření: kontrola výřezů, 23/23 verifierů.
+
 ### 2026-10-21 (noc) - MP: klient nedostává karty hosta (Claude Opus 5.5)
 - Snímek posílá ruku a balík hosta jen jako počet (zástupná karta), klient tak nemůže nahlížet. verify_net_snapshot to kontroluje.
 - Review síťového kódu (odpojení, dvojitý konec tahu, odveta po odchodu, návrat do menu): bez dalších nálezů.
