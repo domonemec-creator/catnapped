@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Velký náhled karty: obrázek přes celou kartu (Claude Opus 5.5)
+- Oblast: UI karty
+- Soubory: `ui/selected_card_preview.gd` (`FULL_ART_OVERRIDES`, `_text_shade`): v režimu full (Balík a postup) a large (pravý panel souboje) je art přes celou kartu, jméno, štítek a pravidla leží dole přes tmavý přechod. Žeton na stole (board) beze změny.
+- Proč: Mark: „posuň text dolů, víc místa na obrázek, text může být klidně přes obrázek“.
+- Ověření: 25/25 verifierů, screenshoty `artifacts/fullart_tavern_bouncer.png`, `artifacts/fullart_battle_selected.png`.
+
 ### 2026-10-22 - Obchod v Balík a postup (E3 část 2, Claude Opus 5.5)
 - Oblast: UI postupu
 - Soubory: `progression_screen.gd` (`_build_shop`, `_buy_card`: nad tréninkovou kolekcí „Obchod · rybí šupiny: X“ a 3 nabídky s tlačítkem „Koupit N“; nabídky se mění po každém zápase, seed = výhry + prohry), `verify_shop.gd` (koupě přes UI).

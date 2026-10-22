@@ -29,6 +29,16 @@ const DISPLAY_CONFIGS := {
     },
 }
 
+# Velký náhled (full/large): obrázek přes celou kartu, text dole přes tmavý přechod (Mark 22. 10.).
+# Žeton na stole (board) má dál výřez nahoře a jméno pod ním.
+const FULL_ART_OVERRIDES := {
+    "art_rect": Rect2(8, 8, 242, 371),
+    "name_rect": Rect2(8, 214, 242, 28),
+    "type_rect": Rect2(64, 244, 130, 24),
+    "rules_rect": Rect2(18, 272, 222, 66),
+}
+const TEXT_SHADE_RECT := Rect2(8, 170, 242, 209)
+
 const LAYOUTS := {
     CardGameConstants.CardType.CAT: {
         "canvas_size": Vector2(258, 387),
@@ -132,6 +142,7 @@ static var _frame_texture_cache: Dictionary = {}
 @onready var type_badge: PanelContainer = $CenterContainer/CardCanvas/TypeBadge
 @onready var type_label: Label = $CenterContainer/CardCanvas/TypeBadge/TypeLabel
 @onready var empty_hint: Label = $EmptyHint
+var _text_shade: TextureRect  # tmavý přechod pod textem přes obrázek (full/large)
 
 var _card_instance: CardInstance
 var _interactive := false
@@ -148,6 +159,23 @@ func _ready() -> void:
     card_canvas.move_child(_card_background, 0)
     _card_background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
     frame_texture.visible = false
+    _text_shade = TextureRect.new()
+    _text_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    _text_shade.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    _text_shade.stretch_mode = TextureRect.STRETCH_SCALE
+    var gradient := Gradient.new()
+    gradient.set_color(0, Color(0.06, 0.04, 0.03, 0.0))
+    gradient.set_color(1, Color(0.06, 0.04, 0.03, 0.95))
+    gradient.add_point(0.3, Color(0.06, 0.04, 0.03, 0.82))
+    var shade_texture := GradientTexture2D.new()
+    shade_texture.gradient = gradient
+    shade_texture.fill_from = Vector2(0, 0)
+    shade_texture.fill_to = Vector2(0, 1)
+    shade_texture.width = 4
+    shade_texture.height = 128
+    _text_shade.texture = shade_texture
+    card_canvas.add_child(_text_shade)
+    card_canvas.move_child(_text_shade, art_rect.get_index() + 1)
     art_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
     art_texture.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
     for label in [cost_label, attack_label, life_label]:
@@ -234,9 +262,18 @@ func _get_layout(card_instance: CardInstance) -> Dictionary:
     return LAYOUTS.get(card_instance.definition.card_type, LAYOUTS[CardGameConstants.CardType.CAT])
 
 
-func _apply_layout(layout: Dictionary) -> void:
+func _is_full_art() -> bool:
+    return _display_mode != DISPLAY_BOARD
+
+
+func _apply_layout(base_layout: Dictionary) -> void:
+    var layout := base_layout.duplicate()
+    if _is_full_art():
+        layout.merge(FULL_ART_OVERRIDES, true)
+    _text_shade.visible = _is_full_art()
     var display_config := _get_display_config()
     var display_scale := float(display_config["scale"])
+    _apply_rect(_text_shade, TEXT_SHADE_RECT, display_scale)
     var canvas_size: Vector2 = layout["canvas_size"] * display_scale
     card_canvas.custom_minimum_size = canvas_size
     card_canvas.size = canvas_size
@@ -316,7 +353,9 @@ func _refresh_art(layout: Dictionary) -> void:
 
     var texture: Texture2D = null
     if not definition.art_path.is_empty():
-        texture = CardArtCache.get_cropped(definition.art_path, 0.03, 0.5)
+        texture = CardArtCache.get_full(definition.art_path) if _is_full_art() else CardArtCache.get_cropped(definition.art_path, 0.03, 0.5)
+        if texture == null:
+            texture = CardArtCache.get_cropped(definition.art_path, 0.03, 0.5)  # chybějící art: rub s tlapkou
 
     if texture != null:
         art_texture.texture = texture
