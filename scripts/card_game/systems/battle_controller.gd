@@ -360,6 +360,14 @@ func _get_threat_bonus() -> int:
 	return 0
 
 
+# Obchod (E3): šupiny za zápas proti AI. Ve hře ve dvou zatím ne (klient výsledek neukládá, byl by nepoměr).
+func _award_scales(state: Dictionary, won: bool) -> String:
+	if _net != null:
+		return ""
+	var gained := _progression_system.add_match_scales(state, won, _get_difficulty_tier())
+	return "Rybí šupiny: +%s (máš %s)." % [gained, _progression_system.get_scales(state)]
+
+
 # Výhra mimo výpravu posune žebříček tréninku; vrátí text o odemčeném soupeři a kartách.
 func _record_training_win(state: Dictionary) -> String:
 	var run_session = _get_run_session()
@@ -1612,6 +1620,7 @@ func _check_battle_end() -> void:
 		var victory_state := _progression_system.apply_battle_result(_progression_state, PLAYER_ID, PLAYER_ID, ENEMY_ID)
 		var victory_threat := _progression_system.get_threat_level(victory_state) + _get_threat_bonus()
 		var training_text := _record_training_win(victory_state)
+		var victory_scales_text := _award_scales(victory_state, true)
 		var victory_deck_messages := _progression_system.get_threat_transition_messages(_get_enemy_deck_id(), previous_threat, victory_threat)
 		_progression_state = victory_state
 		_progression_system.save_state(_progression_state)
@@ -1627,6 +1636,8 @@ func _check_battle_end() -> void:
 		var victory_text := "%s je poražen. Stůl je tvůj." % enemy_state.display_name
 		if training_text != "":
 			victory_text += "\n" + training_text
+		if victory_scales_text != "":
+			victory_text += "\n" + victory_scales_text
 		_show_post_match_overlay("win", "Výhra", victory_text, previous_threat, victory_threat, victory_deck_messages)
 		return
 
@@ -1637,13 +1648,17 @@ func _check_battle_end() -> void:
 		var defeat_state := _progression_system.apply_battle_result(_progression_state, ENEMY_ID, PLAYER_ID, ENEMY_ID)
 		var defeat_threat := _progression_system.get_threat_level(defeat_state) + _get_threat_bonus()
 		var defeat_deck_messages := _progression_system.get_threat_transition_messages(_get_enemy_deck_id(), previous_threat, defeat_threat)
+		var defeat_scales_text := _award_scales(defeat_state, false)
 		_progression_state = defeat_state
 		_progression_system.save_state(_progression_state)
 		enemy_name_label.text = _build_enemy_header_name(enemy_state.display_name)
 		_play_sfx(&"defeat")
 		_save_match_log.call_deferred("prohra")
 		status_label.text = "Prohra. Tvoje strana došla o všechny životy."
-		_show_post_match_overlay("loss", "Prohra", "%s si stůl drží. Zkus jiný balík nebo jinou taktiku." % enemy_state.display_name, previous_threat, defeat_threat, defeat_deck_messages)
+		var defeat_text := "%s si stůl drží. Zkus jiný balík nebo jinou taktiku." % enemy_state.display_name
+		if defeat_scales_text != "":
+			defeat_text += "\n" + defeat_scales_text
+		_show_post_match_overlay("loss", "Prohra", defeat_text, previous_threat, defeat_threat, defeat_deck_messages)
 
 
 func _on_end_turn_pressed() -> void:

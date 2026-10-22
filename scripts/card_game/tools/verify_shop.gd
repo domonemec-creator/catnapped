@@ -62,6 +62,21 @@ func _run() -> void:
 		_fail("Koupená karta je pořád v nabídce.")
 		return
 
+	# Výhra v souboji proti AI připíše šupiny a ukáže je ve výsledku.
+	progression.reset_state()
+	var battle = (load("res://scenes/card_game/battle_scene.tscn") as PackedScene).instantiate()
+	root.add_child(battle)
+	await process_frame
+	await process_frame
+	battle._battle_state.get_player_state(battle.ENEMY_ID).life = 0
+	battle._check_battle_end()
+	var after := progression.get_scales(progression.load_state())
+	if after < ProgressionSystem.SCALES_WIN_BASE:
+		_fail("Výhra nepřipsala šupiny (%s)." % after)
+		return
+	battle.queue_free()
+	await process_frame
+
 	progression.reset_state()
 	print("Shop verification passed.")
 	quit()

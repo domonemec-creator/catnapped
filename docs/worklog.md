@@ -17,7 +17,7 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 ### 2026-10-22 - Obchod: logika bez UI (E3 část 1, Claude Opus 5.5)
 - Oblast: postup
 - Soubory: `progression_system.gd` (`KEY_SCALES`, `get_scales`, `add_match_scales(state, won, tier, pvp)`, `get_card_price` = 5 + 5 × cena, `roll_shop_offers(state, seed)` = 3 karty mimo tréninkovou kolekci, `buy_card`), `tools/verify_shop.gd`.
-- Proč: E3 podle návrhu v PLAN.md. UI (nabídka na výsledkové obrazovce, šupiny v Balík a postup) a připisování šupin po zápase zatím chybí, hra šupiny ještě nikde nedává.
+- Proč: E3 podle návrhu v PLAN.md. Po zápase proti AI (trénink i výprava) `battle_controller._award_scales` připíše šupiny a výsledková obrazovka napíše „Rybí šupiny: +X (máš Y)“. Ve hře ve dvou zatím ne (klient výsledek neukládá). Chybí UI obchodu (nabídka, nákup) a stav šupin v Balík a postup, takže šupiny zatím nejdou utratit.
 - Ověření: 25/25 verifierů.
 
 ### 2026-10-22 - Sim balík proti balíku, kompenzace druhého na tahu (E6, D-026, Claude Opus 5.5)
