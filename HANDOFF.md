@@ -41,6 +41,10 @@
   - `PROTOCOL_VERSION` 2: starý .exe se s novým nespojí.
 - `build/Catnapped.exe` vyexportován znovu 17:43 (obsahuje vše výše včetně obchodu); export ověřen přes pck (konzerva, balík pro hru ve dvou, obchod).
 
+## Večer 22. 10.
+- Mark hrál trénink na exe ze 18:25: porazil všech 5 soupeřů, prohrál až se Stokovým králem (poslední, nejtěžší). Žebříček obtížnosti funguje podle záměru.
+- Nález: Hřbitovní hodovník narostl na 4/13, Hostina dostala strop 3× (`6cc1812`, protokol 4, exe 19:02).
+
 ## Další krok
 0. Fáze E zbývá: E3 obchod je hotový v základu (šupiny po zápase proti AI, 3 nabídky nad kolekcí v Balík a postup, `verify_shop.gd`); chybí šupiny ve hře ve dvou a zkrácení automatického odemykání, E4 sbírka ~60 karet (sady 15–20, každá přes `sim_deck_vs_deck.gd`).
 1. Lidský test #4 (Mark + kamarád přes Radmin VPN): oba spustí hru → „Hra ve dvou“. Jeden „Hostovat hru“ (Windows firewall: povolit), druhý zadá jeho IP 26.x.x.x → „Připojit se“. Dohrát zápas. Hlásit: připojení, zpoždění, nečitelné tahy soupeře, chyby.
