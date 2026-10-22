@@ -454,7 +454,7 @@ func _show_run_completion_overlay(reward_offer: Dictionary) -> void:
 	_show_post_match_overlay(
 		"run_complete",
 		"Výprava dokončena",
-		"Poslední soupeř padl. Tuhle výpravu jsi dotáhl do konce.",
+		"Poslední soupeř padl. Tuhle výpravu máš za sebou.",
 		current_threat,
 		current_threat,
 		completion_messages

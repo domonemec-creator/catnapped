@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Výsledková obrazovka: rodově neutrální texty, větší trasa (Claude Opus 5.5)
+- Oblast: UI po zápase
+- Soubory: `battle_controller.gd`, `battle_overlay_presenter.gd`
+- Změna: „jsi dotáhl do konce“ → „máš za sebou“, „jsi nevyhrál“ → „nevyšel“ (hrát může kdokoli). Portréty trasy výpravy 54×40 → 80×60, byly nečitelné.
+- Ověření: `capture_postmatch_modes.gd` (okno), všech 23 verifierů.
+
 ### 2026-10-22 - Pravý panel v tahu soupeře (Claude Opus 5.5)
 - Oblast: UI souboje
 - Soubory: `battle_controller.gd` (`_enemy_last_played`), `battle_preview_presenter.gd`

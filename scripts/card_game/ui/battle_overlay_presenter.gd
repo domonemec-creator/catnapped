@@ -332,7 +332,7 @@ func update_post_match_actions(run_session) -> void:
 			if _post_match_deck_shift_title != null:
 				_post_match_deck_shift_title.text = "Výprava skončila"
 			if _post_match_deck_shift_detail != null:
-				_post_match_deck_shift_detail.text = "Tenhle souboj jsi nevyhrál. Výprava končí a vrátíš se na výběr."
+				_post_match_deck_shift_detail.text = "Tenhle souboj nevyšel. Výprava končí a vrátíš se na výběr."
 			if _post_match_rematch_button != null:
 				_post_match_rematch_button.visible = false
 			if _post_match_choose_encounter_button != null:
@@ -389,13 +389,13 @@ func _refresh_route_strip(run_session) -> void:
 		style.content_margin_bottom = 2
 		frame.add_theme_stylebox_override("panel", style)
 		var portrait := TextureRect.new()
-		portrait.custom_minimum_size = Vector2(54, 40)
+		portrait.custom_minimum_size = Vector2(80, 60)
 		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		var encounter_path := "res://data/encounters/%s.tres" % String(route[i])
 		if ResourceLoader.exists(encounter_path):
 			var encounter = load(encounter_path)
-			portrait.texture = CardArtCache.get_cropped_aspect(encounter.portrait_path, 54.0 / 40.0)
+			portrait.texture = CardArtCache.get_cropped_aspect(encounter.portrait_path, 80.0 / 60.0)
 			frame.tooltip_text = "%s. %s" % [step, encounter.display_name]
 		# Poražení (před aktuálním krokem, a aktuální po výhře) ztlumit.
 		if step < current or (step == current and _result_mode == "win"):
