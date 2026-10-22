@@ -38,6 +38,14 @@ const FULL_ART_OVERRIDES := {
     "rules_rect": Rect2(18, 272, 222, 66),
 }
 const TEXT_SHADE_RECT := Rect2(8, 170, 242, 209)
+# Kouzla a předměty nemají dole odznaky útoku a životů: text až ke spodnímu okraji, víc obrázku.
+const FULL_ART_OVERRIDES_NO_STATS := {
+    "art_rect": Rect2(8, 8, 242, 371),
+    "name_rect": Rect2(8, 244, 242, 28),
+    "type_rect": Rect2(64, 274, 130, 24),
+    "rules_rect": Rect2(18, 302, 222, 74),
+}
+const TEXT_SHADE_RECT_NO_STATS := Rect2(8, 196, 242, 183)
 
 const LAYOUTS := {
     CardGameConstants.CardType.CAT: {
@@ -268,12 +276,13 @@ func _is_full_art() -> bool:
 
 func _apply_layout(base_layout: Dictionary) -> void:
     var layout := base_layout.duplicate()
+    var has_stats: bool = base_layout["show_stats"]
     if _is_full_art():
-        layout.merge(FULL_ART_OVERRIDES, true)
+        layout.merge(FULL_ART_OVERRIDES if has_stats else FULL_ART_OVERRIDES_NO_STATS, true)
     _text_shade.visible = _is_full_art()
     var display_config := _get_display_config()
     var display_scale := float(display_config["scale"])
-    _apply_rect(_text_shade, TEXT_SHADE_RECT, display_scale)
+    _apply_rect(_text_shade, TEXT_SHADE_RECT if has_stats else TEXT_SHADE_RECT_NO_STATS, display_scale)
     var canvas_size: Vector2 = layout["canvas_size"] * display_scale
     card_canvas.custom_minimum_size = canvas_size
     card_canvas.size = canvas_size

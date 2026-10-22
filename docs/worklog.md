@@ -16,7 +16,7 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ### 2026-10-22 - Velký náhled karty: obrázek přes celou kartu (Claude Opus 5.5)
 - Oblast: UI karty
-- Soubory: `ui/selected_card_preview.gd` (`FULL_ART_OVERRIDES`, `_text_shade`): v režimu full (Balík a postup) a large (pravý panel souboje) je art přes celou kartu, jméno, štítek a pravidla leží dole přes tmavý přechod. Žeton na stole (board) beze změny.
+- Soubory: `ui/selected_card_preview.gd` (`FULL_ART_OVERRIDES`, `_text_shade`): v režimu full (Balík a postup) a large (pravý panel souboje) je art přes celou kartu, jméno, štítek a pravidla leží dole přes tmavý přechod. Žeton na stole (board) beze změny. Kouzla a předměty (bez odznaků útoku/životů) mají text níž (`FULL_ART_OVERRIDES_NO_STATS`), nejdelší text (Lepkavé tlapky, 3 řádky) se vejde.
 - Proč: Mark: „posuň text dolů, víc místa na obrázek, text může být klidně přes obrázek“.
 - Ověření: 25/25 verifierů, screenshoty `artifacts/fullart_tavern_bouncer.png`, `artifacts/fullart_battle_selected.png`.
 
