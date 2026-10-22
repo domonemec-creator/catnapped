@@ -26,7 +26,7 @@ Síťová hra (D4, D-024): logika `scripts/card_game/systems/net_battle.gd` + RP
     Godot --headless --path . --script res://scripts/card_game/tools/net_smoke.gd -- host 7031
     Godot --headless --path . --script res://scripts/card_game/tools/net_smoke.gd -- client 7031
 
-Oba vypíší `NET RESULT ...` a musí se shodnout (strany otočené).
+Oba vypíší `NET RESULT ...` a musí se shodnout (strany otočené). Env `NET_REMATCH=1` = dva zápasy s odvetou, `NET_DROP=N` = klient v N. kole spadne (host musí zápas ukončit sám).
 
 ## Screenshot
 `scripts/card_game/tools/capture_battle_scene.gd` se spouští **S oknem, NE `--headless`**:

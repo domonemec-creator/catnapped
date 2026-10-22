@@ -2652,6 +2652,7 @@ func _on_net_disconnected(message: String) -> void:
 	if _battle_state == null:
 		_battle_state = BattleState.new()
 	_battle_state.battle_over = true
+	status_label.text = message
 	_show_post_match_overlay("draw", "Konec hry", message, 0, 0, [])
 	post_match_rematch_button.visible = false
 	post_match_choose_encounter_button.text = "Zpět do menu"

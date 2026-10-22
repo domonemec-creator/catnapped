@@ -57,6 +57,10 @@ func _run() -> void:
 		var state = battle._battle_state
 		if state == null:
 			continue
+		# NET_DROP=N: klient v N. kole tvrdě skončí (jako pád hry), host musí zápas ukončit sám.
+		if _role == "client" and OS.get_environment("NET_DROP") != "" and state.turn_number >= int(OS.get_environment("NET_DROP")):
+			print("NET DROP klient spadl v kole %s" % state.turn_number)
+			OS.kill(OS.get_process_id())
 		if battle._enemy_last_played != null:
 			_seen_enemy_plays[battle._enemy_last_played.instance_id] = true
 		if state.battle_over:
@@ -113,6 +117,8 @@ func _run() -> void:
 	if final_state == null or not final_state.battle_over:
 		_finish("NET FAIL souboj neskončil včas (%s)" % _role, 1)
 		return
+	if OS.get_environment("NET_DROP") != "":
+		print("NET DROP host stav=\"%s\" overlay=%s" % [battle.status_label.text, battle.post_match_overlay.visible])
 	var me = final_state.get_player_state(battle.PLAYER_ID)
 	var opponent = final_state.get_player_state(battle.ENEMY_ID)
 	var winner: String = "remíza" if final_state.winner_player_id < 0 else (me.display_name if final_state.winner_player_id == battle.PLAYER_ID else opponent.display_name)
