@@ -87,5 +87,14 @@ func _run() -> void:
         _fail("Feast: cat should gain +2/+2 from two deaths (got %s/%s)." % [grower.current_attack, grower.current_life])
         return
 
+    # --- Test 4: Hostina má strop FEAST_MAX_STACKS (3 smrti navíc už nic nepřidají) ---
+    for i in 4:
+        var snack = _place(battle, enemy_state, 2, &"candlepaw_scout", battle.ENEMY_ID)
+        snack.current_life = 0
+        battle._resolve_deaths(enemy_state)
+    if grower.current_attack != g_atk + 3 or grower.current_life != g_life + 3 or grower.feast_stacks != 3:
+        _fail("Feast: strop 3× nedodržen (got %s/%s, stacks %s)." % [grower.current_attack, grower.current_life, grower.feast_stacks])
+        return
+
     print("Feast verification passed.")
     quit()

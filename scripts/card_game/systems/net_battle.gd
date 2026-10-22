@@ -321,6 +321,7 @@ static func _serialize_card(card: CardInstance) -> Dictionary:
 		"granted_kw": card.granted_keywords,
 		"tmp_atk": card.temporary_attack_bonus,
 		"tmp_hp": card.temporary_life_bonus,
+		"feast": card.feast_stacks,
 	}
 	if card.attached_item != null:
 		data["item"] = _serialize_card(card.attached_item)
@@ -351,6 +352,7 @@ static func _deserialize_card(data: Dictionary, card_library: Dictionary) -> Car
 		card.granted_keywords.append(StringName(keyword))
 	card.temporary_attack_bonus = int(data.get("tmp_atk", 0))
 	card.temporary_life_bonus = int(data.get("tmp_hp", 0))
+	card.feast_stacks = int(data.get("feast", 0))
 	var item_data: Dictionary = data.get("item", {})
 	if not item_data.is_empty():
 		card.attached_item = _deserialize_card(item_data, card_library)

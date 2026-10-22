@@ -17,7 +17,7 @@ const DEFAULT_ADDRESS := "127.0.0.1"
 const MAX_CLIENTS := 1
 const BATTLE_SCENE_PATH := "res://scenes/card_game/battle_scene.tscn"
 # Zvyš při každé změně RPC nebo formátu snímku: různé verze hry spolu nehrají.
-const PROTOCOL_VERSION := 3  # 3: Bojový nástup do prázdné lajny zraní soupeře
+const PROTOCOL_VERSION := 4  # 3: Bojový nástup do prázdné lajny zraní soupeře, 4: Hostina nejvýš 3×
 const NET_DECK_MIN := 20
 const NET_DECK_MAX := 30
 

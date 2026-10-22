@@ -30,6 +30,7 @@ const KEYWORD_QUICK_PAWS := &"quick_paws"
 const KEYWORD_GUARD := &"guard"
 const KEYWORD_POUNCE := &"pounce"
 const KEYWORD_FEAST := &"feast"
+const FEAST_MAX_STACKS := 3  # Hostina roste nejvýš 3× (Mark 22. 10.: Hodovník 4/13 byl moc)
 
 const TRIGGER_BATTLECRY := &"battlecry"
 const TRIGGER_LAST_BREATH := &"last_breath"
@@ -59,7 +60,7 @@ const KEYWORD_SUMMARIES := {
     KEYWORD_QUICK_PAWS: "V tahu může hned útočit jen jedna nová kočka s tímto klíčovým slovem.",
     KEYWORD_GUARD: "Zachytí přímé zranění ve své lajně i v sousedních lajnách.",
     KEYWORD_POUNCE: "Může útočit na protilehlou nebo sousední lajnu.",
-    KEYWORD_FEAST: "Když umře jakákoliv jiná kočka, tahle získá +1/+1 napevno.",
+    KEYWORD_FEAST: "Když umře jakákoliv jiná kočka, tahle získá +1/+1 napevno (nejvýš 3×).",
 }
 
 

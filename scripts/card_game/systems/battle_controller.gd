@@ -1518,8 +1518,9 @@ func _trigger_feast_for_death() -> void:
 			if slot == null or slot.occupant == null:
 				continue
 			var cat := slot.occupant
-			if not cat.has_keyword(CardGameConstants.KEYWORD_FEAST):
+			if not cat.has_keyword(CardGameConstants.KEYWORD_FEAST) or cat.feast_stacks >= CardGameConstants.FEAST_MAX_STACKS:
 				continue
+			cat.feast_stacks += 1
 			cat.current_attack += 1
 			cat.current_life += 1
 			_set_lane_feedback_for_card(cat, "HOSTINA +1/+1", LaneSlotView.EVENT_SUPPORT)

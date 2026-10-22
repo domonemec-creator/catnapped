@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 večer – nerf Hostiny
+- Mark: Hřbitovní hodovník narostl na 4/13. Hostina rostla bez omezení z každé smrti na stole (obou stran).
+- Nově strop `FEAST_MAX_STACKS = 3` (`CardInstance.feast_stacks`, posílá se i v síťovém snapshotu). Hodovník max 6/7, Mrchožrout max 5/6. Popis klíčového slova: „(nejvýš 3×)“.
+- `PROTOCOL_VERSION` 4. `verify_feast.gd` test 4 hlídá strop. 25/25 verifierů.
+
 ### 2026-10-22 - Bojový nástup do prázdné lajny zraní soupeře (D-027, Claude Opus 5.5)
 - Oblast: pravidla, AI, karty
 - Soubory: `battle_controller._resolve_triggered_effects` (deal_damage opposite_lane bez cíle → soupeř), `ai_controller._score_lane_effect_value`, texty 4 karet („…kočce naproti, když tam žádná není, soupeři.“), `verify_new_cards.gd`, `PROTOCOL_VERSION` 3.

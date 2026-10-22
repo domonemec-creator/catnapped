@@ -22,6 +22,8 @@ var temporary_keywords: Array[StringName] = []
 var granted_keywords: Array[StringName] = []
 var temporary_attack_bonus: int = 0
 var temporary_life_bonus: int = 0
+# Kolikrát už kočka hodovala (Hostina má strop FEAST_MAX_STACKS).
+var feast_stacks: int = 0
 
 
 func has_keyword(keyword: StringName) -> bool:
