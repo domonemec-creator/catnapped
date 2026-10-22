@@ -19,7 +19,7 @@ Godot: `C:\Users\voone\Desktop\Godot_v4.6.2-stable_win64_console.exe`
 
     Godot --headless --path . --script res://scripts/card_game/tools/verify_saved_tuna.gd
 
-Spusť všechny `scripts/card_game/tools/verify_*.gd` (25 skriptů); každý končí hláškou „... verification passed.“. Po změně pravidel/UI vždy pusť relevantní verifiery. Tempo a animace ověř v okně přes `capture_midgame.gd` a `capture_enemy_turn.gd`. Celý tok hry (menu → run → zápas do konce) v okně: `smoke_full_flow.gd` (obnoví save). Balanc: `sim_ai_matches.gd -- 40` (headless, trénink), `sim_deck_vs_deck.gd -- 40 all` (balík proti balíku jako ve hře ve dvou, řádek „první na tahu vyhrává“).
+Spusť všechny `scripts/card_game/tools/verify_*.gd` (25 skriptů); každý končí hláškou „... verification passed.“. Po změně pravidel/UI vždy pusť relevantní verifiery. Tempo a animace ověř v okně přes `capture_midgame.gd` a `capture_enemy_turn.gd`. Celý tok hry (menu → run → zápas do konce) v okně: `smoke_full_flow.gd` (obnoví save). Balanc: `sim_ai_matches.gd -- 40` (headless, trénink), `sim_deck_vs_deck.gd -- 40 all` (balík proti balíku podle pravidel hry ve dvou, 30 životů / 10 Tun; `old` = tréninková; řádek „první na tahu vyhrává“).
 
 Síťová hra (D4, D-024): logika `scripts/card_game/systems/net_battle.gd` + RPC v autoloadu `MultiplayerManager` (`scripts/multiplayer_manager.gd`), lobby `ui/net_lobby_overlay.gd`. Celý zápas přes síť otestuješ dvěma procesy:
 

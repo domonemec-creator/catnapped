@@ -63,7 +63,7 @@ func _run() -> void:
 		var second = opening.get_player_state(battle.ENEMY_ID if battle._net.host_goes_first() else battle.PLAYER_ID)
 		var has_coin: bool = second.hand.any(func(c): return c.definition.id == battle.NET_SECOND_COIN_ID)
 		print("NET START druhý na tahu: životy=%s mince=%s" % [second.life, has_coin])
-		if second.life != battle.STARTING_LIFE + battle.NET_SECOND_LIFE_BONUS or not has_coin:
+		if second.life != battle.NET_STARTING_LIFE + battle.NET_SECOND_LIFE_BONUS or not has_coin:
 			_finish("NET FAIL druhý na tahu nedostal kompenzaci", 1)
 			return
 	# NET_REMATCH=1: po prvním zápase odveta (klient požádá, host spustí) a hraje se znovu.

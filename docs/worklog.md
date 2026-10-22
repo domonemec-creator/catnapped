@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 večer – hra ve dvou 30 životů / 10 Tun (D-028)
+- Mark: trénink dohrál až po Stokového krále („docela vyrovnané“, nic nenudilo, na konci balíku silné tanky). Do hry ve dvou chce 30 životů a strop 10 Tun.
+- `NET_STARTING_LIFE` 30, `NET_MAX_TUNA` 10, trénink beze změny. `sim_deck_vs_deck.gd` hraje nově pravidla hry ve dvou (argument `old` = tréninková). `PROTOCOL_VERSION` 5.
+- Obchod: Markův save má 116 šupin, nakupovat tedy může (karty stojí 15–35). Odměny neměním.
+
 ### 2026-10-22 večer – nerf Hostiny
 - Mark: Hřbitovní hodovník narostl na 4/13. Hostina rostla bez omezení z každé smrti na stole (obou stran).
 - Nově strop `FEAST_MAX_STACKS = 3` (`CardInstance.feast_stacks`, posílá se i v síťovém snapshotu). Hodovník max 6/7, Mrchožrout max 5/6. Popis klíčového slova: „(nejvýš 3×)“.

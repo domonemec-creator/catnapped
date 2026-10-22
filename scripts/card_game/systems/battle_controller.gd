@@ -38,6 +38,9 @@ const PLAYER_DECK_ID := &"starter_player"
 const PLAYER_TABLE_POWER_ID := &"order_round"
 # Hra ve dvou (D-026): druhý na tahu dostane životy navíc a „minci“ do ruky (sim: první 62 → 50 % výher).
 const NET_SECOND_LIFE_BONUS := 2
+# Hra ve dvou (Mark 22. 10.): delší zápas, víc životů i strop Tun.
+const NET_STARTING_LIFE := 30
+const NET_MAX_TUNA := 10
 const NET_SECOND_COIN_ID := &"sardine_can"
 const ENCOUNTER_PATH := "res://data/encounters/smug_tabby.tres"
 const DEFAULT_ENCOUNTER_ID := &"smug_tabby"
@@ -113,6 +116,8 @@ var _net_end_turn_sent := false  # klient: konec tahu už odešel, čeká se na 
 var _enemy_last_played: CardInstance  # karta, kterou soupeř zahrál v tomto tahu (pravý panel)
 var _enemy_hand_host: Container
 var _net: NetBattle  # null = hra proti počítači (D4)
+# Pravidla hry ve dvou bez sítě (sim_deck_vs_deck.gd); ve skutečné síťové hře stačí _net.
+var pvp_rules := false
 var _net_result_shown := false
 var _enemy_hand_row: HBoxContainer
 # instance_id karet, které už hráč v ruce viděl (nové dostanou animaci líznutí).
@@ -1120,7 +1125,7 @@ func _setup_battle() -> void:
 	_battle_state.priority_player_id = PLAYER_ID
 
 	var player_state := PlayerBattleState.new()
-	player_state.initialize(PLAYER_ID, _net.get_my_name() if _net != null else "Hráč", STARTING_LIFE, STARTING_TUNA, PLAYER_TABLE_POWER_ID, LANE_COUNT)
+	player_state.initialize(PLAYER_ID, _net.get_my_name() if _net != null else "Hráč", get_starting_life(), STARTING_TUNA, PLAYER_TABLE_POWER_ID, LANE_COUNT)
 	# The player's first turn is the opening setup (no _start_turn call), so their next
 	# _start_turn (turn 2) should ramp normally. The enemy keeps has_started_turn = false
 	# so its first turn opens on STARTING_TUNA instead of an unfair +1.
@@ -1139,7 +1144,7 @@ func _setup_battle() -> void:
 	if _net != null:
 		# Soupeř je člověk: stejné životy i Síla stolu jako ty, jeho vlastní balík.
 		enemy_name = _net.get_opponent_name()
-		enemy_life = STARTING_LIFE
+		enemy_life = get_starting_life()
 		enemy_power_id = PLAYER_TABLE_POWER_ID
 	enemy_state.initialize(ENEMY_ID, enemy_name, enemy_life, STARTING_TUNA, enemy_power_id, LANE_COUNT)
 
@@ -1170,6 +1175,18 @@ func _setup_battle() -> void:
 	var portrait_top := 0.06 if portrait_full != null and portrait_full.get_height() > portrait_full.get_width() else 0.0
 	enemy_portrait_art.texture = CardArtCache.get_cropped_aspect(portrait_path, BattleLayout.RAIL_WIDTH / BattleLayout.HERO_PORTRAIT_HEIGHT, portrait_top)
 	status_label.text = _build_opening_status()
+
+
+func _is_pvp() -> bool:
+	return _net != null or pvp_rules
+
+
+func get_starting_life() -> int:
+	return NET_STARTING_LIFE if _is_pvp() else STARTING_LIFE
+
+
+func get_max_tuna() -> int:
+	return NET_MAX_TUNA if _is_pvp() else MAX_TUNA
 
 
 func _assign_deck_to_player(player_state: PlayerBattleState, deck_id: StringName, next_instance_id: int) -> int:
@@ -1830,7 +1847,7 @@ func _start_turn(player_state: PlayerBattleState) -> void:
 	# The very first turn a player takes does not ramp Tuna (both open on STARTING_TUNA).
 	# Only ramp from the second turn onward.
 	if player_state.has_started_turn:
-		player_state.tuna_max = mini(player_state.tuna_max + 1, MAX_TUNA)
+		player_state.tuna_max = mini(player_state.tuna_max + 1, get_max_tuna())
 	else:
 		player_state.has_started_turn = true
 	player_state.tuna_current = player_state.tuna_max

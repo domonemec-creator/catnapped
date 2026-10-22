@@ -43,6 +43,8 @@
 
 ## Večer 22. 10.
 - Mark hrál trénink na exe ze 18:25: porazil všech 5 soupeřů, prohrál až se Stokovým králem (poslední, nejtěžší). Žebříček obtížnosti funguje podle záměru.
+- Mark: „docela vyrovnané“, nic nenudilo; Stokový král na konci balíku tlačí silné tanky. Obchod zatím nepoužil (116 šupin má).
+- D-028: hra ve dvou 30 životů / 10 Tun, protokol 5.
 - Nález: Hřbitovní hodovník narostl na 4/13, Hostina dostala strop 3× (`6cc1812`, protokol 4, exe 19:02).
 
 ## Další krok

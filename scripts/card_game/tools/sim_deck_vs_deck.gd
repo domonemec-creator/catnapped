@@ -17,6 +17,7 @@ var _first_wins_sum := 0.0
 var _games_sum := 0
 var _second_extra_life := 0  # argument lifeN: druhý na tahu má N životů navíc
 var _second_extra_cards := 0  # argument extraN: druhý na tahu má v ruce N karet navíc
+var _pvp_rules := true  # argument old: staré životy a Tuny (jako trénink)
 var _coin_id := StringName()  # argument coin[=id]: druhý na tahu dostane tuhle kartu do ruky
 
 
@@ -96,7 +97,7 @@ func _drive_turn(battle, acting_id: int, defender_id: int) -> void:
 
 # Přestaví stranu jako ve hře ve dvou: plné životy, Síla stolu hráče, daný balík, nová ruka.
 func _prepare_side(battle, state, ids: Array[StringName]) -> void:
-	state.initialize(state.player_id, state.display_name, battle.STARTING_LIFE, battle.STARTING_TUNA, battle.PLAYER_TABLE_POWER_ID, battle.LANE_COUNT)
+	state.initialize(state.player_id, state.display_name, battle.get_starting_life(), battle.STARTING_TUNA, battle.PLAYER_TABLE_POWER_ID, battle.LANE_COUNT)
 	var result: Dictionary = battle._deck_system.build_runtime_deck_from_card_ids(ids, battle._card_library, state.player_id, battle._next_instance_id)
 	battle._next_instance_id = int(result["next_instance_id"])
 	state.deck = result["cards"]
@@ -106,6 +107,7 @@ func _prepare_side(battle, state, ids: Array[StringName]) -> void:
 # Vrací {winner: 0 = A, 1 = B, -1 remíza, -2 limit kol, turns}. A sedí na místě hráče.
 func _play_one(deck_a: Array[StringName], deck_b: Array[StringName], a_first: bool) -> Dictionary:
 	var battle = _packed_scene.instantiate()
+	battle.pvp_rules = _pvp_rules
 	root.add_child(battle)
 	await process_frame
 	await process_frame
@@ -191,6 +193,9 @@ func _run() -> void:
 	for arg in args.duplicate():
 		if String(arg).begins_with("extra"):
 			_second_extra_cards = int(String(arg).substr(5))
+			args.erase(arg)
+		elif arg == "old":
+			_pvp_rules = false
 			args.erase(arg)
 		elif String(arg).begins_with("life"):
 			_second_extra_life = int(String(arg).substr(4))

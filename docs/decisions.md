@@ -211,3 +211,8 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Rozhodnutí: když naproti není kočka, zranění jde přímo soupeři. Vzniká volba: vyložit proti kočce (zabít / oslabit), nebo do prázdné lajny (tlak na životy). AI to boduje (`_score_lane_effect_value`, 3 body za zranění, smrtící zásah přednostně).
 - Sim: žebříček tréninku 68,3 / 32,1 / 23,3 / 13,3 / 8,8 / 1,3 % (Věštkyně 17,5 → 13,3 %, pořadí sedí); balík proti balíku první na tahu 50,5 %. `PROTOCOL_VERSION` 3.
 
+## D-028 Hra ve dvou: 30 životů, strop 10 Tun (2026-10-22)
+- Stav: aktivni
+- Kontext: Mark po tréninku: ve hře ve dvou chce delší zápas, 30 životů a nejvýš 10 Tun. Trénink zůstává 10 životů / 7 Tun.
+- Rozhodnutí: `NET_STARTING_LIFE = 30`, `NET_MAX_TUNA = 10` (`battle_controller.gd`, `get_starting_life()` / `get_max_tuna()`, `pvp_rules` pro sim). Kompenzace druhého (D-026) beze změny: +2 životy a konzerva, sim 20 her na pořadí: první vyhrává 50,7 % (life4 48,1 %, life6 45,1 %).
+- Daň (sim): zápas ~33 půltahů místo ~16–26. Pomalé balíky s tanky sílí (Stokový král proti Lucernové útočnici 45 % → 95 %), agresivní balíky slábnou. Při 20 životech skoro totéž (87,5 %). Hlídat v lidských testech; páka je síla tanků, ne životy.
