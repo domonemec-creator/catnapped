@@ -1,6 +1,7 @@
 # HANDOFF.md (2026-10-22 večer, Claude Opus 5.5 – hlavní jednatel projektu)
 
 ## Stav
+- 25/25 verifierů PASS 2026-10-22 ~20:50 (D-029).
 - Pracovní větev `lead/plan-2026-10` = `main`, pushnuto na GitHub (domonemec-creator/catnapped) 2026-10-22.
 - 25/25 headless `verify_*.gd` PASS (ověřeno 2026-10-22 17:39), `net_smoke` host+klient OK.
 - Lidské testy #1–#3 hotové. #3: celý run vyhrán 5:0, „bavil jsem se, chápal jsem to“, což vedlo k D-021.
@@ -46,6 +47,9 @@
 - Mark: „docela vyrovnané“, nic nenudilo; Stokový král na konci balíku tlačí silné tanky. Obchod zatím nepoužil (116 šupin má).
 - D-028: hra ve dvou 30 životů / 10 Tun, protokol 5.
 - Nález: Hřbitovní hodovník narostl na 4/13, Hostina dostala strop 3× (`6cc1812`, protokol 4, exe 19:02).
+- D-029: balík ve hře ve dvou přesně 30 karet, nejvýš 3 kopie (protokol 6). Trénink dál 20–30 / 4 kopie. Balík a postup: Doplnit, X/30, křivka ceny, filtry kolekce podle ceny a typu, klik na řádek = +/−. Screenshot `artifacts/deck_pvp.png`. 25/25 verifierů, net_smoke OK.
+- Otevřené (balanc): při 30 životech tanky dominují (sim Stokový král 100 % i s 30kartovými balíky). Další páka: síla tanků (Ochrana / vysoké životy za nízkou cenu), ne velikost balíku.
+- Pozor: `net_smoke` a verifiery sdílejí testovací save – nepouštět je souběžně (falešné „soupeř se nepřipojil“).
 
 ## Další krok
 0. Fáze E zbývá: E3 obchod je hotový v základu (šupiny po zápase proti AI, 3 nabídky nad kolekcí v Balík a postup, `verify_shop.gd`); chybí šupiny ve hře ve dvou a zkrácení automatického odemykání, E4 sbírka ~60 karet (sady 15–20, každá přes `sim_deck_vs_deck.gd`).

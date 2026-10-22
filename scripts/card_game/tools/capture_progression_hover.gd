@@ -1,6 +1,6 @@
 extends SceneTree
 
-# Screenshot Balík a postup s náhledem karty u myši (S oknem): -- "<abs cesta>.png" [card_id] [pvp]
+# Screenshot Balík a postup s náhledem karty u myši (S oknem): -- "<abs cesta>.png" [card_id|none] [pvp]
 
 func _init() -> void:
 	call_deferred("_run")
@@ -19,7 +19,8 @@ func _run() -> void:
 		await process_frame
 	Input.warp_mouse(Vector2(400, 500))
 	await process_frame
-	screen._show_hover_preview(screen._card_library.get(card_id))
+	if card_id != &"none":
+		screen._show_hover_preview(screen._card_library.get(card_id))
 	await create_timer(0.4).timeout
 	await RenderingServer.frame_post_draw
 	root.get_texture().get_image().save_png(args[0])

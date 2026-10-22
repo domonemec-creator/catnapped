@@ -14,6 +14,14 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 večer – balík ve hře ve dvou přesně 30 karet (D-029) + přehlednější stavění
+- Mark chtěl návrh velikosti balíku a přehledné stavění. Rozsah 20–30 nedával smysl (menší balík je vždy lepší, všichni hrají minimum) a ve hře ve dvou na 30 životů 20 karet dojde (hlad).
+- Hra ve dvou: přesně `PVP_DECK_SIZE` 30 karet, nejvýš `PVP_MAX_COPIES` 3 kopie (jedinečné karty dál 1×). Při úpravách smí balík být menší, hrát jde až s 30: lobby nepustí hostovat ani se připojit, host odmítne balík klienta (`get_deck_problem`). Výchozí balík = tréninkový oříznutý na 3 kopie a doplněný na 30.
+- Trénink beze změny (20–30, 4 kopie): výprava balík odměnami zvětšuje.
+- „Balík a postup“: tlačítko Doplnit (dorovná podle křivky ceny `FILL_CURVE`), počítadlo X/30 (červeně, když balík není hratelný), sloupcová křivka ceny + počet koček/triků/předmětů, filtry kolekce podle ceny a typu, klik na řádek = +/−.
+- `sim_deck_vs_deck.gd` argument `pad` = balíky jako ve hře ve dvou (30 karet / 3 kopie). `PROTOCOL_VERSION` 6.
+- Sim (`20 all coin life2`, 20 her na pořadí): 20 karet → první vyhrává 54,4 %, ~34 půltahů; 30 karet (`pad`) → 49,2 %, ~46 půltahů. Pořadí tahů se srovnalo, zápas je delší. Stokový král dál dominuje (98 → 100 %): tanky při 30 životech jsou samostatný problém balancu, velikost balíku ho neřeší.
+
 ### 2026-10-22 večer – hra ve dvou 30 životů / 10 Tun (D-028)
 - Mark: trénink dohrál až po Stokového krále („docela vyrovnané“, nic nenudilo, na konci balíku silné tanky). Do hry ve dvou chce 30 životů a strop 10 Tun.
 - `NET_STARTING_LIFE` 30, `NET_MAX_TUNA` 10, trénink beze změny. `sim_deck_vs_deck.gd` hraje nově pravidla hry ve dvou (argument `old` = tréninková). `PROTOCOL_VERSION` 5.

@@ -36,6 +36,11 @@ const SCALES_PVP := 5
 const DECK_MIN_SIZE := 20
 const DECK_MAX_SIZE := 30
 const MAX_COPIES := 4
+# Hra ve dvou (D-029): balík přesně 30 karet, nejvýš 3 kopie. Trénink dál 20–30 (výprava balík zvětšuje).
+const PVP_DECK_SIZE := 30
+const PVP_MAX_COPIES := 3
+# Cílová křivka pro „Doplnit“ (na 30 karet): cena ≤1, 2, 3, 4, 5+.
+const FILL_CURVE: Array[int] = [6, 8, 7, 5, 4]
 const SINGLE_COPY_IDS: Array[StringName] = [&"captain_ironmaw", &"tavern_bouncer", &"cannon_cat"]
 # Výhra v tréninku přidá do kolekce karty typické pro poraženého soupeře.
 const TRAINING_CARD_UNLOCKS := {
@@ -371,7 +376,72 @@ func get_deck_card_ids(state: Dictionary, pvp: bool = false) -> Array[StringName
 		var pvp_ids := _copy_card_id_array(_sanitize_state(state).get(KEY_PVP_DECK, []))
 		if not pvp_ids.is_empty():
 			return pvp_ids
+		return build_default_pvp_deck(state)
 	return get_player_deck_card_ids(state)
+
+
+# Výchozí balík pro hru ve dvou: tréninkový balík oříznutý na limit kopií a doplněný na 30.
+func build_default_pvp_deck(state: Dictionary) -> Array[StringName]:
+	var deck: Array[StringName] = []
+	for card_id in get_player_deck_card_ids(state):
+		if deck.size() < PVP_DECK_SIZE and deck.count(card_id) < get_card_copy_limit(card_id, true):
+			deck.append(card_id)
+	return fill_deck_card_ids(deck, get_all_collectible_card_ids(), PVP_DECK_SIZE, true)
+
+
+# Doplní balík na target kartami z collection podle FILL_CURVE (nejvíc chybějící cena první).
+# Deterministické: v rámci ceny bere karty, kterých má balík nejméně, pak podle id.
+func fill_deck_card_ids(deck: Array[StringName], collection: Array[StringName], target: int, pvp: bool) -> Array[StringName]:
+	var result: Array[StringName] = deck.duplicate()
+	var costs := {}
+	for card_id in collection:
+		var card := load("%s/%s.tres" % [CARDS_DIR, card_id]) as CardDefinition
+		if card != null:
+			costs[card_id] = card.cost
+	var sorted_ids: Array = costs.keys()
+	sorted_ids.sort_custom(func(a, b): return String(a) < String(b))
+	while result.size() < target:
+		var bucket_counts := [0, 0, 0, 0, 0]
+		for card_id in result:
+			bucket_counts[_cost_bucket(int(costs.get(card_id, 2)))] += 1
+		var best_id := StringName()
+		var best_score: float = -INF
+		for card_id in sorted_ids:
+			if result.count(card_id) >= get_card_copy_limit(card_id, pvp):
+				continue
+			var bucket := _cost_bucket(int(costs[card_id]))
+			var wanted := float(FILL_CURVE[bucket]) * float(target) / float(PVP_DECK_SIZE)
+			var score: float = (wanted - float(bucket_counts[bucket])) * 10.0 - float(result.count(card_id))
+			if score > best_score:
+				best_score = score
+				best_id = card_id
+		if best_id == StringName():
+			break  # kolekce nestačí
+		result.append(best_id)
+	return result
+
+
+static func _cost_bucket(cost: int) -> int:
+	return clampi(cost - 1, 0, 4)
+
+
+# Prázdný řetězec = s balíkem jde hrát; jinak co je špatně.
+func get_deck_problem(deck: Array[StringName], pvp: bool) -> String:
+	if pvp and deck.size() != PVP_DECK_SIZE:
+		return "Balík pro hru ve dvou musí mít přesně %s karet (máš %s)." % [PVP_DECK_SIZE, deck.size()]
+	if not pvp and (deck.size() < DECK_MIN_SIZE or deck.size() > DECK_MAX_SIZE):
+		return "Balík musí mít %s až %s karet (máš %s)." % [DECK_MIN_SIZE, DECK_MAX_SIZE, deck.size()]
+	if pvp:
+		for card_id in deck:
+			if deck.count(card_id) > get_card_copy_limit(card_id, true):
+				return "Karta %s je v balíku víckrát, než smí (max %s)." % [card_id, get_card_copy_limit(card_id, true)]
+	return ""
+
+
+func fill_deck(state: Dictionary, pvp: bool = false) -> Dictionary:
+	var target := PVP_DECK_SIZE if pvp else DECK_MIN_SIZE
+	var deck := get_deck_card_ids(state, pvp)
+	return set_deck_card_ids(state, fill_deck_card_ids(deck, get_collection_card_ids(state, pvp), target, pvp), pvp)
 
 
 func set_deck_card_ids(state: Dictionary, card_ids: Array[StringName], pvp: bool = false) -> Dictionary:
@@ -466,8 +536,20 @@ func get_training_unlock_card_ids(encounter_id: StringName) -> Array[StringName]
 	return ids
 
 
-func get_card_copy_limit(card_id: StringName) -> int:
-	return 1 if SINGLE_COPY_IDS.has(card_id) else MAX_COPIES
+func get_card_copy_limit(card_id: StringName, pvp: bool = false) -> int:
+	if SINGLE_COPY_IDS.has(card_id):
+		return 1
+	return PVP_MAX_COPIES if pvp else MAX_COPIES
+
+
+static func get_deck_max_size(pvp: bool) -> int:
+	return PVP_DECK_SIZE if pvp else DECK_MAX_SIZE
+
+
+# Hra ve dvou smí balík při úpravách zmenšit (hrát jde až s přesně 30). Aspoň 1 karta:
+# prázdný uložený balík znamená „ještě neupravený“ a vrací výchozí.
+static func get_deck_min_size(pvp: bool) -> int:
+	return 1 if pvp else DECK_MIN_SIZE
 
 
 # Prázdný řetězec = karta jde přidat; jinak důvod pro hráče.
@@ -475,10 +557,10 @@ func get_add_block_reason(state: Dictionary, card_id: StringName, pvp: bool = fa
 	var deck := get_deck_card_ids(state, pvp)
 	if not get_collection_card_ids(state, pvp).has(card_id):
 		return "Kartu ještě nemáš v kolekci."
-	if deck.size() >= DECK_MAX_SIZE:
-		return "Balík je plný (%s karet)." % DECK_MAX_SIZE
-	if deck.count(card_id) >= get_card_copy_limit(card_id):
-		return "Víc kopií nejde (max %s)." % get_card_copy_limit(card_id)
+	if deck.size() >= get_deck_max_size(pvp):
+		return "Balík je plný (%s karet)." % get_deck_max_size(pvp)
+	if deck.count(card_id) >= get_card_copy_limit(card_id, pvp):
+		return "Víc kopií nejde (max %s)." % get_card_copy_limit(card_id, pvp)
 	return ""
 
 
@@ -492,7 +574,7 @@ func add_card_to_deck(state: Dictionary, card_id: StringName, pvp: bool = false)
 
 func can_remove_from_deck(state: Dictionary, card_id: StringName, pvp: bool = false) -> bool:
 	var deck := get_deck_card_ids(state, pvp)
-	return deck.has(card_id) and deck.size() > DECK_MIN_SIZE
+	return deck.has(card_id) and deck.size() > get_deck_min_size(pvp)
 
 
 func remove_card_from_deck(state: Dictionary, card_id: StringName, pvp: bool = false) -> Dictionary:

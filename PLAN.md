@@ -43,6 +43,8 @@
 ## Fáze D – Trénink + multiplayer (D-022)
 - [x] D1 Trénink: žebříček soupeřů, každý těžší, odemykání postupně
 - [x] D2 Stavění vlastního balíku (z odemčených karet), D-023
+- [x] D2b Hra ve dvou: balík přesně 30 karet / 3 kopie, Doplnit, křivka ceny, filtry (D-029)
+- [ ] Balanc tanků při 30 životech (sim: Stokový král dominuje)
 - [x] D3 Víc karet: 47 sběratelných (2026-10-21), art čeká na archy A–C (`design/art_prompt_2026-10-22.md`)
 - [x] D4 Multiplayer 1v1 LAN/přímá IP (host je autorita, snímky stavu), D-024; čeká na test ve dvou přes Radmin
 - [ ] D5 Hra přes internet (relay/Steam), až po D4

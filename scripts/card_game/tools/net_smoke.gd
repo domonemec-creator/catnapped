@@ -36,7 +36,7 @@ func _run() -> void:
 	var port := int(args[1]) if args.size() > 1 else 7031
 	var mm := root.get_node("MultiplayerManager")
 	# Jen čtení: v okně by reset_state() přepsal skutečný save hráče.
-	var deck := ProgressionSystem.new().get_player_deck_card_ids(ProgressionSystem.new().load_state())
+	var deck := ProgressionSystem.new().get_deck_card_ids(ProgressionSystem.new().load_state(), true)
 	var result: Error
 	if _role == "host":
 		result = mm.host_session(port, "Host", deck)
@@ -46,6 +46,7 @@ func _run() -> void:
 		_finish("NET FAIL nelze otevřít spojení (%s)" % result, 1)
 		return
 
+	mm.join_failed.connect(func(message: String): print("NET REJECT ", message))
 	var start := Time.get_ticks_msec()
 	while not mm.is_in_match():
 		if Time.get_ticks_msec() - start > 20000:

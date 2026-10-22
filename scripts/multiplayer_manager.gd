@@ -17,9 +17,7 @@ const DEFAULT_ADDRESS := "127.0.0.1"
 const MAX_CLIENTS := 1
 const BATTLE_SCENE_PATH := "res://scenes/card_game/battle_scene.tscn"
 # Zvyš při každé změně RPC nebo formátu snímku: různé verze hry spolu nehrají.
-const PROTOCOL_VERSION := 5  # 3: Bojový nástup do prázdné lajny zraní soupeře, 4: Hostina nejvýš 3×, 5: hra ve dvou 30 životů / 10 Tun
-const NET_DECK_MIN := 20
-const NET_DECK_MAX := 30
+const PROTOCOL_VERSION := 6  # 3: Bojový nástup do prázdné lajny zraní soupeře, 4: Hostina nejvýš 3×, 5: hra ve dvou 30 životů / 10 Tun, 6: balík ve dvou přesně 30 karet, max 3 kopie
 
 var session_mode: StringName = &"singleplayer"
 var current_address: String = DEFAULT_ADDRESS
@@ -187,7 +185,7 @@ func _rpc_hello(player_name: String, deck_ids: Array, protocol_version: int) -> 
         return
     var deck := _validated_deck(deck_ids)
     if deck.is_empty():
-        _reject_peer(sender, "Tvůj balík hostitel nezná nebo nemá %s až %s karet. Máte stejnou verzi hry?" % [NET_DECK_MIN, NET_DECK_MAX])
+        _reject_peer(sender, "Tvůj balík hostitel nezná nebo nemá přesně %s karet (nejvýš %s kopie). Máte stejnou verzi hry?" % [ProgressionSystem.PVP_DECK_SIZE, ProgressionSystem.PVP_MAX_COPIES])
         return
     _start_match_as_host(player_name.left(24), deck)
 
@@ -215,7 +213,7 @@ func _validated_deck(values: Array) -> Array[StringName]:
         if not ResourceLoader.exists("res://data/cards/%s.tres" % String(value)):
             return []
         ids.append(StringName(value))
-    if ids.size() < NET_DECK_MIN or ids.size() > NET_DECK_MAX:
+    if not ProgressionSystem.new().get_deck_problem(ids, true).is_empty():
         return []
     return ids
 

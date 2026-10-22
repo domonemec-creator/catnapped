@@ -100,6 +100,8 @@ func _exit_tree() -> void:
 
 
 func _on_host_pressed() -> void:
+	if not _deck_ready():
+		return
 	var manager := _manager()
 	var result: Error = manager.host_session(manager.DEFAULT_PORT, _player_name(), _player_deck())
 	if result != OK:
@@ -115,6 +117,8 @@ func _on_join_pressed() -> void:
 	var address := _address_edit.text.strip_edges()
 	if not address.is_valid_ip_address():
 		_status.text = "Tohle není platná IP adresa."
+		return
+	if not _deck_ready():
 		return
 	_save_last_address(address)
 	var manager := _manager()
@@ -167,6 +171,15 @@ func _player_name() -> String:
 func _player_deck() -> Array[StringName]:
 	var progression := ProgressionSystem.new()
 	return progression.get_deck_card_ids(progression.load_state(), true)
+
+
+# Neplatný balík (ne přesně 30 karet) zastaví hostování i připojení s vysvětlením.
+func _deck_ready() -> bool:
+	var problem := ProgressionSystem.new().get_deck_problem(_player_deck(), true)
+	if problem.is_empty():
+		return true
+	_status.text = "%s Uprav ho v „Balík a postup“ (tlačítko Doplnit)." % problem
+	return false
 
 
 func _default_name() -> String:

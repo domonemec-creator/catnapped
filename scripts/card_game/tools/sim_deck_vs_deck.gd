@@ -18,6 +18,7 @@ var _games_sum := 0
 var _second_extra_life := 0  # argument lifeN: druhý na tahu má N životů navíc
 var _second_extra_cards := 0  # argument extraN: druhý na tahu má v ruce N karet navíc
 var _pvp_rules := true  # argument old: staré životy a Tuny (jako trénink)
+var _pad := false  # argument pad: balíky na 30 karet / 3 kopie jako ve hře ve dvou
 var _coin_id := StringName()  # argument coin[=id]: druhý na tahu dostane tuhle kartu do ruky
 
 
@@ -25,7 +26,24 @@ func _init() -> void:
 	call_deferred("_run")
 
 
+# pad: balík jako ve hře ve dvou (D-029) – max 3 kopie, doplněno na 30 nejdřív vlastními kartami.
 func _deck_ids(source: String) -> Array[StringName]:
+	var ids := _raw_deck_ids(source)
+	if not _pad or ids.is_empty():
+		return ids
+	var p := ProgressionSystem.new()
+	var trimmed: Array[StringName] = []
+	var own: Array[StringName] = []
+	for card_id in ids:
+		if trimmed.count(card_id) < p.get_card_copy_limit(card_id, true):
+			trimmed.append(card_id)
+		if not own.has(card_id):
+			own.append(card_id)
+	var filled := p.fill_deck_card_ids(trimmed, own, ProgressionSystem.PVP_DECK_SIZE, true)
+	return p.fill_deck_card_ids(filled, p.get_all_collectible_card_ids(), ProgressionSystem.PVP_DECK_SIZE, true)
+
+
+func _raw_deck_ids(source: String) -> Array[StringName]:
 	var ids: Array[StringName] = []
 	if source.ends_with(".txt"):
 		var f := FileAccess.open(source, FileAccess.READ)
@@ -196,6 +214,8 @@ func _run() -> void:
 			args.erase(arg)
 		elif arg == "old":
 			_pvp_rules = false
+		elif arg == "pad":
+			_pad = true
 			args.erase(arg)
 		elif String(arg).begins_with("life"):
 			_second_extra_life = int(String(arg).substr(4))

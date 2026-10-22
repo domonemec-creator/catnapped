@@ -36,6 +36,13 @@ var _hover_preview: Control  # velká karta u myši při najetí na řádek
 var _pvp_mode := false  # true = balík pro hru ve dvou ze všech karet (E5)
 var _deck_title: Label
 var _mode_button: Button
+var _fill_button: Button
+# Filtr kolekce: -1 = vše; cena = koš 0–4 (≤1, 2, 3, 4, 5+), typ = CardGameConstants.CardType.
+var _cost_filter := -1
+var _type_filter := -1
+var _filter_row: HFlowContainer
+var _curve_row: HBoxContainer
+var _type_summary: Label
 
 
 func _ready() -> void:
@@ -177,6 +184,10 @@ func _build_ui() -> void:
     collection_title.text = "Kolekce"
     _style_label(collection_title, 24, Color(0.96, 0.88, 0.73, 1))
     stats_vbox.add_child(collection_title)
+    _filter_row = HFlowContainer.new()
+    _filter_row.add_theme_constant_override("h_separation", 6)
+    _filter_row.add_theme_constant_override("v_separation", 6)
+    stats_vbox.add_child(_filter_row)
 
     var collection_scroll := ScrollContainer.new()
     collection_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -221,10 +232,23 @@ func _build_ui() -> void:
     _mode_button.custom_minimum_size = Vector2(230, 40)
     _mode_button.pressed.connect(_toggle_pvp_mode)
     title_row.add_child(_mode_button)
+    _fill_button = _make_small_button("Doplnit", true, "")
+    _fill_button.add_theme_font_size_override("font_size", 16)
+    _fill_button.custom_minimum_size = Vector2(110, 40)
+    _fill_button.pressed.connect(_fill_deck)
+    title_row.add_child(_fill_button)
 
     _deck_note = Label.new()
     _style_label(_deck_note, 15, Color(0.88, 0.79, 0.64, 0.95), true)
     deck_vbox.add_child(_deck_note)
+
+    # Křivka ceny: kolik karet stojí ≤1, 2, 3, 4 a 5+ Tun.
+    _curve_row = HBoxContainer.new()
+    _curve_row.add_theme_constant_override("separation", 10)
+    deck_vbox.add_child(_curve_row)
+    _type_summary = Label.new()
+    _style_label(_type_summary, 15, Color(0.88, 0.79, 0.64, 0.95), true)
+    deck_vbox.add_child(_type_summary)
 
     var scroll := ScrollContainer.new()
     scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -291,7 +315,12 @@ func _refresh_ui() -> void:
     _loss_label.text = "Prohry: %s" % _progression_system.get_loss_count(_progression_state)
 
     var deck_card_ids: Array[StringName] = _progression_system.get_deck_card_ids(_progression_state, _pvp_mode)
-    _deck_total_label.text = "Velikost balíku: %s" % deck_card_ids.size()
+    var deck_max := ProgressionSystem.get_deck_max_size(_pvp_mode)
+    var deck_problem := _progression_system.get_deck_problem(deck_card_ids, _pvp_mode)
+    _deck_total_label.text = "Velikost balíku: %s/%s" % [deck_card_ids.size(), deck_max]
+    _deck_total_label.add_theme_color_override("font_color", Color(1.0, 0.55, 0.45) if not deck_problem.is_empty() else Color(0.96, 0.88, 0.73, 1))
+    _fill_button.disabled = _is_deck_locked() or deck_card_ids.size() >= (ProgressionSystem.PVP_DECK_SIZE if _pvp_mode else ProgressionSystem.DECK_MIN_SIZE)
+    _fill_button.tooltip_text = "Dorovná balík na %s karet podle křivky ceny." % (ProgressionSystem.PVP_DECK_SIZE if _pvp_mode else ProgressionSystem.DECK_MIN_SIZE)
     _deck_title.text = "Balík pro hru ve dvou" if _pvp_mode else "Balík pro trénink"
     _mode_button.text = "Přepnout na trénink" if _pvp_mode else "Přepnout na hru ve dvou"
     _refresh_run_label()
@@ -299,13 +328,17 @@ func _refresh_ui() -> void:
     if locked:
         _deck_note.text = "Během výpravy balík upravit nejde (mění ho odměny)."
     elif _pvp_mode:
-        _deck_note.text = "Ve hře ve dvou máš všechny karty. %s až %s karet, nejvýš %s kopie. Změny se ukládají hned." % [
-            ProgressionSystem.DECK_MIN_SIZE, ProgressionSystem.DECK_MAX_SIZE, ProgressionSystem.MAX_COPIES,
+        _deck_note.text = "Ve hře ve dvou máš všechny karty. Přesně %s karet, nejvýš %s kopie. Změny se ukládají hned." % [
+            ProgressionSystem.PVP_DECK_SIZE, ProgressionSystem.PVP_MAX_COPIES,
         ]
+        if not deck_problem.is_empty():
+            _deck_note.text += " " + deck_problem
     else:
         _deck_note.text = "%s až %s karet, nejvýš %s kopie stejné karty. Změny se ukládají hned." % [
             ProgressionSystem.DECK_MIN_SIZE, ProgressionSystem.DECK_MAX_SIZE, ProgressionSystem.MAX_COPIES,
         ]
+    _refresh_curve(deck_card_ids)
+    _refresh_filters()
     _refresh_deck_list(deck_card_ids)
     _refresh_collection_list(deck_card_ids, locked)
 
@@ -330,12 +363,101 @@ func _refresh_collection_list(deck_card_ids: Array[StringName], locked: bool) ->
     var ids := _progression_system.get_collection_card_ids(_progression_state, _pvp_mode)
     ids.sort_custom(_compare_cards)
     for card_id in ids:
-        var limit := _progression_system.get_card_copy_limit(card_id)
+        if not _passes_filter(card_id):
+            continue
+        var limit := _progression_system.get_card_copy_limit(card_id, _pvp_mode)
         var row := _build_card_row(_collection_list, card_id, "%s/%s" % [deck_card_ids.count(card_id), limit])
         var reason := "Během výpravy nejde." if locked else _progression_system.get_add_block_reason(_progression_state, card_id, _pvp_mode)
         var add_button := _make_small_button("+", reason.is_empty(), reason if not reason.is_empty() else "Přidat do balíku")
         add_button.pressed.connect(_change_deck.bind(card_id, true))
         row.add_child(add_button)
+        if reason.is_empty():
+            _connect_row_click(row, card_id, true)
+
+
+const COST_BUCKET_LABELS := ["≤1", "2", "3", "4", "5+"]
+const CURVE_BAR_MAX_HEIGHT := 56.0
+
+
+func _passes_filter(card_id: StringName) -> bool:
+    var card_definition := _card_library.get(card_id) as CardDefinition
+    if card_definition == null:
+        return _cost_filter < 0 and _type_filter < 0
+    if _cost_filter >= 0 and ProgressionSystem._cost_bucket(card_definition.cost) != _cost_filter:
+        return false
+    return _type_filter < 0 or card_definition.card_type == _type_filter
+
+
+func _refresh_filters() -> void:
+    for child in _filter_row.get_children():
+        child.queue_free()
+    _add_filter_button("Vše", _cost_filter < 0 and _type_filter < 0, _set_filters.bind(-1, -1))
+    for bucket in COST_BUCKET_LABELS.size():
+        _add_filter_button(COST_BUCKET_LABELS[bucket], _cost_filter == bucket, _set_filters.bind(-1 if _cost_filter == bucket else bucket, _type_filter))
+    for pair in [[CardGameConstants.CardType.CAT, "Kočky"], [CardGameConstants.CardType.TRICK, "Triky"], [CardGameConstants.CardType.ITEM, "Předměty"]]:
+        _add_filter_button(pair[1], _type_filter == pair[0], _set_filters.bind(_cost_filter, -1 if _type_filter == pair[0] else pair[0]))
+
+
+func _add_filter_button(text: String, selected: bool, callback: Callable) -> void:
+    var button := _make_small_button(text, true, "Filtr kolekce (cena v Tunách / typ). Druhý klik filtr zruší.")
+    button.add_theme_font_size_override("font_size", 15)
+    button.custom_minimum_size = Vector2(maxi(44, text.length() * 10 + 24), 34)
+    if selected:
+        button.add_theme_stylebox_override("normal", _button_hover_style)
+        button.add_theme_color_override("font_color", Color(1.0, 0.86, 0.5, 1))
+    button.pressed.connect(callback)
+    _filter_row.add_child(button)
+
+
+func _set_filters(cost_bucket: int, card_type: int) -> void:
+    _cost_filter = cost_bucket
+    _type_filter = card_type
+    _refresh_ui()
+
+
+func _refresh_curve(deck_card_ids: Array[StringName]) -> void:
+    for child in _curve_row.get_children():
+        child.queue_free()
+    var counts := [0, 0, 0, 0, 0]
+    var type_counts := {}
+    for card_id in deck_card_ids:
+        var card_definition := _card_library.get(card_id) as CardDefinition
+        if card_definition == null:
+            continue
+        counts[ProgressionSystem._cost_bucket(card_definition.cost)] += 1
+        type_counts[card_definition.card_type] = int(type_counts.get(card_definition.card_type, 0)) + 1
+    var peak := maxi(1, counts.max())
+    for bucket in counts.size():
+        var column := VBoxContainer.new()
+        column.custom_minimum_size = Vector2(44, 0)
+        column.alignment = BoxContainer.ALIGNMENT_END
+        column.add_theme_constant_override("separation", 2)
+        column.tooltip_text = "%s karet za %s Tun" % [counts[bucket], COST_BUCKET_LABELS[bucket]]
+        _curve_row.add_child(column)
+        var count_label := Label.new()
+        _style_label(count_label, 14, Color(0.95, 0.88, 0.74, 1))
+        count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+        count_label.text = str(counts[bucket])
+        column.add_child(count_label)
+        var bar_slot := Control.new()
+        bar_slot.custom_minimum_size = Vector2(44, CURVE_BAR_MAX_HEIGHT)
+        column.add_child(bar_slot)
+        var bar := ColorRect.new()
+        var height := CURVE_BAR_MAX_HEIGHT * float(counts[bucket]) / float(peak)
+        bar.color = Color(0.86, 0.62, 0.3, 0.95)
+        bar.position = Vector2(8, CURVE_BAR_MAX_HEIGHT - height)
+        bar.size = Vector2(28, height)
+        bar_slot.add_child(bar)
+        var cost_label := Label.new()
+        _style_label(cost_label, 13, Color(0.8, 0.72, 0.58, 1))
+        cost_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+        cost_label.text = COST_BUCKET_LABELS[bucket]
+        column.add_child(cost_label)
+    _type_summary.text = "Kočky %s · Triky %s · Předměty %s  (cena v Tunách)" % [
+        type_counts.get(CardGameConstants.CardType.CAT, 0),
+        type_counts.get(CardGameConstants.CardType.TRICK, 0),
+        type_counts.get(CardGameConstants.CardType.ITEM, 0),
+    ]
 
 
 # Obchod (E3): nabídky nad kolekcí, nové po každém zápase (seed = počet odehraných).
@@ -388,6 +510,21 @@ func _change_deck(card_id: StringName, add: bool) -> void:
         _progression_state = _progression_system.add_card_to_deck(_progression_state, card_id, _pvp_mode)
     else:
         _progression_state = _progression_system.remove_card_from_deck(_progression_state, card_id, _pvp_mode)
+    _progression_system.save_state(_progression_state)
+    _refresh_ui()
+
+
+# Klik na řádek = totéž co +/− (rychlejší stavění).
+func _connect_row_click(row: Control, card_id: StringName, add: bool) -> void:
+    row.gui_input.connect(func(event: InputEvent):
+        if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+            _change_deck.call_deferred(card_id, add))
+
+
+func _fill_deck() -> void:
+    if _is_deck_locked():
+        return
+    _progression_state = _progression_system.fill_deck(_progression_state, _pvp_mode)
     _progression_system.save_state(_progression_state)
     _refresh_ui()
 
@@ -527,10 +664,12 @@ func _refresh_deck_list(deck_card_ids: Array[StringName]) -> void:
     for card_id in card_order:
         var row := _build_card_row(_deck_list, card_id, "%sx" % card_counts.get(card_id, 0))
         var can_remove := not locked and _progression_system.can_remove_from_deck(_progression_state, card_id, _pvp_mode)
-        var tip := "Odebrat z balíku" if can_remove else ("Během výpravy nejde." if locked else "Balík má minimum %s karet." % ProgressionSystem.DECK_MIN_SIZE)
+        var tip := "Odebrat z balíku" if can_remove else ("Během výpravy nejde." if locked else "Balík má minimum %s karet." % ProgressionSystem.get_deck_min_size(_pvp_mode))
         var remove_button := _make_small_button("−", can_remove, tip)
         remove_button.pressed.connect(_change_deck.bind(card_id, false))
         row.add_child(remove_button)
+        if can_remove:
+            _connect_row_click(row, card_id, false)
 
 
 func _on_reset_pressed() -> void:

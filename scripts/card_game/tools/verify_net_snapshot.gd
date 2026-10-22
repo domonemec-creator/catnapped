@@ -66,14 +66,17 @@ func _run() -> void:
 	if manager == null:
 		_fail("Chybí autoload MultiplayerManager.")
 		return
+	# D-029: přesně 30 karet, nejvýš 3 kopie.
 	var good: Array = []
-	for i in range(20):
-		good.append("alley_scrapper")
-	if manager._validated_deck(good).size() != 20:
-		_fail("Platný balík 20 karet byl odmítnut.")
+	for card_id in ["alley_scrapper", "tavern_mouser", "candlepaw_scout", "fishbone_skulker", "netclaw_raider", "dockside_bruiser", "wharf_cutthroat", "lamplighter", "rafter_pouncer", "harbor_kitten"]:
+		for i in 3:
+			good.append(card_id)
+	if manager._validated_deck(good).size() != 30:
+		_fail("Platný balík 30 karet byl odmítnut.")
 		return
-	if not manager._validated_deck(good.slice(0, 19)).is_empty() or not manager._validated_deck(good + ["neexistujici_karta"]).is_empty() or not manager._validated_deck(good.slice(0, 19) + [42]).is_empty():
-		_fail("Neplatný balík (málo karet / neznámá karta / číslo) prošel.")
+	var four_copies: Array = good.slice(0, 29) + ["alley_scrapper"]
+	if not manager._validated_deck(good.slice(0, 29)).is_empty() or not manager._validated_deck(good + ["neexistujici_karta"]).is_empty() or not manager._validated_deck(good.slice(0, 29) + [42]).is_empty() or not manager._validated_deck(four_copies).is_empty():
+		_fail("Neplatný balík (málo karet / neznámá karta / číslo / 4 kopie) prošel.")
 		return
 	print("Net snapshot verification passed.")
 	quit()

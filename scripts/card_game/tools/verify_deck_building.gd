@@ -95,6 +95,19 @@ func _run() -> void:
 	if screen._collection_list.get_child_count() != all_ids.size():
 		_fail("Kolekce ve hře ve dvou neukazuje všechny karty (%s/%s)." % [screen._collection_list.get_child_count(), all_ids.size()])
 		return
+	# D-029: výchozí balík ve dvou je hratelný (přesně 30, nejvýš 3 kopie).
+	var default_pvp := progression.get_deck_card_ids(progression.load_state(), true)
+	if default_pvp.size() != ProgressionSystem.PVP_DECK_SIZE or not progression.get_deck_problem(default_pvp, true).is_empty():
+		_fail("Výchozí balík pro hru ve dvou není platný (%s karet)." % default_pvp.size())
+		return
+	if not progression.get_add_block_reason(progression.load_state(), &"cannon_cat", true).begins_with("Balík je plný"):
+		_fail("Plný balík ve dvou (30) šel zvětšit.")
+		return
+	screen._change_deck(default_pvp[0], false)
+	var short_deck := progression.get_deck_card_ids(progression.load_state(), true)
+	if short_deck.size() != ProgressionSystem.PVP_DECK_SIZE - 1 or progression.get_deck_problem(short_deck, true).is_empty():
+		_fail("Balík ve dvou s 29 kartami musí být neplatný.")
+		return
 	screen._change_deck(&"cannon_cat", true)
 	var after_state := progression.load_state()
 	if not progression.get_deck_card_ids(after_state, true).has(&"cannon_cat"):
@@ -105,6 +118,22 @@ func _run() -> void:
 		return
 	if progression.get_collection_card_ids(after_state).has(&"cannon_cat") and not training_before.has(&"cannon_cat"):
 		_fail("Karta z balíku pro hru ve dvou prosákla do tréninkové kolekce.")
+		return
+
+	# Limit 3 kopií ve dvou a Doplnit zpátky na 30.
+	var copy_state := progression.load_state()
+	for i in 4:
+		copy_state = progression.add_card_to_deck(copy_state, &"lamplighter", true)
+	var copy_deck := progression.get_deck_card_ids(copy_state, true)
+	if copy_deck.count(&"lamplighter") > ProgressionSystem.PVP_MAX_COPIES:
+		_fail("Ve hře ve dvou prošla 4. kopie.")
+		return
+	progression.save_state(copy_state)
+	screen._refresh_ui()
+	screen._fill_deck()
+	var filled := progression.get_deck_card_ids(progression.load_state(), true)
+	if filled.size() != ProgressionSystem.PVP_DECK_SIZE or not progression.get_deck_problem(filled, true).is_empty():
+		_fail("Doplnit nevyrobilo platný balík (%s karet: %s)." % [filled.size(), progression.get_deck_problem(filled, true)])
 		return
 
 	screen.queue_free()

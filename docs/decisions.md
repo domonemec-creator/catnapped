@@ -217,3 +217,12 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Kontext: Mark po tréninku: ve hře ve dvou chce delší zápas, 30 životů a nejvýš 10 Tun. Trénink zůstává 10 životů / 7 Tun.
 - Rozhodnutí: `NET_STARTING_LIFE = 30`, `NET_MAX_TUNA = 10` (`battle_controller.gd`, `get_starting_life()` / `get_max_tuna()`, `pvp_rules` pro sim). Kompenzace druhého (D-026) beze změny: +2 životy a konzerva, sim 20 her na pořadí: první vyhrává 50,7 % (life4 48,1 %, life6 45,1 %).
 - Daň (sim): zápas ~33 půltahů místo ~16–26. Pomalé balíky s tanky sílí (Stokový král proti Lucernové útočnici 45 % → 95 %), agresivní balíky slábnou. Při 20 životech skoro totéž (87,5 %). Hlídat v lidských testech; páka je síla tanků, ne životy.
+
+### D-029 - Hra ve dvou: balík přesně 30 karet, nejvýš 3 kopie
+- Datum: 2026-10-22
+- Stav: aktivni
+- Kontext: Mark: kolik karet, omezit počet? Rozsah 20–30 je falešná volba: menší balík líže nejlepší karty častěji, všichni by hráli 20. Při 30 životech (D-028) trvá zápas ~16 tahů na hráče a 20 karet dojde.
+- Rozhodnutí: hra ve dvou přesně 30 karet, nejvýš 3 kopie (`SINGLE_COPY_IDS` 1×). Hrát jde jen s platným balíkem (lobby + kontrola u hostitele). Trénink zůstává 20–30 / 4 kopie, protože výprava balík zvětšuje odměnami. Prázdný balík řeší dál Hlad (D-017).
+- Proč ne bez limitu: neomezený balík by nikdo nehrál (ředí nejlepší karty), jen by mátl. Proč 3 kopie: se 4 jsou balíky monotónní; páka proti bombám je navíc 1× u jedinečných karet.
+- Sim (`pad`): první na tahu 49,2 % (20 karet 54,4 %), zápas ~46 půltahů.
+
