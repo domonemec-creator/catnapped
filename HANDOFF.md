@@ -39,7 +39,7 @@
   - E6 + D-026: `sim_deck_vs_deck.gd`. Ve hře ve dvou vyhrával první na tahu 62 %; teď druhý dostane +2 životy a konzervu do ruky, výsledek 50,1 %.
   - E3 obchod: rybí šupiny za zápas proti AI (výhra 10 + 5 × stupeň, prohra 3), v Balík a postup 3 nabídky karet mimo kolekci (cena 5 + 5 × cena karty).
   - `PROTOCOL_VERSION` 2: starý .exe se s novým nespojí.
-- `build/Catnapped.exe` vyexportován znovu 17:36 (obsahuje vše výše); export ověřen přes pck (konzerva, balík pro hru ve dvou).
+- `build/Catnapped.exe` vyexportován znovu 17:43 (obsahuje vše výše včetně obchodu); export ověřen přes pck (konzerva, balík pro hru ve dvou, obchod).
 
 ## Další krok
 0. Fáze E zbývá: E3 obchod je hotový v základu (šupiny po zápase proti AI, 3 nabídky nad kolekcí v Balík a postup, `verify_shop.gd`); chybí šupiny ve hře ve dvou a zkrácení automatického odemykání, E4 sbírka ~60 karet (sady 15–20, každá přes `sim_deck_vs_deck.gd`). Art pro konzervu od Marka.
