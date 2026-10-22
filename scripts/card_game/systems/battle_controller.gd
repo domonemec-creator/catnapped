@@ -106,6 +106,7 @@ var _player_lanes: Array[LaneSlotView] = []
 var _pace_actions := false
 var _enemy_turn_running := false
 var _hover_card: CardInstance
+var _enemy_last_played: CardInstance  # karta, kterou soupeř zahrál v tomto tahu (pravý panel)
 var _enemy_hand_host: Container
 var _net: NetBattle  # null = hra proti počítači (D4)
 var _net_result_shown := false
@@ -1003,6 +1004,8 @@ func _play_targeted_card(owner_state: PlayerBattleState, opposing_state: PlayerB
 		return ""
 	if _net != null and target_card == null and _net.intercept(owner_state, {"type": "play_instant", "card": card_instance.instance_id}):
 		return ""
+	if owner_state.player_id == ENEMY_ID:
+		_enemy_last_played = card_instance
 
 	_clear_lane_feedback()
 	_spend_card_cost(card_instance, owner_state)
@@ -1318,6 +1321,8 @@ func _handle_enemy_lane_pressed(lane_index: int) -> void:
 func _play_card_to_lane(player_state: PlayerBattleState, lane_index: int, card_instance: CardInstance) -> void:
 	if _net != null and _net.intercept(player_state, {"type": "play_lane", "card": card_instance.instance_id, "lane": lane_index}):
 		return
+	if player_state.player_id == ENEMY_ID:
+		_enemy_last_played = card_instance
 	var slot: LaneSlotState = player_state.board[lane_index]
 	if slot == null or not slot.is_empty():
 		return
@@ -1666,6 +1671,7 @@ func _run_opponent_turn() -> void:
 	var player_state: PlayerBattleState = _battle_state.get_player_state(PLAYER_ID)
 	var enemy_state: PlayerBattleState = _battle_state.get_player_state(ENEMY_ID)
 	_enemy_turn_running = true
+	_enemy_last_played = null
 	end_turn_button.disabled = true
 	BattleFx.banner(self, "Tah soupeře", Color(0.95, 0.55, 0.45))
 	if _net != null:
@@ -2115,6 +2121,7 @@ func _refresh_selected_panel() -> void:
 		"enemy_state": _battle_state.get_player_state(ENEMY_ID),
 		"enemy_turn": _enemy_turn_running,
 		"hover_card": _hover_card,
+		"enemy_last_played": _enemy_last_played,
 	})
 
 

@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-22 - Pravý panel v tahu soupeře (Claude Opus 5.5)
+- Oblast: UI souboje
+- Soubory: `battle_controller.gd` (`_enemy_last_played`), `battle_preview_presenter.gd`
+- Změna: místo prázdného panelu s větou „Soupeř je na tahu“ teď panel ukazuje velkou kartu, kterou soupeř právě zahrál, a pod ní „Tuhle kartu soupeř právě zahrál…“. Hover má přednost. V síťové hře u klienta zůstává průvodce (karty soupeře tam chodí jen snímkem).
+- Ověření: `capture_enemy_turn.gd` (okno, screenshot), všech 23 verifierů.
+
 ### 2026-10-22 - Soupeři s novými kartami (Claude Opus 5.5)
 - Mlžná věštkyně: 2× Lovec potkanů místo 2× Síťodrápý nájezdník. Stokový král: 2× Lamač z doků místo 2× Trámový skokan. (Tito dva nemají profil hrozby, ostatní balíky beze změny.)
 - Sim 60 her/pořadí (AI hráč, startovní balík): Smug 70.8, Lantern 35.8, Ragclaw 20.0, Fog 23.3 (dřív 19.2), Harbor 10.0, Bilge 4.2 (dřív 2.5) %. Boss dál nejtěžší.

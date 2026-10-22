@@ -113,6 +113,18 @@ func refresh_selected_panel(state: Dictionary) -> void:
 		)
 		return
 
+	# Tah soupeře: ukaž velkou kartu, kterou právě zahrál (myš má přednost).
+	var last_played = state.get("enemy_last_played")
+	if bool(state.get("enemy_turn", false)) and last_played != null and last_played.definition != null and state.get("hover_card") == null:
+		_selected_card_view.set_card_instance(last_played)
+		set_selected_panel_copy(
+			"Soupeř zahrál: %s" % last_played.definition.display_name,
+			build_card_meta(last_played),
+			"",
+			"Tuhle kartu soupeř právě zahrál. Až dohraje, jsi na řadě ty."
+		)
+		return
+
 	# Náhled pod myší (jen když nic není vybrané): hlavně soupeřovy kočky, které nejde kliknout.
 	var hover_card = state.get("hover_card")
 	if hover_card != null and hover_card.definition != null:
