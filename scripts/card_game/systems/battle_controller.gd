@@ -2386,7 +2386,8 @@ func _update_turn_indicator() -> void:
 
 # Nadpis panelu stavu: číslo kola a kdo je na tahu (místo obecného „Stav tahu“).
 func _refresh_turn_title() -> void:
-	var title := get_node_or_null("Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox/StatusTitle") as Label
+	# Přes referenci na panel: BattleLayout ho přesouvá do levého sloupce, cesta od kořene neplatí.
+	var title := combat_info_panel.get_node_or_null("MarginContainer/InfoVBox/StatusTitle") as Label if combat_info_panel != null else null
 	if title == null or _battle_state == null:
 		return
 	if _battle_state.battle_over:
@@ -2395,7 +2396,8 @@ func _refresh_turn_title() -> void:
 		title.text = "Kolo %s · Tvůj tah" % _battle_state.turn_number
 	else:
 		title.text = "Kolo %s · Tah soupeře" % _battle_state.turn_number
-	title.add_theme_font_size_override("font_size", 14)
+	title.add_theme_font_size_override("font_size", 16)
+	title.add_theme_color_override("font_color", Color(0.98, 0.86, 0.6))
 
 
 # Soupeřova ruka jako ruby karet v hlavičce (kolik karet drží) + zbytek balíku.
@@ -2407,7 +2409,7 @@ func _refresh_enemy_hand_row(enemy_state: PlayerBattleState) -> void:
 		_enemy_hand_row = HBoxContainer.new()
 		_enemy_hand_row.name = "EnemyHandRow"
 		_enemy_hand_row.add_theme_constant_override("separation", -10)
-		_enemy_hand_row.alignment = BoxContainer.ALIGNMENT_END
+		_enemy_hand_row.alignment = BoxContainer.ALIGNMENT_CENTER
 		_enemy_hand_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		header.add_child(_enemy_hand_row)
 	var back := CardArtCache.get_full(CardArtCache.CARD_BACK_PATH)
@@ -2418,7 +2420,7 @@ func _refresh_enemy_hand_row(enemy_state: PlayerBattleState) -> void:
 		var deck_label := Label.new()
 		deck_label.add_theme_font_size_override("font_size", 16)
 		deck_label.add_theme_color_override("font_color", Color(0.85, 0.78, 0.64))
-		deck_label.custom_minimum_size = Vector2(82, 0)
+		deck_label.custom_minimum_size = Vector2(84, 50)  # zápor. mezera řady by jinak překryla text
 		deck_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		_enemy_hand_row.add_child(deck_label)
 	while _enemy_hand_row.get_child_count() < count + 1:
