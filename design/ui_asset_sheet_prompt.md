@@ -44,4 +44,4 @@ Rozděl na dva archy po 8 (mřížka 4×2): řádky 1–2 v jednom, 3–4 ve dru
 - Pozadí jednolitě zelené, předměty nezasahují do sousedních políček.
 - Tlačítka a rám čelně (ne v perspektivě), jinak nepůjdou natáhnout.
 
-Ulož do `art/incoming/` a napiš mi. Rozřežu to a nasadím do menu, tlačítek, Balík a postup a ikon v souboji.
+Ulož ho kamkoli a napiš mi cestu k souboru. Rozřežu to a nasadím do menu, tlačítek, Balík a postup a ikon v souboji.
