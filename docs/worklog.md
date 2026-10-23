@@ -14,6 +14,13 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-24 – E4: 12 nových karet (47 → 59), text Pašeráka
+- Nové: Plavčík (1, 1/3), Přístavní ošetřovatelka (2, 2/2, PD: sousedé +1 život), Lovkyně racků (2, 2/2, Hostina), Mořská vlčice (3, 3/3, Rychlé tlapy), Sklepní číhal (3, 3/2, Přímý zásah: lízni), Sudový jezdec (4, 3/3, PD: Tulák), Lodní felčar (4, 3/4, BN: sousedé +2 životy), Starý kanonýr (5, 3/3, BN: 2 zranění naproti, sousedé +1 útok), Kapitánka Bouře (6, 4/5, BN: sousedé +1/+1, lízni; 1 kopie), trik Schovaná Tuna (1: +1 Tuna, lízni), předměty Šavle (4: +3 útok) a Kapitánský klobouk (3: +1 útok a Hostina). Jen hotové mechaniky, žádné léčení hráče (D-019). Proč: E4 sbírka ~60 karet, víc Triků a Předmětů, protizbraň na tanky.
+- Nové karty nejsou v automatickém odemykání: v tréninku je koupíš v obchodě, ve hře ve dvou je mají všichni (E3/E5).
+- Sim (`sim_deck_vs_deck.gd -- 20 pad`, testovací balíky ve scratchpadu): střední balík s novými kartami proti Stokovému králi 65 % → po oslabení (Kanonýr 3/4→3/3, Kapitánka 5/5→4/5, Klobouk bez +1 života, Plavčík 2/1→1/3) 37,5 %; tentýž balík se starými kartami 12,5 %. Proti svému „starému dvojčeti“ 72,5 %. Agresivní balík levných koček prohrává i se startérem (5 %): slabina levných koček obecně, ne nových karet.
+- Pašerák, Poslíček, Rybářka: text „zranění přímo soupeři, i přes kočku naproti“. Proč: Mark čekal zásah kočky naproti jako u Harpunáře.
+- `make_placeholder_art.gd` umí půjčit ikonu jiné karty (`-- nova:stara`); nové karty mají placeholder, prompt na art `design/art_prompt_2026-10-24_e4.md`.
+
 ### 2026-10-23 – malované díly karet (rámy podle typu, medailony čísel)
 - Mark dodal dva archy podle `design/card_parts_prompt.md`, rozřezáno `slice_ui_sheet.gd` (11 PNG v `assets/card_game/ui/sheet/`).
 - Karta v ruce, velký náhled i žeton na stole mají rám podle typu (kočka mosaz a dřevo, trik fialový smalt, předmět černé železo), cenu, útok a životy v malovaných medailonech a jméno na červené stuze. Proč: obyčejná kolečka vypadala provizorně a typ karty nebyl poznat na první pohled.

@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[sub_resource type="Resource" id="1_effect"]
+script = ExtResource("2_card_effect")
+trigger = &"battlecry"
+action = &"deal_damage"
+target_mode = &"opposite_lane"
+value = 2
+
+[sub_resource type="Resource" id="2_effect"]
+script = ExtResource("2_card_effect")
+trigger = &"battlecry"
+action = &"modify_attack"
+target_mode = &"adjacent_lane"
+value = 1
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"old_gunner"
+display_name = "Starý kanonýr"
+card_type = 0
+cost = 5
+attack = 3
+life = 3
+rules_text = "Bojový nástup: 2 zranění kočce naproti, když tam žádná není, soupeři. Sousední kočky +1 útok."
+keywords = [&"battlecry"]
+effects = [SubResource("1_effect"), SubResource("2_effect")]
+art_path = "res://assets/card_game/card_art/old_gunner.png"
+frame_variant = &"default"

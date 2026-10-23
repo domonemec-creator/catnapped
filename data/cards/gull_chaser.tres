@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"gull_chaser"
+display_name = "Lovkyně racků"
+card_type = 0
+cost = 2
+attack = 2
+life = 2
+rules_text = "Hostina."
+keywords = [&"feast"]
+effects = []
+art_path = "res://assets/card_game/card_art/gull_chaser.png"
+frame_variant = &"default"

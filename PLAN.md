@@ -41,7 +41,7 @@
 - [x] C1 Feast karty + 7 nových koček v reward poolu, placeholder art, prompty (D-016)
 - [x] C1b Art nových karet (arch od Marka rozřezán `slice_art_sheet.gd`)
 - [x] C1c Ikony keywordů (game-icons CC BY) u štítků na stole
-- [ ] **Lidský test #2** (checklist v HANDOFF.md)
+- [x] **Lidský test #2** (24. 10. Mark: „zajímavější, hezčí“, vzhled „ještě to není ono“, nespěchá; Pašerák matoucí text → opraveno)
 - [x] C2 Balanc podle `sim_ai_matches.gd` (D-015, D-017 Hlad proti patu)
 - [x] C2b Záznamy zápasů pro analýzu lidských testů (`user://match_logs/`)
 - [ ] C3 Po lidském testu: rozhodnout návrat malé sady čitelných Triků do rewardů (oživí Saved Tuna)
@@ -61,7 +61,8 @@
 - [ ] E3 Obchod: měna za výhry (trénink i hra ve dvou), 3 nabídky po každém zápase; nahradí část automatického odemykání
   - Hotovo 22. 10.: logika, šupiny po zápase proti AI, obchod nad kolekcí v Balík a postup (`verify_shop.gd`). Zbývá: šupiny ve hře ve dvou, zkrátit automatické odemykání. Zatím Mark otestuje. Návrh (Claude 22. 10.): měna „rybí šupiny“ v save (`KEY_SCALES`). Výhra v tréninku 10 + 5 × stupeň soupeře, prohra 3, hra ve dvou 5 za zápas. Po zápase 3 náhodné karty mimo tréninkovou kolekci, cena 5 + 5 × cena karty, nákup = karta do `KEY_COLLECTION`. Automatické odemykání (`TRAINING_CARD_UNLOCKS`) zkrátit na 2 karty za soupeře, zbytek jen obchodem.
   - Kde: logika v `progression_system.gd` (get/add šupin, `roll_shop_offers(state, seed)`, `buy_card`), UI na výsledkové obrazovce (`battle_overlay_presenter`) a stav šupin v Balík a postup. Verifier `verify_shop.gd` jen na testovacím save.
-- [ ] E4 Sbírka v1 kolem 60 karet: ~40 koček, ~12 triků (vč. Tuna karet), ~8 předmětů. Teď 47
+- [x] E4 Sbírka v1 kolem 60 karet: 59 (40 koček, 12 triků, 8 předmětů), 24. 10. Zbývá art (prompt `design/art_prompt_2026-10-24_e4.md`)
+- [ ] Agresivní balíky levných koček jsou slabé (sim 5 % i proti startéru): posílit 1–2 drop kočky nebo dát agru nástroj
 - [x] E5 Hra ve dvou: každý má všechny karty (balík z celé sbírky); obchod a odemykání jen v tréninku
 - [x] E6 Sim balík proti balíku (hráčské balíky, ne NPC): hlídat, že žádná karta ani balík nedominuje. Nové karty po sadách 15–20, každá sada projde simulací
 

@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[sub_resource type="Resource" id="1_effect"]
+script = ExtResource("2_card_effect")
+action = &"modify_attack"
+target_mode = &"ally_cat"
+value = 1
+
+[sub_resource type="Resource" id="2_effect"]
+script = ExtResource("2_card_effect")
+action = &"grant_keyword"
+target_mode = &"ally_cat"
+value = 0
+keyword_arg = &"feast"
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"captain_hat"
+display_name = "Kapitánský klobouk"
+card_type = 2
+cost = 3
+attack = 0
+life = 0
+rules_text = "Vybavená kočka získá +1 k útoku a Hostinu."
+keywords = []
+effects = [SubResource("1_effect"), SubResource("2_effect")]
+art_path = "res://assets/card_game/card_art/captain_hat.png"
+frame_variant = &"item"

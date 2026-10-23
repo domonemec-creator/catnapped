@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[sub_resource type="Resource" id="1_effect"]
+script = ExtResource("2_card_effect")
+trigger = &"battlecry"
+action = &"modify_attack"
+target_mode = &"adjacent_lane"
+value = 1
+
+[sub_resource type="Resource" id="2_effect"]
+script = ExtResource("2_card_effect")
+trigger = &"battlecry"
+action = &"modify_life"
+target_mode = &"adjacent_lane"
+value = 1
+
+[sub_resource type="Resource" id="3_effect"]
+script = ExtResource("2_card_effect")
+trigger = &"battlecry"
+action = &"draw_cards"
+target_mode = &"self_owner"
+value = 1
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"storm_captain"
+display_name = "Kapitánka Bouře"
+card_type = 0
+cost = 6
+attack = 4
+life = 5
+rules_text = "Bojový nástup: sousední kočky +1 útok a +1 život, lízni 1 kartu."
+keywords = [&"battlecry"]
+effects = [SubResource("1_effect"), SubResource("2_effect"), SubResource("3_effect")]
+art_path = "res://assets/card_game/card_art/storm_captain.png"
+frame_variant = &"default"

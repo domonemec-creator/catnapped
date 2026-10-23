@@ -51,6 +51,11 @@
 - Otevřené (balanc): při 30 životech tanky dominují (sim Stokový král 100 % i s 30kartovými balíky). Další páka: síla tanků (Ochrana / vysoké životy za nízkou cenu), ne velikost balíku.
 - Pozor: `net_smoke` a verifiery sdílejí testovací save – nepouštět je souběžně (falešné „soupeř se nepřipojil“).
 
+## 24. 10. – E4 sbírka (Claude Opus 5.5)
+- Mark otestoval nový vzhled: hra zajímavější a hezčí, vzhled „ještě to není ono“ (bez konkrétní výtky, nespěchá). Pašerák mu přišel jako chyba (zranění šlo přes kočku) → jen přepsaný text.
+- E4 hotové v datech: 12 nových karet, 59 celkem, placeholder art, sim viz worklog 24. 10. Čeká na Marka: art podle `design/art_prompt_2026-10-24_e4.md` (mřížka 4×3, příkaz na řezání je v promptu).
+- Další krok: E3 dokončit (šupiny ve hře ve dvou, zkrátit automatické odemykání), slabé agro balíky (PLAN).
+
 ## 23. 10. – vizuální audit (Mark: multiplayer až na konec)
 - Kola 1–3 hotová a pushnutá (`be08d05`, `de230bf`, `d7af9a0`), každé 25/25 verifierů: jména na stole v jednom řádku, odměny jako skutečné karty, nadpis kola v levém panelu, ruka soupeře, globální téma tlačítek a posuvníků. Screenshoty `artifacts/audit/`. Exe znovu vyexportované.
 - Zbývá z auditu (nižší dopad): prázdný pravý panel v tahu soupeře, malé karty v ruce (pevná výška stolu), návod OK.

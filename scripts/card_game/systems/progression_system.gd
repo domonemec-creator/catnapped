@@ -41,7 +41,7 @@ const PVP_DECK_SIZE := 30
 const PVP_MAX_COPIES := 3
 # Cílová křivka pro „Doplnit“ (na 30 karet): cena ≤1, 2, 3, 4, 5+.
 const FILL_CURVE: Array[int] = [6, 8, 7, 5, 4]
-const SINGLE_COPY_IDS: Array[StringName] = [&"captain_ironmaw", &"tavern_bouncer", &"cannon_cat"]
+const SINGLE_COPY_IDS: Array[StringName] = [&"captain_ironmaw", &"tavern_bouncer", &"cannon_cat", &"storm_captain"]
 # Výhra v tréninku přidá do kolekce karty typické pro poraženého soupeře.
 const TRAINING_CARD_UNLOCKS := {
 	&"smug_tabby": [&"wharf_cutthroat", &"harbor_kitten", &"iron_bowl", &"catnip_burst", &"warm_milk"],

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"rope_boy"
+display_name = "Plavčík"
+card_type = 0
+cost = 1
+attack = 1
+life = 3
+rules_text = ""
+keywords = []
+effects = []
+art_path = "res://assets/card_game/card_art/rope_boy.png"
+frame_variant = &"default"

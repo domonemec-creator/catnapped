@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CardDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/card_game/data/card_definition.gd" id="1_card_definition"]
+[ext_resource type="Script" path="res://scripts/card_game/data/card_effect.gd" id="2_card_effect"]
+
+[resource]
+script = ExtResource("1_card_definition")
+id = &"sea_wolf"
+display_name = "Mořská vlčice"
+card_type = 0
+cost = 3
+attack = 3
+life = 3
+rules_text = "Rychlé tlapy."
+keywords = [&"quick_paws"]
+effects = []
+art_path = "res://assets/card_game/card_art/sea_wolf.png"
+frame_variant = &"default"

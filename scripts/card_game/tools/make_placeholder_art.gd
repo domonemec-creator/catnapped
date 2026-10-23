@@ -4,6 +4,7 @@ extends SceneTree
 # (game-icons.net, CC BY 3.0) v horní třetině, kterou hra ořezává pro náhledy.
 # Headless: Godot --headless --path . --script res://scripts/card_game/tools/make_placeholder_art.gd
 # Existující PNG nepřepíše (vlastní art majitele má přednost).
+# Nová karta bez vlastní ikony si ji může půjčit: -- nova_karta:karta_s_ikonou ...
 
 const BACK_PATH := "res://assets/card_game/card_art/_placeholder_back.png"
 const ICON_DIR := "res://assets/card_game/icons/cards/"
@@ -17,10 +18,17 @@ func _init() -> void:
 	var back := Image.load_from_file(ProjectSettings.globalize_path(BACK_PATH))
 	back.convert(Image.FORMAT_RGBA8)
 	var made := 0
+	var jobs: Array = []
 	for file in DirAccess.get_files_at(ICON_DIR):
-		if not file.ends_with(".svg"):
-			continue
-		var card_id := file.get_basename()
+		if file.ends_with(".svg"):
+			jobs.append([file.get_basename(), file])
+	for pair in OS.get_cmdline_user_args():
+		var parts := String(pair).split(":")
+		if parts.size() == 2:
+			jobs.append([parts[0], parts[1] + ".svg"])
+	for job in jobs:
+		var card_id: String = job[0]
+		var file: String = job[1]
 		var out_path := ProjectSettings.globalize_path(OUT_DIR + card_id + ".png")
 		if FileAccess.file_exists(out_path):
 			print("skip %s (art už existuje)" % card_id)
