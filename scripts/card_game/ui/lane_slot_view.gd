@@ -5,6 +5,9 @@ const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
 const SelectedCardPreviewScript = preload("res://scripts/card_game/ui/selected_card_preview.gd")
 const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
 const BattleFx = preload("res://scripts/card_game/ui/battle_fx.gd")
+const CardViewScript = preload("res://scripts/card_game/ui/card_view.gd")  # malované díly a jejich pozice
+# Rám karty je na výšku, žeton skoro čtvercový: NinePatch drží rohy (výřezy pro čísla) a natahuje jen lišty.
+const TOKEN_FRAME_MARGINS := [110, 140, 110, 130]  # vlevo, nahoře, vpravo, dole v pixelech textury
 
 signal slot_pressed(lane_index: int, owner_id: int)
 signal card_dropped(instance_id: int, lane_index: int, owner_id: int)
@@ -61,6 +64,9 @@ var _token_art: TextureRect
 var _token_keyword_box: PanelContainer
 var _token_content: Control
 var _token_keyword_icon: TextureRect
+var _token_frame: NinePatchRect
+var _token_banner: TextureRect
+var _token_holders: Array[TextureRect] = []  # cena, útok, životy
 var _ready_frame: Panel
 var _fresh_pill: PanelContainer
 var _ready_tween: Tween
@@ -452,25 +458,33 @@ func _build_token_panel() -> void:
 	content.add_child(_token_art)
 	_token_art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
-	# Tmavý pruh dole pod jménem a staty, aby text byl čitelný přes art.
-	var strip := Panel.new()
-	strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	strip.add_theme_stylebox_override("panel", _build_style_box(Color(0.06, 0.04, 0.03, 0.82), Color(0, 0, 0, 0), 0, 0))
-	content.add_child(strip)
-	strip.anchor_top = 1.0
-	strip.anchor_right = 1.0
-	strip.anchor_bottom = 1.0
-	strip.offset_top = -44.0
+	_token_frame = NinePatchRect.new()
+	_token_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_token_frame.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	_token_frame.patch_margin_left = TOKEN_FRAME_MARGINS[0]
+	_token_frame.patch_margin_top = TOKEN_FRAME_MARGINS[1]
+	_token_frame.patch_margin_right = TOKEN_FRAME_MARGINS[2]
+	_token_frame.patch_margin_bottom = TOKEN_FRAME_MARGINS[3]
+	content.add_child(_token_frame)
+	_token_banner = TextureRect.new()
+	_token_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_token_banner.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_token_banner.stretch_mode = TextureRect.STRETCH_SCALE
+	_token_banner.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	_token_banner.texture = _load_ui_texture(CardViewScript.FACE_PARTS_DIR + "banner_name.png")
+	content.add_child(_token_banner)
+	content.resized.connect(_layout_token)
 
 	_token_name = _make_token_label("", 16, HORIZONTAL_ALIGNMENT_CENTER, VERTICAL_ALIGNMENT_CENTER)
 	_token_name.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
 	_token_name.resized.connect(_fit_token_name)
 	_token_name.add_theme_constant_override("outline_size", 4)
-	_place_token_label(content, _token_name, 0.0, 1.0, 1.0, 1.0, 54.0, -44.0, -54.0, 0.0)
+	content.add_child(_token_name)
+	_token_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	_token_cost = _make_token_badge(content, Color(0.16, 0.34, 0.62), 0.0, 0.0, 6.0, 6.0, 34.0, 20)
-	_token_attack = _make_token_badge(content, Color(0.7, 0.42, 0.1), 0.0, 1.0, 6.0, -46.0, 40.0, 24)
-	_token_life = _make_token_badge(content, Color(0.62, 0.16, 0.14), 1.0, 1.0, -46.0, -46.0, 40.0, 24)
+	_token_cost = _make_token_badge(content, "holder_cost", 0.06)
+	_token_attack = _make_token_badge(content, "holder_attack", 0.04)
+	_token_life = _make_token_badge(content, "holder_health", -0.02)
 
 	_token_keyword_box = PanelContainer.new()
 	_token_keyword_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -533,26 +547,62 @@ func _build_token_panel() -> void:
 	_fix_status_badge_layout()
 
 
-# Kruhový odznak s číslem (cena / útok / životy) v rohu tokenu.
-func _make_token_badge(parent: Control, color: Color, anchor_x: float, anchor_y: float, off_x: float, off_y: float, diameter: float, font_size: int) -> Label:
-	var badge := Panel.new()
-	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	badge.add_theme_stylebox_override("panel", _build_style_box(color, Color(0.98, 0.88, 0.62, 0.95), int(diameter / 2.0), 2, 4, Color(0, 0, 0, 0.5)))
-	parent.add_child(badge)
-	badge.anchor_left = anchor_x
-	badge.anchor_right = anchor_x
-	badge.anchor_top = anchor_y
-	badge.anchor_bottom = anchor_y
-	badge.offset_left = off_x
-	badge.offset_top = off_y
-	badge.offset_right = off_x + diameter
-	badge.offset_bottom = off_y + diameter
-	var label := _make_token_label("0", font_size, HORIZONTAL_ALIGNMENT_CENTER, VERTICAL_ALIGNMENT_CENTER)
-	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
-	label.add_theme_constant_override("outline_size", 4)
-	badge.add_child(label)
+# Malovaný medailon s číslem (cena / útok / životy); pozici a velikost dává _layout_token.
+func _make_token_badge(parent: Control, part_id: String, text_shift: float) -> Label:
+	var holder := TextureRect.new()
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	holder.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	holder.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	holder.texture = _load_ui_texture(CardViewScript.FACE_PARTS_DIR + part_id + ".png")
+	holder.set_meta("text_shift", text_shift)
+	parent.add_child(holder)
+	_token_holders.append(holder)
+	var label := _make_token_label("0", 24, HORIZONTAL_ALIGNMENT_CENTER, VERTICAL_ALIGNMENT_CENTER)
+	label.add_theme_color_override("font_outline_color", Color(0.05, 0.03, 0.02, 0.95))
+	holder.add_child(label)
 	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	return label
+
+
+# Rozmístí rám, stuhu se jménem a medailony podle velikosti žetonu (slot se mění s oknem).
+func _layout_token() -> void:
+	if _token_content == null or _fresh_pill == null:
+		return
+	var token := _token_content.size
+	var frame_texture := _token_frame.texture
+	if token.x <= 0.0 or frame_texture == null:
+		return
+	# Šířka rámu odpovídá žetonu 1:1, výška se smrskne jen v prostředních lištách.
+	var k := token.x / float(frame_texture.get_width())
+	_token_frame.scale = Vector2(k, k)
+	_token_frame.position = Vector2.ZERO
+	_token_frame.size = token / k
+	var frame_height := float(frame_texture.get_height()) * k
+	var diameter := token.x * CardViewScript.FACE_HOLDER_WIDTH * 0.9
+	var cost_center := Vector2(CardViewScript.FACE_COST_CENTER.x * token.x, CardViewScript.FACE_COST_CENTER.y * frame_height)
+	var bottom_y := token.y - (1.0 - CardViewScript.FACE_ATTACK_CENTER.y) * frame_height
+	var centers := [cost_center, Vector2(CardViewScript.FACE_ATTACK_CENTER.x * token.x, bottom_y), Vector2(CardViewScript.FACE_LIFE_CENTER.x * token.x, bottom_y)]
+	for i in _token_holders.size():
+		var holder := _token_holders[i]
+		holder.size = Vector2(diameter, diameter)
+		holder.position = centers[i] - holder.size * 0.5
+		var label := holder.get_child(0) as Label
+		label.add_theme_font_size_override("font_size", maxi(12, int(diameter * 0.46)))
+		label.add_theme_constant_override("outline_size", maxi(3, int(diameter * 0.09)))
+		var shift := float(holder.get_meta("text_shift")) * diameter
+		label.offset_top = shift
+		label.offset_bottom = shift
+	# Stuha nad spodní lištou mezi medailony útoku a životů.
+	var banner_height := token.x * 0.17
+	_token_banner.size = Vector2(token.x * 0.66, banner_height)
+	_token_banner.position = Vector2(token.x * 0.17, bottom_y - diameter * 0.5 - banner_height * 0.35)
+	_token_name.position = _token_banner.position + Vector2(_token_banner.size.x * 0.13, 0.0)
+	_token_name.size = Vector2(_token_banner.size.x * 0.74, banner_height * 0.8)
+	_token_keyword_box.offset_top = frame_height * 0.15
+	_fresh_pill.offset_top = _token_banner.position.y - token.y - 30.0
+	_fresh_pill.offset_bottom = _token_banner.position.y - token.y - 4.0
+	_fit_token_name()
 
 
 # SlotShell je PanelContainer, který ignoruje anchory dětí a StatusBadge roztáhl přes
@@ -642,6 +692,8 @@ func _populate_token() -> void:
 	_token_name.text = def.display_name
 	_fit_token_name()
 	_token_art.texture = CardArtCache.get_cropped_aspect(def.art_path, 1.0, 0.02)  # layout v2: slot skoro čtvercový
+	_token_frame.texture = _load_ui_texture(CardViewScript.FACE_PARTS_DIR + str(CardViewScript.FACE_FRAME_BY_TYPE.get(def.card_type, "frame_cat")) + ".png")
+	_layout_token()
 	_token_attack.text = str(_card_instance.current_attack)
 	_token_life.text = str(_card_instance.current_life)
 

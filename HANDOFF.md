@@ -54,6 +54,8 @@
 ## 23. 10. – vizuální audit (Mark: multiplayer až na konec)
 - Kola 1–3 hotová a pushnutá (`be08d05`, `de230bf`, `d7af9a0`), každé 25/25 verifierů: jména na stole v jednom řádku, odměny jako skutečné karty, nadpis kola v levém panelu, ruka soupeře, globální téma tlačítek a posuvníků. Screenshoty `artifacts/audit/`. Exe znovu vyexportované.
 - Zbývá z auditu (nižší dopad): prázdný pravý panel v tahu soupeře, malé karty v ruce (pevná výška stolu), návod OK.
+- UI arch (`b71d9f8`): deska s nápisem, ikony v menu/souboji/obchodě. Nevyužito: široká a kulatá tlačítka, rám panelu, dělicí linka, zámek.
+- Díly karet od Marka (Claude Opus 5.5): `slice_ui_sheet.gd` → `assets/card_game/ui/sheet/` (frame_cat/trick/item, holder_cost/attack/health/shield, banner_name, tag_keyword, badge_paw, splash_damage). Nasazeno v ruce (`card_view.gd`), velkém náhledu (`selected_card_preview.gd`, režimy full/large) a na stole (`lane_slot_view.gd`, NinePatch rám, aby se kruhy nedeformovaly). Pozice v podílech karty jsou konstanty `FACE_*` v `card_view.gd`, sdílené. Ověřeno 25/25 verifierů a screenshoty (midgame, reward, progression). Nevyužito: holder_shield, tag_keyword, badge_paw, splash_damage.
 
 ## Další krok
 0. Fáze E zbývá: E3 obchod je hotový v základu (šupiny po zápase proti AI, 3 nabídky nad kolekcí v Balík a postup, `verify_shop.gd`); chybí šupiny ve hře ve dvou a zkrácení automatického odemykání, E4 sbírka ~60 karet (sady 15–20, každá přes `sim_deck_vs_deck.gd`).

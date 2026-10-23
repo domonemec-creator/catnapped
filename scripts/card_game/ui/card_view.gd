@@ -9,6 +9,32 @@ const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
 const CAT_FRAME_PATH := "res://assets/card_game/card_frames/cat_frame.png"
 const TRICK_FRAME_PATH := "res://assets/card_game/card_frames/trick_frame.png"
 const ITEM_FRAME_PATH := "res://assets/card_game/card_frames/item_frame.png"
+# Malované díly z archu (design/card_parts_prompt.md). Pozice jsou v podílech velikosti karty,
+# změřené na rámech: středy kruhových výřezů v rozích a pruh pro jméno nad spodní lištou.
+const FACE_PARTS_DIR := "res://assets/card_game/ui/sheet/"
+const FACE_FRAME_BY_TYPE := {
+    CardGameConstants.CardType.CAT: "frame_cat",
+    CardGameConstants.CardType.TRICK: "frame_trick",
+    CardGameConstants.CardType.ITEM: "frame_item",
+}
+const FACE_COST_CENTER := Vector2(0.12, 0.115)
+const FACE_ATTACK_CENTER := Vector2(0.12, 0.918)
+const FACE_LIFE_CENTER := Vector2(0.885, 0.918)
+const FACE_HOLDER_WIDTH := 0.27  # průměr medailonu jako podíl šířky karty
+const FACE_BANNER_RECT := Rect2(0.16, 0.775, 0.68, 0.125)
+const FACE_HOLE_WIDTH := 0.19  # tmavý kotouč do prázdného výřezu (trik/předmět nemá útok ani životy)
+const FACE_HOLE_COLOR := Color(0.07, 0.05, 0.04, 0.92)
+
+
+# Kulatý tmavý kotouč pro prázdný výřez rámu; sdílí ho náhled karty.
+static func make_face_hole() -> Panel:
+    var hole := Panel.new()
+    hole.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    var style := StyleBoxFlat.new()
+    style.bg_color = FACE_HOLE_COLOR
+    style.set_corner_radius_all(999)
+    hole.add_theme_stylebox_override("panel", style)
+    return hole
 const FRAME_PATHS_BY_VARIANT := {
     &"default": "",
     &"cat": CAT_FRAME_PATH,
@@ -92,8 +118,12 @@ var _face_name: Label
 var _face_cost: Label
 var _face_attack: Label
 var _face_life: Label
-var _face_attack_badge: Panel
-var _face_life_badge: Panel
+var _face_frame: TextureRect
+var _face_banner: TextureRect
+var _face_cost_badge: TextureRect
+var _face_attack_badge: TextureRect
+var _face_life_badge: TextureRect
+var _face_holes: Array[Panel] = []
 var _face_keyword_box: PanelContainer
 var _face_keyword: Label
 var _face_keyword_icon: TextureRect
@@ -216,54 +246,21 @@ func _build_face() -> void:
     _face_art.offset_top = 3
     _face_art.offset_right = -3
     _face_art.offset_bottom = -3
-    var strip := Panel.new()
-    strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    strip.add_theme_stylebox_override("panel", _build_style_box(Color(0.06, 0.04, 0.03, 0.85), Color(0, 0, 0, 0), 0, 0))
-    _face.add_child(strip)
-    strip.anchor_top = 1.0
-    strip.anchor_right = 1.0
-    strip.anchor_bottom = 1.0
-    strip.offset_left = 3
-    strip.offset_right = -3
-    # Jméno na vlastním pruhu nad odznaky útoku a životů (dřív se mačkalo mezi ně a ořezávalo).
-    strip.offset_top = -54
-    strip.offset_bottom = -3
-    _face_name = Label.new()
-    _face_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    _face_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    _face_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    _face_frame = _make_face_texture("frame_cat")
+    _face_banner = _make_face_texture("banner_name")
+    _face_name = _make_face_label(14)
     _face_name.clip_text = true
     _face_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-    _face_name.add_theme_font_size_override("font_size", 14)
-    _face_name.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
-    _face_name.add_theme_constant_override("outline_size", 3)
-    _face.add_child(_face_name)
-    _face_name.anchor_top = 1.0
-    _face_name.anchor_right = 1.0
-    _face_name.anchor_bottom = 1.0
-    _face_name.offset_left = 4
-    _face_name.offset_right = -4
-    _face_name.offset_top = -54
-    _face_name.offset_bottom = -32
-    _face_type = Label.new()
-    _face_type.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    _face_type.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    _face_type.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-    _face_type.add_theme_font_size_override("font_size", 12)
-    _face_type.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
-    _face_type.add_theme_constant_override("outline_size", 3)
-    _face.add_child(_face_type)
-    _face_type.anchor_top = 1.0
-    _face_type.anchor_right = 1.0
-    _face_type.anchor_bottom = 1.0
-    _face_type.offset_left = 4
-    _face_type.offset_right = -4
-    _face_type.offset_top = -30
-    _face_type.offset_bottom = -6
-    _face_cost = _make_face_badge(Color(0.16, 0.34, 0.62), 0.0, 0.0, 5, 5, 26).get_child(0)
-    _face_attack_badge = _make_face_badge(Color(0.7, 0.42, 0.1), 0.0, 1.0, 4, -32, 28)
+    _face_name.add_theme_color_override("font_color", Color(1.0, 0.94, 0.8))
+    _face_type = _make_face_label(11)
+    for i in 2:
+        _face_holes.append(make_face_hole())
+        _face.add_child(_face_holes[i])
+    _face_cost_badge = _make_face_holder("holder_cost")
+    _face_cost = _face_cost_badge.get_child(0)
+    _face_attack_badge = _make_face_holder("holder_attack")
     _face_attack = _face_attack_badge.get_child(0)
-    _face_life_badge = _make_face_badge(Color(0.62, 0.16, 0.14), 1.0, 1.0, -32, -32, 28)
+    _face_life_badge = _make_face_holder("holder_health")
     _face_life = _face_life_badge.get_child(0)
     _face_keyword_box = PanelContainer.new()
     _face_keyword_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -293,6 +290,94 @@ func _build_face() -> void:
     _face_keyword.add_theme_font_size_override("font_size", 11)
     _face_keyword.mouse_filter = Control.MOUSE_FILTER_IGNORE
     row.add_child(_face_keyword)
+    resized.connect(_layout_face)
+    _layout_face()
+
+
+func _make_face_texture(part_id: String) -> TextureRect:
+    var rect := TextureRect.new()
+    rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    rect.stretch_mode = TextureRect.STRETCH_SCALE
+    rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+    rect.texture = _load_frame_texture(FACE_PARTS_DIR + part_id + ".png")
+    _face.add_child(rect)
+    return rect
+
+
+func _make_face_label(font_size: int) -> Label:
+    var label := Label.new()
+    label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    label.add_theme_font_size_override("font_size", font_size)
+    label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+    label.add_theme_constant_override("outline_size", 3)
+    _face.add_child(label)
+    return label
+
+
+# Medailon s číslem uprostřed; velikost písma dopočítá _layout_face podle karty.
+func _make_face_holder(part_id: String) -> TextureRect:
+    var holder := _make_face_texture(part_id)
+    holder.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+    var label := Label.new()
+    label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    label.add_theme_color_override("font_color", Color(1.0, 0.97, 0.88))
+    label.add_theme_color_override("font_outline_color", Color(0.05, 0.03, 0.02, 0.95))
+    holder.add_child(label)
+    label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    return holder
+
+
+# Díly rozmístí podle aktuální velikosti karty (ruka, náhled i odměna mají jinou).
+func _layout_face() -> void:
+    if _face == null:
+        return
+    var card := size
+    _face_frame.position = Vector2.ZERO
+    _face_frame.size = card
+    var banner := FACE_BANNER_RECT
+    _face_banner.position = Vector2(banner.position.x * card.x, banner.position.y * card.y)
+    _face_banner.size = Vector2(banner.size.x * card.x, banner.size.y * card.y)
+    # Látka stuhy je mezi koncovkami; text drž uvnitř a lehce nad středem (spodní okraj je roztřepený).
+    _face_name.position = _face_banner.position + Vector2(_face_banner.size.x * 0.13, 0.0)
+    _face_name.size = Vector2(_face_banner.size.x * 0.74, _face_banner.size.y * 0.8)
+    _face_type.position = Vector2(card.x * 0.25, card.y * 0.895)
+    _face_type.size = Vector2(card.x * 0.5, card.y * 0.05)
+    var diameter := card.x * FACE_HOLDER_WIDTH
+    _place_face_holder(_face_cost_badge, FACE_COST_CENTER, diameter, 0.06)
+    _place_face_holder(_face_attack_badge, FACE_ATTACK_CENTER, diameter, 0.04)
+    _place_face_holder(_face_life_badge, FACE_LIFE_CENTER, diameter, -0.02)
+    # Dlouhá jména zmenšit, ať se vejdou na stuhu; písmo roste s kartou (náhled je větší než ruka).
+    var name_length := _face_name.text.length()
+    var name_size := clampf(card.x / 176.0, 0.8, 1.6) * (13.0 if name_length <= 13 else (11.0 if name_length <= 18 else 10.0))
+    _face_name.add_theme_font_size_override("font_size", int(name_size))
+    var inset := card.x * 0.03
+    _face_art.offset_left = inset
+    _face_art.offset_top = inset
+    _face_art.offset_right = -inset
+    _face_art.offset_bottom = -inset
+    var hole := card.x * FACE_HOLE_WIDTH
+    for i in 2:
+        var center := FACE_ATTACK_CENTER if i == 0 else FACE_LIFE_CENTER
+        _face_holes[i].size = Vector2(hole, hole)
+        _face_holes[i].position = Vector2(center.x * card.x, center.y * card.y) - _face_holes[i].size * 0.5
+    _face_keyword_box.offset_top = card.y * 0.12
+    _face_keyword_box.offset_right = -card.x * 0.07
+
+
+func _place_face_holder(holder: TextureRect, center: Vector2, diameter: float, text_shift: float) -> void:
+    holder.size = Vector2(diameter, diameter)
+    holder.position = Vector2(center.x * size.x, center.y * size.y) - holder.size * 0.5
+    var label := holder.get_child(0) as Label
+    label.add_theme_font_size_override("font_size", maxi(10, int(diameter * 0.46)))
+    label.add_theme_constant_override("outline_size", maxi(2, int(diameter * 0.09)))
+    # Medailony mají ozdobu nahoře, takže střed výplně je níž než střed obrázku.
+    label.offset_top = diameter * text_shift
+    label.offset_bottom = diameter * text_shift
 
 
 # Na úzké kartě (plná ruka) by štítek překryl cenu; detail je pak v náhledu pod myší.
@@ -301,52 +386,26 @@ func _update_face_keyword_visibility() -> void:
         _face_keyword_box.visible = not _face_badge_text.is_empty() and size.x >= 140.0
 
 
-func _make_face_badge(color: Color, ax: float, ay: float, ox: float, oy: float, diameter: float) -> Panel:
-    var badge := Panel.new()
-    badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    var style := _build_style_box(color, Color(0.98, 0.88, 0.62, 0.95), int(diameter / 2.0), 3)
-    style.set_border_width_all(2)
-    badge.add_theme_stylebox_override("panel", style)
-    _face.add_child(badge)
-    badge.anchor_left = ax
-    badge.anchor_right = ax
-    badge.anchor_top = ay
-    badge.anchor_bottom = ay
-    badge.offset_left = ox
-    badge.offset_top = oy
-    badge.offset_right = ox + diameter
-    badge.offset_bottom = oy + diameter
-    var label := Label.new()
-    label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-    label.add_theme_font_size_override("font_size", int(diameter * 0.62))
-    label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
-    label.add_theme_constant_override("outline_size", 3)
-    badge.add_child(label)
-    label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-    return badge
-
-
 func _refresh_face(card_definition: CardDefinition, show_stats: bool, badge_text: String) -> void:
     if _face == null:
         return
     _face_art.texture = CardArtCache.get_cropped_aspect(card_definition.art_path, 0.85, 0.02)  # karta na výšku: hlava + trup
     _face_name.text = card_definition.display_name
-    # Dlouhá jména zmenšit, ať se vejdou mezi odznaky útoku a životů.
-    var name_length := card_definition.display_name.length()
-    _face_name.add_theme_font_size_override("font_size", 15 if name_length <= 15 else (13 if name_length <= 19 else 12))
+    _face_frame.texture = _load_frame_texture(FACE_PARTS_DIR + str(FACE_FRAME_BY_TYPE.get(card_definition.card_type, "frame_cat")) + ".png")
     _face_cost.text = str(card_definition.cost)
     _face_attack.text = str(card_instance.current_attack)
     _face_life.text = str(card_instance.current_life)
     _face_attack_badge.visible = show_stats
     _face_life_badge.visible = show_stats
+    for hole in _face_holes:
+        hole.visible = not show_stats
     _face_type.visible = not show_stats
     _face_type.text = badge_text.to_upper()
     _face_type.add_theme_color_override("font_color", Color(1.0, 0.62, 0.5) if card_definition.card_type == CardGameConstants.CardType.TRICK else Color(0.6, 0.8, 1.0))
     _face_badge_text = badge_text
     _face_keyword.text = badge_text
     _update_face_keyword_visibility()
+    _layout_face()
     var icon: Texture2D = null
     if show_stats and not card_definition.keywords.is_empty():
         icon = CardArtCache.get_keyword_icon(card_definition.keywords[0])

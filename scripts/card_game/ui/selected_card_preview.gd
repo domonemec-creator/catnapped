@@ -5,6 +5,7 @@ const CardGameConstants = preload("res://scripts/card_game/data/card_game_consta
 const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
 const CardTextFormatter = preload("res://scripts/card_game/ui/card_text_formatter.gd")
 const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
+const CardViewScript = preload("res://scripts/card_game/ui/card_view.gd")  # malované díly a jejich pozice
 
 const SELECTED_PREVIEW_FRAME_PATH := "res://assets/card_game/ui/selected_card_preview_frame.png"
 const DISPLAY_FULL := &"full"
@@ -33,17 +34,17 @@ const DISPLAY_CONFIGS := {
 # Žeton na stole (board) má dál výřez nahoře a jméno pod ním.
 const FULL_ART_OVERRIDES := {
     "art_rect": Rect2(8, 8, 242, 371),
-    "name_rect": Rect2(8, 214, 242, 28),
-    "type_rect": Rect2(64, 244, 130, 24),
-    "rules_rect": Rect2(18, 272, 222, 66),
+    "name_rect": Rect2(40, 196, 178, 30),
+    "type_rect": Rect2(64, 230, 130, 22),
+    "rules_rect": Rect2(28, 256, 202, 64),
 }
 const TEXT_SHADE_RECT := Rect2(8, 170, 242, 209)
 # Kouzla a předměty nemají dole odznaky útoku a životů: text až ke spodnímu okraji, víc obrázku.
 const FULL_ART_OVERRIDES_NO_STATS := {
     "art_rect": Rect2(8, 8, 242, 371),
-    "name_rect": Rect2(8, 244, 242, 28),
-    "type_rect": Rect2(64, 274, 130, 24),
-    "rules_rect": Rect2(18, 302, 222, 74),
+    "name_rect": Rect2(40, 222, 178, 30),
+    "type_rect": Rect2(64, 256, 130, 22),
+    "rules_rect": Rect2(28, 282, 202, 60),
 }
 const TEXT_SHADE_RECT_NO_STATS := Rect2(8, 196, 242, 183)
 
@@ -157,6 +158,10 @@ var _interactive := false
 var _display_mode: StringName = DISPLAY_FULL
 var _card_background: Panel
 var _guide_label: RichTextLabel
+var _face_frame: TextureRect  # malovaný rám podle typu (full/large)
+var _name_banner: TextureRect
+var _holders: Dictionary = {}  # Label -> TextureRect medailonu za číslem
+var _holes: Array[Panel] = []  # tmavé kotouče do prázdných výřezů (trik/předmět)
 
 
 func _ready() -> void:
@@ -184,6 +189,25 @@ func _ready() -> void:
     _text_shade.texture = shade_texture
     card_canvas.add_child(_text_shade)
     card_canvas.move_child(_text_shade, art_rect.get_index() + 1)
+    _face_frame = _make_part_rect("frame_cat")
+    card_canvas.add_child(_face_frame)
+    card_canvas.move_child(_face_frame, _text_shade.get_index() + 1)
+    for i in 2:
+        _holes.append(CardViewScript.make_face_hole())
+        card_canvas.add_child(_holes[i])
+        card_canvas.move_child(_holes[i], _face_frame.get_index() + 1)
+    _name_banner = _make_part_rect("banner_name")
+    card_canvas.add_child(_name_banner)
+    card_canvas.move_child(_name_banner, _face_frame.get_index() + 1)
+    for pair in [[cost_label, "holder_cost", 0.06], [attack_label, "holder_attack", 0.04], [life_label, "holder_health", -0.02]]:
+        var holder := _make_part_rect(pair[1])
+        holder.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+        holder.show_behind_parent = true  # číslo labelu se kreslí přes medailon
+        pair[0].add_child(holder)
+        holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+        # Ozdoba je nahoře, výplň níž: medailon posunout nahoru, ať číslo sedí ve výplni.
+        holder.set_meta("text_shift", pair[2])
+        _holders[pair[0]] = holder
     art_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
     art_texture.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
     for label in [cost_label, attack_label, life_label]:
@@ -293,6 +317,46 @@ func _apply_layout(base_layout: Dictionary) -> void:
     _apply_rect(attack_label, layout["attack_rect"], display_scale)
     _apply_rect(life_label, layout["life_rect"], display_scale)
     _apply_rect(type_badge, layout["type_rect"], display_scale)
+    var full_art := _is_full_art()
+    _face_frame.visible = full_art
+    _name_banner.visible = full_art and bool(layout["show_name"])
+    if full_art:
+        var canvas: Vector2 = layout["canvas_size"]
+        _apply_rect(_face_frame, Rect2(Vector2.ZERO, canvas), display_scale)
+        var name_rect: Rect2 = layout["name_rect"]
+        _apply_rect(_name_banner, name_rect.grow_individual(18, 4, 18, 8), display_scale)
+        var diameter := canvas.x * CardViewScript.FACE_HOLDER_WIDTH
+        _apply_holder_rect(cost_label, CardViewScript.FACE_COST_CENTER, canvas, diameter, display_scale)
+        _apply_holder_rect(attack_label, CardViewScript.FACE_ATTACK_CENTER, canvas, diameter, display_scale)
+        _apply_holder_rect(life_label, CardViewScript.FACE_LIFE_CENTER, canvas, diameter, display_scale)
+    for label in _holders:
+        _holders[label].visible = full_art
+    for i in 2:
+        _holes[i].visible = full_art and not has_stats
+        if _holes[i].visible:
+            var base_size: Vector2 = layout["canvas_size"]
+            var hole := base_size.x * CardViewScript.FACE_HOLE_WIDTH
+            var center: Vector2 = CardViewScript.FACE_ATTACK_CENTER if i == 0 else CardViewScript.FACE_LIFE_CENTER
+            _apply_rect(_holes[i], Rect2(center * base_size - Vector2(hole, hole) * 0.5, Vector2(hole, hole)), display_scale)
+
+
+func _apply_holder_rect(label: Label, center: Vector2, canvas: Vector2, diameter: float, scale: float) -> void:
+    var rect := Rect2(center * canvas - Vector2(diameter, diameter) * 0.5, Vector2(diameter, diameter))
+    _apply_rect(label, rect, scale)
+    var holder: TextureRect = _holders[label]
+    var shift := -float(holder.get_meta("text_shift")) * diameter * scale
+    holder.offset_top = shift
+    holder.offset_bottom = shift
+
+
+func _make_part_rect(part_id: String) -> TextureRect:
+    var rect := TextureRect.new()
+    rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    rect.stretch_mode = TextureRect.STRETCH_SCALE
+    rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+    rect.texture = _load_frame_texture(CardViewScript.FACE_PARTS_DIR + part_id + ".png")
+    return rect
 
 
 func _apply_content(layout: Dictionary) -> void:
@@ -349,9 +413,18 @@ func _apply_content(layout: Dictionary) -> void:
     art_rect.add_theme_stylebox_override("panel", _build_panel_style(art_background, Color(0, 0, 0, 0)))
     type_badge.add_theme_stylebox_override("panel", _build_panel_style(layout["badge_bg"], layout["badge_border"]))
     _card_background.add_theme_stylebox_override("panel", _build_panel_style(Color(0.12, 0.09, 0.07, 0.98), layout["badge_border"]))
-    cost_label.add_theme_stylebox_override("normal", _build_round_style(Color(0.16, 0.34, 0.62), display_scale))
-    attack_label.add_theme_stylebox_override("normal", _build_round_style(Color(0.7, 0.42, 0.1), display_scale))
-    life_label.add_theme_stylebox_override("normal", _build_round_style(Color(0.62, 0.16, 0.14), display_scale))
+    if _is_full_art():
+        _face_frame.texture = _load_frame_texture(CardViewScript.FACE_PARTS_DIR + str(CardViewScript.FACE_FRAME_BY_TYPE.get(definition.card_type, "frame_cat")) + ".png")
+        for label in [cost_label, attack_label, life_label]:
+            label.add_theme_stylebox_override("normal", StyleBoxEmpty.new())
+            label.add_theme_color_override("font_color", Color(1.0, 0.97, 0.88))
+            label.add_theme_font_size_override("font_size", int(label.size.x * 0.46))
+            label.add_theme_constant_override("outline_size", maxi(3, int(label.size.x * 0.09)))
+        name_label.add_theme_color_override("font_color", Color(1.0, 0.94, 0.8))
+    else:
+        cost_label.add_theme_stylebox_override("normal", _build_round_style(Color(0.16, 0.34, 0.62), display_scale))
+        attack_label.add_theme_stylebox_override("normal", _build_round_style(Color(0.7, 0.42, 0.1), display_scale))
+        life_label.add_theme_stylebox_override("normal", _build_round_style(Color(0.62, 0.16, 0.14), display_scale))
 
     _refresh_art(layout)
 

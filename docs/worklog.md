@@ -14,6 +14,11 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-23 – malované díly karet (rámy podle typu, medailony čísel)
+- Mark dodal dva archy podle `design/card_parts_prompt.md`, rozřezáno `slice_ui_sheet.gd` (11 PNG v `assets/card_game/ui/sheet/`).
+- Karta v ruce, velký náhled i žeton na stole mají rám podle typu (kočka mosaz a dřevo, trik fialový smalt, předmět černé železo), cenu, útok a životy v malovaných medailonech a jméno na červené stuze. Proč: obyčejná kolečka vypadala provizorně a typ karty nebyl poznat na první pohled.
+- Žeton na stole je skoro čtvercový, proto rám jako NinePatch (rohy s výřezy se nedeformují). Trik a předmět mají ve spodních výřezech tmavý kotouč místo prosvítajícího obrázku.
+
 ### 2026-10-23 – UI arch od Marka nasazen
 - Arch 4×4 (zelené pozadí) → `assets/card_game/card_art_source/sheet_ui_2026-10-23.webp`, nový nástroj `slice_ui_sheet.gd` (chroma key + despill, předměty podle souvislých tvarů, ne podle mřížky – přesahují políčka) → `assets/card_game/ui/sheet/*.png` (16 kusů).
 - Menu: nápis „Catnapped!“ na dřevěné desce, ikony na tlačítkách (balík, kormidlo = nastavení, tlapky = hra ve dvou, figurína = trénink, mapa = výprava). Souboj: malované srdce a tuňák u životů a Tun, ikony balíku a odhozu. Obchod: mince šupin.
