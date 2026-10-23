@@ -2,6 +2,11 @@
 extends RefCounted
 
 const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
+const CardInstance = preload("res://scripts/card_game/runtime/card_instance.gd")
+const REWARD_PREVIEW_SCENE := preload("res://scenes/card_game/selected_card_preview.tscn")
+# Náhled se kreslí v plné velikosti (258×404) a zmenší se scale, aby písmo a odznaky držely poměr.
+const REWARD_CARD_FULL_SIZE := Vector2(258, 404)
+const REWARD_CARD_SCALE := 0.6
 
 var _style_box_builder: Callable
 var _tutorial_dismiss_pressed: Callable
@@ -300,6 +305,11 @@ func update_post_match_actions(run_session) -> void:
 		result_panel.custom_minimum_size = Vector2(980, 840) if show_reward_draft else Vector2(920, 760)
 	if _post_match_reward_buttons != null:
 		_post_match_reward_buttons.visible = show_reward_draft
+	# Výběr odměny potřebuje místo na karty: podrobný řádek a skóre schovat (postup ukazuje trasa).
+	if _post_match_deck_shift_detail != null:
+		_post_match_deck_shift_detail.visible = not show_reward_draft
+	if _post_match_record_label != null:
+		_post_match_record_label.visible = not show_reward_draft
 	if _post_match_rematch_button != null:
 		_post_match_rematch_button.visible = not show_reward_draft
 	if _post_match_choose_encounter_button != null:
@@ -307,7 +317,7 @@ func update_post_match_actions(run_session) -> void:
 
 	if show_reward_draft:
 		if _post_match_deck_shift_title != null:
-			_post_match_deck_shift_title.text = "Vyber odměnu"
+			_post_match_deck_shift_title.text = "Vyber odměnu – zůstane ti v balíku"
 		if _post_match_deck_shift_detail != null:
 			_post_match_deck_shift_detail.text = "Vyber 1 odměnu. Tvůj balík zůstává i do dalších soubojů."
 		refresh_reward_buttons()
@@ -423,31 +433,62 @@ func refresh_reward_buttons() -> void:
 	_style_reward_button(_post_match_reward_upgrade_button, StringName(_reward_offers[2].get("to_card_id", StringName())))
 
 
+
+
+# Odměna jako skutečná karta (náhled s pravidly) a pod ní co se s ní stane.
 func _style_reward_button(button: Button, card_id: StringName) -> void:
-	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	button.expand_icon = true
-	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-	button.add_theme_constant_override("icon_max_width", 150)
-	# Menší písmo: tlačítko nese jméno, cenu i pravidla karty.
-	button.add_theme_font_size_override("font_size", 15)
+	button.set_meta("reward_label", button.text)
+	var action_text := button.text
+	button.text = ""
 	button.icon = null
+	var card_size := REWARD_CARD_FULL_SIZE * REWARD_CARD_SCALE
+	button.custom_minimum_size = Vector2(232, card_size.y + 46)
+	var box := button.get_node_or_null("RewardCard") as VBoxContainer
+	if box == null:
+		box = VBoxContainer.new()
+		box.name = "RewardCard"
+		box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 8)
+		box.alignment = BoxContainer.ALIGNMENT_CENTER
+		box.add_theme_constant_override("separation", 6)
+		button.add_child(box)
+		var holder := Control.new()
+		holder.name = "Holder"
+		holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		holder.custom_minimum_size = card_size
+		holder.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		box.add_child(holder)
+		var preview := REWARD_PREVIEW_SCENE.instantiate()
+		preview.name = "Preview"
+		preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		preview.size = REWARD_CARD_FULL_SIZE
+		preview.scale = Vector2.ONE * REWARD_CARD_SCALE
+		holder.add_child(preview)
+		if preview.has_method("set_display_mode"):
+			preview.set_display_mode(&"full")
+		var label := Label.new()
+		label.name = "Action"
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.add_theme_font_size_override("font_size", 14)
+		label.add_theme_color_override("font_color", Color(0.98, 0.88, 0.66))
+		box.add_child(label)
+	var preview_node := box.get_node("Holder/Preview")
+	# Vylepšení: karta nahoře je výsledek, pod ní stačí co se mění („Vylepšit z: Zvěd“).
+	if action_text.contains(" → "):
+		action_text = action_text.get_slice(" → ", 0).replace("Vylepšit: ", "Vylepšit z: ")
+	(box.get_node("Action") as Label).text = action_text
 	var card_path := "res://data/cards/%s.tres" % String(card_id)
-	if card_id != StringName() and ResourceLoader.exists(card_path):
-		var definition = load(card_path)
-		button.icon = CardArtCache.get_cropped(definition.art_path)
-		button.tooltip_text = "%s (%s/%s): %s" % [definition.display_name, definition.attack, definition.life, definition.rules_text]
-		if definition.card_type == CardGameConstants.CardType.CAT:
-			button.text += "\ncena %s · %s útok · %s životy" % [definition.cost, definition.attack, definition.life]
-		else:
-			button.text += "\n%s · cena %s" % ["Trik" if definition.card_type == CardGameConstants.CardType.TRICK else "Předmět", definition.cost]
-		# Co karta dělá: začátečník nemusí najíždět na tooltip.
-		# Jen první věta (vysvětlivka klíčového slova je v tooltipu), tlačítko má pevnou výšku.
-		if not definition.rules_text.is_empty():
-			var first_sentence: String = definition.rules_text.get_slice(". ", 0)
-			if not first_sentence.ends_with("."):
-				first_sentence += "."
-			button.text += "\n%s" % first_sentence
+	box.get_node("Holder").visible = card_id != StringName() and ResourceLoader.exists(card_path)
+	if not box.get_node("Holder").visible:
+		return
+	var definition = load(card_path)
+	var instance := CardInstance.new()
+	instance.definition = definition
+	instance.current_attack = definition.attack
+	instance.current_life = definition.life
+	preview_node.set_card_instance(instance)
+	button.tooltip_text = "%s: %s" % [definition.display_name, definition.rules_text]
 
 
 func build_post_match_threat_text(progression_system, previous_threat: int, next_threat: int) -> String:

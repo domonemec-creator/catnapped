@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-23 – vizuální audit, kolo 1 (jména na stole, odměny jako karty)
+- Mark: multiplayer až na konec, teď vizuál (PLAN priorita). Audit všech obrazovek screenshotem (`artifacts/audit/`).
+- Stůl: dlouhá jména (Hospodský myšolovec) se lámala přes rám. `lane_slot_view.gd` `_fit_token_name()` zmenšuje písmo 16 → 12, až pod minimem zalomí.
+- Odměna po výhře: místo malého obrázku s textem skutečná karta (náhled 258×404 zmenšený `scale` 0,6, ať písmo drží poměr) a pod ní akce. Vylepšení ukazuje výslednou kartu a „Vylepšit z: …“. Ve výběru se schová podrobný řádek a skóre (postup ukazuje trasa), nadpis „Vyber odměnu – zůstane ti v balíku“. Plný popisek akce je v meta `reward_label` (verifier).
+- 25/25 verifierů.
+
 ### 2026-10-22 večer – balík ve hře ve dvou přesně 30 karet (D-029) + přehlednější stavění
 - Mark chtěl návrh velikosti balíku a přehledné stavění. Rozsah 20–30 nedával smysl (menší balík je vždy lepší, všichni hrají minimum) a ve hře ve dvou na 30 životů 20 karet dojde (hlad).
 - Hra ve dvou: přesně `PVP_DECK_SIZE` 30 karet, nejvýš `PVP_MAX_COPIES` 3 kopie (jedinečné karty dál 1×). Při úpravách smí balík být menší, hrát jde až s 30: lobby nepustí hostovat ani se připojit, host odmítne balík klienta (`get_deck_problem`). Výchozí balík = tréninkový oříznutý na 3 kopie a doplněný na 30.

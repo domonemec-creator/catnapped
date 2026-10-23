@@ -66,19 +66,19 @@ func _run() -> void:
     if not battle.post_match_reward_buttons.visible:
         _fail("Reward draft did not become visible after victory.")
         return
-    if battle.post_match_deck_shift_title.text != "Vyber odměnu":
+    if not battle.post_match_deck_shift_title.text.begins_with("Vyber odměnu"):
         _fail("Reward draft title did not switch.")
         return
     if battle._current_reward_offers.size() != 3:
         _fail("Reward draft did not generate 3 offers.")
         return
-    if not battle.post_match_reward_add_button.text.begins_with("Přidat: "):
+    if not str(battle.post_match_reward_add_button.get_meta("reward_label", "")).begins_with("Přidat: "):
         _fail("Reward add button did not get a card label.")
         return
-    if not battle.post_match_reward_remove_button.text.begins_with("Odebrat: "):
+    if not str(battle.post_match_reward_remove_button.get_meta("reward_label", "")).begins_with("Odebrat: "):
         _fail("Reward remove button did not get a card label.")
         return
-    if not battle.post_match_reward_upgrade_button.text.begins_with("Vylepšit: "):
+    if not str(battle.post_match_reward_upgrade_button.get_meta("reward_label", "")).begins_with("Vylepšit: "):
         _fail("Reward upgrade button did not get a card label.")
         return
     if battle.post_match_choose_encounter_button.visible:

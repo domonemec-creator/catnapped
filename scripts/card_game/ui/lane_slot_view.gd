@@ -463,8 +463,8 @@ func _build_token_panel() -> void:
 	strip.offset_top = -44.0
 
 	_token_name = _make_token_label("", 16, HORIZONTAL_ALIGNMENT_CENTER, VERTICAL_ALIGNMENT_CENTER)
-	_token_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_token_name.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	_token_name.resized.connect(_fit_token_name)
 	_token_name.add_theme_constant_override("outline_size", 4)
 	_place_token_label(content, _token_name, 0.0, 1.0, 1.0, 1.0, 54.0, -44.0, -54.0, 0.0)
 
@@ -616,12 +616,31 @@ func _place_token_label(parent: Control, label: Label, al: float, at: float, ar:
 	label.offset_bottom = ob
 
 
+# Jméno na stole v jednom řádku: zmenšuje písmo, dokud se nevejde; až pod minimem zalomí.
+const TOKEN_NAME_FONT_SIZE := 16
+const TOKEN_NAME_MIN_FONT_SIZE := 12
+
+
+func _fit_token_name() -> void:
+	if _token_name == null or _token_name.size.x <= 0.0:
+		return
+	var font := _token_name.get_theme_font("font")
+	var width := _token_name.size.x - 4.0
+	var font_size := TOKEN_NAME_FONT_SIZE
+	while font_size > TOKEN_NAME_MIN_FONT_SIZE and font.get_string_size(_token_name.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > width:
+		font_size -= 1
+	_token_name.add_theme_font_size_override("font_size", font_size)
+	var fits := font.get_string_size(_token_name.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x <= width
+	_token_name.autowrap_mode = TextServer.AUTOWRAP_OFF if fits else TextServer.AUTOWRAP_WORD_SMART
+
+
 func _populate_token() -> void:
 	if _token_panel == null or _card_instance == null or _card_instance.definition == null:
 		return
 	var def = _card_instance.definition
 	_token_cost.text = str(def.cost)
 	_token_name.text = def.display_name
+	_fit_token_name()
 	_token_art.texture = CardArtCache.get_cropped_aspect(def.art_path, 1.0, 0.02)  # layout v2: slot skoro čtvercový
 	_token_attack.text = str(_card_instance.current_attack)
 	_token_life.text = str(_card_instance.current_life)
