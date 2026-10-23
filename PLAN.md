@@ -1,5 +1,11 @@
 # PLAN.md – roadmapa (2026-10-20, vede Claude Opus 5.5 jako hlavní jednatel)
 
+## Priorita od 2026-10-23 (Mark: multiplayer až na konec)
+1. Vizuální úpravy: audit všech obrazovek screenshotem, opravy po jedné ose.
+2. E4 sbírka ~60 karet (+12 karet a art).
+3. E3 dokončit obchod (zkrátit automatické odemykání).
+4. Až na konci: hra ve dvou – test přes Radmin, balanc tanků při 30 životech, doladění.
+
 ## Hotovo (stav k 2026-10-07)
 - Cat-only core, 3 lane board, run se 4 NPC, reward draft, progression, threat
 - Split battle controlleru na presentery (07-16), oprava češtiny (07-17)
