@@ -71,11 +71,16 @@ func _ready() -> void:
 			sfx.play(&"card_place")
 	))
 
-	var fullscreen_toggle := CheckButton.new()
-	fullscreen_toggle.text = "Celá obrazovka (F11)"
+	# Přepínač jako tlačítko v barvách hry (výchozí CheckButton je šedý).
+	var fullscreen_toggle := Button.new()
+	fullscreen_toggle.toggle_mode = true
+	fullscreen_toggle.custom_minimum_size = Vector2(0, 44)
 	fullscreen_toggle.add_theme_font_size_override("font_size", 20)
 	fullscreen_toggle.button_pressed = sfx.fullscreen if sfx != null else false
+	var label_for := func(on: bool) -> String: return "Celá obrazovka (F11): %s" % ("zapnuto" if on else "vypnuto")
+	fullscreen_toggle.text = label_for.call(fullscreen_toggle.button_pressed)
 	fullscreen_toggle.toggled.connect(func(on: bool) -> void:
+		fullscreen_toggle.text = label_for.call(on)
 		if sfx != null:
 			sfx.set_fullscreen(on)
 	)

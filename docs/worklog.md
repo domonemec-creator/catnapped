@@ -19,6 +19,7 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 - Stůl: dlouhá jména (Hospodský myšolovec) se lámala přes rám. `lane_slot_view.gd` `_fit_token_name()` zmenšuje písmo 16 → 12, až pod minimem zalomí.
 - Odměna po výhře: místo malého obrázku s textem skutečná karta (náhled 258×404 zmenšený `scale` 0,6, ať písmo drží poměr) a pod ní akce. Vylepšení ukazuje výslednou kartu a „Vylepšit z: …“. Ve výběru se schová podrobný řádek a skóre (postup ukazuje trasa), nadpis „Vyber odměnu – zůstane ti v balíku“. Plný popisek akce je v meta `reward_label` (verifier).
 - Levý panel souboje: nadpis „Kolo N · Tvůj tah / Tah soupeře“ se od layoutu v2 neaktualizoval (`_refresh_turn_title` hledal panel na staré cestě, `BattleLayout` ho přesouvá) – teď přes `combat_info_panel`, 16 px zlatě. Soupeřovo „Ruka / Balík“ už nepřekrývají rubové karty.
+- Nastavení: posuvníky, přepínač a Zavřít byly šedé výchozí Godot. Globální téma (`assets/ui_theme/catnapped_theme.tres`) má teď hnědo-zlatý `Button` a `HSlider` (platí pro všechna tlačítka bez vlastního stylu, např. lobby hry ve dvou); celá obrazovka je přepínací tlačítko „zapnuto/vypnuto“. Menu, souboj, výsledky a Balík a postup screenshotem beze změny.
 - 25/25 verifierů.
 
 ### 2026-10-22 večer – balík ve hře ve dvou přesně 30 karet (D-029) + přehlednější stavění
