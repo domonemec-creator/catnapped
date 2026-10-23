@@ -467,10 +467,20 @@ func _build_shop(parent: Container) -> void:
     box.add_theme_constant_override("separation", 8)
     parent.add_child(box)
     var scales := _progression_system.get_scales(_progression_state)
+    var head_row := HBoxContainer.new()
+    head_row.add_theme_constant_override("separation", 8)
+    box.add_child(head_row)
+    var coin := TextureRect.new()
+    coin.texture = load("res://assets/card_game/ui/sheet/icon_scales.png")
+    coin.custom_minimum_size = Vector2(30, 30)
+    coin.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    coin.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+    head_row.add_child(coin)
     var head := Label.new()
     _style_label(head, 17, Color(0.96, 0.82, 0.52, 1), true)
+    head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     head.text = "Obchod · rybí šupiny: %s · nové nabídky po každém zápase" % scales
-    box.add_child(head)
+    head_row.add_child(head)
     var played := _progression_system.get_win_count(_progression_state) + _progression_system.get_loss_count(_progression_state)
     var offers := _progression_system.roll_shop_offers(_progression_state, played)
     if offers.is_empty():

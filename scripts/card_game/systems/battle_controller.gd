@@ -2443,18 +2443,25 @@ func _attach_stat_icon(label: Label, icon_name: StringName, tint: Color) -> void
 	if label == null:
 		return
 	var icon := TextureRect.new()
-	icon.texture = CardArtCache.get_keyword_icon(icon_name)
+	# Malované ikony z UI archu (2026-10-23); SVG s tónováním jen jako záloha.
+	var painted := "res://assets/card_game/ui/sheet/icon_%s.png" % ("heart" if icon_name == &"life" else String(icon_name))
+	if ResourceLoader.exists(painted):
+		icon.texture = load(painted)
+	else:
+		icon.texture = CardArtCache.get_keyword_icon(icon_name)
+		icon.modulate = tint
 	if icon.texture == null:
 		return
-	icon.modulate = tint
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	var side := float(label.get_theme_font_size("font_size")) + 4.0
+	var side := float(label.get_theme_font_size("font_size")) + 10.0
 	icon.anchor_top = 0.5
 	icon.anchor_bottom = 0.5
-	icon.offset_left = 6.0
-	icon.offset_right = 6.0 + side
+	# Široké ikony (tuňák) dostanou širší místo, jinak by byly drobné.
+	var aspect := clampf(float(icon.texture.get_width()) / float(icon.texture.get_height()), 1.0, 1.8)
+	icon.offset_left = 2.0
+	icon.offset_right = 2.0 + side * aspect
 	icon.offset_top = -side * 0.5
 	icon.offset_bottom = side * 0.5
 	label.add_child(icon)

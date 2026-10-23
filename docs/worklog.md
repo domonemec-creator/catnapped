@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-23 – UI arch od Marka nasazen
+- Arch 4×4 (zelené pozadí) → `assets/card_game/card_art_source/sheet_ui_2026-10-23.webp`, nový nástroj `slice_ui_sheet.gd` (chroma key + despill, předměty podle souvislých tvarů, ne podle mřížky – přesahují políčka) → `assets/card_game/ui/sheet/*.png` (16 kusů).
+- Menu: nápis „Catnapped!“ na dřevěné desce, ikony na tlačítkách (balík, kormidlo = nastavení, tlapky = hra ve dvou, figurína = trénink, mapa = výprava). Souboj: malované srdce a tuňák u životů a Tun, ikony balíku a odhozu. Obchod: mince šupin.
+- Zatím nepoužito: široká tlačítka (normál/hover), kulaté tlačítko, rám panelu, dělicí linka, zámek – další kolo (tlačítka jako textury 9-slice).
+- 25/25 verifierů.
+
 ### 2026-10-23 – vizuální audit, kolo 1 (jména na stole, odměny jako karty)
 - Mark: multiplayer až na konec, teď vizuál (PLAN priorita). Audit všech obrazovek screenshotem (`artifacts/audit/`).
 - Stůl: dlouhá jména (Hospodský myšolovec) se lámala přes rám. `lane_slot_view.gd` `_fit_token_name()` zmenšuje písmo 16 → 12, až pod minimem zalomí.

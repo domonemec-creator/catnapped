@@ -101,6 +101,8 @@ static func apply(battle: Control) -> Container:
 		_move(pile, piles)
 		pile.custom_minimum_size = Vector2(0, 84)
 		pile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_add_pile_icon(deck_panel.get_node("MarginContainer/VBox/DeckCount") as Label, "icon_deck")
+	_add_pile_icon(discard_panel.get_node("MarginContainer/VBox/DiscardCount") as Label, "icon_discard")
 
 	# Ruka pod stolem, jen v šířce stolu.
 	_move(hand_panel, board_column)
@@ -109,6 +111,24 @@ static func apply(battle: Control) -> Container:
 
 	_apply_selected_panel(battle)
 	return hand_host
+
+
+# Malovaná ikona hromádky (UI arch) vlevo od počtu karet.
+static func _add_pile_icon(count_label: Label, icon_name: String) -> void:
+	if count_label == null:
+		return
+	var icon := TextureRect.new()
+	icon.texture = load("res://assets/card_game/ui/sheet/%s.png" % icon_name)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.anchor_top = 0.5
+	icon.anchor_bottom = 0.5
+	icon.offset_left = 4.0
+	icon.offset_right = 44.0
+	icon.offset_top = -20.0
+	icon.offset_bottom = 20.0
+	count_label.add_child(icon)
 
 
 # Pravý panel: velký náhled karty, bez zdvojeného jména a řádku statistik (vše je na kartě).

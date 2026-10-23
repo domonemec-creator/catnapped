@@ -8,6 +8,7 @@ const HEADER_TEXTURE_PATH := "res://assets/card_game/ui/header_panel_drapes.png"
 const CardArtCache = preload("res://scripts/card_game/ui/card_art_cache.gd")
 const RunSessionScript = preload("res://scripts/card_game/systems/run_session.gd")
 
+const UI_SHEET_DIR := "res://assets/card_game/ui/sheet/"
 var _panel_style: StyleBoxFlat
 var _button_normal_style: StyleBoxFlat
 var _button_hover_style: StyleBoxFlat
@@ -110,9 +111,9 @@ func _build_ui() -> void:
     var header_margin := MarginContainer.new()
     header_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
     header_margin.add_theme_constant_override("margin_left", 30)
-    header_margin.add_theme_constant_override("margin_top", 26)
+    header_margin.add_theme_constant_override("margin_top", 4)
     header_margin.add_theme_constant_override("margin_right", 30)
-    header_margin.add_theme_constant_override("margin_bottom", 22)
+    header_margin.add_theme_constant_override("margin_bottom", 4)
     header.add_child(header_margin)
 
     var header_row := HBoxContainer.new()
@@ -133,7 +134,21 @@ func _build_ui() -> void:
     title.add_theme_font_override("font", title_font)
     title.add_theme_color_override("font_outline_color", Color(0.12, 0.06, 0.02, 1))
     title.add_theme_constant_override("outline_size", 6)
-    header_vbox.add_child(title)
+    # Nápis na dřevěné desce z UI archu (2026-10-23).
+    title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    title.add_theme_font_size_override("font_size", 32)
+    var plaque := TextureRect.new()
+    plaque.texture = load(UI_SHEET_DIR + "title_plaque.png")
+    plaque.custom_minimum_size = Vector2(330, 195)
+    plaque.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    plaque.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+    plaque.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    header_row.add_child(plaque)
+    header_row.move_child(plaque, 0)
+    title.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    title.offset_top = 30  # deska má nahoře erb s tlapkou, střed dřeva je níž
+    plaque.add_child(title)
 
     var subtitle := Label.new()
     subtitle.text = "Kočičí karetní souboje v přístavní krčmě. Poraz soupeře v tréninku, nebo projdi celou výpravu."
@@ -169,6 +184,7 @@ func _build_ui() -> void:
     _progress_button.add_theme_stylebox_override("hover", _progress_button_hover_style)
     _progress_button.add_theme_stylebox_override("pressed", _progress_button_pressed_style)
     _progress_button.pressed.connect(_open_progression_screen)
+    _set_button_icon(_progress_button, "icon_deck")
     _progress_button.custom_minimum_size = Vector2(230, 48)
     _progress_button.size_flags_horizontal = Control.SIZE_FILL
     var secondary_row := VBoxContainer.new()
@@ -182,6 +198,7 @@ func _build_ui() -> void:
     settings_button.size_flags_horizontal = Control.SIZE_FILL
     settings_button.custom_minimum_size = Vector2(230, 48)
     settings_button.pressed.connect(_open_settings)
+    _set_button_icon(settings_button, "icon_settings")
     secondary_row.add_child(settings_button)
 
     # Hra ve dvou po síti (D4): hostování / připojení přes IP.
@@ -190,6 +207,7 @@ func _build_ui() -> void:
     versus_button.size_flags_horizontal = Control.SIZE_FILL
     versus_button.custom_minimum_size = Vector2(230, 48)
     versus_button.pressed.connect(_open_net_lobby)
+    _set_button_icon(versus_button, "icon_versus")
     secondary_row.add_child(versus_button)
 
     var body := HBoxContainer.new()
@@ -306,6 +324,8 @@ func _build_ui() -> void:
     mode_row.add_theme_constant_override("separation", 12)
     details_vbox.add_child(mode_row)
     mode_row.add_child(_start_button)
+    _set_button_icon(_start_button, "icon_training", 40)
+    _set_button_icon(_run_button, "icon_expedition", 40)
     _run_button.text = "Výprava: všichni soupeři"
     _run_button.add_theme_stylebox_override("normal", _progress_button_normal_style)
     _run_button.add_theme_stylebox_override("hover", _progress_button_hover_style)
@@ -314,6 +334,14 @@ func _build_ui() -> void:
     _run_button.add_theme_color_override("font_hover_color", Color(0.98, 0.9, 0.75, 1))
     mode_row.add_child(_run_button)
     details_vbox.add_child(_run_note_label)
+
+
+# Ikona z UI archu vlevo od textu tlačítka.
+func _set_button_icon(button: Button, icon_name: String, size: int = 36) -> void:
+    button.icon = load(UI_SHEET_DIR + icon_name + ".png")
+    button.expand_icon = false
+    button.add_theme_constant_override("icon_max_width", size)
+    button.add_theme_constant_override("h_separation", 10)
 
 
 func _load_encounters() -> void:
