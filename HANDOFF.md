@@ -51,6 +51,10 @@
 - Otevřené (balanc): při 30 životech tanky dominují (sim Stokový král 100 % i s 30kartovými balíky). Další páka: síla tanků (Ochrana / vysoké životy za nízkou cenu), ne velikost balíku.
 - Pozor: `net_smoke` a verifiery sdílejí testovací save – nepouštět je souběžně (falešné „soupeř se nepřipojil“).
 
+## 23. 10. – vizuální audit (Mark: multiplayer až na konec)
+- Kola 1–3 hotová a pushnutá (`be08d05`, `de230bf`, `d7af9a0`), každé 25/25 verifierů: jména na stole v jednom řádku, odměny jako skutečné karty, nadpis kola v levém panelu, ruka soupeře, globální téma tlačítek a posuvníků. Screenshoty `artifacts/audit/`. Exe znovu vyexportované.
+- Zbývá z auditu (nižší dopad): prázdný pravý panel v tahu soupeře, malé karty v ruce (pevná výška stolu), návod OK.
+
 ## Další krok
 0. Fáze E zbývá: E3 obchod je hotový v základu (šupiny po zápase proti AI, 3 nabídky nad kolekcí v Balík a postup, `verify_shop.gd`); chybí šupiny ve hře ve dvou a zkrácení automatického odemykání, E4 sbírka ~60 karet (sady 15–20, každá přes `sim_deck_vs_deck.gd`).
 1. Lidský test #4 (Mark + kamarád přes Radmin VPN): oba spustí hru → „Hra ve dvou“. Jeden „Hostovat hru“ (Windows firewall: povolit), druhý zadá jeho IP 26.x.x.x → „Připojit se“. Dohrát zápas. Hlásit: připojení, zpoždění, nečitelné tahy soupeře, chyby.
