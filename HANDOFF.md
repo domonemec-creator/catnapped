@@ -52,6 +52,7 @@
 - Pozor: `net_smoke` a verifiery sdílejí testovací save – nepouštět je souběžně (falešné „soupeř se nepřipojil“).
 
 ## 24. 10. – UX audit stolu (Claude Opus 5.5)
+- v4: vějíř ruky (`_apply_hand_fan` a `_set_hand_card_lifted` v controlleru), `LaneSlotView.side_turn_active`, `_fit_name_font` v náhledu. Screenshoty `artifacts/ux/v4_*.png`. Další krok podle auditu: pravý panel na vyžádání, až po Markově testu.
 - `design/ux_audit_2026-10-24.md` obsahuje rozbor, změny v3 a zbývající kroky (vějíř ruky, pravý panel na vyžádání, ruby soupeřovy ruky nahoře).
 - Kód: `battle_layout.gd` (`ENEMY_ACCENT`/`PLAYER_ACCENT`, `_side_panel`, `set_turn_highlight`, `_add_board_side_tint`), `lane_slot_view.gd` (`halo`), `battle_controller.gd` (`_update_turn_indicator`, záznam bez zdvojení).
 - Ověřeno: screenshoty `artifacts/ux/v3_*.png`. Na lidském testu se ověří, jestli je rozdíl vidět na první pohled.

@@ -114,6 +114,11 @@ static func apply(battle: Control) -> Container:
 	# Ruka pod stolem, jen v šířce stolu.
 	_move(hand_panel, board_column)
 	hand_panel.size_flags_vertical = Control.SIZE_SHRINK_END
+	# Vějíř ruky: bez rámečku a nadpisu „Ruka N“ (karty jsou vidět samy), karty na střed.
+	hand_panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	var hand_vbox := hand_panel.get_node("MarginContainer/VBox")
+	(hand_vbox.get_node("HandHeader") as Control).visible = false
+	(hand_vbox.get_node("HandCards") as HBoxContainer).alignment = BoxContainer.ALIGNMENT_CENTER
 	bottom_bar.visible = false
 
 	_add_board_side_tint(board_column.get_node("BoardPanel") as Control)

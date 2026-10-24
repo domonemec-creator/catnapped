@@ -43,6 +43,8 @@ signal card_hovered(card_instance)
 
 var lane_index: int = -1
 var owner_id: int = -1
+# Je strana tohoto slotu právě na tahu? Zelený odznak „připravená“ jen tehdy (UX audit 2026-10-24).
+var side_turn_active: bool = true
 var _card_instance: CardInstance
 var _empty_hint: String = "Volná lajna."
 var _current_highlight_mode: StringName = &"none"
@@ -751,12 +753,13 @@ func _refresh_status_badge() -> void:
 		return
 
 	var status := STATUS_READY if _card_instance.can_attack and not _card_instance.has_attacked else STATUS_SPENT
-	_set_ready_pulse(status == STATUS_READY and owner_id == OWNER_PLAYER)
+	var show_ready := status == STATUS_READY and owner_id == OWNER_PLAYER and side_turn_active
+	_set_ready_pulse(show_ready)
 	if _fresh_pill != null:
 		_fresh_pill.visible = owner_id == OWNER_PLAYER and _card_instance.entered_this_turn and not _card_instance.can_attack
 	status_badge.texture = _load_ui_texture(str(STATUS_BADGE_TEXTURES.get(status, "")))
 	# UI rozbor bod 7: tmavá „patice“ u vyčerpané kočky vypadala jako rozbitý prvek; ukazuje se jen připravenost.
-	status_badge.visible = status_badge.texture != null and status == STATUS_READY
+	status_badge.visible = status_badge.texture != null and show_ready
 	status_badge_label.visible = false
 
 

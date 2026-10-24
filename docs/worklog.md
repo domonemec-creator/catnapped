@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-24 – vějíř ruky, zelená jen pro tvůj tah, celá jména v náhledu
+- Ruka jako vějíř větších karet, které po najetí vyjedou nahoru. Překrývají se jen při plné ruce, aby nezakrývaly životy. Nadpis „Ruka N“ a rámeček ruky jsou pryč.
+- Zelený odznak „připravená“ jen na tvých kočkách v tvém tahu. Dřív svítil i v tahu soupeře a u soupeřových koček.
+- Dlouhá jména karet se v náhledu zmenší místo uříznutí.
+- Podrobnosti: `design/ux_audit_2026-10-24.md`, sekce v4.
+
 ### 2026-10-24 – UX audit stolu: kdo je kdo, méně textu
 - Proč: Mark chtěl stůl bez přeplácanosti, na kterém na první pohled pozná svoje a soupeřovo. Rozbor a srovnání s HS, Snap, LoR, Gwent a Inscryption je v `design/ux_audit_2026-10-24.md`.
 - Barva strany: soupeř karmínová, ty zlatá.

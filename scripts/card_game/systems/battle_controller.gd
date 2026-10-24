@@ -48,7 +48,12 @@ const ENCOUNTER_SELECT_SCENE_PATH := "res://scenes/card_game/encounter_select.ts
 const TIER_EXTRA_CARD_FROM := 2
 const NET_OPPONENT_PORTRAIT_PATH := "res://assets/card_game/card_art/portrait_rival.png"
 # Karta v ruce na výšku (layout v2).
-const HAND_CARD_SIZE := Vector2(136, 188)
+const HAND_CARD_SIZE := Vector2(150, 206)
+# Vějíř ruky (UX audit 2026-10-24): překryv, náklon a vyjetí karty po najetí.
+const HAND_FAN_STEP_DEG := 3.0
+const HAND_FAN_MAX_DEG := 10.0
+const HAND_MIN_OVERLAP := -6.0  # záporné = mezera; překryv jen když se karty nevejdou (jinak zakrývá srdce s životy)
+const HAND_HOVER_SCALE := 1.22
 const CARD_VIEW_SCENE := preload("res://scenes/card_game/card_view.tscn")
 const POSTMATCH_VICTORY_EMBLEM_PATH := "res://assets/card_game/ui/postmatch_victory_emblem.png"
 const POSTMATCH_DEFEAT_EMBLEM_PATH := "res://assets/card_game/ui/postmatch_defeat_emblem.png"
@@ -169,6 +174,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_pace_actions = BattleFx.is_enabled()
 	_enemy_hand_host = BattleLayout.apply(self)
+	hand_row.sort_children.connect(_apply_hand_fan)
 	_attach_stat_icon(player_life_label, &"life", Color(0.95, 0.42, 0.38))
 	_attach_stat_icon(player_tuna_label, &"tuna", Color(0.55, 0.78, 1.0))
 	_attach_stat_icon(enemy_life_label, &"life", Color(0.95, 0.42, 0.38))
@@ -2101,7 +2107,9 @@ func _select_hand_card_by_instance_id(instance_id: int, toggle_selection: bool =
 
 func _refresh_lanes(views: Array[LaneSlotView], player_state: PlayerBattleState) -> void:
 	var lane_feedback := _get_lane_feedback(player_state.player_id)
+	var side_active := _battle_state.active_player_id == player_state.player_id and not _battle_state.battle_over
 	for lane_index in range(views.size()):
+		views[lane_index].side_turn_active = side_active
 		views[lane_index].set_card_instance(player_state.board[lane_index].occupant)
 		if lane_index < lane_feedback.size():
 			var feedback: Dictionary = lane_feedback[lane_index]
@@ -2142,6 +2150,8 @@ func _refresh_hand(player_state: PlayerBattleState) -> void:
 		if not card_view.card_pressed.is_connected(_on_hand_card_pressed):
 			card_view.card_pressed.connect(_on_hand_card_pressed)
 			card_view.card_hovered.connect(_on_card_hovered)
+			card_view.mouse_entered.connect(_set_hand_card_lifted.bind(card_view, true))
+			card_view.mouse_exited.connect(_set_hand_card_lifted.bind(card_view, false))
 
 	_fit_hand_cards(player_state.hand.size())
 
@@ -2153,12 +2163,67 @@ func _fit_hand_cards(count: int) -> void:
 	var area := hand_row.get_parent_control()
 	# Před prvním layoutem panel ještě nezná šířku; logická šířka ruky je ~1000 px (viewport 1600).
 	var available := area.size.x if area != null and area.size.x >= 600.0 else 1000.0
-	var separation := float(hand_row.get_theme_constant("separation"))
-	var width := clampf((available - separation * float(count - 1)) / float(count), 96.0, HAND_CARD_SIZE.x)
+	# Karty se překrývají, jen když se nevejdou; nejvýš o 45 % šířky, pak se zúží.
+	var width := HAND_CARD_SIZE.x
+	var separation := -HAND_MIN_OVERLAP
+	if count > 1:
+		separation = minf(-HAND_MIN_OVERLAP, (available - width * float(count)) / float(count - 1))
+		if separation < -width * 0.45:
+			separation = -width * 0.45
+			width = clampf(available / (float(count) * 0.55 + 0.45), 96.0, HAND_CARD_SIZE.x)
+			separation = -width * 0.45
+	hand_row.add_theme_constant_override("separation", int(separation))
 	for child in hand_row.get_children():
 		var view := child as Control
 		if view != null:
 			view.custom_minimum_size = Vector2(width, HAND_CARD_SIZE.y)
+	_apply_hand_fan()
+
+
+# Náklon karet do vějíře. Kontejner při každém přeskládání vrací rotaci a měřítko na nulu,
+# proto se volá i ze signálu sort_children.
+func _apply_hand_fan() -> void:
+	var views: Array[Control] = []
+	for child in hand_row.get_children():
+		var view := child as CardView
+		if view != null and view.visible and view.card_instance != null:
+			views.append(view)
+	var count := views.size()
+	var step := minf(HAND_FAN_STEP_DEG, HAND_FAN_MAX_DEG * 2.0 / maxf(1.0, float(count - 1)))
+	for index in range(count):
+		var view := views[index]
+		var angle := (float(index) - float(count - 1) * 0.5) * step
+		view.set_meta("fan_angle", angle)
+		view.pivot_offset = Vector2(view.size.x * 0.5, view.size.y)
+		var lifted := _is_hand_card_lifted(view)
+		view.rotation_degrees = 0.0 if lifted else angle
+		view.scale = Vector2.ONE * (HAND_HOVER_SCALE if lifted else 1.0)
+		view.z_index = 10 if lifted else 0
+
+
+# Vybraná karta zůstává vysunutá, i když z ní myš odjede.
+func _is_hand_card_lifted(view: CardView) -> bool:
+	if view.card_instance == null:
+		return false
+	return bool(view.get_meta("hovered", false)) or (_selected_card != null and view.card_instance == _selected_card)
+
+
+# Najetí na kartu: narovná se, zvětší (roste nahoru, spodní hrana stojí) a jde navrch.
+func _set_hand_card_lifted(view: CardView, hovered: bool) -> void:
+	if not is_instance_valid(view):
+		return
+	view.set_meta("hovered", hovered)
+	var lifted := _is_hand_card_lifted(view)
+	view.z_index = 10 if lifted else 0
+	view.pivot_offset = Vector2(view.size.x * 0.5, view.size.y)
+	var angle: float = view.get_meta("fan_angle", 0.0)
+	if not BattleFx.is_enabled():
+		view.rotation_degrees = 0.0 if lifted else angle
+		view.scale = Vector2.ONE * (HAND_HOVER_SCALE if lifted else 1.0)
+		return
+	var tween := view.create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(view, "rotation_degrees", 0.0 if lifted else angle, 0.12)
+	tween.tween_property(view, "scale", Vector2.ONE * (HAND_HOVER_SCALE if lifted else 1.0), 0.12)
 
 
 func _animate_card_draw(card_view: Control, order: int) -> void:

@@ -391,6 +391,7 @@ func _apply_content(layout: Dictionary) -> void:
         type_label.text = str(CardGameConstants.keyword_label(definition.keywords[0])).to_upper()
 
     name_label.add_theme_font_size_override("font_size", _scaled_font_size(int(layout["name_font_size"]), display_scale, 12))
+    _fit_name_font(_scaled_font_size(int(layout["name_font_size"]), display_scale, 12))
     rules_label.add_theme_font_size_override("normal_font_size", _scaled_font_size(int(layout["rules_font_size"]), display_scale, 10))
     rules_label.add_theme_font_size_override("bold_font_size", _scaled_font_size(int(layout["rules_font_size"]), display_scale, 10))
     cost_label.add_theme_font_size_override("font_size", _scaled_font_size(int(layout["cost_font_size"]), display_scale, 14))
@@ -465,6 +466,18 @@ func _apply_display_root() -> void:
 
 func _get_display_config() -> Dictionary:
     return DISPLAY_CONFIGS.get(_display_mode, DISPLAY_CONFIGS[DISPLAY_FULL])
+
+
+# Dlouhé jméno („Hospodský myšolovec“) se dřív uřízlo; písmo se zmenší, až se vejde na stuhu.
+func _fit_name_font(start_size: int) -> void:
+    var font := name_label.get_theme_font("font")
+    var width := name_label.size.x - 8.0
+    if font == null or width <= 0.0 or name_label.text.is_empty():
+        return
+    var font_size := start_size
+    while font_size > 10 and font.get_string_size(name_label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > width:
+        font_size -= 1
+    name_label.add_theme_font_size_override("font_size", font_size)
 
 
 func _scaled_font_size(base_size: int, scale: float, minimum: int) -> int:
