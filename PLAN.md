@@ -62,6 +62,8 @@
   - Hotovo 22. 10.: logika, šupiny po zápase proti AI, obchod nad kolekcí v Balík a postup (`verify_shop.gd`). Zbývá: šupiny ve hře ve dvou, zkrátit automatické odemykání. Zatím Mark otestuje. Návrh (Claude 22. 10.): měna „rybí šupiny“ v save (`KEY_SCALES`). Výhra v tréninku 10 + 5 × stupeň soupeře, prohra 3, hra ve dvou 5 za zápas. Po zápase 3 náhodné karty mimo tréninkovou kolekci, cena 5 + 5 × cena karty, nákup = karta do `KEY_COLLECTION`. Automatické odemykání (`TRAINING_CARD_UNLOCKS`) zkrátit na 2 karty za soupeře, zbytek jen obchodem.
   - Kde: logika v `progression_system.gd` (get/add šupin, `roll_shop_offers(state, seed)`, `buy_card`), UI na výsledkové obrazovce (`battle_overlay_presenter`) a stav šupin v Balík a postup. Verifier `verify_shop.gd` jen na testovacím save.
 - [x] E4 Sbírka v1 kolem 60 karet: 59 (40 koček, 12 triků, 8 předmětů), 24. 10. Zbývá art (prompt `design/art_prompt_2026-10-24_e4.md`)
+- [x] UX audit stolu v3 (barva strany, světlo tahu, méně textu), 24. 10.
+- [ ] UX: vějíř ruky s vyjetím po najetí; pravý panel na vyžádání (viz `design/ux_audit_2026-10-24.md`)
 - [ ] Agresivní balíky levných koček jsou slabé (sim 5 % i proti startéru): posílit 1–2 drop kočky nebo dát agru nástroj
 - [x] E5 Hra ve dvou: každý má všechny karty (balík z celé sbírky); obchod a odemykání jen v tréninku
 - [x] E6 Sim balík proti balíku (hráčské balíky, ne NPC): hlídat, že žádná karta ani balík nedominuje. Nové karty po sadách 15–20, každá sada projde simulací

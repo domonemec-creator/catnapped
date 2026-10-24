@@ -14,6 +14,15 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-24 – UX audit stolu: kdo je kdo, méně textu
+- Proč: Mark chtěl stůl bez přeplácanosti, na kterém na první pohled pozná svoje a soupeřovo. Rozbor a srovnání s HS, Snap, LoR, Gwent a Inscryption je v `design/ux_audit_2026-10-24.md`.
+- Barva strany: soupeř karmínová, ty zlatá.
+  - pod kočkou září v barvě strany
+  - poloviny stolu jsou jemně tónované
+  - panely hrdinů mají barevný rámeček a štítky SOUPEŘ / TY
+- Kdo je na tahu: jeho panel svítí. Dřív zelený okraj u soupeřova portrétu znamenal „tvůj tah“, což mátlo.
+- Záznam „Předtím“ už neopakuje aktuální hlášku. Průvodce vpravo je zkrácený.
+
 ### 2026-10-24 – E4: 12 nových karet (47 → 59), text Pašeráka
 - Nové: Plavčík (1, 1/3), Přístavní ošetřovatelka (2, 2/2, PD: sousedé +1 život), Lovkyně racků (2, 2/2, Hostina), Mořská vlčice (3, 3/3, Rychlé tlapy), Sklepní číhal (3, 3/2, Přímý zásah: lízni), Sudový jezdec (4, 3/3, PD: Tulák), Lodní felčar (4, 3/4, BN: sousedé +2 životy), Starý kanonýr (5, 3/3, BN: 2 zranění naproti, sousedé +1 útok), Kapitánka Bouře (6, 4/5, BN: sousedé +1/+1, lízni; 1 kopie), trik Schovaná Tuna (1: +1 Tuna, lízni), předměty Šavle (4: +3 útok) a Kapitánský klobouk (3: +1 útok a Hostina). Jen hotové mechaniky, žádné léčení hráče (D-019). Proč: E4 sbírka ~60 karet, víc Triků a Předmětů, protizbraň na tanky.
 - Nové karty nejsou v automatickém odemykání: v tréninku je koupíš v obchodě, ve hře ve dvou je mají všichni (E3/E5).

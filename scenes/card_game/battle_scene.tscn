@@ -261,7 +261,7 @@ text = "Načítám..."
 [node name="BattleFeedTitle" type="Label" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox"]
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.95, 0.84, 0.62, 1)
-text = "Poslední akce"
+text = "Předtím"
 
 [node name="BattleFeed" type="RichTextLabel" parent="Margin/Layout/TopRow/BoardColumn/CombatInfoPanel/MarginContainer/InfoVBox"]
 custom_minimum_size = Vector2(0, 36)

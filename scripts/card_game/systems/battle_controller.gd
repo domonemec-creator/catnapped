@@ -597,9 +597,12 @@ func _sync_battle_feed() -> void:
 
 	_battle_feed_lines.append(status_text)
 	_log_match_line(status_text)
-	while _battle_feed_lines.size() > 4:
+	while _battle_feed_lines.size() > 5:
 		_battle_feed_lines.remove_at(0)
-	battle_feed_label.text = "\n".join(_battle_feed_lines)
+	# Nejnovější hláška už stojí nahoře ve stavu; záznam ukazuje jen to předtím.
+	var older := _battle_feed_lines.slice(0, _battle_feed_lines.size() - 1)
+	older.reverse()
+	battle_feed_label.text = "\n".join(older) if not older.is_empty() else "Zatím bez akce."
 
 
 # Nedohraný zápas (zavření okna, odchod do menu) se uloží taky, ať jde lidský test zpětně projít.
@@ -2377,11 +2380,11 @@ func _refresh_lane_highlights(player_state: PlayerBattleState, enemy_state: Play
 func _update_turn_indicator() -> void:
 	if enemy_portrait_frame == null:
 		return
-	# Layout v2: místo ozdobného rámu tenký okraj v barvě tahu (zlatá konec, zelená ty, červená soupeř).
-	var color := Color(0.85, 0.68, 0.36)
+	# UX audit 2026-10-24: barva patří straně (soupeř karmín, ty mosaz), tah ukazuje rozsvícený panel.
+	var active := -1
 	if _battle_state != null and not _battle_state.battle_over:
-		color = Color(0.45, 0.8, 0.45) if _battle_state.active_player_id == PLAYER_ID else Color(0.88, 0.36, 0.3)
-	BattleLayout.set_portrait_border(enemy_portrait_frame, color)
+		active = _battle_state.active_player_id
+	BattleLayout.set_turn_highlight(self, active == PLAYER_ID, active == ENEMY_ID)
 
 
 # Nadpis panelu stavu: číslo kola a kdo je na tahu (místo obecného „Stav tahu“).

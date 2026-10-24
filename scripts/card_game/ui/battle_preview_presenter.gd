@@ -180,16 +180,16 @@ Sleduj, co dělá. Až skončí, jsi zase na řadě ty.[/center]"
 	var step := 1
 	if playable > 0 and free_lanes > 0:
 		lines.append("[color=#8fe39a][b]%s. Vylož kočku[/b][/color]
-Přetáhni kartu z ruky na volné místo dole. Máš [b]%s Tuny[/b], cena je v modrém kolečku." % [step, player_state.tuna_current])
+Přetáhni kartu z ruky dolů. Máš [b]%s Tuny[/b] (cena v modrém kolečku)." % [step, player_state.tuna_current])
 		lines.append("")
 		step += 1
 	if ready_attackers > 0:
 		lines.append("[color=#f2b25c][b]%s. Zaútoč[/b][/color]
-Klikni na svou kočku (zelený rámeček = připravená) a pak na soupeřovu lajnu nad ní. Prázdná lajna = zásah přímo do soupeře. Pozor: napadená kočka vrací úder." % step)
+Klikni na kočku se zeleným rámečkem, pak na lajnu nad ní. Prázdná = zásah do soupeře, kočka vrací úder." % step)
 		lines.append("")
 		step += 1
 	if player_state.tuna_current >= 3 and not player_state.table_power_used_this_turn and not player_state.deck.is_empty() and player_state.table_power_id != StringName():
-		lines.append("[color=#9fc7f0][b]%s. Objednej rundu[/b][/color]\nZbývají ti Tuny? Za 3 si lízneš kartu (tlačítko vpravo dole, jednou za tah)." % step)
+		lines.append("[color=#9fc7f0][b]%s. Objednej rundu[/b][/color]\nZa 3 Tuny lízneš kartu (tlačítko dole, 1× za tah)." % step)
 		lines.append("")
 		step += 1
 	if step == 1:

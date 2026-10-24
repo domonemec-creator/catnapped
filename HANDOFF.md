@@ -51,6 +51,11 @@
 - Otevřené (balanc): při 30 životech tanky dominují (sim Stokový král 100 % i s 30kartovými balíky). Další páka: síla tanků (Ochrana / vysoké životy za nízkou cenu), ne velikost balíku.
 - Pozor: `net_smoke` a verifiery sdílejí testovací save – nepouštět je souběžně (falešné „soupeř se nepřipojil“).
 
+## 24. 10. – UX audit stolu (Claude Opus 5.5)
+- `design/ux_audit_2026-10-24.md` obsahuje rozbor, změny v3 a zbývající kroky (vějíř ruky, pravý panel na vyžádání, ruby soupeřovy ruky nahoře).
+- Kód: `battle_layout.gd` (`ENEMY_ACCENT`/`PLAYER_ACCENT`, `_side_panel`, `set_turn_highlight`, `_add_board_side_tint`), `lane_slot_view.gd` (`halo`), `battle_controller.gd` (`_update_turn_indicator`, záznam bez zdvojení).
+- Ověřeno: screenshoty `artifacts/ux/v3_*.png`. Na lidském testu se ověří, jestli je rozdíl vidět na první pohled.
+
 ## 24. 10. – E4 sbírka (Claude Opus 5.5)
 - Mark otestoval nový vzhled: hra zajímavější a hezčí, vzhled „ještě to není ono“ (bez konkrétní výtky, nespěchá). Pašerák mu přišel jako chyba (zranění šlo přes kočku) → jen přepsaný text.
 - E4 hotové v datech: 12 nových karet, 59 celkem, placeholder art, sim viz worklog 24. 10. Čeká na Marka: art podle `design/art_prompt_2026-10-24_e4.md` (mřížka 4×3, příkaz na řezání je v promptu).

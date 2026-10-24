@@ -153,6 +153,7 @@ const SIDE_THEMES := {
 		"ribbon_border": Color(0.78, 0.76, 0.4, 0.96),
 		"ribbon_text": Color(0.98, 0.98, 0.92, 1.0),
 		"glow": Color(0.54, 0.82, 0.36, 0.07),
+		"halo": Color(0.95, 0.72, 0.3, 0.5),
 	},
 	OWNER_ENEMY: {
 		"side_text": "SOUPEŘ",
@@ -172,6 +173,7 @@ const SIDE_THEMES := {
 		"ribbon_border": Color(0.82, 0.41, 0.34, 0.96),
 		"ribbon_text": Color(1.0, 0.95, 0.93, 1.0),
 		"glow": Color(0.78, 0.18, 0.16, 0.08),
+		"halo": Color(0.9, 0.16, 0.12, 0.6),
 	},
 }
 
@@ -734,7 +736,9 @@ func _style_token() -> void:
 		border = border.lerp(Color(0.95, 0.34, 0.3, 0.98), 0.7)
 	if _current_highlight_mode != HIGHLIGHT_NONE and not _should_show_target_ring():
 		border = HIGHLIGHT_BORDER_COLORS.get(_current_highlight_mode, border)
-	_token_panel.add_theme_stylebox_override("panel", _build_style_box(bg, border, 12, 2, 8, Color(0, 0, 0, 0.35)))
+	# Záře pod kartou podle strany (UX audit 2026-10-24): kdo je čí, poznáš i bez polohy.
+	var halo: Color = side_theme["halo"]
+	_token_panel.add_theme_stylebox_override("panel", _build_style_box(bg, border, 12, 2, 14, halo))
 
 
 func _refresh_status_badge() -> void:

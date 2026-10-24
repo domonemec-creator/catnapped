@@ -6,6 +6,9 @@ extends RefCounted
 
 const RAIL_WIDTH := 270.0
 const HERO_PORTRAIT_HEIGHT := 150.0
+# UX audit 2026-10-24: strany rozliší barva (soupeř karmínová, ty mosazná), ne jen poloha.
+const ENEMY_ACCENT := Color(0.86, 0.3, 0.26)
+const PLAYER_ACCENT := Color(0.92, 0.74, 0.36)
 
 
 # Vrátí kontejner, do kterého patří řada soupeřových karet (ruby).
@@ -33,7 +36,7 @@ static func apply(battle: Control) -> Container:
 	var enemy_box := VBoxContainer.new()
 	enemy_box.name = "EnemyHero"
 	enemy_box.add_theme_constant_override("separation", 4)
-	rail.add_child(enemy_box)
+	rail.add_child(_side_panel(enemy_box, ENEMY_ACCENT))
 	var portrait := enemy_header.get_node("EnemyPortrait") as Control
 	_move(portrait, enemy_box)
 	portrait.custom_minimum_size = Vector2(RAIL_WIDTH, HERO_PORTRAIT_HEIGHT)
@@ -41,7 +44,8 @@ static func apply(battle: Control) -> Container:
 	portrait_art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var frame := portrait.get_node("PortraitFrame") as TextureRect
 	frame.texture = null
-	set_portrait_border(frame, Color(0.85, 0.68, 0.36))
+	set_portrait_border(frame, ENEMY_ACCENT.darkened(0.3))
+	_add_side_tag(portrait, "SOUPEŘ", ENEMY_ACCENT)
 	var name_plate := enemy_header.get_node("EnemyNamePlate") as Control
 	_move(name_plate, enemy_box)
 	name_plate.custom_minimum_size = Vector2(RAIL_WIDTH, 40)
@@ -53,7 +57,7 @@ static func apply(battle: Control) -> Container:
 	title_font.variation_opentype = {2003265652: 700}  # wght
 	name_label.add_theme_font_override("font", title_font)
 	name_label.add_theme_font_size_override("font_size", 20)
-	name_label.add_theme_color_override("font_color", Color(0.98, 0.86, 0.6))
+	name_label.add_theme_color_override("font_color", Color(1.0, 0.78, 0.7))
 	var enemy_stats := enemy_header.get_node("EnemyStatsPanel") as Control
 	var enemy_row := HBoxContainer.new()
 	enemy_row.name = "EnemyStatsRow"
@@ -90,9 +94,12 @@ static func apply(battle: Control) -> Container:
 	var player_box := VBoxContainer.new()
 	player_box.name = "PlayerHero"
 	player_box.add_theme_constant_override("separation", 8)
-	rail.add_child(player_box)
+	rail.add_child(_side_panel(player_box, PLAYER_ACCENT))
+	var player_tag := _make_tag("TY", PLAYER_ACCENT)
+	player_tag.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	player_box.add_child(player_tag)
 	_move(player_stats, player_box)
-	player_stats.custom_minimum_size = Vector2(RAIL_WIDTH, 96)
+	player_stats.custom_minimum_size = Vector2(0, 96)
 	var piles := HBoxContainer.new()
 	piles.name = "Piles"
 	piles.add_theme_constant_override("separation", 8)
@@ -109,8 +116,104 @@ static func apply(battle: Control) -> Container:
 	hand_panel.size_flags_vertical = Control.SIZE_SHRINK_END
 	bottom_bar.visible = false
 
+	_add_board_side_tint(board_column.get_node("BoardPanel") as Control)
 	_apply_selected_panel(battle)
 	return hand_host
+
+
+# Panel strany: tmavé pozadí s tenkým barevným okrajem (soupeř nahoře, ty dole).
+static func _side_panel(content: Control, accent: Color) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.name = content.name + "Panel"
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(accent.r * 0.14, accent.g * 0.1, accent.b * 0.08, 0.82)
+	style.border_color = Color(accent, 0.75)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(10)
+	style.set_content_margin_all(4)
+	panel.add_theme_stylebox_override("panel", style)
+	panel.set_meta("accent", accent)
+	panel.add_child(content)
+	return panel
+
+
+# Kdo je na tahu: jeho panel svítí plnou barvou, druhý je ztlumený.
+static func set_turn_highlight(battle: Control, player_active: bool, enemy_active: bool) -> void:
+	var rail := battle.get_node_or_null("Margin/Layout/TopRow/HeroRail")
+	if rail == null:
+		return
+	var pairs := [[rail.get_node_or_null("EnemyHeroPanel"), enemy_active], [rail.get_node_or_null("PlayerHeroPanel"), player_active]]
+	for pair in pairs:
+		var panel := pair[0] as PanelContainer
+		if panel == null:
+			continue
+		var accent: Color = panel.get_meta("accent", PLAYER_ACCENT)
+		var style := (panel.get_theme_stylebox("panel") as StyleBoxFlat).duplicate() as StyleBoxFlat
+		var lit: bool = pair[1]
+		style.border_color = accent.lightened(0.15) if lit else Color(accent.darkened(0.35), 0.6)
+		style.set_border_width_all(3 if lit else 1)
+		style.shadow_color = Color(accent, 0.45) if lit else Color(0, 0, 0, 0)
+		style.shadow_size = 10 if lit else 0
+		panel.add_theme_stylebox_override("panel", style)
+	var portrait_frame := rail.get_node_or_null("EnemyHeroPanel/EnemyHero/EnemyPortrait/PortraitFrame") as TextureRect
+	if portrait_frame != null:
+		set_portrait_border(portrait_frame, ENEMY_ACCENT.lightened(0.1) if enemy_active else ENEMY_ACCENT.darkened(0.3))
+
+
+static func _make_tag(text: String, accent: Color) -> PanelContainer:
+	var tag := PanelContainer.new()
+	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(accent.r * 0.35, accent.g * 0.22, accent.b * 0.16, 0.95)
+	style.border_color = accent
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(6)
+	style.content_margin_left = 10
+	style.content_margin_right = 10
+	style.content_margin_top = 1
+	style.content_margin_bottom = 1
+	tag.add_theme_stylebox_override("panel", style)
+	var label := Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", 13)
+	label.add_theme_color_override("font_color", Color(1.0, 0.95, 0.88))
+	tag.add_child(label)
+	return tag
+
+
+# Štítek v levém horním rohu portrétu.
+static func _add_side_tag(host: Control, text: String, accent: Color) -> void:
+	var tag := _make_tag(text, accent)
+	tag.position = Vector2(8, 8)
+	host.add_child(tag)
+
+
+# Stůl: soupeřova polovina do karmínova, tvoje do teplé mosazi, střed neutrální.
+static func _add_board_side_tint(board_panel: Control) -> void:
+	if board_panel == null:
+		return
+	var gradient := Gradient.new()
+	gradient.offsets = PackedFloat32Array([0.0, 0.46, 0.54, 1.0])
+	gradient.colors = PackedColorArray([
+		Color(ENEMY_ACCENT, 0.2), Color(ENEMY_ACCENT, 0.0),
+		Color(PLAYER_ACCENT, 0.0), Color(PLAYER_ACCENT, 0.14),
+	])
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.fill_from = Vector2(0, 0)
+	texture.fill_to = Vector2(0, 1)
+	texture.width = 4
+	texture.height = 256
+	var tint := TextureRect.new()
+	tint.name = "SideTint"
+	tint.texture = texture
+	tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tint.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tint.stretch_mode = TextureRect.STRETCH_SCALE
+	board_panel.add_child(tint)
+	# Hned za malovaný rám, pod lajny.
+	var frame_art := board_panel.get_node_or_null("FrameArt")
+	board_panel.move_child(tint, frame_art.get_index() + 1 if frame_art != null else 0)
 
 
 # Malovaná ikona hromádky (UI arch) vlevo od počtu karet.
