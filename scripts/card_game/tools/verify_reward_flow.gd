@@ -122,6 +122,27 @@ func _run() -> void:
         _fail("Persistent run deck and battle runtime deck do not match.")
         return
 
+    # D-030: soupeř má balík aspoň tak dlouhý jako hráč (jinak by dřív vyhladověl).
+    var next_enemy_state = next_battle._battle_state.get_player_state(next_battle.ENEMY_ID)
+    var enemy_zone_total: int = next_enemy_state.deck.size() + next_enemy_state.hand.size() + next_enemy_state.discard.size()
+    if enemy_zone_total < runtime_zone_total:
+        _fail("Enemy deck (%s) is shorter than the player's (%s)." % [enemy_zone_total, runtime_zone_total])
+        return
+
+    # D-030: plný balík nedostane „Přidat“, jen výměnu, a velikost se nezmění.
+    var full_deck: Array[StringName] = []
+    for i in range(30):
+        full_deck.append(run_session.get_player_deck_card_ids()[i % starting_deck_size])
+    run_session.set_player_deck_card_ids(full_deck)
+    for offer in run_session.build_reward_offers(next_battle._card_library):
+        if str(offer.get("kind", "")) == "add":
+            _fail("Full deck still got an add reward.")
+            return
+        run_session.apply_reward_offer(offer)
+        if run_session.get_player_deck_card_ids().size() > 30:
+            _fail("Reward grew the deck past 30.")
+            return
+
     _progression_system.reset_state()
     run_session.end_run()
     print("Reward flow verification passed.")

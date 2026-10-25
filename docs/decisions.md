@@ -226,3 +226,10 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Proč ne bez limitu: neomezený balík by nikdo nehrál (ředí nejlepší karty), jen by mátl. Proč 3 kopie: se 4 jsou balíky monotónní; páka proti bombám je navíc 1× u jedinečných karet.
 - Sim (`pad`): první na tahu 49,2 % (20 karet 54,4 %), zápas ~46 půltahů.
 
+
+### D-030 - Balík výpravy: strop 30 a soupeř stejně dlouhý
+- Datum: 2026-10-25
+- Stav: aktivni
+- Kontext: Mark vyhrával, protože soupeři došly karty. Odměny se ukládají natrvalo a balík neměl strop (Markův save 36 karet proti 20 u soupeře), takže Hlad (D-017) trestal jen soupeře.
+- Rozhodnutí: (1) Soupeř v tréninku a výpravě zopakuje svůj balík do délky hráčova balíku (`_assign_deck_to_player`, `min_deck_size`). (2) Při 30 kartách se odměna „Přidat“ mění na „Vyměnit: nejslabší → nová“ (`run_session._swap_add_offers_at_cap`).
+- Proč ne oříznout save: hráč by přišel o získané karty; přerostlý balík se zmenší přes „Odebrat“ a sám tím ředí své nejlepší karty.

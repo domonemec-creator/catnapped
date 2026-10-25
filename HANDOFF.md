@@ -1,5 +1,9 @@
 # HANDOFF.md (2026-10-22 večer, Claude Opus 5.5 – hlavní jednatel projektu)
 
+
+## 2026-10-25 (Claude Opus 5.5)
+- D-030: soupeř má balík stejně dlouhý jako hráč, odměny při 30 kartách jen vyměňují. Mark hlásil výhry, protože soupeřům došly karty (jeho save 36 karet). 25/25 PASS, pushnuto.
+- Neověřeno: lidský pocit, jestli jsou zápasy s dlouhým balíkem teď moc dlouhé.
 ## Stav
 - 25/25 verifierů PASS 2026-10-22 ~20:50 (D-029).
 - Pracovní větev `lead/plan-2026-10` = `main`, pushnuto na GitHub (domonemec-creator/catnapped) 2026-10-22.

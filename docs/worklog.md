@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-25 - Soupeřům docházely karty (D-030)
+- Oblast: výprava/trénink, balanc
+- Soubory: `battle_controller.gd` (`_assign_deck_to_player` min_deck_size), `run_session.gd` (`_swap_add_offers_at_cap`), `verify_reward_flow.gd`
+- Zmena: soupeř zopakuje balík do délky hráčova; při 30 kartách je odměna „Přidat“ výměna. Příčina: Markův save měl 36 karet proti 20 a Hlad trestal jen soupeře.
+- Overeni: 25/25 verifierů, nový test v `verify_reward_flow.gd` (délka soupeře, žádné „Přidat“ při 30).
+
 ### 2026-10-24 – vějíř ruky, zelená jen pro tvůj tah, celá jména v náhledu
 - Ruka jako vějíř větších karet, které po najetí vyjedou nahoru. Překrývají se jen při plné ruce, aby nezakrývaly životy. Nadpis „Ruka N“ a rámeček ruky jsou pryč.
 - Zelený odznak „připravená“ jen na tvých kočkách v tvém tahu. Dřív svítil i v tahu soupeře a u soupeřových koček.

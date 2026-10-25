@@ -291,7 +291,28 @@ func _build_reward_offers(card_library: Dictionary) -> Array[Dictionary]:
             "label": "Přidat: %s" % _get_card_display_name(card_library, fallback_offer_card_id),
         })
 
+    if _player_deck_card_ids.size() >= ProgressionSystem.DECK_MAX_SIZE:
+        offers = _swap_add_offers_at_cap(offers, card_library, remove_card_id)
     return offers
+
+
+# Plný balík (D-030): „Přidat“ se mění na výměnu za nejslabší kartu, aby balík nerostl donekonečna.
+func _swap_add_offers_at_cap(offers: Array[Dictionary], card_library: Dictionary, weakest_card_id: StringName) -> Array[Dictionary]:
+    var result: Array[Dictionary] = []
+    for offer in offers:
+        if str(offer.get("kind", "")) != "add":
+            result.append(offer)
+            continue
+        if weakest_card_id == StringName():
+            continue
+        var card_id := StringName(offer.get("card_id", StringName()))
+        result.append({
+            "kind": "upgrade",
+            "from_card_id": weakest_card_id,
+            "to_card_id": card_id,
+            "label": "Vyměnit: %s → %s" % [_get_card_display_name(card_library, weakest_card_id), _get_card_display_name(card_library, card_id)],
+        })
+    return result
 
 
 func _pick_add_reward_card_id(card_library: Dictionary, excluded_card_ids: Array[StringName] = []) -> StringName:

@@ -1158,7 +1158,7 @@ func _setup_battle() -> void:
 	enemy_state.initialize(ENEMY_ID, enemy_name, enemy_life, STARTING_TUNA, enemy_power_id, LANE_COUNT)
 
 	_next_instance_id = _assign_deck_to_player(player_state, PLAYER_DECK_ID, _next_instance_id)
-	_next_instance_id = _assign_deck_to_player(enemy_state, enemy_deck_id, _next_instance_id)
+	_next_instance_id = _assign_deck_to_player(enemy_state, enemy_deck_id, _next_instance_id, player_state.deck.size())
 
 	_battle_state.player_states = [player_state, enemy_state]
 	if _net != null and not _net.host_goes_first():
@@ -1198,7 +1198,7 @@ func get_max_tuna() -> int:
 	return NET_MAX_TUNA if _is_pvp() else MAX_TUNA
 
 
-func _assign_deck_to_player(player_state: PlayerBattleState, deck_id: StringName, next_instance_id: int) -> int:
+func _assign_deck_to_player(player_state: PlayerBattleState, deck_id: StringName, next_instance_id: int, min_deck_size: int = 0) -> int:
 	var deck_definition: DeckDefinition = _deck_library.get(deck_id)
 	if deck_definition == null:
 		push_warning("Missing deck %s." % deck_id)
@@ -1210,6 +1210,10 @@ func _assign_deck_to_player(player_state: PlayerBattleState, deck_id: StringName
 	elif player_state.player_id == ENEMY_ID:
 		# Hrozba včetně bonusu runu (D-021) / tréninku (D-022).
 		var threat_deck_cards := _progression_system.build_enemy_deck_card_ids(deck_definition, _get_current_threat())
+		# Balík hráče roste odměnami; soupeř ho zopakuje do stejné délky, jinak by dřív vyhladověl (D-017, D-030).
+		var base_cards := threat_deck_cards.duplicate()
+		while not base_cards.is_empty() and threat_deck_cards.size() < min_deck_size:
+			threat_deck_cards.append(base_cards[threat_deck_cards.size() % base_cards.size()])
 		result = _deck_system.build_runtime_deck_from_card_ids(threat_deck_cards, _card_library, player_state.player_id, next_instance_id)
 	else:
 		var run_session = _get_run_session()
