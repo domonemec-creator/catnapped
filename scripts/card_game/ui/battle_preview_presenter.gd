@@ -502,16 +502,14 @@ func describe_attack_preview(attacker, defender_state, lane_index: int) -> Strin
 	if target_slot != null and target_slot.occupant != null:
 		var target_card = target_slot.occupant
 		var remaining_life := maxi(0, target_card.current_life - attacker.current_attack)
-		if remaining_life <= 0:
-			return "%s padne." % target_card.definition.display_name
-		return "%s zbyde %s ŽIV." % [target_card.definition.display_name, remaining_life]
+		var outcome := "%s padne." % target_card.definition.display_name if remaining_life <= 0 else "%s zbyde %s ŽIV." % [target_card.definition.display_name, remaining_life]
+		return outcome + _retaliation_sentence(attacker, target_card, remaining_life)
 
 	var guard_target = _battle_rules.find_guard_for_direct_damage(defender_state, lane_index)
 	if guard_target != null:
 		var guard_life := maxi(0, guard_target.current_life - attacker.current_attack)
-		if guard_life <= 0:
-			return "%s zachytí zásah a padne." % guard_target.definition.display_name
-		return "%s zachytí zásah, zbyde %s ŽIV." % [guard_target.definition.display_name, guard_life]
+		var guard_outcome := "%s zachytí zásah a padne." % guard_target.definition.display_name if guard_life <= 0 else "%s zachytí zásah, zbyde %s ŽIV." % [guard_target.definition.display_name, guard_life]
+		return guard_outcome + _retaliation_sentence(attacker, guard_target, guard_life)
 
 	return "přímý zásah za %s." % attacker.current_attack
 
@@ -528,20 +526,46 @@ func build_attack_preview_banner(attacker, defender_state, lane_index: int) -> D
 	if target_slot != null and target_slot.occupant != null:
 		var target_card = target_slot.occupant
 		var remaining_life := maxi(0, target_card.current_life - attacker.current_attack)
-		preview["text"] = "KO" if remaining_life <= 0 else "ZBYDE %s" % remaining_life
+		preview["text"] = ("KO" if remaining_life <= 0 else "ZBYDE %s" % remaining_life) + _retaliation_suffix(attacker, target_card, remaining_life)
 		preview["tone"] = LaneSlotView.EVENT_KO if remaining_life <= 0 else LaneSlotView.EVENT_DAMAGE
 		return preview
 
 	var guard_target = _battle_rules.find_guard_for_direct_damage(defender_state, lane_index)
 	if guard_target != null:
 		var guard_life := maxi(0, guard_target.current_life - attacker.current_attack)
-		preview["text"] = "OCHRANA KO" if guard_life <= 0 else "OCHRANA %s" % guard_life
+		preview["text"] = ("OCHRANA KO" if guard_life <= 0 else "OCHRANA %s" % guard_life) + _retaliation_suffix(attacker, guard_target, guard_life)
 		preview["tone"] = LaneSlotView.EVENT_BLOCK
 		return preview
 
 	preview["text"] = "PŘÍMO %s" % attacker.current_attack
 	preview["tone"] = LaneSlotView.EVENT_DIRECT
 	return preview
+
+
+func _retaliation_sentence(attacker, defender_card, defender_life_after: int) -> String:
+	var suffix := _retaliation_suffix(attacker, defender_card, defender_life_after)
+	if suffix.is_empty():
+		return ""
+	var strike: int = defender_card.current_attack
+	if attacker.current_life - strike <= 0:
+		return " Odveta %s: tvá kočka padne." % strike
+	return " Odveta: tvá kočka dostane %s." % strike
+
+
+# Odveta (D-014): Mark nechápal, proč jeho kočka dostala -4. Náhled ji ukáže předem.
+func _retaliation_suffix(attacker, defender_card, defender_life_after: int) -> String:
+	if not CardGameConstants.combat_retaliation or defender_card == null:
+		return ""
+	if CardGameConstants.attacker_first_strike and defender_life_after <= 0:
+		return ""
+	var strike: int = defender_card.current_attack
+	if strike <= 0:
+		return ""
+	if attacker.current_life - strike <= 0:
+		return "
+ODVETA -%s · TVÁ PADNE" % strike
+	return "
+ODVETA -%s" % strike
 
 
 func build_enemy_lethal_warning(player_state, enemy_state) -> String:

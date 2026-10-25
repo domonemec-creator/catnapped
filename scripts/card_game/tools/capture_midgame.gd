@@ -77,6 +77,13 @@ func _capture() -> void:
 	battle._refresh_ui()
 	if not await _save(output_path.get_basename() + "_hover.png"):
 		return
+
+	# Čtvrtý snímek: vybraný útočník, náhled výsledku a odvety na soupeřových lajnách.
+	battle._clear_selection_state()
+	battle._selected_attacker = player_state.board[0].occupant
+	battle._refresh_ui()
+	if not await _save(output_path.get_basename() + "_attack.png"):
+		return
 	quit()
 
 

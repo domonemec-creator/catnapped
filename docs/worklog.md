@@ -14,6 +14,12 @@ Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
 ## Zaznamy
 
+### 2026-10-25 - Náhled odvety při míření útokem
+- Oblast: UI souboje
+- Soubory: `battle_preview_presenter.gd` (`_retaliation_suffix`, `_retaliation_sentence`), `lane_slot_view.gd` (`_should_hide_preview_banner`), `verify_battle_previews.gd`, `capture_midgame.gd` (snímek `_attack`)
+- Zmena: cíl útoku ukazuje přímo na kartě „ZBYDE N / KO“ a „ODVETA -X (· TVÁ PADNE)“, průvodce vpravo totéž větou. Mark nechápal, proč jeho kočka dostala -4 (odveta podle útoku obránce, D-014). Dřív se náhled nad obsazeným slotem schovával.
+- Overeni: 25/25 verifierů, screenshot `artifacts/ux/v5_mid_attack.png`.
+
 ### 2026-10-25 - Soupeřům docházely karty (D-030)
 - Oblast: výprava/trénink, balanc
 - Soubory: `battle_controller.gd` (`_assign_deck_to_player` min_deck_size), `run_session.gd` (`_swap_add_offers_at_cap`), `verify_reward_flow.gd`

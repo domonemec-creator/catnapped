@@ -864,7 +864,10 @@ func _should_show_target_ring() -> bool:
 	return _current_highlight_mode != HIGHLIGHT_NONE and (_card_instance == null or _card_instance.definition == null)
 
 
+# Nad obsazeným slotem se náhled schovává (zakrýval kartu); výjimka je cíl útoku: výsledek a odveta (D-014).
 func _should_hide_preview_banner() -> bool:
+	if _current_highlight_mode == HIGHLIGHT_ATTACK:
+		return false
 	return not _preview_event_text.is_empty() and _card_instance != null and _card_instance.definition != null
 
 

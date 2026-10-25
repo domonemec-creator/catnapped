@@ -77,8 +77,9 @@ func _run() -> void:
 	if battle.selected_card_hint.text.find("zbyde 1") < 0:
 		_fail("Attack preview did not show the remaining HP result.")
 		return
-	if battle._enemy_lanes[1].event_panel.visible:
-		_fail("Occupied attack target should keep the preview in the right panel, not paint another banner over the card.")
+	# Cíl útoku ukazuje výsledek i odvetu přímo na kartě (D-014, Mark nechápal -4 od odvety).
+	if not battle._enemy_lanes[1].event_panel.visible or battle._enemy_lanes[1].event_label.text.find("ODVETA") < 0:
+		_fail("Occupied attack target should show the result and retaliation on the card.")
 		return
 
 	_reset_battle_state(battle, player_state, enemy_state)

@@ -3,6 +3,7 @@
 
 ## 2026-10-25 (Claude Opus 5.5)
 - D-030: soupeř má balík stejně dlouhý jako hráč, odměny při 30 kartách jen vyměňují. Mark hlásil výhry, protože soupeřům došly karty (jeho save 36 karet). 25/25 PASS, pushnuto.
+- Náhled odvety při míření útokem (karta cíle + průvodce). Mark: UX v4 „vypadá to lépe“, výprava skoro vyhraná (prohra se Stokovým králem, ještě před D-030).
 - Neověřeno: lidský pocit, jestli jsou zápasy s dlouhým balíkem teď moc dlouhé.
 ## Stav
 - 25/25 verifierů PASS 2026-10-22 ~20:50 (D-029).
