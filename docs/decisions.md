@@ -233,3 +233,11 @@ Zapisuj sem jen veci, ktere by se pri dalsi praci nemely potichu rozbit nebo oto
 - Kontext: Mark vyhrával, protože soupeři došly karty. Odměny se ukládají natrvalo a balík neměl strop (Markův save 36 karet proti 20 u soupeře), takže Hlad (D-017) trestal jen soupeře.
 - Rozhodnutí: (1) Soupeř v tréninku a výpravě zopakuje svůj balík do délky hráčova balíku (`_assign_deck_to_player`, `min_deck_size`). (2) Při 30 kartách se odměna „Přidat“ mění na „Vyměnit: nejslabší → nová“ (`run_session._swap_add_offers_at_cap`).
 - Proč ne oříznout save: hráč by přišel o získané karty; přerostlý balík se zmenší přes „Odebrat“ a sám tím ředí své nejlepší karty.
+
+### D-031 - Plíživost: nástroj pro agro
+- Datum: 2026-10-27
+- Stav: aktivni
+- Kontext: Agresivní balík levných koček prohrával i se startérem. Sim s 30kartovými balíky (`sim_deck_vs_deck.gd -- 20 pad`) dal 5–20 %. Stůl má jen 3 lajny, takže agro nemůže jít do šířky. Levné kočky narazí na větší kočky s odvetou a 30 životů ve hře ve dvou (D-028) nepřelámou.
+- Rozhodnutí: nové klíčové slovo **Plíživost** (`sneak`): kočka přeskočí kočku naproti bez Ochrany a zraní přímo soupeře, takže neschytá ani odvetu. Ochranu (i sousední, D-019) přeskočit nemůže. Mají ho Svíčkotlapý zvěd (1/2 za 1, místo Rychlých tlap), Rybářka s návnadou (2/1 za 2) a Sklepní číhal (3/2 za 3, přímý zásah = líznutí). Pravidlo je v `BattleRules.get_lane_defender`, používá ho souboj, AI i náhled.
+- Proč ne „Průraz“ (přebytek zranění jde soupeři): levné kočky málokdy zabijí, takže by průraz skoro nepůsobil. Proč ne méně životů: 30 životů chtěl Mark (D-028).
+- Sim (agro balík, 30 karet, 20 her na pořadí): startér 12,5 → 42,5 %, Přístavní strážkyně 5 → 45 %, Stokový král 10 → 60 %, Lucernová útočnice 20 → 35 %. Ochrana je teď odpověď na agro (kámen-nůžky-papír). Žebříček tréninku v šumu (64/20/1/34/14/0 → 66/15/8/14/13/0).

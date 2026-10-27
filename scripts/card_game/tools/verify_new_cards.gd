@@ -243,6 +243,26 @@ func _run() -> void:
 		_fail("Harbor Courier should deal 1 to the enemy and draw 1.")
 		return
 
+	# Plíživost (D-031): přeskočí kočku naproti bez odvety, Ochrana ji zastaví.
+	_reset(battle, player_state, enemy_state)
+	var scout = battle._create_card_instance(&"candlepaw_scout", battle.PLAYER_ID)
+	_place(player_state, scout, 0)
+	var wall = battle._create_card_instance(&"alley_scrapper", battle.ENEMY_ID)
+	_place(enemy_state, wall, 0)
+	battle._perform_attack(player_state, enemy_state, scout, 0)
+	if enemy_state.life != 19 or wall.current_life != wall.definition.life or scout.current_life != scout.definition.life:
+		_fail("Sneak should skip the cat opposite and hit the enemy without retaliation (life %s)." % enemy_state.life)
+		return
+	_reset(battle, player_state, enemy_state)
+	scout = battle._create_card_instance(&"candlepaw_scout", battle.PLAYER_ID)
+	_place(player_state, scout, 0)
+	var guard = battle._create_card_instance(&"tavern_mouser", battle.ENEMY_ID)
+	_place(enemy_state, guard, 1)
+	battle._perform_attack(player_state, enemy_state, scout, 0)
+	if enemy_state.life != 20 or guard.current_life != guard.definition.life - 1:
+		_fail("Guard (adjacent) should stop a sneaking cat.")
+		return
+
 	if not _failed:
 		print("New cards verification passed.")
 		quit()

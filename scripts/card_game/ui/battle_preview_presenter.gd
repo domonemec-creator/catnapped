@@ -498,9 +498,8 @@ func describe_attack_preview(attacker, defender_state, lane_index: int) -> Strin
 	if attacker == null or defender_state == null:
 		return "bez cíle"
 
-	var target_slot = defender_state.board[lane_index]
-	if target_slot != null and target_slot.occupant != null:
-		var target_card = target_slot.occupant
+	var target_card = _battle_rules.get_lane_defender(attacker, defender_state, lane_index)
+	if target_card != null:
 		var remaining_life := maxi(0, target_card.current_life - attacker.current_attack)
 		var outcome := "%s padne." % target_card.definition.display_name if remaining_life <= 0 else "%s zbyde %s ŽIV." % [target_card.definition.display_name, remaining_life]
 		return outcome + _retaliation_sentence(attacker, target_card, remaining_life)
@@ -522,9 +521,8 @@ func build_attack_preview_banner(attacker, defender_state, lane_index: int) -> D
 	if attacker == null or defender_state == null:
 		return preview
 
-	var target_slot = defender_state.board[lane_index]
-	if target_slot != null and target_slot.occupant != null:
-		var target_card = target_slot.occupant
+	var target_card = _battle_rules.get_lane_defender(attacker, defender_state, lane_index)
+	if target_card != null:
 		var remaining_life := maxi(0, target_card.current_life - attacker.current_attack)
 		preview["text"] = ("KO" if remaining_life <= 0 else "ZBYDE %s" % remaining_life) + _retaliation_suffix(attacker, target_card, remaining_life)
 		preview["tone"] = LaneSlotView.EVENT_KO if remaining_life <= 0 else LaneSlotView.EVENT_DAMAGE

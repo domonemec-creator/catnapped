@@ -65,7 +65,7 @@
 - [x] UX audit stolu v3 (barva strany, světlo tahu, méně textu), 24. 10.
 - [x] UX: vějíř ruky s vyjetím po najetí (v4, 24. 10.)
 - [ ] UX: pravý panel na vyžádání (viz `design/ux_audit_2026-10-24.md`)
-- [ ] Agresivní balíky levných koček jsou slabé (sim 5 % i proti startéru): posílit 1–2 drop kočky nebo dát agru nástroj
+- [x] Agresivní balíky levných koček jsou slabé → Plíživost (D-031, 27. 10.): agro 35–60 %
 - [x] E5 Hra ve dvou: každý má všechny karty (balík z celé sbírky); obchod a odemykání jen v tréninku
 - [x] E6 Sim balík proti balíku (hráčské balíky, ne NPC): hlídat, že žádná karta ani balík nedominuje. Nové karty po sadách 15–20, každá sada projde simulací
 

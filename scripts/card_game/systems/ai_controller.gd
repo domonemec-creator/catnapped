@@ -615,11 +615,11 @@ func _score_attack_option_for_lane(attacker: CardInstance, lane_index: int, defe
 
 
 func _score_attack_option_for_lane_with_attack(attacker: CardInstance, lane_index: int, attack_value: int, defender_state: PlayerBattleState, rules: BattleRules) -> float:
-    var slot = defender_state.board[lane_index]
-    if slot != null and slot.occupant != null:
+    var lane_defender: CardInstance = rules.get_lane_defender(attacker, defender_state, lane_index)
+    if lane_defender != null:
         if CardGameConstants.combat_retaliation:
-            return _score_trade(attacker, attack_value, slot.occupant)
-        return _score_target_card_with_attack(attack_value, slot.occupant)
+            return _score_trade(attacker, attack_value, lane_defender)
+        return _score_target_card_with_attack(attack_value, lane_defender)
 
     var guard_target: CardInstance = rules.find_guard_for_direct_damage(defender_state, lane_index)
     if guard_target != null:

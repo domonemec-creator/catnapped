@@ -3,6 +3,13 @@
 Ucel: kratke vecne zaznamy o vyznamnych zmenach, overeni a dalsim kroku.
 Zapisuj jen zmeny, ktere ovlivni dalsi praci. Nezapisuj kosmeticky sum.
 
+
+## 2026-10-27 – Plíživost: agro dostalo nástroj (D-031)
+- Nové klíčové slovo Plíživost: kočka přeskočí kočku naproti bez Ochrany a útočí přímo na soupeře, bez odvety. Ochrana ji zastaví. Proč: agro balíky levných koček vyhrávaly jen 5–20 % (3 lajny, odveta, 30 životů).
+- Karty: Svíčkotlapý zvěd (Rychlé tlapy → Plíživost), Rybářka s návnadou a Sklepní číhal (+Plíživost). Ikona `icons/sneak.svg` je vlastní kresba.
+- Kód: `BattleRules.get_lane_defender` (jeden zdroj pravdy pro souboj, AI i náhled „PŘÍMO X“), záznam „Plíživost: X přeskočí Y“. Test v `verify_new_cards.gd`.
+- Sim: agro 35–60 % proti všem (dřív 5–20 %), viz D-031.
+
 ## Sablona zaznamu
 
 ### YYYY-MM-DD - Kratky nazev

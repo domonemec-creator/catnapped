@@ -17,7 +17,7 @@ const DEFAULT_ADDRESS := "127.0.0.1"
 const MAX_CLIENTS := 1
 const BATTLE_SCENE_PATH := "res://scenes/card_game/battle_scene.tscn"
 # Zvyš při každé změně RPC nebo formátu snímku: různé verze hry spolu nehrají.
-const PROTOCOL_VERSION := 6  # 3: Bojový nástup do prázdné lajny zraní soupeře, 4: Hostina nejvýš 3×, 5: hra ve dvou 30 životů / 10 Tun, 6: balík ve dvou přesně 30 karet, max 3 kopie
+const PROTOCOL_VERSION := 7  # 3: Bojový nástup do prázdné lajny zraní soupeře, 4: Hostina nejvýš 3×, 5: hra ve dvou 30 životů / 10 Tun, 6: balík ve dvou přesně 30 karet, max 3 kopie, 7: Plíživost (D-031)
 
 var session_mode: StringName = &"singleplayer"
 var current_address: String = DEFAULT_ADDRESS

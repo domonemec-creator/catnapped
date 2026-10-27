@@ -148,6 +148,17 @@ func get_valid_attack_lanes(attacker: CardInstance, defender_state: PlayerBattle
     return valid_lanes
 
 
+# Kočka, která útok v lajně schytá jako první; null = útok jde dál (Ochrana, jinak soupeř).
+# Plíživost (D-031) přeskočí kočku bez Ochrany.
+func get_lane_defender(attacker: CardInstance, defender_state: PlayerBattleState, lane_index: int) -> CardInstance:
+    var slot: LaneSlotState = defender_state.board[lane_index]
+    if slot == null or slot.occupant == null:
+        return null
+    if attacker != null and attacker.has_keyword(CardGameConstants.KEYWORD_SNEAK) and not slot.occupant.has_keyword(CardGameConstants.KEYWORD_GUARD):
+        return null
+    return slot.occupant
+
+
 func find_guard_for_direct_damage(defender_state: PlayerBattleState, lane_index: int) -> CardInstance:
     var candidate_indexes := [lane_index]
     # D-019: Ochrana může krýt i sousední lajny (přepínač kvůli A/B simulaci).

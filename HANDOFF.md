@@ -1,6 +1,13 @@
 # HANDOFF.md (2026-10-22 večer, Claude Opus 5.5 – hlavní jednatel projektu)
 
 
+## 2026-10-27 (Claude Opus 5.5)
+- Hotovo: D-031 Plíživost (agro nástroj). Klíčové slovo `sneak`, 3 karty, ikona, `BattleRules.get_lane_defender` pro souboj/AI/náhled, test ve `verify_new_cards.gd`, `PROTOCOL_VERSION` 7.
+- Ověřeno: 25/25 verifierů, sim agro balík 35–60 % (dřív 5–20 %), žebříček tréninku v šumu, screenshot `artifacts/ux/v6_sneak_hover.png` (štítek na kartě).
+- Pozor: verifiery a simulace nepouštět souběžně, sdílejí testovací save (falešné FAIL).
+- Neověřeno: lidský test, zda je Plíživost čitelná; AI zatím plíživé kočky nevykládá cíleně proti lajnám bez Ochrany.
+- Další krok: Mark otestuje build, pak pravý panel na vyžádání (PLAN), E3.
+
 ## 2026-10-25 (Claude Opus 5.5)
 - D-030: soupeř má balík stejně dlouhý jako hráč, odměny při 30 kartách jen vyměňují. Mark hlásil výhry, protože soupeřům došly karty (jeho save 36 karet). 25/25 PASS, pushnuto.
 - Náhled odvety při míření útokem (karta cíle + průvodce). Mark: UX v4 „vypadá to lépe“, výprava skoro vyhraná (prohra se Stokovým králem, ještě před D-030).

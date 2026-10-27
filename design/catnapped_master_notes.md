@@ -272,6 +272,7 @@ Na konci tahu:
 
 - kočka útočí standardně do protější lane
 - `Pounce` dovolí útok i do sousední lane
+- `Plíživost` (sneak, D-031) přeskočí kočku naproti bez Ochrany a zraní přímo soupeře (bez odvety); Ochrana ji zastaví
 - když je cílová lane prázdná, jde direct damage do `Life`
 - pokud direct damage může interceptnout `Guard`, zásah vezme guard
 - direct damage teď dává **plný Attack unitky**, ne jen `1`
@@ -301,6 +302,7 @@ Význam:
 - `Quick Paws`: může útočit hned v tahu, kdy přišla
 - `Guard`: interceptuje direct damage v lane a sousedních lanes
 - `Pounce`: může útočit do opposite nebo adjacent lane
+- `Plíživost`: útočí přímo na soupeře přes kočku bez Ochrany (D-031)
 - `Feast` (Hostina): když umře **jakákoliv jiná kočka** (vlastní i nepřátelská), tahle získá +1/+1 **napevno**. Roste během boje; netrigguje se na vlastní smrt. Implementace: `_trigger_feast_for_death()` v `battle_controller.gd` při každé smrti.
 
 ---

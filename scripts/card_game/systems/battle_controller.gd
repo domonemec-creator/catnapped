@@ -1413,22 +1413,23 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 	_clear_lane_feedback()
 	attacker.has_attacked = true
 	_set_lane_feedback(attacker.owner_id, attacker.lane_index, "ÚTOK %s" % attacker.current_attack, LaneSlotView.EVENT_ACTION)
-	var target_slot: LaneSlotState = defender_state.board[target_lane]
+	var skipped_cat: CardInstance = defender_state.board[target_lane].occupant
 	var summary := ""
 	_play_sfx(&"attack")
 	_queue_lane_fx(attacker.owner_id, attacker.lane_index, &"fx_attack")
 
 	var defender_card: CardInstance = null
-	if target_slot.occupant != null:
-		defender_card = target_slot.occupant
-		_adjust_card_life(target_slot.occupant, -attacker.current_attack)
+	var lane_defender: CardInstance = _battle_rules.get_lane_defender(attacker, defender_state, target_lane)
+	if lane_defender != null:
+		defender_card = lane_defender
+		_adjust_card_life(lane_defender, -attacker.current_attack)
 		_queue_lane_fx(defender_state.player_id, target_lane, &"fx_hit", [attacker.current_attack])
-		_play_sfx(&"ko" if target_slot.occupant.current_life <= 0 else &"hit")
+		_play_sfx(&"ko" if lane_defender.current_life <= 0 else &"hit")
 		_set_lane_feedback(defender_state.player_id, target_lane, "-%s ŽIV" % attacker.current_attack, LaneSlotView.EVENT_DAMAGE)
-		if target_slot.occupant.current_life <= 0:
-			summary = "%s zasáhne %s za %s zranění a vyřadí ji." % [attacker.definition.display_name, target_slot.occupant.definition.display_name, attacker.current_attack]
+		if lane_defender.current_life <= 0:
+			summary = "%s zasáhne %s za %s zranění a vyřadí ji." % [attacker.definition.display_name, lane_defender.definition.display_name, attacker.current_attack]
 		else:
-			summary = "%s zasáhne %s za %s zranění. Zbývá %s životů." % [attacker.definition.display_name, target_slot.occupant.definition.display_name, attacker.current_attack, target_slot.occupant.current_life]
+			summary = "%s zasáhne %s za %s zranění. Zbývá %s životů." % [attacker.definition.display_name, lane_defender.definition.display_name, attacker.current_attack, lane_defender.current_life]
 	else:
 		var guard_target: CardInstance = _battle_rules.find_guard_for_direct_damage(defender_state, target_lane)
 		if guard_target != null:
@@ -1448,6 +1449,8 @@ func _perform_attack(attacker_owner_state: PlayerBattleState, defender_state: Pl
 			_play_sfx(&"direct_hit")
 			_set_lane_feedback(defender_state.player_id, target_lane, "PŘÍMO %s" % attacker.current_attack, LaneSlotView.EVENT_DIRECT)
 			summary = "%s udělí %s přímého zranění. %s %s životů." % [attacker.definition.display_name, attacker.current_attack, "Tobě zbývá" if defender_state.player_id == PLAYER_ID else "Soupeři zbývá", defender_state.life]
+			if skipped_cat != null:
+				summary = "Plíživost: %s přeskočí %s. %s" % [attacker.definition.display_name, skipped_cat.definition.display_name, summary]
 			_resolve_triggered_effects(attacker, attacker_owner_state, CardGameConstants.TRIGGER_ON_DIRECT_DAMAGE)
 
 	# Odveta: bránící kočka (i když sama padne) vrátí útočníkovi úder svým útokem.
